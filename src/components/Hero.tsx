@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 
 export const Hero = ({ setView }: { setView: (v: string) => void }) => (
   <section className="pt-20 pb-16 px-6 overflow-hidden relative">
-    <div className="absolute inset-0 bg-gradient-to-br from-yellow-50 via-green-50/30 to-white dark:from-stone-800 dark:via-stone-800/90 dark:to-stone-900 pointer-events-none"></div>
+    <div className="absolute inset-0 bg-gradient-to-b from-stone-50 via-white to-stone-50 dark:from-stone-900 dark:via-stone-800 dark:to-stone-900 pointer-events-none"></div>
     <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center relative z-10">
       <motion.div 
         initial={{ opacity: 0, y: 30 }}
@@ -63,7 +63,7 @@ export const Hero = ({ setView }: { setView: (v: string) => void }) => (
             <div className="bg-stone-900 rounded-[32px] p-2 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] border border-stone-800">
               <div className="bg-white rounded-[24px] overflow-hidden aspect-[16/10] relative">
                 <img 
-                  src="https://images.unsplash.com/photo-1586771107584-568728d11c75?auto=format&fit=crop&w=1200&h=800" 
+                  src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&h=800" 
                   alt="Modern Business Template" 
                   className="w-full h-full object-cover"
                   referrerPolicy="no-referrer"

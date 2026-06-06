@@ -1,78 +1,5 @@
 import React, { useState } from 'react';
-import { 
-  TrendingUp,
-  Cpu,
-  Globe, 
-  Zap, 
-  Bot, 
-  Database, 
-  Layout, 
-  ChevronRight, 
-  BarChart3, 
-  Upload, 
-  MessageSquare,
-  FileText,
-  Github,
-  Twitter,
-  Linkedin,
-  Instagram,
-  ArrowRight,
-  ArrowLeft,
-  Copy,
-  ShieldCheck,
-  Share2,
-  Folder,
-  PieChart,
-  Cloud,
-  Brain,
-  CheckCircle2,
-  Search,
-  Filter,
-  Monitor,
-  Smartphone,
-  Tablet,
-  Heart,
-  Briefcase,
-  LineChart as LucideLineChart,
-  Target,
-  BarChart,
-  Leaf,
-  ChevronDown,
-  Apple,
-  Mail,
-  Lock,
-  Building2,
-  Bell,
-  User,
-  Layers,
-  Activity,
-  Coffee,
-  ShoppingBag,
-  Tractor,
-  Settings,
-  LogOut,
-  AlertCircle,
-  Eye,
-  Plus,
-  ArrowUpRight,
-  MoreHorizontal,
-  Lightbulb,
-  CreditCard,
-  Wallet,
-  Banknote,
-  Rocket,
-  Facebook,
-  MapPin,
-  Music2,
-  X,
-  MousePointer2,
-  Undo,
-  Redo,
-  Trash2,
-  Image,
-  Moon,
-  Sun
-} from 'lucide-react';
+import { TrendingUp, Cpu, Globe, Zap, Bot, Database, Layout, BarChart3, Upload, MessageSquare, FileText, Instagram, ArrowRight, Copy, ShieldCheck, Brain, CheckCircle2, Search, Filter, Monitor, Smartphone, LineChart as LucideLineChart, Target, ChevronDown, Apple, Mail, Lock, Building2, Bell, User, Layers, ShoppingBag, Settings, LogOut, Plus, MoreHorizontal, Lightbulb, CreditCard, Banknote, Rocket, Facebook, MapPin, Music2, X, MousePointer2, Undo } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
@@ -704,7 +631,7 @@ const PricingView = ({ setView, isLoggedIn, setSelectedPack }: { setView: (v: st
   };
 
   return (
-  <section className="py-24 px-6 bg-stone-50/50 dark:bg-stone-900 relative overflow-hidden">
+  <section className="py-24 px-6 bg-gradient-to-b from-white via-stone-50 to-stone-100 dark:from-stone-900 dark:via-stone-900 dark:to-stone-950 relative overflow-hidden">
     <div className="max-w-7xl mx-auto relative z-10">
       <div className="text-center mb-16">
         <motion.div 
@@ -1062,7 +989,7 @@ const AboutUsView = () => (
 );
 
 const LoginView = ({ setView, onLoginSuccess }: { setView: (v: string) => void, onLoginSuccess?: () => void }) => (
-  <section className="min-h-[calc(100vh-80px)] py-12 flex items-center justify-center px-6 bg-stone-50/50 dark:bg-stone-900 relative overflow-hidden">
+  <section className="min-h-[calc(100vh-80px)] py-12 flex items-center justify-center px-6 bg-gradient-to-b from-white via-stone-50 to-stone-100 dark:from-stone-900 dark:via-stone-900 dark:to-stone-950 relative overflow-hidden">
     <motion.div 
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
@@ -1128,7 +1055,7 @@ const LoginView = ({ setView, onLoginSuccess }: { setView: (v: string) => void, 
 );
 
 const SignupView = ({ setView, onLoginSuccess }: { setView: (v: string) => void, onLoginSuccess?: () => void }) => (
-  <section className="min-h-[calc(100vh-80px)] py-12 flex items-center justify-center px-6 bg-stone-50/50 dark:bg-stone-900 relative overflow-hidden">
+  <section className="min-h-[calc(100vh-80px)] py-12 flex items-center justify-center px-6 bg-gradient-to-b from-white via-stone-50 to-stone-100 dark:from-stone-900 dark:via-stone-900 dark:to-stone-950 relative overflow-hidden">
     <motion.div 
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
@@ -2745,12 +2672,8 @@ const DashboardView = ({
             <img 
               src="/logo.png" 
               alt="Uni-LandFarm Logo" 
-              className="h-8 w-auto object-contain drop-shadow-sm" 
+              className="h-12 w-auto object-contain drop-shadow-md" 
             />
-          </div>
-          <div>
-            <h1 className="text-sm font-black text-stone-900 dark:text-white leading-none">UNI-LandFarm</h1>
-            <p className="text-[8px] font-bold text-stone-400 dark:text-stone-500 tracking-widest uppercase mt-0.5">Agentic AI Platform</p>
           </div>
         </div>
 
