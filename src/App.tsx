@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TrendingUp, Cpu, Globe, Zap, Bot, Database, Layout, BarChart3, Upload, MessageSquare, FileText, Instagram, ArrowRight, Copy, ShieldCheck, Brain, CheckCircle2, Search, Filter, Monitor, Smartphone, LineChart as LucideLineChart, Target, ChevronDown, Apple, Mail, Lock, Building2, Bell, User, Layers, ShoppingBag, Settings, LogOut, Plus, MoreHorizontal, Lightbulb, CreditCard, Banknote, Rocket, Facebook, MapPin, Music2, X, MousePointer2, Undo } from 'lucide-react';
+import { TrendingUp, Cpu, Globe, Zap, Bot, Database, Layout, BarChart3, Upload, MessageSquare, FileText, Instagram, ArrowRight, Copy, ShieldCheck, Brain, CheckCircle2, Search, Filter, Monitor, Smartphone, LineChart as LucideLineChart, Target, ChevronDown, Apple, Mail, Lock, Building2, Bell, User, Layers, ShoppingBag, Settings, LogOut, Plus, MoreHorizontal, Lightbulb, CreditCard, Banknote, Rocket, Facebook, MapPin, Music2, X, MousePointer2, Undo, Github, Linkedin } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
@@ -1261,7 +1261,7 @@ const Footer = ({ setView }: { setView: (v: string) => void }) => (
             Platform revolusioner untuk membangun dan mengelola ekosistem digital bisnis modern dengan kekuatan Agentic AI.
           </p>
           <div className="flex gap-4">
-            {[Twitter, Github, Linkedin, Instagram].map((Icon, i) => (
+            {[X, Github, Linkedin, Instagram].map((Icon, i) => (
               <motion.a 
                 key={i} 
                 href="#" 
