@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TrendingUp, Cpu, Globe, Zap, Bot, Database, Layout, BarChart3, Upload, MessageSquare, FileText, Instagram, ArrowRight, Copy, ShieldCheck, Brain, CheckCircle2, Search, Filter, Monitor, Smartphone, LineChart as LucideLineChart, Target, ChevronDown, Apple, Mail, Lock, Building2, Bell, User, Layers, ShoppingBag, Settings, LogOut, Plus, MoreHorizontal, Lightbulb, CreditCard, Banknote, Rocket, Facebook, MapPin, Music2, X, MousePointer2, Undo, Github, Linkedin } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Navbar } from './components/Navbar';
@@ -771,7 +771,7 @@ const TokenShopView = ({ setView, setSelectedPack }: { setView: (v: string) => v
   );
 };
 
-const PaymentView = ({ setView, selectedPack, buyTokens, setSelectedPack }: any) => {
+const PaymentView = ({ setView, selectedPack, setSelectedPaymentMethod }: any) => {
   const [selectedMethod, setSelectedMethod] = useState("");
 
   const paymentMethods = [
@@ -808,12 +808,8 @@ const PaymentView = ({ setView, selectedPack, buyTokens, setSelectedPack }: any)
       return;
     }
     
-    // Simulate payment processing
-    setTimeout(() => {
-      buyTokens(selectedPack?.tokens || 0);
-      if (setSelectedPack) setSelectedPack(null);
-      setView('dashboard');
-    }, 1000);
+    if (setSelectedPaymentMethod) setSelectedPaymentMethod(selectedMethod);
+    setView('order-summary');
   };
 
   return (
@@ -876,9 +872,124 @@ const PaymentView = ({ setView, selectedPack, buyTokens, setSelectedPack }: any)
               disabled={!selectedMethod}
               className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${selectedMethod ? 'bg-brand-primary text-white shadow-primary hover:scale-[1.02]' : 'bg-stone-100 dark:bg-stone-800 text-stone-400 cursor-not-allowed'}`}
             >
-              Bayar Sekarang
+              Lanjut
             </button>
           </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const OrderSummaryView = ({ setView, selectedPack, selectedPaymentMethod }: any) => {
+  return (
+    <section className="py-24 px-6 bg-stone-50/50 dark:bg-stone-900 min-h-screen">
+      <div className="max-w-2xl mx-auto">
+        <button 
+          onClick={() => setView('payment')}
+          className="flex items-center gap-2 text-sm font-bold text-stone-500 hover:text-brand-primary mb-8 transition-colors"
+        >
+          <ChevronDown className="w-4 h-4 rotate-90" />
+          Kembali ke Metode Pembayaran
+        </button>
+
+        <div className="bg-white dark:bg-stone-800 rounded-[32px] border border-stone-100 dark:border-stone-800 shadow-premium p-8 lg:p-12">
+          <h2 className="text-3xl font-black text-stone-900 dark:text-white tracking-tight mb-8 text-center">Ringkasan Pesanan</h2>
+          
+          <div className="space-y-4 mb-8">
+            <div className="flex justify-between items-center border-b border-stone-100 dark:border-stone-700 pb-4">
+              <span className="text-sm font-medium text-stone-500 dark:text-stone-400">Paket</span>
+              <span className="text-lg font-bold text-stone-900 dark:text-white">{selectedPack?.name || selectedPack?.title}</span>
+            </div>
+            <div className="flex justify-between items-center border-b border-stone-100 dark:border-stone-700 pb-4">
+              <span className="text-sm font-medium text-stone-500 dark:text-stone-400">Jumlah Token</span>
+              <span className="text-lg font-bold text-amber-500">{selectedPack?.tokens} Token</span>
+            </div>
+            <div className="flex justify-between items-center border-b border-stone-100 dark:border-stone-700 pb-4">
+              <span className="text-sm font-medium text-stone-500 dark:text-stone-400">Metode Pembayaran</span>
+              <span className="text-lg font-bold text-stone-900 dark:text-white">{selectedPaymentMethod}</span>
+            </div>
+            <div className="flex justify-between items-center pt-4">
+              <span className="text-lg font-black text-stone-900 dark:text-white">Total Bayar</span>
+              <span className="text-2xl font-black text-brand-primary">{selectedPack?.price}</span>
+            </div>
+          </div>
+
+          <button 
+            onClick={() => setView('payment-processing')}
+            className="w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest bg-brand-primary text-white shadow-primary hover:scale-[1.02] transition-all"
+          >
+            Bayar Sekarang
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const PaymentProcessingView = ({ setView, buyTokens, selectedPack, setLastPurchase, setSelectedPack }: any) => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const amount = selectedPack?.tokens || 0;
+      buyTokens(amount);
+      setLastPurchase({
+        amount: amount,
+        invoice: `INV-${new Date().getFullYear()}${(new Date().getMonth()+1).toString().padStart(2, '0')}${new Date().getDate().toString().padStart(2, '0')}-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`
+      });
+      if (setSelectedPack) setSelectedPack(null);
+      setView('payment-success');
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <section className="py-24 px-6 bg-stone-50/50 dark:bg-stone-900 min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <div className="w-16 h-16 border-4 border-brand-primary border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+        <h2 className="text-2xl font-black text-stone-900 dark:text-white tracking-tight mb-2">Memproses Pembayaran</h2>
+        <p className="text-stone-500 dark:text-stone-400 font-medium">Mohon tunggu sebentar, jangan tutup halaman ini...</p>
+      </div>
+    </section>
+  );
+};
+
+const PaymentSuccessView = ({ setView, lastPurchase, tokenBalance }: any) => {
+  return (
+    <section className="py-24 px-6 bg-stone-50/50 dark:bg-stone-900 min-h-screen flex items-center justify-center">
+      <div className="w-full max-w-xl mx-auto bg-white dark:bg-stone-800 rounded-[32px] border border-stone-100 dark:border-stone-800 shadow-premium p-8 lg:p-12 text-center">
+        <div className="w-20 h-20 bg-brand-green/10 rounded-full flex items-center justify-center mx-auto mb-6">
+          <CheckCircle2 className="w-10 h-10 text-brand-green" />
+        </div>
+        
+        <h2 className="text-3xl font-black text-stone-900 dark:text-white tracking-tight mb-2">Pembayaran Berhasil</h2>
+        <p className="text-lg text-stone-500 dark:text-stone-400 font-medium mb-8">
+          <span className="font-bold text-stone-900 dark:text-white">{lastPurchase?.amount} Token</span> berhasil ditambahkan
+        </p>
+
+        <div className="bg-stone-50 dark:bg-stone-900/50 rounded-2xl p-6 mb-8 text-left space-y-4">
+          <div className="flex justify-between items-center">
+            <span className="text-sm font-medium text-stone-500 dark:text-stone-400">Saldo Token</span>
+            <span className="text-lg font-bold text-amber-500">{tokenBalance}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-sm font-medium text-stone-500 dark:text-stone-400">Invoice</span>
+            <span className="text-sm font-bold text-stone-900 dark:text-white">{lastPurchase?.invoice}</span>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <button 
+            onClick={() => setView('templates')}
+            className="w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest bg-brand-primary text-white shadow-primary hover:scale-[1.02] transition-all"
+          >
+            Buat Landing Page
+          </button>
+          <button 
+            onClick={() => setView('dashboard')}
+            className="w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest bg-stone-100 dark:bg-stone-700 text-stone-600 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-600 transition-all"
+          >
+            Lihat Riwayat
+          </button>
         </div>
       </div>
     </section>
@@ -2780,6 +2891,8 @@ export default function App() {
   const [tokenBalance, setTokenBalance] = useState(0);
   const [unlockedTemplates, setUnlockedTemplates] = useState<string[]>([]);
   const [selectedPack, setSelectedPack] = useState<any>(null);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
+  const [lastPurchase, setLastPurchase] = useState<any>(null);
 
   const handleLoginSuccess = () => {
     setIsLoggedIn(true);
@@ -2792,7 +2905,6 @@ export default function App() {
 
   const buyTokens = (amount: number) => {
     setTokenBalance(prev => prev + amount);
-    alert(`Pembayaran berhasil! Menambahkan ${amount} token. Saldo sekarang: ${tokenBalance + amount}`);
   };
 
   const renderView = () => {
@@ -2826,7 +2938,13 @@ export default function App() {
       case 'token-shop':
         return <TokenShopView setView={setView} setSelectedPack={setSelectedPack} />;
       case 'payment':
-        return <PaymentView setView={setView} selectedPack={selectedPack} buyTokens={buyTokens} setSelectedPack={setSelectedPack} />;
+        return <PaymentView setView={setView} selectedPack={selectedPack} setSelectedPaymentMethod={setSelectedPaymentMethod} />;
+      case 'order-summary':
+        return <OrderSummaryView setView={setView} selectedPack={selectedPack} selectedPaymentMethod={selectedPaymentMethod} />;
+      case 'payment-processing':
+        return <PaymentProcessingView setView={setView} buyTokens={buyTokens} selectedPack={selectedPack} setLastPurchase={setLastPurchase} setSelectedPack={setSelectedPack} />;
+      case 'payment-success':
+        return <PaymentSuccessView setView={setView} lastPurchase={lastPurchase} tokenBalance={tokenBalance} />;
       case 'cms':
         return <DashboardPreview setView={setView} />;
       case 'pricing':
