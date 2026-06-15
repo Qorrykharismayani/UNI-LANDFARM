@@ -80,9 +80,9 @@ const TemplatePage = ({
                 <button
                   onClick={() => {
                     setTemplateForCreation(tpl);
-                    setCreationWebsiteTitle(tpl.title);
-                    setCreationBusinessName(tpl.title);
-                    setCreationSlug(tpl.title.toLowerCase().replace(/\s+/g, '-'));
+                    setCreationWebsiteTitle('');
+                    setCreationBusinessName('');
+                    setCreationSlug('');
                   }}
                   className="w-full bg-white text-slate-900 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-brand-blue hover:text-white transition-all shadow-xl"
                 >
@@ -141,9 +141,9 @@ const TemplatePage = ({
                     const currentTemplate = previewTemplate;
                     setPreviewTemplate(null);
                     setTemplateForCreation(currentTemplate);
-                    setCreationWebsiteTitle(currentTemplate.title);
-                    setCreationBusinessName(currentTemplate.title);
-                    setCreationSlug(currentTemplate.title.toLowerCase().replace(/\s+/g, '-'));
+                    setCreationWebsiteTitle('');
+                    setCreationBusinessName('');
+                    setCreationSlug('');
                   }}
                   className="bg-brand-blue text-white px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-brand-blue/20"
                 >

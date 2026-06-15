@@ -149,90 +149,85 @@ async function main() {
 
   // 3. Create Templates (5 Templates)
   const templateList = [
+    // Teknologi
     {
-      id: 'tpl-umkm',
-      name: 'Produk UMKM',
-      category: 'Makanan & Retail',
-      description: 'Template khusus produk UMKM, makanan, kerajinan tangan, dan produk retail lokal.',
-      thumbnail: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=500&q=80',
-      status: 'Aktif',
-      structureJson: {
-        sections: ['hero', 'about', 'products', 'advantages', 'gallery', 'testimonials', 'cta', 'contact', 'footer']
-      },
-      defaultContent: defaultContentTemplate(
-        "Kriya & Kuliner Lokal",
-        "Menyediakan berbagai produk kerajinan tangan dan makanan olahan lokal dengan kualitas premium bebas bahan kimia berbahaya.",
-        "Beli Sekarang",
-        "https://images.unsplash.com/photo-1607344645866-009c320c5ab8?w=1200&q=80"
-      )
+      id: 'tpl-tek-1', name: 'Software SaaS', category: 'Teknologi', description: 'Template modern untuk produk software as a service dengan fitur lengkap.', thumbnail: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=500&q=80', status: 'Aktif',
+      structureJson: { sections: ['hero', 'about', 'products', 'advantages', 'gallery', 'testimonials', 'cta', 'contact', 'footer'] },
+      defaultContent: defaultContentTemplate("SaaS ProTech", "Solusi software manajemen bisnis terpadu untuk efisiensi tinggi.", "Coba Gratis", "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=80")
     },
     {
-      id: 'tpl-jasa',
-      name: 'Jasa/Layanan',
-      category: 'Jasa & Konsultan',
-      description: 'Didesain khusus untuk mempromosikan jasa profesional, kebersihan, konsultasi, dan servis kendaraan.',
-      thumbnail: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=500&q=80',
-      status: 'Aktif',
-      structureJson: {
-        sections: ['hero', 'about', 'products', 'advantages', 'gallery', 'testimonials', 'cta', 'contact', 'footer']
-      },
-      defaultContent: defaultContentTemplate(
-        "Jasa Bersih Mandiri",
-        "Layanan kebersihan profesional untuk rumah, apartemen, dan kantor Anda dengan staf tepercaya serta tersertifikasi.",
-        "Pesan Jasa",
-        "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=1200&q=80"
-      )
+      id: 'tpl-tek-2', name: 'Aplikasi Mobile', category: 'Teknologi', description: 'Desain trendi untuk mempromosikan aplikasi mobile Anda ke khalayak luas.', thumbnail: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=500&q=80', status: 'Aktif',
+      structureJson: { sections: ['hero', 'about', 'products', 'advantages', 'gallery', 'testimonials', 'cta', 'contact', 'footer'] },
+      defaultContent: defaultContentTemplate("App Launch", "Aplikasi mobile terbaik untuk produktivitas tim Anda.", "Unduh Sekarang", "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=1200&q=80")
     },
     {
-      id: 'tpl-promo',
-      name: 'Promo Campaign',
-      category: 'Campaign & Promo',
-      description: 'Template dengan fokus konversi tinggi, cocok untuk promo musiman, diskon kilat, dan landing page penjualan produk tunggal.',
-      thumbnail: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=500&q=80',
-      status: 'Aktif',
-      structureJson: {
-        sections: ['hero', 'about', 'products', 'advantages', 'gallery', 'testimonials', 'cta', 'contact', 'footer']
-      },
-      defaultContent: defaultContentTemplate(
-        "Promo Kilat Akhir Tahun",
-        "Dapatkan diskon kilat hingga 50% untuk seluruh paket bundling produk kami khusus pembelian hari ini saja!",
-        "Ambil Promo",
-        "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=1200&q=80"
-      )
+      id: 'tpl-tek-3', name: 'Agensi Digital IT', category: 'Teknologi', description: 'Cocok untuk agensi penyedia jasa pembuatan website dan sistem informasi.', thumbnail: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=500&q=80', status: 'Aktif',
+      structureJson: { sections: ['hero', 'about', 'products', 'advantages', 'gallery', 'testimonials', 'cta', 'contact', 'footer'] },
+      defaultContent: defaultContentTemplate("Digital IT Hub", "Layanan pembuatan website dan aplikasi kustom untuk bisnis Anda.", "Mulai Projek", "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1200&q=80")
+    },
+    // Korporat
+    {
+      id: 'tpl-kor-1', name: 'Profil Manufaktur', category: 'Korporat', description: 'Tampilan elegan dan profesional untuk profil perusahaan besar dan pabrik.', thumbnail: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=500&q=80', status: 'Aktif',
+      structureJson: { sections: ['hero', 'about', 'products', 'advantages', 'gallery', 'testimonials', 'cta', 'contact', 'footer'] },
+      defaultContent: defaultContentTemplate("Pabrik Global", "Pusat manufaktur terkemuka dengan standar internasional.", "Lihat Profil", "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1200&q=80")
     },
     {
-      id: 'tpl-portfolio',
-      name: 'Portfolio Bisnis',
-      category: 'Agensi & Kreatif',
-      description: 'Sempurna untuk profil bisnis, portofolio desainer, arsitek, fotografer, agensi digital, atau pekerja kreatif lainnya.',
-      thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500&q=80',
-      status: 'Aktif',
-      structureJson: {
-        sections: ['hero', 'about', 'products', 'advantages', 'gallery', 'testimonials', 'cta', 'contact', 'footer']
-      },
-      defaultContent: defaultContentTemplate(
-        "Studio Kreatif Merdeka",
-        "Kami membantu merancang identitas visual, branding, dan strategi pemasaran digital untuk menumbuhkan bisnis Anda.",
-        "Lihat Karya",
-        "https://images.unsplash.com/photo-1542744094-3a31f103e35f?w=1200&q=80"
-      )
+      id: 'tpl-kor-2', name: 'Konsultan Keuangan', category: 'Korporat', description: 'Template kredibel untuk jasa audit, akuntansi, dan konsultan bisnis.', thumbnail: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=500&q=80', status: 'Aktif',
+      structureJson: { sections: ['hero', 'about', 'products', 'advantages', 'gallery', 'testimonials', 'cta', 'contact', 'footer'] },
+      defaultContent: defaultContentTemplate("Finance Consult", "Partner terpercaya dalam mengelola keuangan dan audit perusahaan.", "Hubungi Kami", "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1200&q=80")
     },
     {
-      id: 'tpl-event',
-      name: 'Event / Launching Produk',
-      category: 'Event & Seminar',
-      description: 'Template dinamis untuk mempromosikan acara webinar, peluncuran produk baru, konser musik, atau pameran lokal.',
-      thumbnail: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=500&q=80',
-      status: 'Aktif',
-      structureJson: {
-        sections: ['hero', 'about', 'products', 'advantages', 'gallery', 'testimonials', 'cta', 'contact', 'footer']
-      },
-      defaultContent: defaultContentTemplate(
-        "Festival Kopi Nusantara 2026",
-        "Hadirilah perayaan kopi terbesar tahun ini yang mempertemukan petani kopi lokal dan roaster profesional di seluruh Indonesia.",
-        "Daftar Sekarang",
-        "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1200&q=80"
-      )
+      id: 'tpl-kor-3', name: 'Holding Company', category: 'Korporat', description: 'Desain minimalis eksklusif untuk perusahaan induk (holding) dan investasi.', thumbnail: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=500&q=80', status: 'Aktif',
+      structureJson: { sections: ['hero', 'about', 'products', 'advantages', 'gallery', 'testimonials', 'cta', 'contact', 'footer'] },
+      defaultContent: defaultContentTemplate("Mega Holding", "Membangun masa depan lewat investasi strategis dan portofolio tangguh.", "Pelajari Lebih Lanjut", "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&q=80")
+    },
+    // Layanan
+    {
+      id: 'tpl-lay-1', name: 'Jasa Kebersihan', category: 'Layanan', description: 'Solusi layanan kebersihan profesional untuk rumah dan kantor.', thumbnail: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&q=80', status: 'Aktif',
+      structureJson: { sections: ['hero', 'about', 'products', 'advantages', 'gallery', 'testimonials', 'cta', 'contact', 'footer'] },
+      defaultContent: defaultContentTemplate("Klin Clean", "Jasa kebersihan terpercaya, aman, dan efisien untuk kenyamanan Anda.", "Pesan Layanan", "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=1200&q=80")
+    },
+    {
+      id: 'tpl-lay-2', name: 'Klinik Kesehatan', category: 'Layanan', description: 'Situs praktis untuk rumah sakit, dokter praktik, dan klinik kesehatan umum.', thumbnail: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=500&q=80', status: 'Aktif',
+      structureJson: { sections: ['hero', 'about', 'products', 'advantages', 'gallery', 'testimonials', 'cta', 'contact', 'footer'] },
+      defaultContent: defaultContentTemplate("Klinik Sehat", "Pelayanan kesehatan keluarga dengan tenaga medis berpengalaman.", "Buat Janji Temu", "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1200&q=80")
+    },
+    {
+      id: 'tpl-lay-3', name: 'Servis Kendaraan', category: 'Layanan', description: 'Template bengkel mobil/motor yang informatif dan meningkatkan kepercayaan pelanggan.', thumbnail: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=500&q=80', status: 'Aktif',
+      structureJson: { sections: ['hero', 'about', 'products', 'advantages', 'gallery', 'testimonials', 'cta', 'contact', 'footer'] },
+      defaultContent: defaultContentTemplate("Auto Fix", "Bengkel spesialis untuk segala kebutuhan perbaikan kendaraan Anda.", "Hubungi Teknisi", "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=1200&q=80")
+    },
+    // E-Commerce
+    {
+      id: 'tpl-eco-1', name: 'Toko Fashion', category: 'E-Commerce', description: 'Desain toko online estetik yang sangat cocok untuk produk pakaian dan aksesoris.', thumbnail: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=500&q=80', status: 'Aktif',
+      structureJson: { sections: ['hero', 'about', 'products', 'advantages', 'gallery', 'testimonials', 'cta', 'contact', 'footer'] },
+      defaultContent: defaultContentTemplate("Mode Style", "Koleksi fashion terbaru dengan gaya kekinian dan harga terjangkau.", "Belanja Sekarang", "https://images.unsplash.com/photo-1445205170230-053b83016050?w=1200&q=80")
+    },
+    {
+      id: 'tpl-eco-2', name: 'Gadget Store', category: 'E-Commerce', description: 'Situs toko elektronik futuristik, menonjolkan fitur produk dan detail teknis.', thumbnail: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=500&q=80', status: 'Aktif',
+      structureJson: { sections: ['hero', 'about', 'products', 'advantages', 'gallery', 'testimonials', 'cta', 'contact', 'footer'] },
+      defaultContent: defaultContentTemplate("TechGadget", "Temukan smartphone dan laptop idaman Anda di sini dengan garansi resmi.", "Beli Gadget", "https://images.unsplash.com/photo-1498049794561-7780e7231661?w=1200&q=80")
+    },
+    {
+      id: 'tpl-eco-3', name: 'Toko Kosmetik', category: 'E-Commerce', description: 'Template cantik untuk brand kosmetik, skincare, dan produk kecantikan wanita.', thumbnail: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=500&q=80', status: 'Aktif',
+      structureJson: { sections: ['hero', 'about', 'products', 'advantages', 'gallery', 'testimonials', 'cta', 'contact', 'footer'] },
+      defaultContent: defaultContentTemplate("Glow Beauty", "Rangkaian skincare alami yang mencerahkan dan menjaga kesehatan kulit Anda.", "Lihat Produk", "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=1200&q=80")
+    },
+    // Retail
+    {
+      id: 'tpl-ret-1', name: 'Minimarket Lokal', category: 'Retail', description: 'Hadirkan katalog minimarket atau swalayan Anda secara online.', thumbnail: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=500&q=80', status: 'Aktif',
+      structureJson: { sections: ['hero', 'about', 'products', 'advantages', 'gallery', 'testimonials', 'cta', 'contact', 'footer'] },
+      defaultContent: defaultContentTemplate("Super Mart", "Kebutuhan pokok harian lengkap dan murah untuk keluarga Anda.", "Cek Katalog", "https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=1200&q=80")
+    },
+    {
+      id: 'tpl-ret-2', name: 'Toko Buku', category: 'Retail', description: 'Platform nyaman untuk menjual buku fiksi, non-fiksi, dan alat tulis kantor.', thumbnail: 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=500&q=80', status: 'Aktif',
+      structureJson: { sections: ['hero', 'about', 'products', 'advantages', 'gallery', 'testimonials', 'cta', 'contact', 'footer'] },
+      defaultContent: defaultContentTemplate("Pustaka Kita", "Buku terbaik dari berbagai genre untuk menemani waktu luang Anda.", "Beli Buku", "https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=1200&q=80")
+    },
+    {
+      id: 'tpl-ret-3', name: 'Home Decor', category: 'Retail', description: 'Template etalase perabotan rumah, hiasan, dan desain interior.', thumbnail: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=500&q=80', status: 'Aktif',
+      structureJson: { sections: ['hero', 'about', 'products', 'advantages', 'gallery', 'testimonials', 'cta', 'contact', 'footer'] },
+      defaultContent: defaultContentTemplate("Dekor Rumah", "Perabotan rumah minimalis berkualitas tinggi dan harga terbaik.", "Eksplor Koleksi", "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=1200&q=80")
     }
   ];
 
@@ -304,7 +299,7 @@ async function main() {
     create: {
       id: 'lp-1',
       userId: user1.id,
-      templateId: 'tpl-umkm',
+      templateId: 'tpl-ret-1',
       title: 'Toko Kopi Merdeka',
       businessName: 'Toko Kopi Merdeka',
       slug: 'toko-kopi-merdeka',
@@ -331,7 +326,7 @@ async function main() {
     create: {
       id: 'lp-2',
       userId: user2.id,
-      templateId: 'tpl-jasa',
+      templateId: 'tpl-lay-1',
       title: 'Jasa Bersih Merdeka',
       businessName: 'Jasa Bersih Merdeka',
       slug: 'jasa-bersih-merdeka',
@@ -358,7 +353,7 @@ async function main() {
     create: {
       id: 'lp-3',
       userId: user3.id,
-      templateId: 'tpl-event',
+      templateId: 'tpl-kor-3',
       title: 'Festival Kopi 2026',
       businessName: 'Festival Kopi 2026',
       slug: 'festival-kopi-2026',

@@ -23,7 +23,7 @@ try {
 }
 
 export const metadata: Metadata = {
-  title: 'Uni-LanFaram | AI CMS Landing Page',
+  title: 'Uni-LandFarm',
   description: 'Bantu kembangkan bisnis agrikultur, UMKM, dan produk lokal Anda.',
 };
 
