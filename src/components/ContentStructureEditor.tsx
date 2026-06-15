@@ -565,58 +565,11 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                     </div>
                   </div>
 
-                  {/* LANGKAH 2: Persetujuan Admin */}
-                  <div className="flex gap-5 relative z-10">
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${status === 'approved' || status === 'published'
-                        ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400'
-                        : status === 'pending_publish'
-                          ? 'bg-amber-500/10 border border-amber-500/30 text-amber-400 animate-pulse'
-                          : status === 'rejected'
-                            ? 'bg-red-500/10 border border-red-500/30 text-red-400'
-                            : 'bg-slate-900 border border-slate-200 text-slate-500'
-                      }`}>
-                      {status === 'approved' || status === 'published' ? (
-                        <Check className="w-5 h-5" />
-                      ) : status === 'pending_publish' ? (
-                        <RefreshCw className="w-5 h-5 animate-spin" />
-                      ) : status === 'rejected' ? (
-                        <X className="w-5 h-5" />
-                      ) : (
-                        <FileText className="w-5 h-5" />
-                      )}
-                    </div>
-
-                    <div className="space-y-2 flex-1">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-base font-black uppercase tracking-wider text-white">Langkah 2: Persetujuan Admin</h4>
-
-                        <span className={`text-base font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full ${status === 'approved' || status === 'published' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
-                            status === 'pending_publish' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
-                              status === 'rejected' ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
-                                'bg-slate-800 text-slate-500 border border-slate-300'
-                          }`}>
-                          {status === 'approved' || status === 'published' ? 'DISETUJUI' :
-                            status === 'pending_publish' ? 'PENDING REVIEW' :
-                              status === 'rejected' ? 'DITOLAK' : 'BELUM DIAJUKAN'}
-                        </span>
-                      </div>
-
-                      <p className="text-base text-slate-500 leading-relaxed font-medium">
-                        {status === 'approved' || status === 'published' ? 'Permintaan publikasi Anda telah disetujui oleh admin Uni-LandFarm.' :
-                          status === 'pending_publish' ? 'Landing page sedang dalam proses peninjauan oleh admin. Mohon tunggu persetujuan.' :
-                            status === 'rejected' ? 'Permintaan publikasi ditolak oleh admin. Silakan tinjau catatan di bawah dan ajukan kembali.' :
-                              'Kirim pengajuan publikasi ke admin draf halaman Anda agar diperiksa kelayakannya.'}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* LANGKAH 3: Landing Page Live */}
+                  {/* LANGKAH 2: Landing Page Live */}
                   <div className="flex gap-5 relative z-10">
                     <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${status === 'published'
                         ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400'
-                        : status === 'approved'
-                          ? 'bg-brand-blue/10 border border-brand-blue/30 text-brand-blue shadow-lg shadow-brand-blue/25 animate-pulse'
-                          : 'bg-slate-900 border border-slate-200 text-slate-500'
+                        : 'bg-slate-100 border border-slate-200 text-slate-500'
                       }`}>
                       {status === 'published' ? (
                         <Rocket className="w-5 h-5 text-emerald-450" />
@@ -627,9 +580,9 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
 
                     <div className="space-y-2 flex-1">
                       <div className="flex items-center justify-between">
-                        <h4 className="text-base font-black uppercase tracking-wider text-white">Langkah 3: Landing Page Live</h4>
+                        <h4 className="text-base font-black uppercase tracking-wider text-slate-900">Langkah 2: Landing Page Live</h4>
                         <span className={`text-base font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full ${status === 'published' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
-                            'bg-slate-800 text-slate-500 border border-slate-300'
+                            'bg-slate-100 text-slate-500 border border-slate-300'
                           }`}>
                           {status === 'published' ? 'PUBLISHED' : 'BELUM AKTIF'}
                         </span>
@@ -637,7 +590,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
 
                       <p className="text-base text-slate-500 leading-relaxed font-medium">
                         {status === 'published' ? 'Selamat! Landing page Anda telah resmi aktif secara publik dan dapat diakses siapa saja.' :
-                          'Situs Anda akan aktif secara publik setelah persetujuan admin diperoleh dan tombol Terbitkan diaktifkan.'}
+                          'Situs Anda akan aktif secara publik setelah tombol Terbitkan ditekan.'}
                       </p>
                     </div>
                   </div>
@@ -665,47 +618,6 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                   {status === 'draft' && (
                     <button
                       onClick={handlePublishSubmit}
-                      disabled={isSubmittingPublish}
-                      className="px-6 py-3.5 bg-gradient-to-r from-brand-blue to-indigo-650 hover:scale-[1.02] active:scale-[0.98] text-white rounded-2xl text-base font-black uppercase tracking-widest transition-all shadow-xl shadow-brand-blue/20 disabled:opacity-50 flex items-center gap-2 cursor-pointer font-black"
-                    >
-                      Ajukan Persetujuan ke Admin <Send className="w-3.5 h-3.5" />
-                    </button>
-                  )}
-
-                  {status === 'pending_publish' && (
-                    <button
-                      disabled
-                      className="px-6 py-3.5 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-2xl text-base font-black uppercase tracking-widest cursor-not-allowed flex items-center gap-2 font-black"
-                    >
-                      <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Menunggu Persetujuan Admin
-                    </button>
-                  )}
-
-                  {status === 'rejected' && (
-                    <div className="flex gap-3 w-full">
-                      <button
-                        onClick={() => {
-                          const container = document.querySelector('.bg-red-500\\/5');
-                          if (container) container.scrollIntoView({ behavior: 'smooth' });
-                          triggerToast('Lihat catatan penolakan admin di atas.');
-                        }}
-                        className="flex-1 px-5 py-3.5 bg-slate-900 border border-slate-200 hover:bg-slate-800 text-white rounded-2xl text-base font-black uppercase tracking-widest transition-all cursor-pointer font-black"
-                      >
-                        Lihat Catatan Admin
-                      </button>
-                      <button
-                        onClick={handlePublishSubmit}
-                        disabled={isSubmittingPublish}
-                        className="flex-1 px-5 py-3.5 bg-gradient-to-r from-brand-blue to-indigo-650 hover:scale-[1.02] active:scale-[0.98] text-white rounded-2xl text-base font-black uppercase tracking-widest transition-all shadow-xl shadow-brand-blue/20 disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer font-black"
-                      >
-                        {isSubmittingPublish ? 'Mengajukan...' : 'Ajukan Ulang'} <Send className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  )}
-
-                  {status === 'approved' && (
-                    <button
-                      onClick={handleFinalPublish}
                       disabled={isSubmittingPublish}
                       className="px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-650 hover:scale-[1.02] active:scale-[0.98] text-white rounded-2xl text-base font-black uppercase tracking-widest transition-all shadow-xl shadow-emerald-500/20 disabled:opacity-50 flex items-center gap-2 cursor-pointer font-black"
                     >
