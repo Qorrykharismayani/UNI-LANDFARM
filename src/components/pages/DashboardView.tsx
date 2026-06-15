@@ -1,0 +1,1370 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { 
+  LineChart as LucideLineChart, 
+  Shield, 
+  Plus, 
+  Layout, 
+  Layers, 
+  Banknote, 
+  User, 
+  MoreHorizontal,
+  Moon,
+  Sun,
+  Bell,
+  X,
+  LogOut,
+  Twitter,
+  Github,
+  Linkedin,
+  Instagram,
+  ArrowRight,
+  Globe,
+  MessageSquare,
+  Facebook,
+  Music2,
+  CreditCard,
+  Mail,
+  Wallet,
+  Building2,
+  Zap,
+  TrendingUp,
+  ChevronDown,
+  Bot,
+  BarChart3,
+  Lock
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { generateWebsiteDraft } from '../../services/ai';
+import ContentStructureEditor from '../ContentStructureEditor';
+import PreviewLandingPage from '../PreviewLandingPage';
+import DashboardPage from './DashboardPage';
+import ContentPlanPage from './ContentPlanPage';
+import RepositoryPage from './RepositoryPage';
+import CmsPage from './CmsPage';
+import LandingPagePage from './LandingPagePage';
+import TemplatePage from './TemplatePage';
+import ProfilePage from './ProfilePage';
+import AdminPanelPage from './AdminPanelPage';
+
+interface DashboardFooterProps {
+  setView: (v: string) => void;
+  setSubView: (v: string) => void;
+  systemSettings?: any;
+}
+
+export const DashboardFooter = ({ setView, setSubView, systemSettings }: DashboardFooterProps) => (
+  <footer className="py-12 px-6 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 relative overflow-hidden">
+    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-slate-200 dark:via-slate-700 to-transparent"></div>
+
+    <div className="max-w-6xl mx-auto relative z-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 mb-8 w-full">
+        <div className="col-span-1 md:col-span-1">
+          <div className="h-[82px] flex items-center cursor-pointer group w-fit" onClick={() => setView('home')}>
+            {systemSettings?.logo && (systemSettings.logo.startsWith('http') || systemSettings.logo.startsWith('/')) ? (
+              <img src={systemSettings.logo.startsWith('/') ? `${systemSettings.logo}?v=8` : systemSettings.logo} alt="Logo" className="h-[82px] object-contain" />
+            ) : (
+              <img src="/logo.png?v=8" alt="Uni-LandFarm Logo" className="h-[82px] object-contain" />
+            )}
+          </div>
+          <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-8 font-medium max-w-xs">
+            Platform revolusioner untuk membangun dan mengelola ekosistem digital bisnis modern dengan kekuatan Agentic AI.
+          </p>
+          <div className="flex gap-4">
+            {[Twitter, Github, Linkedin, Instagram].map((Icon, i) => (
+              <motion.a
+                key={i}
+                href="#"
+                whileHover={{ y: -3, scale: 1.1 }}
+                className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 dark:text-slate-500 hover:bg-brand-blue hover:text-white dark:hover:bg-brand-blue dark:hover:text-white transition-all shadow-sm hover:shadow-blue"
+              >
+                <Icon className="w-4 h-4" />
+              </motion.a>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <h4 className="font-black text-slate-900 dark:text-white mb-8 uppercase text-[10px] tracking-[0.3em]">Platform</h4>
+          <ul className="space-y-4 text-sm text-slate-500 dark:text-slate-400 font-medium">
+            <li><button onClick={() => setView('features')} className="hover:text-brand-blue transition-colors flex items-center gap-2 group text-left cursor-pointer">Fitur Utama <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" /></button></li>
+            <li><button onClick={() => setSubView('templates')} className="hover:text-brand-blue transition-colors flex items-center gap-2 group text-left cursor-pointer">Pustaka Template <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" /></button></li>
+            <li><button onClick={() => setSubView('cms')} className="hover:text-brand-blue transition-colors flex items-center gap-2 group text-left cursor-pointer">AI Generator <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" /></button></li>
+            <li><button onClick={() => setSubView('buat_situs')} className="hover:text-brand-blue transition-colors flex items-center gap-2 group text-left cursor-pointer">Integrasi API <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" /></button></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 className="font-black text-slate-900 dark:text-white mb-8 uppercase text-[10px] tracking-[0.3em]">Sumber Daya</h4>
+          <ul className="space-y-4 text-sm text-slate-500 dark:text-slate-400 font-medium">
+            <li><button onClick={() => setSubView('buat_situs')} className="hover:text-brand-blue transition-colors flex items-center gap-2 group text-left cursor-pointer">Tentang Kami <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" /></button></li>
+            <li><button onClick={() => setSubView('panduan')} className="hover:text-brand-blue transition-colors flex items-center gap-2 group text-left cursor-pointer">Blog Bisnis <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" /></button></li>
+            <li><button onClick={() => setSubView('panduan')} className="hover:text-brand-blue transition-colors flex items-center gap-2 group text-left cursor-pointer">Pusat Bantuan <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" /></button></li>
+            <li><button onClick={() => setSubView('panduan')} className="hover:text-brand-blue transition-colors flex items-center gap-2 group text-left cursor-pointer">Komunitas <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" /></button></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 className="font-black text-slate-900 dark:text-white mb-8 uppercase text-[10px] tracking-[0.3em]">Legal</h4>
+          <ul className="space-y-4 text-sm text-slate-500 dark:text-slate-400 font-medium">
+            <li><a href="#" className="hover:text-brand-blue transition-colors flex items-center gap-2 group text-left cursor-pointer">Kebijakan Privasi <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" /></a></li>
+            <li><a href="#" className="hover:text-brand-blue transition-colors flex items-center gap-2 group text-left cursor-pointer">Ketentuan Layanan <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" /></a></li>
+            <li><a href="#" className="hover:text-brand-blue transition-colors flex items-center gap-2 group text-left cursor-pointer">Kebijakan Cookie <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" /></a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div className="pt-10 border-t border-slate-100 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-6">
+        <p className="text-slate-400 dark:text-slate-500 text-xs font-medium">
+          {systemSettings?.footerText || "© 2026 Platform Uni-LandFarm. Hak cipta dilindungi undang-undang."}
+        </p>
+        <div className="flex gap-8 text-[10px] text-slate-400 dark:text-slate-500 font-black uppercase tracking-widest">
+          <a href="#" className="hover:text-brand-blue transition-colors">Kebijakan Privasi</a>
+          <a href="#" className="hover:text-brand-blue transition-colors">Ketentuan Layanan</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+);
+
+interface DashboardViewProps {
+  setView: (v: string) => void;
+  theme: string;
+  toggleTheme: () => void;
+  user: any;
+  setUser: (u: any) => void;
+  systemSettings: any;
+  setSystemSettings: (s: any) => void;
+}
+
+export const DashboardView = ({ 
+  setView, 
+  theme, 
+  toggleTheme, 
+  user, 
+  setUser, 
+  systemSettings, 
+  setSystemSettings 
+}: DashboardViewProps) => {
+  const [subView, setSubView] = useState(() => user?.role === 'ADMIN' ? 'admin_panel' : 'overview');
+
+  useEffect(() => {
+    if (user?.role === 'ADMIN' && subView !== 'admin_panel') {
+      setSubView('admin_panel');
+    }
+  }, [user, subView]);
+
+  const handleSetSubView = (val: string) => {
+    if (user?.role === 'ADMIN') return;
+    setSubView(val);
+  };
+  const [isCmsEditorOpen, setIsCmsEditorOpen] = useState(false);
+  const [selectedEditorSection, setSelectedEditorSection] = useState('Hero Section');
+  const [cmsNavMode, setCmsNavMode] = useState('landing'); // 'landing', 'manual', 'ai', 'editor', 'preview', 'drafts', 'setup-progress'
+  const [savedDrafts, setSavedDrafts] = useState<any[]>([
+    {
+      id: 'DRAFT-7712',
+      name: 'Bengkel Cepat Jaya',
+      category: 'Jasa Profesional',
+      description: 'Layanan servis motor dan mobil cepat, terpercaya, dan bergaransi dengan mekanik handal.',
+      createdAt: '24 Mei 2026',
+      color: '#3B82F6',
+      image: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=500&q=80'
+    }
+  ]);
+  const [cmsSubTab, setCmsSubTab] = useState('manual');
+  const [cmsSearchQuery, setCmsSearchQuery] = useState('');
+  const [cmsCurrentPage, setCmsCurrentPage] = useState(1);
+  const [guideSearchQuery, setGuideSearchQuery] = useState('');
+  const [cmsPosts, setCmsPosts] = useState([
+    { id: 1, title: "Strategi Kopi 2026", status: "Published", author: "Sarah Anderson", scoreBefore: 65, scoreAfter: 92, date: "24 Mei 2026", type: "Blog Post" },
+    { id: 2, title: "Menemukan Biji Terbaik", status: "Draft", author: "Sarah Anderson", scoreBefore: 45, scoreAfter: 78, date: "23 Mei 2026", type: "Blog Post" },
+    { id: 3, title: "Teknik Brewing Modern", status: "Published", author: "Admin", scoreBefore: 50, scoreAfter: 88, date: "22 Mei 2026", type: "Blog Post" },
+    { id: 4, title: "Membangun UMKM Digital", status: "Published", author: "Sarah Anderson", scoreBefore: 70, scoreAfter: 95, date: "20 Mei 2026", type: "Blog Post" },
+    { id: 5, title: "Tren Bisnis Kopi Global", status: "Published", author: "Admin", scoreBefore: 60, scoreAfter: 84, date: "18 Mei 2026", type: "Blog Post" },
+    { id: 6, title: "Optimasi SEO Konten Lokal", status: "Published", author: "Sarah Anderson", scoreBefore: 55, scoreAfter: 89, date: "16 Mei 2026", type: "Blog Post" },
+    { id: 7, title: "Analisis Pasar Industri Kopi", status: "Draft", author: "Admin", scoreBefore: 40, scoreAfter: 76, date: "14 Mei 2026", type: "Blog Post" },
+    { id: 8, title: "Panduan Memilih Biji Robusta", status: "Published", author: "Sarah Anderson", scoreBefore: 62, scoreAfter: 91, date: "12 Mei 2026", type: "Blog Post" }
+  ]);
+  const [aiTopic, setAiTopic] = useState('');
+  const [aiTone, setAiTone] = useState('Profesional');
+  const [aiLength, setAiLength] = useState('Sedang (600 kata)');
+  const [isGeneratingAiPost, setIsGeneratingAiPost] = useState(false);
+  const [aiPostProgress, setAiPostProgress] = useState(0);
+  const [aiPostStepText, setAiPostStepText] = useState('');
+  const [isSmartScheduling, setIsSmartScheduling] = useState(true);
+  const [aiSchedulerFrequency, setAiSchedulerFrequency] = useState('3 postingan / minggu');
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop');
+  const [selectedAiFeatures, setSelectedAiFeatures] = useState<string[]>(['Headline', 'Subheadline']);
+
+  const [aiData, setAiData] = useState({
+    description: '',
+    target: '',
+    style: 'Modern & Sleek'
+  });
+
+  const [manualData, setManualData] = useState({
+    name: '',
+    subdomain: '',
+    category: 'E-Commerce / Toko Online',
+    template: 'Modern Dark Pro (Recommended)',
+    color: '#3B82F6',
+    description: ''
+  });
+
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  const menuItems = [
+    { id: 'overview', icon: <LucideLineChart className="w-5 h-5" />, label: 'Dashboard' },
+    ...(user?.role === 'ADMIN' ? [{ id: 'admin_panel', icon: <Shield className="w-5 h-5" />, label: 'Admin Panel' }] : []),
+    { id: 'buat_situs', icon: <Plus className="w-5 h-5" />, label: 'Create Site' },
+    { id: 'templates', icon: <Layout className="w-5 h-5" />, label: 'Templates' },
+    { id: 'cms', icon: <Layers className="w-5 h-5" />, label: 'CMS' },
+    { id: 'tokens', icon: <Banknote className="w-5 h-5" />, label: 'Buy Tokens' },
+    { id: 'profile', icon: <User className="w-5 h-5" />, label: 'Profile' },
+  ];
+
+  const [userProjects, setUserProjects] = useState<any[]>([]);
+  const [showAdminNoteModal, setShowAdminNoteModal] = useState<string | null>(null);
+  const [activePageId, setActivePageId] = useState<string | null>(null);
+  const [templates, setTemplates] = useState<any[]>([]);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
+
+  const profileImageInputRef = useRef<HTMLInputElement>(null);
+
+  const fetchProjects = async () => {
+    try {
+      const res = await fetch('/api/landing-pages');
+      const data = await res.json();
+      if (data.success && Array.isArray(data.data)) {
+        setUserProjects(data.data);
+      }
+    } catch (err) {
+      console.error("Gagal mengambil daftar proyek:", err);
+    }
+  };
+
+  const fetchTemplates = async () => {
+    try {
+      const res = await fetch('/api/templates');
+      const data = await res.json();
+      if (data.success && Array.isArray(data.data)) {
+        setTemplates(data.data);
+      }
+    } catch (err) {
+      console.error("Gagal mengambil daftar template:", err);
+    }
+  };
+
+  const handlePublishRequest = async (pageId: string) => {
+    if (!pageId) return;
+    try {
+      showNotification('Mengajukan permintaan publikasi...', 'info');
+      const res = await fetch(`/api/landing-pages/${pageId}/publish-request`, {
+        method: 'POST'
+      });
+      const data = await res.json();
+      if (data.success) {
+        showNotification('Permintaan publikasi berhasil diajukan!', 'success');
+        fetchProjects();
+      } else {
+        showNotification(data.message || 'Gagal mengajukan publikasi.', 'info');
+      }
+    } catch (err) {
+      console.error(err);
+      showNotification('Terjadi kesalahan koneksi.', 'info');
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (err) {
+      console.error(err);
+    }
+    setUser(null);
+    setView('home');
+  };
+
+  useEffect(() => {
+    fetchProjects();
+    fetchTemplates();
+  }, []);
+
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileData, setProfileData] = useState({
+    name: user?.name || 'Sarah Anderson',
+    email: user?.email || 'user@landfarm.id',
+    phone: user?.phone || '0812-3456-7890',
+    location: user?.location || 'Jakarta, ID'
+  });
+
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newPassword !== confirmPassword) {
+      showNotification('Konfirmasi password baru tidak cocok.', 'info');
+      return;
+    }
+    try {
+      const res = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ oldPassword, newPassword })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showNotification(data.message || 'Password berhasil diperbarui!', 'success');
+        setIsChangingPassword(false);
+        setOldPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+        
+        // Refresh session to get updated provider/password status
+        const meRes = await fetch('/api/auth/me');
+        const meData = await meRes.json();
+        if (meData.success && meData.data) {
+          setUser(meData.data);
+        }
+      } else {
+        showNotification(data.message || 'Gagal memperbarui password.', 'info');
+      }
+    } catch (err) {
+      console.error(err);
+      showNotification('Terjadi kesalahan koneksi.', 'info');
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      setProfileData({
+        name: user.name,
+        email: user.email,
+        phone: user.phone || '',
+        location: user.location || ''
+      });
+    }
+  }, [user]);
+
+  const handleSaveProfile = async () => {
+    try {
+      const res = await fetch('/api/users/me', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: profileData.name,
+          email: profileData.email,
+          phone: profileData.phone,
+          location: profileData.location
+        })
+      });
+      const data = await res.json();
+      if (data.success && data.data) {
+        setUser(data.data);
+        setIsEditingProfile(false);
+        showNotification('Profil berhasil diperbarui!', 'success');
+      } else {
+        showNotification(data.message || 'Gagal memperbarui profil.', 'info');
+      }
+    } catch (err) {
+      console.error(err);
+      showNotification('Terjadi kesalahan koneksi.', 'info');
+    }
+  };
+
+  const handleProfileImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      showNotification('Mengunggah foto profil...', 'info');
+      const uploadRes = await fetch('/api/media/upload', {
+        method: 'POST',
+        body: formData
+      });
+      const uploadData = await uploadRes.json();
+      if (uploadData.success && uploadData.data) {
+        const fileUrl = uploadData.data.fileUrl;
+
+        const updateRes = await fetch('/api/users/me', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: fileUrl })
+        });
+        const updateData = await updateRes.json();
+        if (updateData.success && updateData.data) {
+          setUser(updateData.data);
+          showNotification('Foto profil berhasil diperbarui!', 'success');
+        } else {
+          showNotification(updateData.message || 'Gagal menyimpan foto profil.', 'info');
+        }
+      } else {
+        showNotification(uploadData.message || 'Gagal mengunggah gambar.', 'info');
+      }
+    } catch (err) {
+      console.error(err);
+      showNotification('Terjadi kesalahan koneksi.', 'info');
+    }
+  };
+
+  const [showDomainManager, setShowDomainManager] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [genProgress, setGenProgress] = useState(0);
+  const [businessData, setBusinessData] = useState({
+    name: '',
+    category: '',
+    product: '',
+    target: '',
+    tone: 'Profesional',
+    theme: 'Modern Blue',
+    cta: ''
+  });
+  const [agenticStrategy, setAgenticStrategy] = useState<any>(null);
+  const [generatedDraft, setGeneratedDraft] = useState<any>(null);
+  const [selectedColor, setSelectedColor] = useState('#3B82F6');
+  const [notification, setNotification] = useState<{ message: string, type: 'success' | 'info' } | null>(null);
+
+  useEffect(() => {
+    setShowDomainManager(false);
+  }, [subView]);
+
+  const showNotification = (message: string, type: 'success' | 'info' = 'success') => {
+    setNotification({ message, type });
+    setTimeout(() => setNotification(null), 3000);
+  };
+
+  const handleAiBuild = async () => {
+    const errors: Record<string, string> = {};
+    if (!aiData.description.trim()) errors.description = 'Deskripsi bisnis wajib diisi';
+    if (!aiData.target.trim()) errors.target = 'Target audiens wajib diisi';
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+
+    setFormErrors({});
+    setIsGenerating(true);
+    setGenProgress(0);
+
+    // Simulation steps
+    const steps = [
+      { progress: 20, text: 'Menganalisis deskripsi bisnis...' },
+      { progress: 40, text: 'Merancang struktur halaman...' },
+      { progress: 60, text: 'Menyiapkan aset visual...' },
+      { progress: 85, text: 'Mengoptimasi konten SEO...' },
+      { progress: 100, text: 'Selesai!' }
+    ];
+
+    for (const step of steps) {
+      await new Promise(r => setTimeout(r, 600));
+      setGenProgress(step.progress);
+    }
+
+    try {
+      const draft = await generateWebsiteDraft(
+        'Situs Bisnis AI',
+        'General',
+        aiData.description
+      );
+
+      setGeneratedDraft({
+        ...draft,
+        sections: ['Hero Section', 'Tentang Kami', 'Produk/Layanan', 'Galeri', 'CTA', 'Footer']
+      });
+      setSelectedColor(draft.themeColor);
+      setCmsNavMode('preview');
+      showNotification('Website berhasil dibangun!', 'success');
+    } catch (error) {
+      setGeneratedDraft({
+        headline: 'Selamat Datang di Bisnis Kami',
+        subheadline: aiData.description,
+        cta: 'Mulai Sekarang',
+        url: 'uni-landfarm.ai/preview-site',
+        sections: ['Hero Section', 'Tentang Kami', 'Produk/Layanan', 'Galeri', 'CTA', 'Footer'],
+        themeColor: '#3B82F6'
+      });
+      setCmsNavMode('preview');
+      showNotification('Gagal menghubungi AI, menggunakan draf default.', 'info');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleManualSetup = async () => {
+    const errors: Record<string, string> = {};
+    if (!manualData.name.trim()) errors.name = 'Nama website wajib diisi';
+    if (!manualData.subdomain.trim()) errors.subdomain = 'Domain wajib diisi';
+    if (!manualData.description.trim()) errors.description = 'Deskripsi bisnis wajib diisi';
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+
+    setFormErrors({});
+    setIsGenerating(true);
+
+    const draft = await generateWebsiteDraft(
+      manualData.name,
+      manualData.category,
+      manualData.description
+    );
+
+    setGeneratedDraft({
+      ...draft,
+      sections: ['Hero Section', 'Tentang Kami', 'Produk/Layanan', 'Galeri', 'CTA', 'Footer']
+    });
+    setSelectedColor(manualData.color);
+
+    setIsGenerating(false);
+    setCmsNavMode('preview');
+    showNotification('Website berhasil dikonfigurasi!', 'success');
+  };
+
+  const handleCreateRancangan = async () => {
+    const errors: Record<string, string> = {};
+    if (!manualData.name.trim()) errors.name = 'Nama website wajib diisi';
+    if (!manualData.description.trim()) errors.description = 'Deskripsi bisnis wajib diisi';
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+
+    setFormErrors({});
+    setIsGenerating(true);
+    setGenProgress(0);
+
+    try {
+      // Simulate saving
+      const newDraft = {
+        id: `DRAFT-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+        name: manualData.name,
+        category: manualData.category,
+        description: manualData.description,
+        color: manualData.color,
+        createdAt: new Date().toLocaleDateString('id-ID'),
+        image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500&q=80'
+      };
+
+      await new Promise(r => setTimeout(r, 1500));
+      setSavedDrafts(prev => [newDraft, ...prev]);
+      setCmsNavMode('drafts');
+      showNotification('Rancangan draf berhasil disimpan!', 'success');
+    } catch (e) {
+      showNotification('Gagal menyimpan draf.', 'info');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleGenerateAiPost = async () => {
+    if (!aiTopic.trim()) {
+      showNotification('Silakan isi topik atau judul artikel terlebih dahulu!', 'info');
+      return;
+    }
+
+    setIsGeneratingAiPost(true);
+    setAiPostProgress(0);
+
+    const steps = [
+      { progress: 15, text: 'Melakukan riset kompetitor & keyword SEO...' },
+      { progress: 35, text: 'Menyusun outline & kerangka heading artikel...' },
+      { progress: 60, text: 'Membangkitkan konten berkualitas tinggi menggunakan AI...' },
+      { progress: 85, text: 'Mengoptimasi kepadatan kata kunci & meta tag...' },
+      { progress: 100, text: 'Menyimpan artikel ke draf CMS...' }
+    ];
+
+    for (const step of steps) {
+      setAiPostStepText(step.text);
+      await new Promise(r => setTimeout(r, 600));
+      setAiPostProgress(step.progress);
+    }
+
+    const newPost = {
+      id: cmsPosts.length + 1,
+      title: aiTopic,
+      status: "Draft",
+      author: "Agentic AI Writer",
+      scoreBefore: Math.floor(Math.random() * 20) + 40,
+      scoreAfter: Math.floor(Math.random() * 15) + 85,
+      date: new Date().toLocaleDateString('id-ID'),
+      type: "Blog Post"
+    };
+
+    setCmsPosts(prev => [newPost, ...prev]);
+    setIsGeneratingAiPost(false);
+    setAiTopic('');
+    showNotification('Artikel AI berhasil dibuat dan disimpan ke Draf!', 'success');
+  };
+
+  const [activeTemplateFilter, setActiveTemplateFilter] = useState('Semua');
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [previewTemplate, setPreviewTemplate] = useState<any>(null);
+
+  // States for creation modal
+  const [templateForCreation, setTemplateForCreation] = useState<any>(null);
+  const [creationWebsiteTitle, setCreationWebsiteTitle] = useState('');
+  const [creationBusinessName, setCreationBusinessName] = useState('');
+  const [creationSlug, setCreationSlug] = useState('');
+  const [isCreatingPage, setIsCreatingPage] = useState(false);
+  const [creationError, setCreationError] = useState<string | null>(null);
+
+  const handleCreatePageFromTemplate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!creationWebsiteTitle.trim() || !creationBusinessName.trim() || !creationSlug.trim()) {
+      setCreationError('Semua field wajib diisi.');
+      return;
+    }
+
+    setIsCreatingPage(true);
+    setCreationError(null);
+
+    try {
+      const res = await fetch('/api/landing-pages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          templateId: templateForCreation.id,
+          title: creationWebsiteTitle.trim(),
+          businessName: creationBusinessName.trim(),
+          slug: creationSlug.trim().toLowerCase().replace(/\s+/g, '-'),
+          contentJson: templateForCreation.defaultContent
+        })
+      });
+
+      const data = await res.json();
+      if (data.success && data.data) {
+        showNotification('Situs baru berhasil dibuat dari template!', 'success');
+        setTemplateForCreation(null);
+        setCreationWebsiteTitle('');
+        setCreationBusinessName('');
+        setCreationSlug('');
+        
+        await fetchProjects();
+        
+        setActivePageId(data.data.id);
+        setIsCmsEditorOpen(true);
+      } else {
+        setCreationError(data.message || 'Gagal membuat situs.');
+      }
+    } catch (err) {
+      setCreationError('Terjadi kesalahan koneksi.');
+    } finally {
+      setIsCreatingPage(false);
+    }
+  };
+
+  const mappedLibraryTemplates = templates.map(t => ({
+    id: t.id,
+    title: t.name,
+    category: t.category,
+    img: t.thumbnail || "https://picsum.photos/seed/design/800/600",
+    description: t.description,
+    defaultContent: t.defaultContent,
+    type: "Landing Page"
+  }));
+
+  const filteredLibraryTemplates = activeTemplateFilter === 'Semua'
+    ? mappedLibraryTemplates
+    : mappedLibraryTemplates.filter(t => t.category === activeTemplateFilter);
+
+  const templateCategories = ['Semua', ...Array.from(new Set(templates.map(t => t.category)))];
+
+  const handlePublish = () => {
+    setIsPublishing(true);
+    setTimeout(() => {
+      setIsPublishing(false);
+      showNotification('Situs berhasil dipublikasikan!');
+
+      // Update userProjects when published
+      const newProject = {
+        id: `PROJ-0${userProjects.length + 1}`,
+        name: businessData.name || 'Situs Baru',
+        status: 'Online',
+        views: '0',
+        type: businessData.category || 'Landing Page',
+        image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500&q=80'
+      };
+      setUserProjects([newProject, ...userProjects]);
+      setSubView('overview');
+      setCmsNavMode('landing');
+    }, 2000);
+  };
+
+  const [integrations, setIntegrations] = useState([
+    { name: "Domain Kustom", icon: <Globe className="text-brand-blue" />, status: "Tersedia", color: "bg-blue-50" },
+    { name: "Instagram Business", icon: <Instagram className="text-pink-500" />, status: "Hubungkan", color: "bg-pink-50" },
+    { name: "WhatsApp Business", icon: <MessageSquare className="text-emerald-500" />, status: "Terhubung", color: "bg-emerald-50" },
+    { name: "Facebook Pixel", icon: <Facebook className="text-blue-600" />, status: "Terhubung", color: "bg-blue-50" },
+    { name: "Google Analytics", icon: <BarChart3 className="text-amber-500" />, status: "Hubungkan", color: "bg-amber-50" },
+    { name: "TikTok Ads", icon: <Music2 className="text-pink-500" />, status: "Hubungkan", color: "bg-pink-50" },
+    { name: "Payment Gateway", icon: <CreditCard className="text-indigo-500" />, status: "Hubungkan", color: "bg-indigo-50" },
+    { name: "Email Marketing", icon: <Mail className="text-orange-500" />, status: "Hubungkan", color: "bg-orange-50" },
+  ]);
+
+  const toggleIntegration = (index: number) => {
+    const newIntegrations = [...integrations];
+    newIntegrations[index].status = newIntegrations[index].status === 'Terhubung' ? 'Hubungkan' : 'Terhubung';
+    setIntegrations(newIntegrations);
+  };
+
+  const renderSubView = () => {
+    switch (subView) {
+      case 'admin_panel':
+        return <AdminPanelPage showNotification={showNotification} onSwitchToUserView={() => setSubView('overview')} onSettingsUpdate={setSystemSettings} />;
+      case 'panduan':
+        return <ContentPlanPage guideSearchQuery={guideSearchQuery} />;
+      case 'tokens':
+        return <RepositoryPage showNotification={showNotification} />;
+      case 'overview':
+        return (
+          <DashboardPage
+            systemSettings={systemSettings}
+            userProjects={userProjects}
+            showNotification={showNotification}
+            setSubView={setSubView}
+            setActivePageId={setActivePageId}
+            setIsCmsEditorOpen={setIsCmsEditorOpen}
+            setShowAdminNoteModal={setShowAdminNoteModal}
+            fetchProjects={fetchProjects}
+          />
+        );
+      case 'templates':
+        return (
+          <TemplatePage
+            templateCategories={templateCategories}
+            filteredLibraryTemplates={filteredLibraryTemplates}
+            activeTemplateFilter={activeTemplateFilter}
+            setActiveTemplateFilter={setActiveTemplateFilter}
+            previewTemplate={previewTemplate}
+            setPreviewTemplate={setPreviewTemplate}
+            templateForCreation={templateForCreation}
+            setTemplateForCreation={setTemplateForCreation}
+            creationWebsiteTitle={creationWebsiteTitle}
+            setCreationWebsiteTitle={setCreationWebsiteTitle}
+            creationBusinessName={creationBusinessName}
+            setCreationBusinessName={setCreationBusinessName}
+            creationSlug={creationSlug}
+            setCreationSlug={setCreationSlug}
+            isCreatingPage={isCreatingPage}
+            creationError={creationError}
+            handleCreatePageFromTemplate={handleCreatePageFromTemplate}
+          />
+        );
+      case 'billing':
+        return (
+          <div className="max-w-5xl mx-auto space-y-12">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Penagihan & Langganan</h2>
+                <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Kelola langganan dan riwayat transaksi Anda.</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="lg:col-span-2 space-y-8">
+                {/* CURRENT PLAN */}
+                <div className="bg-slate-900 dark:bg-slate-800 rounded-[32px] p-8 text-white relative overflow-hidden shadow-premium transition-colors duration-300">
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-brand-blue/20 blur-[100px] rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                  <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <div className="px-3 py-1 bg-brand-blue rounded-full text-[9px] font-black uppercase tracking-widest">Paket Saat Ini</div>
+                        <span className="text-2xl font-black tracking-tight">AKUN PRO</span>
+                      </div>
+                      <p className="text-slate-400 text-sm font-medium max-w-sm">Anda menikmati akses penuh ke semua fitur Agentic AI dan integrasi tanpa batas.</p>
+                      <div className="flex items-center gap-6 pt-4">
+                        <div>
+                          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Penagihan Berikutnya</p>
+                          <p className="text-sm font-black">15 April 2024</p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Jumlah</p>
+                          <p className="text-sm font-black">Rp 299.000</p>
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => showNotification('Fitur Manajemen Paket akan segera hadir!', 'info')}
+                      className="bg-white text-slate-900 px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-brand-blue hover:text-white transition-all shadow-xl"
+                    >
+                      Kelola Paket
+                    </button>
+                  </div>
+                </div>
+
+                {/* INVOICE TABLE */}
+                <div className="bg-gradient-to-br from-white to-blue-50/15 dark:from-slate-900/60 dark:to-slate-950/60 rounded-[32px] border border-slate-200/60 dark:border-slate-800/80 shadow-[0_10px_35px_-5px_rgba(255,176,0,0.06)] dark:shadow-[0_15px_40px_-5px_rgba(255,176,0,0.15)] overflow-hidden hover:border-brand-blue/20 dark:hover:border-brand-blue/30 transition-all duration-300">
+                  <div className="p-6 border-b border-slate-50 dark:border-slate-800/50">
+                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Riwayat Transaksi</h4>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                      <thead>
+                        <tr className="bg-slate-50/50 dark:bg-slate-800/50">
+                          <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">ID Faktur</th>
+                          <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Tanggal</th>
+                          <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Jumlah</th>
+                          <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+                          <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Aksi</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-50 dark:divide-slate-800/50">
+                        {[
+                          { id: "#INV-8821", date: "15 Mar 2024", amount: "Rp 299.000", status: "Lunas" },
+                          { id: "#INV-7712", date: "15 Feb 2024", amount: "Rp 299.000", status: "Lunas" },
+                          { id: "#INV-6603", date: "15 Jan 2024", amount: "Rp 299.000", status: "Lunas" },
+                        ].map((inv, i) => (
+                          <tr key={i} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
+                            <td className="px-6 py-4 text-xs font-black text-slate-900 dark:text-white">{inv.id}</td>
+                            <td className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400">{inv.date}</td>
+                            <td className="px-6 py-4 text-xs font-black text-slate-900 dark:text-white">{inv.amount}</td>
+                            <td className="px-6 py-4">
+                              <span className="px-2 py-1 bg-purple-50 dark:bg-purple-500/10 text-purple-500 text-[9px] font-black rounded-lg uppercase tracking-widest">{inv.status}</span>
+                            </td>
+                            <td className="px-6 py-4">
+                              <button className="text-brand-blue hover:underline text-[10px] font-black uppercase tracking-widest">Unduh</button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-8">
+                {/* PAYMENT METHODS */}
+                <div className="bg-gradient-to-br from-white to-blue-50/15 dark:from-slate-900/60 dark:to-slate-950/60 rounded-[32px] border border-slate-200/60 dark:border-slate-800/80 shadow-[0_10px_35px_-5px_rgba(255,176,0,0.06)] dark:shadow-[0_15px_40px_-5px_rgba(255,176,0,0.15)] p-8 hover:border-brand-blue/20 dark:hover:border-brand-blue/30 transition-all duration-300">
+                  <h4 className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-6">Metode Pembayaran</h4>
+                  <div className="space-y-4">
+                    <div className="p-4 rounded-2xl border-2 border-brand-blue bg-brand-blue/5 dark:bg-brand-blue/10 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <CreditCard className="w-5 h-5 text-brand-blue" />
+                        <div>
+                          <p className="text-xs font-black text-slate-900 dark:text-white">Visa •••• 4242</p>
+                          <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">Kedaluwarsa 12/26</p>
+                        </div>
+                      </div>
+                      <div className="w-4 h-4 bg-brand-blue rounded-full flex items-center justify-center">
+                        <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                      </div>
+                    </div>
+                    <div className="p-4 rounded-2xl border border-slate-100 dark:border-slate-800/80 flex items-center justify-between hover:border-slate-200 dark:hover:border-slate-700 dark:bg-slate-900/40 transition-all cursor-pointer">
+                      <div className="flex items-center gap-3">
+                        <Wallet className="w-5 h-5 text-slate-400" />
+                        <div>
+                          <p className="text-xs font-black text-slate-900 dark:text-white">GoPay Wallet</p>
+                          <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">Terhubung</p>
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => showNotification('Fitur Tambah Metode Pembayaran akan segera hadir!', 'info')}
+                      className="w-full py-3 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest hover:border-brand-blue hover:text-brand-blue dark:hover:text-brand-blue dark:hover:border-brand-blue transition-all"
+                    >
+                      Tambah Metode Baru
+                    </button>
+                  </div>
+                </div>
+
+                {/* UPGRADE BANNER */}
+                <div className="bg-gradient-to-br from-purple-600 to-brand-blue rounded-[32px] p-8 text-white shadow-xl shadow-brand-blue/20">
+                  <Building2 className="w-10 h-10 mb-6 opacity-50" />
+                  <h4 className="text-lg font-black mb-2">Paket Enterprise</h4>
+                  <p className="text-xs text-white/70 font-medium mb-6 leading-relaxed">Butuh kontrol lebih untuk tim besar? Dapatkan fitur kustom dan dukungan prioritas 24/7.</p>
+                  <button
+                    onClick={() => showNotification('Menghubungkan ke Tim Sales...', 'info')}
+                    className="w-full py-3 bg-white text-purple-600 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-slate-50 transition-all"
+                  >
+                    Contact Sales
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'buat_situs':
+        return (
+          <LandingPagePage
+            cmsNavMode={cmsNavMode}
+            setCmsNavMode={setCmsNavMode}
+            genProgress={genProgress}
+            isGenerating={isGenerating}
+            generatedDraft={generatedDraft}
+            savedDrafts={savedDrafts}
+            setSavedDrafts={setSavedDrafts}
+            manualData={manualData}
+            setManualData={setManualData}
+            aiData={aiData}
+            setAiData={setAiData}
+            formErrors={formErrors}
+            handleAiBuild={handleAiBuild}
+            handleManualSetup={handleManualSetup}
+            handleCreateRancangan={handleCreateRancangan}
+            handlePublish={handlePublish}
+            setSubView={setSubView}
+            setCmsSubTab={setCmsSubTab}
+          />
+        );
+
+      case 'cms':
+        return (
+          <CmsPage
+            cmsSubTab={cmsSubTab}
+            setCmsSubTab={setCmsSubTab}
+            cmsPosts={cmsPosts}
+            setCmsPosts={setCmsPosts}
+            cmsSearchQuery={cmsSearchQuery}
+            setCmsSearchQuery={setCmsSearchQuery}
+            cmsCurrentPage={cmsCurrentPage}
+            setCmsCurrentPage={setCmsCurrentPage}
+            aiTopic={aiTopic}
+            setAiTopic={setAiTopic}
+            aiTone={aiTone}
+            setAiTone={setAiTone}
+            aiLength={aiLength}
+            setAiLength={setAiLength}
+            isGeneratingAiPost={isGeneratingAiPost}
+            aiPostProgress={aiPostProgress}
+            aiPostStepText={aiPostStepText}
+            isSmartScheduling={isSmartScheduling}
+            setIsSmartScheduling={setIsSmartScheduling}
+            aiSchedulerFrequency={aiSchedulerFrequency}
+            setAiSchedulerFrequency={setAiSchedulerFrequency}
+            handleGenerateAiPost={handleGenerateAiPost}
+            showNotification={showNotification}
+          />
+        );
+
+      case 'preview_page': {
+        return (
+          <div className="max-w-[1400px] mx-auto animate-in fade-in duration-500">
+            <PreviewLandingPage
+              pageId={activePageId || userProjects[0]?.id || ''}
+              onBack={() => setSubView('cms')}
+              onPublishSuccess={() => {
+                fetchProjects();
+                setSubView('cms');
+              }}
+            />
+          </div>
+        );
+      }
+
+      case 'profile': {
+        return (
+          <ProfilePage
+            user={user}
+            profileData={profileData}
+            setProfileData={setProfileData}
+            isEditingProfile={isEditingProfile}
+            setIsEditingProfile={setIsEditingProfile}
+            handleSaveProfile={handleSaveProfile}
+            handleProfileImageChange={handleProfileImageChange}
+            profileImageInputRef={profileImageInputRef}
+            setIsChangingPassword={setIsChangingPassword}
+            setOldPassword={setOldPassword}
+            setNewPassword={setNewPassword}
+            setConfirmPassword={setConfirmPassword}
+            setShowLogoutConfirm={setShowLogoutConfirm}
+          />
+        );
+      }
+      default:
+        return (
+          <div className="max-w-6xl mx-auto flex flex-col items-center justify-center py-12 text-center">
+            <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mb-6">
+              <MoreHorizontal className="w-10 h-10 text-slate-300" />
+            </div>
+            <h3 className="text-xl font-black text-slate-900 mb-2">Halaman Sedang Dikembangkan</h3>
+            <p className="text-sm text-slate-500 max-w-sm mb-8 font-medium">
+              Fitur <span className="text-brand-blue font-black uppercase">{subView}</span> akan segera hadir untuk meningkatkan pengalaman Anda.
+            </p>
+            <button
+              onClick={() => setSubView('overview')}
+              className="px-8 py-3 bg-slate-900 text-white rounded-xl font-black text-xs"
+            >
+              Kembali ke Dashboard
+            </button>
+          </div>
+        );
+    }
+  };
+
+  const isEditorActive = isCmsEditorOpen || (subView === 'cms' && cmsSubTab === 'editor');
+  const isAdminPanelActive = subView === 'admin_panel';
+
+  return isEditorActive ? (
+    <ContentStructureEditor
+      pageId={activePageId || userProjects[0]?.id || ''}
+      onBack={() => {
+        setIsCmsEditorOpen(false);
+        if (cmsSubTab === 'editor') {
+          setCmsSubTab('manual');
+        }
+      }}
+      onPublishSuccess={() => {
+        fetchProjects();
+      }}
+    />
+  ) : (
+    <>
+      {isAdminPanelActive ? (
+        <div className="min-h-screen bg-[#070b19] flex flex-col font-sans relative pt-[72px]">
+          {/* ADMIN PERSISTENT HEADER BAR */}
+          <header className="fixed top-0 left-0 right-0 z-50 bg-[#070b19] border-b border-slate-800/60 h-[72px] flex items-center justify-between px-8 text-white">
+            <div className="flex items-center gap-4">
+              <div
+                className="cursor-pointer hover:scale-105 transition-all"
+                onClick={() => setView('home')}
+              >
+                {systemSettings?.logo && (systemSettings.logo.startsWith('http') || systemSettings.logo.startsWith('/')) ? (
+                  <img src={systemSettings.logo.startsWith('/') ? `${systemSettings.logo}?v=8` : systemSettings.logo} alt="Logo" className="h-[74px] object-contain" />
+                ) : (
+                  <img src="/logo.png?v=8" alt="Logo" className="h-[74px] object-contain" />
+                )}
+              </div>
+              <div>
+                <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-md text-[8px] font-black uppercase tracking-wider">
+                  Admin Panel
+                </span>
+                <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest block mt-0.5">Control Center</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-6">
+              {/* Admin User Info */}
+              <div className="flex items-center gap-3">
+                <div className="text-right hidden sm:block">
+                  <p className="text-xs font-black uppercase tracking-tighter leading-none mb-1 text-slate-200">
+                    Uni-Inside Administrator
+                  </p>
+                  <div className="flex items-center justify-end gap-1.5 leading-none">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none">
+                      Root Admin
+                    </p>
+                  </div>
+                </div>
+                <div className="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center border border-slate-700 shadow-sm overflow-hidden">
+                  <div className="w-full h-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xs font-black uppercase">
+                    U
+                  </div>
+                </div>
+              </div>
+            </div>
+          </header>
+
+          {/* Admin Panel content taking full width */}
+          <main className="flex-grow min-w-0">
+            <AdminPanelPage 
+              showNotification={showNotification} 
+              onLogout={() => setShowLogoutConfirm(true)}
+              onSettingsUpdate={setSystemSettings}
+              onSwitchToUserView={() => setSubView('overview')}
+            />
+          </main>
+          <DashboardFooter setView={setView} setSubView={handleSetSubView} systemSettings={systemSettings} />
+        </div>
+      ) : (
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col font-sans transition-colors duration-300 relative">
+          {showAdminNoteModal && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+              <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-md" onClick={() => setShowAdminNoteModal(null)} />
+              <div className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-[32px] overflow-hidden shadow-2xl p-8 border border-slate-150 dark:border-slate-800">
+                <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight mb-2">Catatan Penolakan Admin</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-6">Berikut adalah alasan penolakan publikasi dari admin:</p>
+                <div className="bg-red-50 dark:bg-red-950/20 border border-red-150 dark:border-red-900/30 p-4 rounded-2xl text-xs text-red-600 dark:text-red-400 font-medium leading-relaxed">
+                  {showAdminNoteModal}
+                </div>
+                <button
+                  onClick={() => setShowAdminNoteModal(null)}
+                  className="w-full mt-6 py-3 bg-slate-950 dark:bg-white text-white dark:text-slate-950 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-900 dark:hover:bg-slate-50 transition-all shadow-sm cursor-pointer font-black"
+                >
+                  Tutup
+                </button>
+              </div>
+            </div>
+          )}
+          
+          {/* Mesh Gradient for Dark Mode */}
+          <div className="fixed inset-0 pointer-events-none opacity-0 dark:opacity-100 transition-opacity duration-1000">
+            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/20 blur-[120px] rounded-full animate-blob"></div>
+            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-600/20 blur-[120px] rounded-full animate-blob animation-delay-2000"></div>
+            <div className="absolute top-[20%] right-[10%] w-[30%] h-[30%] bg-indigo-600/10 blur-[100px] rounded-full animate-blob animation-delay-4000"></div>
+          </div>
+
+          {/* Persistent Blue Atmosphere Glow at Bottom */}
+          <div className="fixed -bottom-48 left-1/2 -translate-x-1/2 w-full max-w-[1200px] h-96 bg-brand-blue/15 blur-[120px] pointer-events-none opacity-40 dark:opacity-20 z-0"></div>
+
+          {/* SECTION 1: PERSISTENT HEADER BAR */}
+          <header className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-[#020617] h-[72px] flex items-center justify-between px-8 shadow-sm dark:shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all duration-500">
+            <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-brand-blue/30 to-transparent opacity-0 dark:opacity-100"></div>
+            <div className="flex items-center gap-4">
+              <div
+                className="cursor-pointer hover:scale-110 active:scale-95 transition-all"
+                onClick={() => setView('home')}
+              >
+                {systemSettings?.logo && (systemSettings.logo.startsWith('http') || systemSettings.logo.startsWith('/')) ? (
+                  <img src={systemSettings.logo.startsWith('/') ? `${systemSettings.logo}?v=8` : systemSettings.logo} alt="Logo" className="h-[74px] object-contain" />
+                ) : (
+                  <img src="/logo.png?v=8" alt="Logo" className="h-[74px] object-contain" />
+                )}
+              </div>
+            </div>
+
+            <div className="flex-1" />
+
+            <div className="flex items-center gap-6">
+              <div className="hidden md:flex items-center gap-3 pr-6">
+                <button
+                  onClick={toggleTheme}
+                  className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-900/50 text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-brand-blue transition-all border border-slate-50 dark:border-white/5"
+                  aria-label="Toggle Theme"
+                >
+                  {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+                </button>
+
+                <button className="p-3 rounded-2xl text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-all relative group border border-transparent hover:border-slate-100 dark:hover:border-white/5">
+                  <Bell className="w-5 h-5" />
+                  <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-[#020617]"></span>
+                </button>
+              </div>
+
+              <div
+                onClick={() => setSubView('profile')}
+                className="flex items-center gap-4 cursor-pointer group"
+              >
+                <div className="text-right hidden sm:block">
+                  <p className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tighter leading-none mb-1 group-hover:text-brand-blue transition-colors">{user?.name || 'Sarah Anderson'}</p>
+                  <div className="flex items-center justify-end gap-2 leading-none">
+                    <div className={`w-2 h-2 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)] ${
+                      user?.plan && user.plan !== 'Regular Access' && user.plan !== '-' ? 'bg-emerald-500' : 'bg-slate-400'
+                    }`} />
+                    <p className="text-[9px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-[0.2em] leading-none">
+                      {user?.plan || 'Regular Access'}
+                    </p>
+                  </div>
+                </div>
+                <div className="w-11 h-11 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center overflow-hidden border border-slate-100 dark:border-white/10 shadow-sm group-hover:border-brand-blue/40 group-hover:scale-105 transition-all">
+                  {user?.image ? (
+                    <img src={user.image} alt="Profile" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                  ) : (
+                    <div className="w-full h-full bg-brand-blue/10 dark:bg-brand-blue/20 text-brand-blue flex items-center justify-center text-sm font-black">
+                      {user?.name 
+                        ? user.name.charAt(0).toUpperCase() 
+                        : (user?.email ? user.email.charAt(0).toUpperCase() : '?')}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </header>
+
+          <div className="flex flex-col flex-grow pt-[72px]">
+            {/* Row Container for Sidebar + Content */}
+            <div className="flex flex-1 w-full">
+              {/* SECTION 2: ENRICHED SIDEBAR */}
+              <aside className="w-[240px] bg-white dark:bg-slate-950 border-r border-slate-100 dark:border-slate-900 flex flex-col hidden lg:flex transition-colors duration-300 sticky top-[72px] h-[calc(100vh-72px)] overflow-y-auto z-20">
+                <nav className="flex-1 px-4 space-y-0.5 py-4">
+                  {menuItems.map((item, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setSubView(item.id)}
+                      className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[12px] font-black uppercase tracking-wider transition-all group relative ${subView === item.id
+                          ? 'bg-brand-blue/5 text-brand-blue shadow-[0_0_15px_rgba(255,176,0,0.05)] border border-brand-blue/10 dark:bg-brand-blue/10'
+                          : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900/40 hover:text-slate-950 dark:hover:text-white border border-transparent'
+                        }`}
+                    >
+                      <div className={`transition-all duration-300 ${subView === item.id ? 'text-brand-blue scale-110 drop-shadow-[0_0_8px_rgba(255,176,0,0.3)]' : 'text-slate-300 dark:text-slate-600 group-hover:text-brand-blue'}`}>
+                        {React.cloneElement(item.icon as React.ReactElement<any>, { className: "w-4 h-4" })}
+                      </div>
+                      {item.label}
+                      {subView === item.id && (
+                        <motion.div layoutId="navGlow" className="absolute left-0 w-1.5 h-5 bg-brand-blue rounded-r-full" />
+                      )}
+                    </button>
+                  ))}
+                </nav>
+              </aside>
+
+              {/* SECTION 3: MAIN DASHBOARD CONTENT AREA */}
+              <main className="flex-1 bg-slate-50/10 dark:bg-slate-950/20 transition-colors duration-300 relative min-w-0">
+                <div className="p-4 lg:p-8 w-full max-w-full box-border">
+                  {renderSubView()}
+                </div>
+              </main>
+            </div>
+
+            {/* SECTION 4: FULL-WIDTH FOOTER */}
+            <DashboardFooter setView={setView} setSubView={handleSetSubView} systemSettings={systemSettings} />
+          </div>
+        </div>
+      )}
+
+      {/* Notification Toast */}
+      <AnimatePresence>
+        {notification && (
+          <motion.div 
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className={`fixed bottom-6 right-6 z-[200] px-6 py-3.5 rounded-2xl shadow-xl flex items-center gap-3 border ${
+              notification.type === 'success' 
+                ? 'bg-slate-900 border-emerald-500/20 text-white dark:bg-white dark:text-slate-900' 
+                : 'bg-slate-900 border-blue-500/20 text-white dark:bg-white dark:text-slate-900'
+            }`}
+          >
+            <div className={`w-2 h-2 rounded-full ${notification.type === 'success' ? 'bg-emerald-500' : 'bg-brand-blue'}`} />
+            <span className="text-xs font-black uppercase tracking-wider">{notification.message}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Ubah Password Modal */}
+      <AnimatePresence>
+        {isChangingPassword && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-slate-900/80 backdrop-blur-md"
+              onClick={() => setIsChangingPassword(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-[24px] overflow-hidden shadow-2xl border border-slate-100 dark:border-white/10 p-6 space-y-6 z-10"
+            >
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-white/5">
+                <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">
+                  Ubah Password
+                </h3>
+                <button 
+                  onClick={() => setIsChangingPassword(false)}
+                  className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded-lg transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <form onSubmit={handleChangePassword} className="space-y-4">
+                {user?.provider !== 'google' && (
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Password Lama</label>
+                    <input
+                      type="password"
+                      required
+                      value={oldPassword}
+                      onChange={(e) => setOldPassword(e.target.value)}
+                      className="w-full bg-slate-50 dark:bg-slate-900/50 border-2 border-transparent focus:border-brand-blue/30 rounded-2xl p-4 text-xs font-black outline-none transition-all text-slate-900 dark:text-white"
+                      placeholder="••••••••"
+                    />
+                  </div>
+                )}
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Password Baru</label>
+                  <input
+                    type="password"
+                    required
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-slate-900/50 border-2 border-transparent focus:border-brand-blue/30 rounded-2xl p-4 text-xs font-black outline-none transition-all text-slate-900 dark:text-white"
+                    placeholder="Minimal 6 karakter"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Konfirmasi Password Baru</label>
+                  <input
+                    type="password"
+                    required
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-slate-900/50 border-2 border-transparent focus:border-brand-blue/30 rounded-2xl p-4 text-xs font-black outline-none transition-all text-slate-900 dark:text-white"
+                    placeholder="••••••••"
+                  />
+                </div>
+                <div className="flex gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsChangingPassword(false)}
+                    className="flex-1 py-3 text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest border border-slate-200 dark:border-white/5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-all"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 py-3 bg-brand-blue text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-brand-blue/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                  >
+                    Simpan
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Logout Confirmation Modal */}
+      <AnimatePresence>
+        {showLogoutConfirm && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-slate-900/80 backdrop-blur-md"
+              onClick={() => setShowLogoutConfirm(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-sm bg-white dark:bg-slate-900 rounded-[24px] overflow-hidden shadow-2xl border border-slate-100 dark:border-white/10 p-6 text-center space-y-6 z-10"
+            >
+              <div className="mx-auto w-12 h-12 bg-red-500/10 dark:bg-red-500/20 rounded-full flex items-center justify-center text-red-500">
+                <LogOut className="w-5 h-5" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Konfirmasi Logout</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Apakah Anda yakin ingin logout dari akun?</p>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowLogoutConfirm(false)}
+                  className="flex-1 py-3 text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest border border-slate-200 dark:border-white/5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-all"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={() => {
+                    setShowLogoutConfirm(false);
+                    handleLogout();
+                  }}
+                  className="flex-1 py-3 bg-red-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-red-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                >
+                  Logout
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+};
+
+export default DashboardView;

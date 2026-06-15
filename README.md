@@ -1,20 +1,55 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# Uni-LanFaram - AI CMS Landing Page Platform
 
-# Run and deploy your AI Studio app
+Uni-LanFaram adalah platform pembuatan landing page agribisnis dan UMKM lokal bertenaga AI dengan backend Next.js, Prisma ORM, dan database MySQL.
 
-This contains everything you need to run your app locally.
+---
 
-View your app in AI Studio: https://ai.studio/apps/66e066f3-f720-48f6-92c5-62d33f738f74
+## 🛠️ Langkah-Langkah Setup Database MySQL (Laragon)
 
-## Run Locally
+Ikuti langkah-langkah di bawah ini untuk menghubungkan aplikasi dengan database MySQL lokal menggunakan Laragon.
 
-**Prerequisites:**  Node.js
+### **Langkah 1: Install & Jalankan Laragon**
+1. Download dan install [Laragon](https://laragon.org/download/) jika belum ada.
+2. Buka Laragon dan klik **Start All** untuk menjalankan Apache & MySQL.
 
+### **Langkah 2: Buat Database**
+1. Klik kanan pada tray icon Laragon → **MySQL** → **HeidiSQL** (atau buka HeidiSQL manual).
+2. Buat database baru dengan nama: `unilandfarm`.
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+### **Langkah 3: Konfigurasi file `.env`**
+Buat atau edit file `.env` di direktori utama project Anda:
+
+```env
+DATABASE_URL="mysql://root@localhost:3306/unilandfarm"
+JWT_SECRET="uni_lanfaram_super_secret_jwt_key_2026_uninside"
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+```
+
+### **Langkah 4: Jalankan Migrasi & Menjalankan Aplikasi**
+Jalankan perintah berikut secara berurutan di terminal Anda:
+
+```bash
+# 1. Menginstal seluruh modul dependensi
+npm install
+
+# 2. Membuat file Prisma Client lokal
+npx prisma generate
+
+# 3. Menerapkan migrasi skema tabel ke MySQL
+npx prisma migrate dev --name init_mysql
+
+# 4. Menyuntikkan data awal seeder (Default Admin & User)
+npx prisma db seed
+
+# 5. Menjalankan server lokal Next.js
+npm run dev
+```
+
+---
+
+## 🔒 Fitur Proteksi & Fallback
+Aplikasi Uni-LanFaram memiliki **Error Handling Koneksi Database** yang aman:
+* **Anti-Crash Guard**: Jika `DATABASE_URL` pada file `.env` masih kosong, aplikasi **tidak akan crash atau memicu Internal Server Error**. 
+* **Informative Response API**: Aplikasi akan menampilkan pesan yang jelas:
+  > *"Database MySQL belum terhubung. Silakan periksa konfigurasi DATABASE_URL pada file .env."*
+* **Offline-Fallback**: Fitur frontend tetap dapat dijalankan secara lancar menggunakan mock memory data local storage untuk demonstrasi interaktif.
