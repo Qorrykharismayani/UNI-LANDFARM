@@ -700,28 +700,28 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
       {/* 1. TOP BAR - Two Row Header */}
       <div className="border-b border-slate-200 bg-white shrink-0 relative z-30 shadow-sm">
         {/* Row 1: Project Info & Publish */}
-        <div className="h-[48px] flex items-center justify-between px-5 border-b border-slate-100">
+        <div className="h-[56px] flex items-center justify-between px-6 border-b border-slate-100">
           {/* Left: Back + Project Name + Status */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <button
               onClick={onBack}
-              className="w-8 h-8 flex items-center justify-center bg-slate-50 border border-slate-200 hover:bg-brand-blue hover:text-white hover:border-brand-blue rounded-lg transition-all cursor-pointer group"
+              className="w-9 h-9 flex items-center justify-center bg-slate-50 border border-slate-200 hover:bg-brand-blue hover:text-white hover:border-brand-blue rounded-lg transition-all cursor-pointer group"
               title="Kembali ke Dashboard"
             >
               <ArrowLeft className="w-4 h-4 text-slate-500 group-hover:text-white" />
             </button>
-            <div className="h-6 w-px bg-slate-200" />
-            <div className="flex items-center gap-2.5">
-              <span className="text-sm font-extrabold text-slate-800 tracking-wide">{pageData?.businessName || 'Visual Editor'}</span>
-              <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border ${pageData?.status === 'Published' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
+            <div className="h-7 w-px bg-slate-200" />
+            <div className="flex items-center gap-3">
+              <span className="text-base font-extrabold text-slate-800 tracking-wide">{pageData?.businessName || 'Visual Editor'}</span>
+              <span className={`px-2.5 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider border ${pageData?.status === 'Published' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
                   pageData?.status === 'Pending Publish' ? 'bg-amber-50 text-amber-600 border-amber-200' :
                     'bg-slate-50 text-slate-500 border-slate-200'
                 }`}>
                 {pageData?.status || 'Draft'}
               </span>
             </div>
-            <div className="h-6 w-px bg-slate-200" />
-            <div className="flex items-center gap-1.5 text-xs text-slate-400">
+            <div className="h-7 w-px bg-slate-200" />
+            <div className="flex items-center gap-2 text-sm text-slate-400">
               <span>Template: <span className="text-slate-600 font-semibold">{pageData?.template?.name || pageData?.template}</span></span>
               <span>·</span>
               <span className={`font-semibold ${saveStatus === 'Saving' ? 'text-amber-500 animate-pulse' : saveStatus === 'Error' ? 'text-red-500' : 'text-emerald-500'}`}>
@@ -735,26 +735,26 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
             {pageData?.status !== 'Pending Publish' && pageData?.status !== 'Published' && (
               <button
                 onClick={() => setShowPublishConfirm(true)}
-                className="px-4 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-xs font-bold uppercase tracking-wider hover:scale-[1.02] transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
+                className="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-sm font-bold uppercase tracking-wider hover:scale-[1.02] transition-all shadow-sm shadow-emerald-500/20 flex items-center justify-center gap-2 cursor-pointer"
               >
-                <Send className="w-3.5 h-3.5" /> Publish
+                <Send className="w-4 h-4" /> Publish
               </button>
             )}
           </div>
         </div>
 
         {/* Row 2: Tab Navigation */}
-        <div className="h-[44px] flex items-center justify-center px-5">
-          <div className="flex items-center gap-0.5 bg-slate-100/80 p-1 rounded-lg border border-slate-200/60">
+        <div className="h-[46px] flex items-center justify-center px-6">
+          <div className="flex items-center gap-1 bg-slate-100/80 p-1 rounded-lg border border-slate-200/60">
             {[
-              { id: 'sections', label: 'Daftar Section', icon: <Layers className="w-3.5 h-3.5" /> },
-              { id: 'ai_writer', label: 'Tulis dengan AI & Jadwal', icon: <Bot className="w-3.5 h-3.5" /> },
-              { id: 'preview', label: 'Preview Situs', icon: <Eye className="w-3.5 h-3.5" /> }
+              { id: 'sections', label: 'Daftar Section', icon: <Layers className="w-4 h-4" /> },
+              { id: 'ai_writer', label: 'Tulis dengan AI & Jadwal', icon: <Bot className="w-4 h-4" /> },
+              { id: 'preview', label: 'Preview Situs', icon: <Eye className="w-4 h-4" /> }
             ].map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-all cursor-pointer ${activeTab === tab.id
+                className={`flex items-center gap-2 px-5 py-2 rounded-md text-sm font-semibold tracking-wide transition-all cursor-pointer ${activeTab === tab.id
                     ? 'bg-white text-brand-blue shadow-sm border border-slate-200/80'
                     : 'text-slate-500 hover:text-slate-700 hover:bg-white/50'
                   }`}
@@ -774,47 +774,40 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
         {activeTab === 'sections' && (
           <div className="flex flex-grow overflow-hidden">
             {/* PANEL KIRI: SECTION MANAGER (Lebar 300px) */}
-            <aside className="w-[260px] bg-white border-r border-slate-200 flex flex-col h-full shrink-0 relative z-25 overflow-hidden">
+            <aside className="w-[300px] bg-white border-r border-slate-200 flex flex-col h-full shrink-0 relative z-25 overflow-hidden">
               {/* Panel Header */}
-              <div className="p-3 border-b border-slate-200 space-y-2.5 shrink-0 relative" ref={addSectionDropdownRef}>
+              <div className="p-4 border-b border-slate-200 space-y-3 shrink-0 relative" ref={addSectionDropdownRef}>
                 <div className="flex items-center justify-between">
-                  <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
-                    <Menu className="w-3.5 h-3.5 text-brand-blue" />
+                  <h2 className="text-sm font-bold uppercase tracking-wider text-slate-600 flex items-center gap-2">
+                    <Menu className="w-4 h-4 text-brand-blue" />
                     Section Manager
                   </h2>
                   <button
-                    onClick={() => {
-                      const inactiveCount = sections.filter(s => s.status === 'Nonaktif').length;
-                      if (inactiveCount > 0) {
-                        setShowAddSectionDropdown(!showAddSectionDropdown);
-                      } else {
-                        triggerToast('Semua bagian telah aktif!');
-                      }
-                    }}
-                    className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-brand-blue transition-colors cursor-pointer"
+                    onClick={() => setShowAddSectionDropdown(!showAddSectionDropdown)}
+                    className="w-8 h-8 flex items-center justify-center bg-brand-blue/10 hover:bg-brand-blue hover:text-white rounded-lg text-brand-blue transition-all cursor-pointer group"
                     title="Tambah Section Baru"
                   >
-                    <Plus className="w-4 h-4" />
+                    <Plus className="w-4 h-4 group-hover:text-white" />
                   </button>
                 </div>
                 {/* Search Sections */}
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
                   <input
                     type="text"
                     value={sectionSearchQuery}
                     onChange={(e) => setSectionSearchQuery(e.target.value)}
                     placeholder="Cari section..."
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-3 py-1.5 text-xs font-medium text-slate-800 outline-none focus:border-brand-blue/40 placeholder:text-slate-400"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-9 pr-3 py-2 text-sm font-medium text-slate-800 outline-none focus:border-brand-blue/40 placeholder:text-slate-400"
                   />
                 </div>
 
                 {/* Dropdown Add Section */}
                 {showAddSectionDropdown && (
-                  <div className="absolute top-[4.5rem] right-4 bg-white/95 backdrop-blur-xl border border-slate-300 rounded-2xl p-2.5 shadow-2xl z-[60] space-y-1 max-h-[220px] w-64 overflow-y-auto custom-scrollbar animate-in slide-in-from-top-4 duration-200">
-                    <span className="text-base font-black uppercase tracking-wider text-slate-500 block px-2.5 py-1.5 border-b border-slate-200 mb-1 select-none">Pilih Section:</span>
+                  <div className="absolute top-full left-4 right-4 mt-1 bg-white border border-slate-200 rounded-xl p-2 shadow-xl z-[60] space-y-1 max-h-[280px] overflow-y-auto custom-scrollbar">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block px-3 py-1.5 border-b border-slate-100 mb-1 select-none">Pilih Section untuk Ditambahkan:</span>
                     {sections.filter(s => s.status === 'Nonaktif').length === 0 ? (
-                      <div className="text-base text-slate-500 p-3 text-center font-medium">Semua section telah ditambahkan</div>
+                      <div className="text-sm text-slate-400 p-4 text-center">Semua section telah aktif</div>
                     ) : (
                       sections.filter(s => s.status === 'Nonaktif').map(sec => (
                         <button
@@ -824,12 +817,12 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                             setShowAddSectionDropdown(false);
                             setActiveAccordion(sec.id);
                           }}
-                          className="w-full text-left px-3 py-2 bg-white hover:bg-brand-blue/10 border border-slate-200 hover:border-brand-blue/30 rounded-xl transition-all flex items-center gap-2.5 text-base text-slate-500 hover:text-slate-900 group cursor-pointer"
+                          className="w-full text-left px-3 py-2.5 hover:bg-brand-blue/5 rounded-lg transition-all flex items-center gap-3 text-slate-600 hover:text-slate-900 group cursor-pointer"
                         >
-                          <div className="w-6 h-6 rounded-lg bg-slate-100 flex items-center justify-center group-hover:bg-brand-blue/10 transition-colors">
+                          <div className="w-7 h-7 rounded-lg bg-slate-100 group-hover:bg-brand-blue/10 flex items-center justify-center transition-colors shrink-0">
                             {getSectionIcon(sec.id, false)}
                           </div>
-                          <span className="font-black uppercase tracking-wider text-base">{sec.name}</span>
+                          <span className="font-semibold text-sm">{sec.name}</span>
                         </button>
                       ))
                     )}
@@ -838,7 +831,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
               </div>
 
               {/* Sections List */}
-              <div className="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
+              <div className="flex-1 overflow-y-auto p-2.5 space-y-1.5 custom-scrollbar">
                 {filteredSections.map((sec, idx) => {
                   const isActive = activeAccordion === sec.id;
                   const isSectionAktif = sec.status === 'Aktif';
@@ -847,27 +840,27 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                     <div
                       key={sec.id}
                       onClick={() => setActiveAccordion(sec.id)}
-                      className={`group w-full flex items-center justify-between px-2.5 py-2 rounded-lg border transition-all cursor-pointer ${isActive
+                      className={`group w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition-all cursor-pointer ${isActive
                           ? 'bg-brand-blue/5 border-brand-blue/20 shadow-sm'
                           : 'bg-white border-transparent hover:border-slate-200 hover:bg-slate-50'
                         }`}
                     >
-                      <div className="flex items-center gap-2 min-w-0">
-                        <GripVertical className="w-3 h-3 text-slate-300 shrink-0 select-none opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <GripVertical className="w-3.5 h-3.5 text-slate-300 shrink-0 select-none opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                        <div className="w-6 h-6 bg-slate-100 rounded-md flex items-center justify-center shrink-0">
+                        <div className="w-7 h-7 bg-slate-100 rounded-md flex items-center justify-center shrink-0">
                           {sec.icon}
                         </div>
 
                         <div className="min-w-0">
-                          <span className={`text-xs font-semibold block truncate ${isActive ? 'text-brand-blue' : 'text-slate-700'}`}>{sec.name}</span>
-                          <span className={`text-[10px] font-medium uppercase tracking-wider ${isSectionAktif ? 'text-emerald-500' : 'text-slate-400'}`}>
+                          <span className={`text-sm font-semibold block truncate ${isActive ? 'text-brand-blue' : 'text-slate-700'}`}>{sec.name}</span>
+                          <span className={`text-[11px] font-medium uppercase tracking-wider ${isSectionAktif ? 'text-emerald-500' : 'text-slate-400'}`}>
                             {sec.status}
                           </span>
                         </div>
                       </div>
 
-                      {/* Right side controls: Move up/down, status toggle */}
+                      {/* Right side controls: Move up/down, status toggle */
                       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={(e) => {
@@ -999,13 +992,63 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
 
                 {/* properties for: logo */}
                 {activeAccordion === 'logo' && (
-                  <div className="space-y-4">
+                  <div className="space-y-5">
+                    {/* Logo Shape Selection */}
+                    <div className="space-y-2">
+                      <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Bentuk Logo</label>
+                      <div className="flex gap-3">
+                        <button
+                          onClick={() => {
+                            const updated = { ...contentJson };
+                            updated.logoShape = 'circle';
+                            setContentJson(updated);
+                          }}
+                          className={`flex-1 flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all cursor-pointer ${
+                            contentJson?.logoShape === 'circle' || !contentJson?.logoShape
+                              ? 'border-brand-blue bg-brand-blue/5 text-brand-blue'
+                              : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'
+                          }`}
+                        >
+                          <div className="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden">
+                            {contentJson?.logo ? (
+                              <img src={contentJson.logo} alt="Logo" className="w-full h-full object-cover" />
+                            ) : (
+                              <ImageIcon className="w-5 h-5" />
+                            )}
+                          </div>
+                          <span className="text-xs font-bold uppercase tracking-wider">Bulat</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            const updated = { ...contentJson };
+                            updated.logoShape = 'square';
+                            setContentJson(updated);
+                          }}
+                          className={`flex-1 flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all cursor-pointer ${
+                            contentJson?.logoShape === 'square'
+                              ? 'border-brand-blue bg-brand-blue/5 text-brand-blue'
+                              : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'
+                          }`}
+                        >
+                          <div className="w-12 h-12 rounded-xl bg-slate-200 flex items-center justify-center overflow-hidden">
+                            {contentJson?.logo ? (
+                              <img src={contentJson.logo} alt="Logo" className="w-full h-full object-cover" />
+                            ) : (
+                              <ImageIcon className="w-5 h-5" />
+                            )}
+                          </div>
+                          <span className="text-xs font-bold uppercase tracking-wider">Kotak</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Logo URL */}
                     <div className="space-y-1.5">
                       <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Logo URL / Unggah Gambar</label>
                       <div className="flex gap-3 items-center">
-                        <div className="w-12 h-12 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-center overflow-hidden shrink-0">
+                        <div className={`w-12 h-12 bg-slate-50 border border-slate-200 flex items-center justify-center overflow-hidden shrink-0 ${contentJson?.logoShape === 'square' ? 'rounded-xl' : 'rounded-full'}`}>
                           {contentJson?.logo ? (
-                            <img src={contentJson.logo} alt="Logo" className="w-full h-full object-contain" />
+                            <img src={contentJson.logo} alt="Logo" className="w-full h-full object-cover" />
                           ) : (
                             <ImageIcon className="w-5 h-5 text-slate-500" />
                           )}
@@ -1023,7 +1066,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                         />
                       </div>
                       <div className="pt-2">
-                        <label className="flex items-center justify-center gap-2 w-full py-3 bg-slate-100 hover:bg-slate-700 border border-slate-200 rounded-xl cursor-pointer transition-colors text-base font-black text-slate-500">
+                        <label className="flex items-center justify-center gap-2 w-full py-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl cursor-pointer transition-colors text-sm font-semibold text-slate-600">
                           <Upload className="w-4 h-4 text-brand-blue" /> Unggah File Logo
                           <input
                             type="file"
@@ -1828,21 +1871,21 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
 
         {/* TAB 3: PREVIEW SITUS */}
         {activeTab === 'preview' && (
-          <div className="flex flex-1 flex-col h-full overflow-hidden bg-slate-50">
+          <div className="flex flex-1 flex-col h-full overflow-hidden bg-slate-100">
             {/* Viewport Toolbar */}
-            <div className="bg-white border-b border-slate-200 p-4 flex flex-col sm:flex-row items-center justify-between shrink-0 gap-4">
+            <div className="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between shrink-0">
               {/* Left: Viewport Size Switcher */}
-              <div className="flex items-center bg-slate-50 p-1 rounded-xl border border-slate-200">
+              <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200">
                 {[
                   { id: 'desktop', label: 'Desktop', icon: <Monitor className="w-4 h-4" /> },
-                  { id: 'mobile', label: 'Mobile (390px)', icon: <Smartphone className="w-4 h-4" /> }
+                  { id: 'mobile', label: 'Mobile', icon: <Smartphone className="w-4 h-4" /> }
                 ].map(dev => (
                   <button
                     key={dev.id}
                     onClick={() => setPreviewMode(dev.id as any)}
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-base font-black uppercase tracking-widest transition-all cursor-pointer ${previewMode === dev.id
-                        ? 'bg-brand-blue text-white shadow-lg shadow-brand-blue/20'
-                        : 'text-slate-500 hover:text-slate-500 hover:bg-slate-900/50'
+                    className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-semibold transition-all cursor-pointer ${previewMode === dev.id
+                        ? 'bg-white text-brand-blue shadow-sm border border-slate-200'
+                        : 'text-slate-500 hover:text-slate-700'
                       }`}
                   >
                     {dev.icon}
@@ -1852,34 +1895,40 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
               </div>
 
               {/* Center: Zoom Controls */}
-              <div className="flex items-center bg-slate-50 px-3.5 py-2 rounded-xl border border-slate-200 gap-2.5">
-                <span className="text-base font-black text-slate-500 uppercase tracking-widest">Skala: {Math.round(zoomScale * 100)}%</span>
+              <div className="flex items-center gap-2">
                 <button
                   onClick={() => setZoomScale(Math.max(0.5, zoomScale - 0.1))}
-                  className="px-2 py-1 bg-slate-800 text-base font-black rounded-lg hover:bg-slate-700 cursor-pointer"
+                  className="w-8 h-8 flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-lg border border-slate-200 cursor-pointer transition-colors text-base"
                 >
-                  -
+                  −
                 </button>
-                <button
-                  onClick={() => setZoomScale(1)}
-                  className="px-2 py-1 bg-slate-800 text-base font-black rounded-lg hover:bg-slate-700 cursor-pointer"
-                >
-                  Fit
-                </button>
+                <div className="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 min-w-[100px] justify-center">
+                  <span className="text-sm font-semibold text-slate-700">{Math.round(zoomScale * 100)}%</span>
+                </div>
                 <button
                   onClick={() => setZoomScale(Math.min(1.5, zoomScale + 0.1))}
-                  className="px-2.5 py-1 bg-slate-800 text-base font-black rounded-lg hover:bg-slate-700 cursor-pointer"
+                  className="w-8 h-8 flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-lg border border-slate-200 cursor-pointer transition-colors text-base"
                 >
                   +
                 </button>
+                <button
+                  onClick={() => setZoomScale(1)}
+                  className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold rounded-lg border border-slate-200 cursor-pointer transition-colors"
+                >
+                  Reset
+                </button>
               </div>
 
+              {/* Right: Resolution Info */}
+              <div className="text-xs text-slate-400 font-medium">
+                {previewMode === 'desktop' ? '1200 × 800' : '390 × 844'}
+              </div>
             </div>
 
-            {/* Viewport Frame Container (centered in a large scrollable area) */}
-            <div className="flex-1 bg-slate-50 overflow-auto p-8 flex justify-center items-start custom-scrollbar">
+            {/* Viewport Frame Container */}
+            <div className="flex-1 bg-slate-100 overflow-auto p-8 flex justify-center items-start custom-scrollbar" style={{ backgroundImage: 'radial-gradient(circle, #e2e8f0 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
               <div
-                className="transition-all duration-500 ease-out shadow-[0_30px_70px_rgba(0,0,0,0.85)] border border-slate-200 relative overflow-hidden bg-white flex flex-col"
+                className="transition-all duration-500 ease-out relative overflow-hidden bg-white flex flex-col"
                 style={{
                   width: previewMode === 'mobile' ? '390px' : '100%',
                   maxWidth: previewMode === 'desktop' ? '1200px' : 'none',
@@ -1887,45 +1936,74 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                   height: 'calc(100vh - 250px)',
                   transform: `scale(${zoomScale})`,
                   transformOrigin: 'top center',
-                  borderRadius: previewMode === 'desktop' ? '24px' : '40px',
-                  borderWidth: previewMode === 'desktop' ? '1px' : '12px',
-                  borderColor: previewMode === 'desktop' ? 'rgba(255,255,255,0.06)' : '#0f172a'
+                  borderRadius: previewMode === 'desktop' ? '16px' : '44px',
+                  borderWidth: previewMode === 'desktop' ? '1px' : '10px',
+                  borderColor: previewMode === 'desktop' ? '#e2e8f0' : '#1e293b',
+                  boxShadow: previewMode === 'desktop'
+                    ? '0 20px 60px rgba(0,0,0,0.12), 0 4px 20px rgba(0,0,0,0.06)'
+                    : '0 30px 80px rgba(0,0,0,0.25), 0 0 0 2px #334155, inset 0 0 0 2px #475569'
                 }}
               >
                 {/* Browser Header for Desktop Mockup */}
                 {previewMode === 'desktop' && (
-                  <div className="bg-slate-900/90 border-b border-slate-200 px-4 py-2 flex items-center gap-3 shrink-0 select-none z-20">
-                    <div className="flex gap-1.5 shrink-0">
-                      <div className="w-2.5 h-2.5 rounded-full bg-[#ff5f56]" />
-                      <div className="w-2.5 h-2.5 rounded-full bg-[#ffbd2e]" />
-                      <div className="w-2.5 h-2.5 rounded-full bg-[#27c93f]" />
+                  <div className="bg-slate-100 border-b border-slate-200 px-4 py-2.5 flex items-center gap-3 shrink-0 select-none z-20">
+                    <div className="flex gap-2 shrink-0">
+                      <div className="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e]" />
+                      <div className="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123]" />
+                      <div className="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29]" />
                     </div>
-                    <div className="flex-1 max-w-[400px] mx-auto bg-slate-100/90 border border-slate-200 rounded-lg py-1 px-3 flex items-center justify-between text-base text-slate-500 font-bold leading-none">
+                    <div className="flex-1 max-w-[420px] mx-auto bg-white border border-slate-200 rounded-lg py-1.5 px-3 flex items-center justify-between text-xs text-slate-500 font-medium">
                       <div className="flex items-center gap-1.5 truncate">
-                        <Lock className="w-2.5 h-2.5 text-emerald-500" />
-                        <span className="truncate">landfarm.id/site/{pageData?.slug}</span>
+                        <Lock className="w-3 h-3 text-emerald-500" />
+                        <span className="truncate text-slate-600">landfarm.id/site/{pageData?.slug}</span>
                       </div>
-                      <RefreshCw className="w-2.5 h-2.5 opacity-55 hover:opacity-100 cursor-pointer" />
+                      <RefreshCw className="w-3 h-3 text-slate-400 hover:text-slate-600 cursor-pointer transition-colors" />
                     </div>
                   </div>
                 )}
 
-                {/* Mobile Notch Mock */}
+                {/* Mobile - Realistic iPhone Frame */}
                 {previewMode === 'mobile' && (
-                  <div className="absolute top-2 left-1/2 -translate-x-1/2 w-28 h-5 bg-[#0f172a] rounded-full z-30 flex items-center justify-center border border-slate-200">
-                    <div className="w-2.5 h-2.5 rounded-full bg-slate-100 mr-8" />
-                    <div className="w-8 h-1 bg-slate-800 rounded-full" />
-                  </div>
+                  <>
+                    {/* Dynamic Island */}
+                    <div className="absolute top-[6px] left-1/2 -translate-x-1/2 w-[120px] h-[32px] bg-[#1e293b] rounded-[20px] z-30 flex items-center justify-center shadow-inner">
+                      <div className="w-[10px] h-[10px] rounded-full bg-[#0f172a] border border-[#334155] mr-6 shadow-inner" />
+                      <div className="w-[6px] h-[6px] rounded-full bg-[#334155]" />
+                    </div>
+                    {/* Status Bar */}
+                    <div className="h-[44px] bg-white shrink-0 relative z-20 flex items-end justify-between px-8 pb-1">
+                      <span className="text-[11px] font-semibold text-slate-800">9:41</span>
+                      <div className="flex items-center gap-1">
+                        <div className="flex gap-[2px] items-end">
+                          <div className="w-[3px] h-[4px] bg-slate-800 rounded-sm" />
+                          <div className="w-[3px] h-[6px] bg-slate-800 rounded-sm" />
+                          <div className="w-[3px] h-[8px] bg-slate-800 rounded-sm" />
+                          <div className="w-[3px] h-[10px] bg-slate-300 rounded-sm" />
+                        </div>
+                        <div className="w-[22px] h-[11px] border border-slate-800 rounded-[3px] ml-1 relative">
+                          <div className="absolute inset-[1.5px] bg-slate-800 rounded-[1.5px]" style={{ width: '60%' }} />
+                          <div className="absolute -right-[3px] top-[2.5px] w-[2px] h-[5px] bg-slate-800 rounded-r-sm" />
+                        </div>
+                      </div>
+                    </div>
+                  </>
                 )}
 
                 {/* Embed template renderer */}
-                <div className="w-full h-full overflow-y-auto bg-white text-slate-900 custom-scrollbar pt-1">
+                <div className={`w-full h-full overflow-y-auto bg-white text-slate-900 custom-scrollbar ${previewMode === 'mobile' ? '' : 'pt-1'}`}>
                   <TemplateRenderer
                     templateId={pageData?.template?.id || pageData?.template?.name}
                     contentJson={contentJson}
                     isMobile={previewMode === 'mobile'}
                   />
                 </div>
+
+                {/* Mobile Home Indicator */}
+                {previewMode === 'mobile' && (
+                  <div className="h-[20px] bg-white flex items-center justify-center shrink-0">
+                    <div className="w-[134px] h-[5px] bg-slate-800 rounded-full" />
+                  </div>
+                )}
               </div>
             </div>
           </div>
