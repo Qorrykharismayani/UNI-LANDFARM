@@ -705,7 +705,8 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
     // Validations
     const isContentComplete = !!pageData?.title?.trim() && !!pageData?.businessName?.trim() && sections.filter(s => s.isActive).length > 0;
     const isSlugValid = !!pageData?.slug?.trim() && /^[a-zA-Z0-9-_]+$/.test(pageData.slug);
-    const isReadyToPublish = isContentComplete && isSlugValid;    if (isPublishedSuccess) {
+    const isReadyToPublish = isContentComplete && isSlugValid;
+    if (isPublishedSuccess) {
       /* SUCCESS SCREEN */
       return (
         <div className="fixed inset-0 bg-[#F8FAFC] text-slate-800 flex flex-col font-sans z-[200] overflow-y-auto items-center justify-center p-6">
@@ -2228,6 +2229,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                   className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-205 outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
                 />
               </div>
+
 
               <div className="space-y-1">
                 <label className="text-[10px] font-black text-slate-455 dark:text-slate-400 uppercase tracking-wider block">Waktu Publikasi</label>
