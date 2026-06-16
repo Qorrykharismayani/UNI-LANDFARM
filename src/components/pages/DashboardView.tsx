@@ -45,6 +45,7 @@ import LandingPagePage from './LandingPagePage';
 import TemplatePage from './TemplatePage';
 import ProfilePage from './ProfilePage';
 import AdminPanelPage from './AdminPanelPage';
+import NotificationsView, { Notification } from './NotificationsView';
 
 interface DashboardFooterProps {
   setView: (v: string) => void;
@@ -196,6 +197,40 @@ export const DashboardView = ({
   const [aiPrompt, setAiPrompt] = useState('');
   const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop');
   const [selectedAiFeatures, setSelectedAiFeatures] = useState<string[]>(['Headline', 'Subheadline']);
+
+  // Notification state
+  const [notifications, setNotifications] = useState<Notification[]>([
+    { id: 1, type: 'welcome', title: 'Selamat Datang di Uni-LandFarm!', desc: 'Akun Anda berhasil dibuat. Mulai buat landing page pertama Anda dan jelajahi fitur AI kami.', time: 'Baru saja', read: false }
+  ]);
+  let notifIdCounter = 100;
+
+  const addNotification = (notif: { type: string; title: string; desc: string }) => {
+    notifIdCounter++;
+    const newNotif: Notification = {
+      id: Date.now(),
+      type: notif.type as any,
+      title: notif.title,
+      desc: notif.desc,
+      time: 'Baru saja',
+      read: false
+    };
+    setNotifications(prev => [newNotif, ...prev]);
+  };
+
+  const handleTokenUpdate = (newTokens: number) => {
+    // Update local user state with new token balance
+    if (user) {
+      setUser({ ...user, tokens: newTokens });
+    }
+  };
+
+  const handleMarkAllRead = () => {
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+  };
+
+  const handleClearAllNotifications = () => {
+    setNotifications([]);
+  };
 
   const [aiData, setAiData] = useState({
     description: '',
@@ -725,7 +760,9 @@ export const DashboardView = ({
       case 'panduan':
         return <ContentPlanPage guideSearchQuery={guideSearchQuery} />;
       case 'tokens':
-        return <RepositoryPage showNotification={showNotification} />;
+        return <RepositoryPage showNotification={showNotification} user={user} onTokenUpdate={handleTokenUpdate} onNewNotification={addNotification} />;
+      case 'notifications':
+        return <NotificationsView user={user} notifications={notifications} onMarkAllRead={handleMarkAllRead} onClearAll={handleClearAllNotifications} />;
       case 'overview':
         return (
           <DashboardPage
@@ -1137,9 +1174,16 @@ export const DashboardView = ({
                   {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
                 </button>
 
-                <button className="p-3 rounded-2xl text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-all relative group border border-transparent hover:border-slate-100 dark:hover:border-white/5">
+                <button 
+                  onClick={() => handleSetSubView('notifications')}
+                  className="p-3 rounded-2xl text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-all relative group border border-transparent hover:border-slate-100 dark:hover:border-white/5 cursor-pointer"
+                >
                   <Bell className="w-5 h-5" />
-                  <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-[#020617]"></span>
+                  {notifications.filter(n => !n.read).length > 0 && (
+                    <span className="absolute top-2 right-2 min-w-[18px] h-[18px] bg-red-500 rounded-full border-2 border-white dark:border-[#020617] flex items-center justify-center text-[9px] font-bold text-white">
+                      {notifications.filter(n => !n.read).length}
+                    </span>
+                  )}
                 </button>
               </div>
 
