@@ -1,40 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-}
-
 model User {
-  id                  String               @id @default(cuid())
-  name                String
-  email               String               @unique
-  password            String?
-  role                String               // "USER" or "ADMIN"
-  status              String               @default("Aktif") // "Aktif" or "Nonaktif"
-  provider            String               @default("credentials")
-  image               String?
-  phone               String?
-  location            String?
-  plan                String               @default("Regular Access")
-  tokens              Int                  @default(0)
-  resetToken          String?
-  resetTokenExpiry    DateTime?
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @updatedAt
-  landingPages        LandingPage[]
-  reviewedRequests    PublishRequest[]     @relation("ReviewedByAdmin")
-  mediaFiles          MediaFile[]
-  notifications       Notification[]
+  id               Int              @id @default(autoincrement())
+  name             String
+  email            String           @unique
+  password         String?
+  role             String
+  status           String           @default("Aktif")
+  provider         String           @default("credentials")
+  image            String?
+  phone            String?
+  location         String?
+  plan             String           @default("Regular Access")
+  tokens           Int              @default(0)
+  resetToken       String?
+  resetTokenExpiry DateTime?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  landingPages     LandingPage[]
+  mediaFiles       MediaFile[]
+  notifications    Notification[]
+  reviewedRequests PublishRequest[] @relation("ReviewedByAdmin")
+  articles         Article[]
 
   @@map("users")
 }
 
 model Template {
-  id             String        @id @default(cuid())
-  name           String        @map("nama_template")
+  id             Int           @id @default(autoincrement())
+  name           String        @unique @map("nama_template")
   category       String        @map("kategori")
   description    String        @map("deskripsi")
   thumbnail      String
@@ -49,32 +50,33 @@ model Template {
 }
 
 model LandingPage {
-  id                  String               @id @default(cuid())
-  userId              String
-  templateId          String
-  title               String
-  businessName        String
-  slug                String               @unique
-  status              String               @default("Draft") // "Draft", "Pending Review", "Published", "Rejected"
-  views               Int                  @default(0)
-  publicUrl           String?
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @updatedAt
-  publishedAt         DateTime?
-  
-  user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  template            Template             @relation(fields: [templateId], references: [id], onDelete: Cascade)
-  content             TemplateSection?
-  publishRequests     PublishRequest[]
-  mediaFiles          MediaFile[]
-  domain              Domain?
+  id              Int              @id @default(autoincrement())
+  userId          Int
+  templateId      Int
+  title           String
+  businessName    String
+  slug            String           @unique
+  status          String           @default("Draft")
+  views           Int              @default(0)
+  publicUrl       String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  publishedAt     DateTime?
+  domain          Domain?
+  template        Template         @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mediaFiles      MediaFile[]
+  publishRequests PublishRequest[]
+  content         TemplateSection?
 
+  @@index([templateId], map: "landing_pages_templateId_fkey")
+  @@index([userId], map: "landing_pages_userId_fkey")
   @@map("landing_pages")
 }
 
 model TemplateSection {
-  id            String      @id @default(cuid())
-  landingPageId String      @unique
+  id            Int         @id @default(autoincrement())
+  landingPageId Int         @unique
   contentJson   Json
   updatedAt     DateTime    @updatedAt
   landingPage   LandingPage @relation(fields: [landingPageId], references: [id], onDelete: Cascade)
@@ -83,60 +85,62 @@ model TemplateSection {
 }
 
 model PublishRequest {
-  id              String      @id @default(cuid())
-  landingPageId   String
-  requestedBy     String
-  reviewedBy      String?
-  status          String      @default("Pending") // "Pending", "Approved", "Rejected"
+  id              Int         @id @default(autoincrement())
+  landingPageId   Int
+  requestedBy     Int
+  reviewedBy      Int?
+  status          String      @default("Pending")
   rejectionReason String?
   requestedAt     DateTime    @default(now())
   reviewedAt      DateTime?
-  
   landingPage     LandingPage @relation(fields: [landingPageId], references: [id], onDelete: Cascade)
-  admin           User?       @relation("ReviewedByAdmin", fields: [reviewedBy], references: [id], onDelete: SetNull)
+  admin           User?       @relation("ReviewedByAdmin", fields: [reviewedBy], references: [id])
 
+  @@index([landingPageId], map: "publish_requests_landingPageId_fkey")
+  @@index([reviewedBy], map: "publish_requests_reviewedBy_fkey")
   @@map("publish_requests")
 }
 
 model MediaFile {
-  id            String       @id @default(cuid())
-  userId        String
-  landingPageId String?
+  id            Int          @id @default(autoincrement())
+  userId        Int
+  landingPageId Int?
   fileName      String
   fileUrl       String
   fileType      String
   createdAt     DateTime     @default(now())
-  
+  landingPage   LandingPage? @relation(fields: [landingPageId], references: [id])
   user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  landingPage   LandingPage? @relation(fields: [landingPageId], references: [id], onDelete: SetNull)
 
+  @@index([landingPageId], map: "media_files_landingPageId_fkey")
+  @@index([userId], map: "media_files_userId_fkey")
   @@map("media_files")
 }
 
 model SystemSetting {
-  id              String   @id @default("default")
-  platformName    String
-  logo            String
-  heroTitle       String
-  heroDescription String
-  contactEmail    String
-  whatsapp        String
-  socialLinksJson Json
-  footerText      String
+  id               Int      @id @default(autoincrement())
+  platformName     String
+  logo             String
+  heroTitle        String
+  heroDescription  String
+  contactEmail     String
+  whatsapp         String
+  socialLinksJson  Json
+  footerText       String
   featuresJson     Json?
   testimonialsJson Json?
   faqsJson         Json?
   userPageJson     Json?
-  updatedAt       DateTime @updatedAt
+  updatedAt        DateTime @updatedAt
 
   @@map("system_settings")
 }
 
 model Domain {
-  id            String      @id @default(cuid())
-  landingPageId String      @unique
+  id            Int         @id @default(autoincrement())
+  landingPageId Int         @unique
   domainName    String      @unique
-  status        String      @default("Active") // "Active", "Pending", "Failed"
+  status        String      @default("Active")
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   landingPage   LandingPage @relation(fields: [landingPageId], references: [id], onDelete: Cascade)
@@ -145,14 +149,31 @@ model Domain {
 }
 
 model Notification {
-  id          String   @id @default(cuid())
-  userId      String
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  title     String
+  message   String
+  type      String   @default("info")
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "notifications_userId_fkey")
+  @@map("notifications")
+}
+
+model Article {
+  id          Int      @id @default(autoincrement())
+  userId      Int
   title       String
-  message     String
-  type        String   @default("info") // "info", "success", "warning", "error"
-  isRead      Boolean  @default(false)
-  createdAt   DateTime @default(now())
+  status      String   @default("Draft")
+  author      String
+  scoreBefore Int      @default(0)
+  scoreAfter  Int      @default(0)
+  date        DateTime @default(now())
+  type        String   @default("Blog Post")
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("notifications")
+  @@index([userId], map: "articles_userId_fkey")
+  @@map("articles")
 }

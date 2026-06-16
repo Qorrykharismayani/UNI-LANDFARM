@@ -7,7 +7,7 @@ export async function GET() {
       success: true,
       message: 'Offline / Database belum terhubung. Menggunakan data default.',
       data: {
-        id: 'default',
+        id: 1,
         platformName: 'Uni-LanFaram',
         logo: 'Uni-LanFaram',
         heroTitle: 'Platform Landing Page Mikro Berbasis AI CMS',
@@ -47,9 +47,7 @@ export async function GET() {
   }
 
   try {
-    const settings = await prisma.systemSetting.findUnique({
-      where: { id: 'default' }
-    });
+    const settings = await prisma.systemSetting.findFirst();
     if (settings) {
       if (!settings.featuresJson) {
         settings.featuresJson = [

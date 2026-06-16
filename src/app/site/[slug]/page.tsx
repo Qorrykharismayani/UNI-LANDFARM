@@ -35,7 +35,7 @@ export default async function PublicSitePage({ params }: { params: Promise<{ slu
         </div>
         <h1 className="text-2xl font-black uppercase tracking-wider mb-2">Halaman Tidak Aktif</h1>
         <p className="text-sm text-slate-400 max-w-md">
-          Situs dengan alamat <span className="text-brand-blue font-bold">landfarm.id/site/{slug}</span> tidak ditemukan atau masih dalam peninjauan admin.
+          Situs dengan alamat <span className="text-brand-blue font-bold">landfarm.id/site/{slug}</span> tidak ditemukan atau belum dipublikasikan.
         </p>
       </div>
     );

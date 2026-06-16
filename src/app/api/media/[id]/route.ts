@@ -14,7 +14,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
       return NextResponse.json({ success: false, message: 'Tidak diotorisasi.' }, { status: 401 });
     }
 
-    const media = await prisma.mediaFile.findUnique({ where: { id } });
+    const media = await prisma.mediaFile.findUnique({ where: { id: Number(id) } });
     if (!media) {
       return NextResponse.json({ success: false, message: 'Berkas tidak ditemukan.' }, { status: 404 });
     }
@@ -29,7 +29,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
       await unlink(filePath);
     } catch (e) {}
 
-    await prisma.mediaFile.delete({ where: { id } });
+    await prisma.mediaFile.delete({ where: { id: Number(id) } });
 
     return NextResponse.json({ success: true, message: 'Berkas berhasil dihapus!' });
   } catch (error: any) {

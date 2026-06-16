@@ -12,7 +12,8 @@ import {
   Image, 
   Zap, 
   TrendingUp, 
-  Layout 
+  Layout,
+  Cpu
 } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -69,7 +70,7 @@ export const CMSLandingView = ({ setView }: CMSProps) => {
                 className="flex items-start gap-5 group transition-all"
               >
                 <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 group-hover:border-brand-blue/40 group-hover:text-brand-blue transition-all duration-300 shrink-0">
-                  {React.cloneElement(item.icon as React.ReactElement, { className: "w-5 h-5" })}
+                  {React.cloneElement(item.icon as React.ReactElement<any>, { className: "w-5 h-5" })}
                 </div>
                 <div className="space-y-0.5">
                   <h4 className="text-lg font-black text-slate-900/90 dark:text-white/90 group-hover:text-brand-blue transition-colors tracking-tight leading-tight">{item.title}</h4>

@@ -25,27 +25,36 @@ import {
 } from 'lucide-react';
 
 interface TemplateRendererProps {
-  templateId: string;
+  templateId: string | number;
   contentJson: any;
   isMobile?: boolean;
 }
 
 export default function TemplateRenderer({ templateId, contentJson, isMobile = false }: TemplateRendererProps) {
+  const tid = String(templateId);
   // Normalize content JSON to avoid crashes
   const c = contentJson || {};
-  const navbar = c.navbar || { brand: 'Situs Bisnis', items: [] };
-  const logo = c.logo === '/logo.png' ? '/logo.png?v=4' : (c.logo || '');
-  const hero = c.hero || { headline: 'Selamat Datang', subheadline: 'Deskripsi bisnis', banner: '', cta: 'Hubungi Kami' };
-  const about = c.about || { description: '', profile: '', story: '' };
-  const products = Array.isArray(c.products) ? c.products : [];
-  const advantages = Array.isArray(c.advantages) ? c.advantages : [];
-  const gallery = Array.isArray(c.gallery) ? c.gallery : [];
-  const testimonials = Array.isArray(c.testimonials) ? c.testimonials : [];
-  const cta = c.cta || { title: '', description: '', buttonText: '' };
-  const contact = c.contact || { whatsapp: '', email: '', address: '', operatingHours: '' };
-  const socialMedia = c.socialMedia || { instagram: '', tiktok: '', facebook: '', youtube: '' };
-  const marketplaces = c.marketplaces || { shopee: '', tokopedia: '', lazada: '', externalWebsite: '' };
-  const footer = c.footer || { logo: '', businessName: '', copyright: '' };
+  const sectionsList = Array.isArray(c.sections) ? c.sections : [];
+
+  const getSectionContent = (type: string, fallback: any) => {
+    const sec = sectionsList.find((s: any) => s.type === type || s.id === type);
+    return sec && sec.content !== undefined ? sec.content : fallback;
+  };
+
+  const navbar = getSectionContent('navbar', c.navbar || { brand: 'Situs Bisnis', items: [] });
+  const logoContent = getSectionContent('logo', c.logo || '');
+  const logo = logoContent === '/logo.png' ? '/logo.png?v=4' : (logoContent || '');
+  const hero = getSectionContent('hero', c.hero || { headline: 'Selamat Datang', subheadline: 'Deskripsi bisnis', banner: '', cta: 'Hubungi Kami' });
+  const about = getSectionContent('about', c.about || { description: '', profile: '', story: '' });
+  const products = getSectionContent('products', Array.isArray(c.products) ? c.products : []);
+  const advantages = getSectionContent('advantages', Array.isArray(c.advantages) ? c.advantages : []);
+  const gallery = getSectionContent('gallery', Array.isArray(c.gallery) ? c.gallery : []);
+  const testimonials = getSectionContent('testimonials', Array.isArray(c.testimonials) ? c.testimonials : []);
+  const cta = getSectionContent('cta', c.cta || { title: '', description: '', buttonText: '' });
+  const contact = getSectionContent('contact', c.contact || { whatsapp: '', email: '', address: '', operatingHours: '' });
+  const socialMedia = getSectionContent('socialMedia', c.socialMedia || { instagram: '', tiktok: '', facebook: '', youtube: '' });
+  const marketplaces = getSectionContent('marketplaces', c.marketplaces || { shopee: '', tokopedia: '', lazada: '', externalWebsite: '' });
+  const footer = getSectionContent('footer', c.footer || { logo: '', businessName: '', copyright: '' });
 
   // Helper for rendering icons dynamically
   const renderIcon = (iconName: string) => {
@@ -60,7 +69,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
   };
 
   // 1. UMKM Template Layout (Makanan & Retail)
-  if (templateId === 'tpl-umkm' || templateId === 'Makanan & Retail') {
+  if (tid === 'tpl-umkm' || tid === 'Makanan & Retail') {
     const defaultSectionsList = [
       { id: 'logo', status: 'Aktif' },
       { id: 'navbar', status: 'Aktif' },
@@ -78,28 +87,36 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
     ];
 
     const sectionsOrder = Array.isArray(c.sections) ? c.sections : defaultSectionsList;
-    const isNavbarActive = sectionsOrder.find((s: any) => s.id === 'navbar')?.status !== 'Nonaktif';
-    const isFooterActive = sectionsOrder.find((s: any) => s.id === 'footer')?.status !== 'Nonaktif';
-    
-    const layoutSections = sectionsOrder.filter((s: any) => 
-      s.id !== 'navbar' && s.id !== 'footer' && s.id !== 'logo' && s.id !== 'contact' && s.id !== 'socialMedia' && s.status === 'Aktif'
-    );
 
-    const isContactActive = sectionsOrder.find((s: any) => s.id === 'contact')?.status !== 'Nonaktif';
-    const isSocialActive = sectionsOrder.find((s: any) => s.id === 'socialMedia')?.status !== 'Nonaktif';
+    const isSecActive = (idOrType: string) => {
+      const sec = sectionsOrder.find((s: any) => s.id === idOrType || s.type === idOrType);
+      if (!sec) return false;
+      return sec.isActive !== false && sec.status !== 'Nonaktif';
+    };
+
+    const isNavbarActive = isSecActive('navbar');
+    const isFooterActive = isSecActive('footer');
+    const isContactActive = isSecActive('contact');
+    const isSocialActive = isSecActive('socialMedia');
+    
+    const layoutSections = sectionsOrder.filter((s: any) => {
+      const type = s.type || s.id;
+      const active = s.isActive !== false && s.status !== 'Nonaktif';
+      return type !== 'navbar' && type !== 'footer' && type !== 'logo' && type !== 'contact' && type !== 'socialMedia' && active;
+    });
 
     return (
       <div className={`w-full bg-[#fcfbf7] text-[#332f21] font-sans antialiased selection:bg-amber-100 selection:text-amber-900 ${isMobile ? 'py-2 px-1' : ''} min-h-screen`}>
         {/* Navigation */}
         {isNavbarActive && (
-          <nav className={`bg-white/80 backdrop-blur-md border-b border-amber-100/50 flex justify-between items-center sticky top-0 z-50 shadow-sm ${isMobile ? 'py-3 px-4' : 'py-4 px-6 md:px-12'}`}>
-            <div className="flex items-center gap-3">
+          <nav className={`bg-white/80 backdrop-blur-md border-b border-amber-100/50 flex justify-between items-center sticky top-0 z-50 shadow-sm ${isMobile ? 'py-2 px-3 gap-2' : 'py-4 px-6 md:px-12'}`}>
+            <div className={`flex items-center ${isMobile ? 'gap-1.5 max-w-[65%]' : 'gap-3'}`}>
               {logo ? (
-                <img src={logo} alt="Logo" className="w-16 h-16 object-contain" />
+                <img src={logo} alt="Logo" className={`${isMobile ? 'w-9 h-9' : 'w-16 h-16'} object-contain`} />
               ) : (
                 <div className="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center text-white font-black">L</div>
               )}
-              <span className="text-lg font-black text-amber-950 tracking-tight uppercase">{navbar.brand || 'UMKM Nusantara'}</span>
+              <span className={`tracking-tight uppercase font-black text-amber-950 ${isMobile ? 'text-[10px] leading-tight line-clamp-2' : 'text-lg'}`}>{navbar.brand || 'UMKM Nusantara'}</span>
             </div>
             {!isMobile && (
               <div className="hidden md:flex gap-8 text-xs font-bold text-amber-900/70 uppercase tracking-widest">
@@ -113,7 +130,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                 href={`https://wa.me/${contact.whatsapp}`} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="bg-amber-650 hover:bg-amber-700 text-white px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all shadow-sm"
+                className={`bg-amber-650 hover:bg-amber-700 text-white rounded-full font-bold uppercase tracking-wider transition-all shadow-sm ${isMobile ? 'px-3 py-1.5 text-[9px] shrink-0' : 'px-5 py-2.5 text-xs'}`}
                 style={{ backgroundColor: '#d97706' }}
               >
                 Order WA
@@ -124,7 +141,19 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
         {/* Dynamic Sections */}
         {layoutSections.map((sec: any) => {
-          switch (sec.id) {
+          const secType = sec.type || sec.id;
+          const secContent = sec.content || c[secType] || {};
+          
+          const hero = secType === 'hero' ? secContent : {};
+          const about = secType === 'about' ? secContent : {};
+          const products = secType === 'products' ? (Array.isArray(secContent) ? secContent : []) : [];
+          const advantages = secType === 'advantages' ? (Array.isArray(secContent) ? secContent : []) : [];
+          const gallery = secType === 'gallery' ? (Array.isArray(secContent) ? secContent : []) : [];
+          const testimonials = secType === 'testimonials' ? (Array.isArray(secContent) ? secContent : []) : [];
+          const cta = secType === 'cta' ? secContent : {};
+          const marketplaces = secType === 'marketplaces' ? secContent : {};
+
+          switch (secType) {
             case 'hero':
               return (
                 <section id="home" key="hero" className={`max-w-6xl mx-auto grid gap-12 items-center ${isMobile ? 'py-8 px-4 grid-cols-1 gap-6' : 'py-16 md:py-24 px-6 md:px-12 grid-cols-1 md:grid-cols-2'}`}>
@@ -132,10 +161,10 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                     <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-amber-50 border border-amber-200/50 text-amber-700 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm">
                       <Sparkles className="w-4 h-4 text-amber-600 animate-pulse" /> 100% Produk Lokal Asli
                     </div>
-                    <h1 className={`font-black text-amber-950 tracking-tight leading-tight uppercase ${isMobile ? 'text-2xl' : 'text-4xl md:text-5xl lg:text-6xl'}`}>
+                    <h1 className={`font-black text-amber-950 tracking-tight leading-tight uppercase ${isMobile ? 'text-xl' : 'text-4xl md:text-5xl lg:text-6xl'}`}>
                       {hero.headline}
                     </h1>
-                    <p className="text-amber-900/70 text-sm md:text-base font-medium leading-relaxed">
+                    <p className={`text-amber-900/70 font-medium leading-relaxed ${isMobile ? 'text-xs' : 'text-sm md:text-base'}`}>
                       {hero.subheadline}
                     </p>
                     {contact.whatsapp && (
@@ -143,7 +172,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                         href={`https://wa.me/${contact.whatsapp}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-3 px-8 py-4 bg-amber-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-amber-700 transition-all shadow-lg hover:scale-105"
+                        className={`inline-flex items-center gap-3 bg-amber-600 text-white font-black uppercase tracking-widest hover:bg-amber-700 transition-all shadow-lg hover:scale-105 ${isMobile ? 'px-5 py-3 text-xs rounded-xl' : 'px-8 py-4 text-sm rounded-2xl'}`}
                         style={{ backgroundColor: '#d97706' }}
                       >
                         {hero.cta || 'Beli Sekarang'} <ShoppingCart className="w-4 h-4" />
@@ -163,10 +192,10 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
             case 'about':
               return (
-                <section id="about" key="about" className={`bg-amber-50/50 border-y border-amber-100/40 ${isMobile ? 'py-10 px-4' : 'py-20 px-6 md:px-12'}`}>
-                  <div className="max-w-4xl mx-auto space-y-12 text-center">
+                <section id="about" key="about" className={`bg-amber-50/50 border-y border-amber-100/40 ${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'}`}>
+                  <div className={`max-w-4xl mx-auto text-center ${isMobile ? 'space-y-6' : 'space-y-12'}`}>
                     <div className="space-y-3">
-                      <h2 className="text-2xl md:text-3xl font-black text-amber-950 uppercase tracking-tight">Kisah Di Balik Produk Kami</h2>
+                      <h2 className={`font-black text-amber-950 uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Kisah Di Balik Produk Kami</h2>
                       <div className="w-16 h-1.5 bg-amber-550 mx-auto rounded-full" style={{ backgroundColor: '#d97706' }} />
                     </div>
                     <div className={`grid gap-8 text-left ${isMobile ? 'grid-cols-1 gap-6' : 'grid-cols-1 md:grid-cols-3'}`}>
@@ -189,10 +218,10 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
             case 'products':
               return (
-                <section id="products" key="products" className={`max-w-6xl mx-auto space-y-16 ${isMobile ? 'py-10 px-4 space-y-10' : 'py-20 px-6 md:px-12'}`}>
+                <section id="products" key="products" className={`max-w-6xl mx-auto ${isMobile ? 'py-8 px-4 space-y-6' : 'py-20 px-6 md:px-12 space-y-16'}`}>
                   <div className="text-center space-y-3">
-                    <h2 className="text-2xl md:text-3xl font-black text-amber-950 uppercase tracking-tight">Produk Pilihan Terbaik</h2>
-                    <p className="text-amber-900/60 max-w-lg mx-auto text-[10px] md:text-xs font-bold uppercase tracking-widest">Segar, berkualitas, diproduksi langsung dari petani & pengrajin lokal</p>
+                    <h2 className={`font-black text-amber-950 uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Produk Pilihan Terbaik</h2>
+                    <p className={`text-amber-900/60 max-w-lg mx-auto font-bold uppercase tracking-widest ${isMobile ? 'text-[9px]' : 'text-[10px] md:text-xs'}`}>Segar, berkualitas, diproduksi langsung dari petani & pengrajin lokal</p>
                     <div className="w-16 h-1.5 bg-amber-550 mx-auto rounded-full" style={{ backgroundColor: '#d97706' }} />
                   </div>
                   <div className={`grid gap-8 ${isMobile ? 'grid-cols-1 gap-6' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'}`}>
@@ -232,7 +261,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
             case 'advantages':
               return (
-                <section key="advantages" className={`bg-amber-900 text-white ${isMobile ? 'py-10 px-4' : 'py-20 px-6 md:px-12'}`} style={{ backgroundColor: '#451a03' }}>
+                <section key="advantages" className={`bg-amber-900 text-white ${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'}`} style={{ backgroundColor: '#451a03' }}>
                   <div className={`max-w-4xl mx-auto grid gap-8 ${isMobile ? 'grid-cols-1 gap-6' : 'grid-cols-1 md:grid-cols-3'}`}>
                     {advantages.map((adv, i) => (
                       <div key={i} className="text-center space-y-4">
@@ -249,9 +278,9 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
             case 'gallery':
               return (
-                <section key="gallery" className={`max-w-6xl mx-auto space-y-12 ${isMobile ? 'py-10 px-4' : 'py-20 px-6 md:px-12'}`}>
+                <section key="gallery" className={`max-w-6xl mx-auto ${isMobile ? 'py-8 px-4 space-y-6' : 'py-20 px-6 md:px-12 space-y-12'}`}>
                   <div className="text-center space-y-3">
-                    <h2 className="text-2xl md:text-3xl font-black text-amber-950 uppercase tracking-tight">Galeri Kegiatan Kami</h2>
+                    <h2 className={`font-black text-amber-950 uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Galeri Kegiatan Kami</h2>
                     <div className="w-16 h-1.5 bg-amber-550 mx-auto rounded-full" style={{ backgroundColor: '#d97706' }} />
                   </div>
                   <div className={`grid gap-6 ${isMobile ? 'grid-cols-2 gap-4' : 'grid-cols-2 md:grid-cols-3'}`}>
@@ -270,10 +299,10 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
             case 'testimonials':
               return (
-                <section id="testimonials" key="testimonials" className={`bg-amber-50/50 border-y border-amber-100/40 ${isMobile ? 'py-10 px-4' : 'py-20 px-6 md:px-12'}`}>
-                  <div className="max-w-4xl mx-auto space-y-12 text-center">
+                <section id="testimonials" key="testimonials" className={`bg-amber-50/50 border-y border-amber-100/40 ${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'}`}>
+                  <div className={`max-w-4xl mx-auto text-center ${isMobile ? 'space-y-6' : 'space-y-12'}`}>
                     <div className="space-y-3">
-                      <h2 className="text-2xl md:text-3xl font-black text-amber-950 uppercase tracking-tight">Ulasan Pelanggan</h2>
+                      <h2 className={`font-black text-amber-950 uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Ulasan Pelanggan</h2>
                       <div className="w-16 h-1.5 bg-amber-550 mx-auto rounded-full" style={{ backgroundColor: '#d97706' }} />
                     </div>
                     <div className={`grid gap-8 text-left ${isMobile ? 'grid-cols-1 gap-6' : 'grid-cols-1 md:grid-cols-2'}`}>
@@ -296,17 +325,17 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
             case 'cta':
               return (
-                <section key="cta" className={`max-w-5xl mx-auto text-center relative overflow-hidden bg-amber-50 border border-amber-200/50 space-y-8 my-12 ${isMobile ? 'py-10 px-4 rounded-[24px] space-y-6 my-6' : 'py-16 md:py-24 px-6 md:px-12 rounded-[40px]'}`}>
+                <section key="cta" className={`max-w-5xl mx-auto text-center relative overflow-hidden bg-amber-50 border border-amber-200/50 my-12 ${isMobile ? 'py-8 px-4 rounded-[24px] space-y-6 my-6' : 'py-16 md:py-24 px-6 md:px-12 rounded-[40px] space-y-8'}`}>
                   <div className="space-y-3">
-                    <h2 className={`font-black text-amber-950 uppercase tracking-tight ${isMobile ? 'text-2xl' : 'text-3xl md:text-4xl'}`}>{cta.title}</h2>
-                    <p className="text-amber-900/70 text-xs md:text-sm max-w-xl mx-auto font-medium">{cta.description}</p>
+                    <h2 className={`font-black text-amber-950 uppercase tracking-tight ${isMobile ? 'text-xl' : 'text-3xl md:text-4xl'}`}>{cta.title}</h2>
+                    <p className={`text-amber-900/70 max-w-xl mx-auto font-medium ${isMobile ? 'text-xs' : 'text-xs md:text-sm'}`}>{cta.description}</p>
                   </div>
                   {contact.whatsapp && (
                     <a 
                       href={`https://wa.me/${contact.whatsapp}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-3 px-8 py-4 bg-amber-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-amber-700 transition-all shadow-lg"
+                      className={`inline-flex items-center gap-3 bg-amber-600 text-white font-black uppercase tracking-widest hover:bg-amber-700 transition-all shadow-lg ${isMobile ? 'px-5 py-3 text-xs rounded-xl' : 'px-8 py-4 text-sm rounded-2xl'}`}
                       style={{ backgroundColor: '#d97706' }}
                     >
                       {cta.buttonText || 'Hubungi Kami'} <MessageCircle className="w-4.5 h-4.5" />
@@ -379,7 +408,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
     );
   }
   // Fallback for other templates (Jasa, Promo, Portfolio, Event)
-  const isDarkTheme = templateId === 'tpl-portfolio' || templateId === 'Agensi & Kreatif' || templateId === 'tpl-promo' || templateId === 'Campaign & Promo';
+  const isDarkTheme = tid === 'tpl-portfolio' || tid === 'Agensi & Kreatif' || tid === 'tpl-promo' || tid === 'Campaign & Promo';
   
   let primaryColor = '#3a86ff'; // Brand Blue
   let primaryColorHover = '#2563eb';
@@ -387,16 +416,16 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
   let textColor = isDarkTheme ? 'text-slate-100' : 'text-slate-900';
   let cardColor = isDarkTheme ? 'bg-slate-900/60 border-slate-800' : 'bg-white border-slate-100';
 
-  if (templateId === 'tpl-jasa' || templateId === 'Jasa & Konsultan') {
+  if (tid === 'tpl-jasa' || tid === 'Jasa & Konsultan') {
     primaryColor = '#0284c7'; // Sky Blue
     primaryColorHover = '#0369a1';
-  } else if (templateId === 'tpl-promo' || templateId === 'Campaign & Promo') {
+  } else if (tid === 'tpl-promo' || tid === 'Campaign & Promo') {
     primaryColor = '#ea580c'; // Orange-Red
     primaryColorHover = '#c2410c';
-  } else if (templateId === 'tpl-portfolio' || templateId === 'Agensi & Kreatif') {
+  } else if (tid === 'tpl-portfolio' || tid === 'Agensi & Kreatif') {
     primaryColor = '#8b5cf6'; // Purple
     primaryColorHover = '#7c3aed';
-  } else if (templateId === 'tpl-event' || templateId === 'Event & Seminar') {
+  } else if (tid === 'tpl-event' || tid === 'Event & Seminar') {
     primaryColor = '#eab308'; // Amber-Yellow
     primaryColorHover = '#ca8a04';
   }
@@ -418,28 +447,36 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
   ];
 
   const sectionsOrder = Array.isArray(c.sections) ? c.sections : defaultSectionsList;
-  const isNavbarActive = sectionsOrder.find((s: any) => s.id === 'navbar')?.status !== 'Nonaktif';
-  const isFooterActive = sectionsOrder.find((s: any) => s.id === 'footer')?.status !== 'Nonaktif';
-  
-  const layoutSections = sectionsOrder.filter((s: any) => 
-    s.id !== 'navbar' && s.id !== 'footer' && s.id !== 'logo' && s.id !== 'contact' && s.id !== 'socialMedia' && s.status === 'Aktif'
-  );
 
-  const isContactActive = sectionsOrder.find((s: any) => s.id === 'contact')?.status !== 'Nonaktif';
-  const isSocialActive = sectionsOrder.find((s: any) => s.id === 'socialMedia')?.status !== 'Nonaktif';
+  const isSecActive = (idOrType: string) => {
+    const sec = sectionsOrder.find((s: any) => s.id === idOrType || s.type === idOrType);
+    if (!sec) return false;
+    return sec.isActive !== false && sec.status !== 'Nonaktif';
+  };
+
+  const isNavbarActive = isSecActive('navbar');
+  const isFooterActive = isSecActive('footer');
+  const isContactActive = isSecActive('contact');
+  const isSocialActive = isSecActive('socialMedia');
+  
+  const layoutSections = sectionsOrder.filter((s: any) => {
+    const type = s.type || s.id;
+    const active = s.isActive !== false && s.status !== 'Nonaktif';
+    return type !== 'navbar' && type !== 'footer' && type !== 'logo' && type !== 'contact' && type !== 'socialMedia' && active;
+  });
 
   return (
     <div className={`w-full ${bgColor} ${textColor} font-sans antialiased ${isMobile ? 'py-2 px-1' : ''} min-h-screen`}>
       {/* Navigation */}
       {isNavbarActive && (
-        <nav className={`flex justify-between items-center sticky top-0 z-50 shadow-sm backdrop-blur-md border-b ${isDarkTheme ? 'bg-[#0f172a]/95 border-slate-800/80' : 'bg-white/95 border-slate-100/80'} ${isMobile ? 'py-3 px-4' : 'py-4 px-6 md:px-12'}`}>
-          <div className="flex items-center gap-3">
+        <nav className={`flex justify-between items-center sticky top-0 z-50 shadow-sm backdrop-blur-md border-b ${isDarkTheme ? 'bg-[#0f172a]/95 border-slate-800/80' : 'bg-white/95 border-slate-100/80'} ${isMobile ? 'py-2 px-3 gap-2' : 'py-4 px-6 md:px-12'}`}>
+          <div className={`flex items-center ${isMobile ? 'gap-1.5 max-w-[65%]' : 'gap-3'}`}>
             {logo ? (
-              <img src={logo} alt="Logo" className="w-16 h-16 object-contain" />
+              <img src={logo} alt="Logo" className={`${isMobile ? 'w-9 h-9' : 'w-16 h-16'} object-contain`} />
             ) : (
               <div className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-black" style={{ backgroundColor: primaryColor }}>L</div>
             )}
-            <span className={`text-lg font-black tracking-tight uppercase ${isDarkTheme ? 'text-white' : 'text-slate-900'}`}>{navbar.brand || footer.businessName || 'Situs Bisnis'}</span>
+            <span className={`tracking-tight uppercase font-black ${isDarkTheme ? 'text-white' : 'text-slate-900'} ${isMobile ? 'text-[10px] leading-tight line-clamp-2' : 'text-lg'}`}>{navbar.brand || footer.businessName || 'Situs Bisnis'}</span>
           </div>
           {!isMobile && (
             <div className={`hidden md:flex gap-8 text-xs font-bold uppercase tracking-widest ${isDarkTheme ? 'text-slate-400' : 'text-slate-500'}`}>
@@ -453,7 +490,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
               href={`https://wa.me/${contact.whatsapp}`} 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-white px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all shadow-sm"
+              className={`text-white rounded-full font-bold uppercase tracking-wider transition-all shadow-sm ${isMobile ? 'px-3 py-1.5 text-[9px] shrink-0' : 'px-5 py-2.5 text-xs'}`}
               style={{ backgroundColor: primaryColor }}
             >
               Hubungi Kami
@@ -464,7 +501,19 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
       {/* Dynamic Sections */}
       {layoutSections.map((sec: any) => {
-        switch (sec.id) {
+        const secType = sec.type || sec.id;
+        const secContent = sec.content || c[secType] || {};
+        
+        const hero = secType === 'hero' ? secContent : {};
+        const about = secType === 'about' ? secContent : {};
+        const products = secType === 'products' ? (Array.isArray(secContent) ? secContent : []) : [];
+        const advantages = secType === 'advantages' ? (Array.isArray(secContent) ? secContent : []) : [];
+        const gallery = secType === 'gallery' ? (Array.isArray(secContent) ? secContent : []) : [];
+        const testimonials = secType === 'testimonials' ? (Array.isArray(secContent) ? secContent : []) : [];
+        const cta = secType === 'cta' ? secContent : {};
+        const marketplaces = secType === 'marketplaces' ? secContent : {};
+
+        switch (secType) {
           case 'hero':
             return (
               <section id="home" key="hero" className={`max-w-6xl mx-auto grid gap-12 items-center ${isMobile ? 'py-8 px-4 grid-cols-1 gap-6' : 'py-16 md:py-24 px-6 md:px-12 grid-cols-1 md:grid-cols-2'}`}>
@@ -472,10 +521,10 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                   <div className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm ${isDarkTheme ? 'bg-purple-950/20 border-purple-800/30 text-purple-300' : 'bg-blue-50 border-blue-200/50 text-blue-700'}`}>
                     <Sparkles className="w-4 h-4 animate-pulse" /> Layanan Profesional & Terpercaya
                   </div>
-                  <h1 className={`font-black tracking-tight leading-tight uppercase ${isMobile ? 'text-2xl' : 'text-4xl md:text-5xl lg:text-6xl'}`}>
+                  <h1 className={`font-black tracking-tight leading-tight uppercase ${isMobile ? 'text-xl' : 'text-4xl md:text-5xl lg:text-6xl'}`}>
                     {hero.headline}
                   </h1>
-                  <p className={`text-sm md:text-base font-medium leading-relaxed ${isDarkTheme ? 'text-slate-400' : 'text-slate-500'}`}>
+                  <p className={`font-medium leading-relaxed ${isMobile ? 'text-xs' : 'text-sm md:text-base'} ${isDarkTheme ? 'text-slate-400' : 'text-slate-500'}`}>
                     {hero.subheadline}
                   </p>
                   {contact.whatsapp && (
@@ -483,7 +532,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                       href={`https://wa.me/${contact.whatsapp}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-3 px-8 py-4 text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all shadow-lg hover:scale-105"
+                      className={`inline-flex items-center gap-3 text-white font-black uppercase tracking-widest transition-all shadow-lg hover:scale-105 ${isMobile ? 'px-5 py-3 text-xs rounded-xl' : 'px-8 py-4 text-sm rounded-2xl'}`}
                       style={{ backgroundColor: primaryColor }}
                     >
                       {hero.cta || 'Mulai Sekarang'} <ArrowRight className="w-4 h-4" />
@@ -503,10 +552,10 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
           case 'about':
             return (
-              <section id="about" key="about" className={`border-y ${isMobile ? 'py-10 px-4' : 'py-20 px-6 md:px-12'} ${isDarkTheme ? 'bg-[#111827]/40 border-slate-900' : 'bg-slate-100/50 border-slate-200/50'}`}>
-                <div className="max-w-4xl mx-auto space-y-12 text-center">
+              <section id="about" key="about" className={`border-y ${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'} ${isDarkTheme ? 'bg-[#111827]/40 border-slate-900' : 'bg-slate-100/50 border-slate-200/50'}`}>
+                <div className={`max-w-4xl mx-auto text-center ${isMobile ? 'space-y-6' : 'space-y-12'}`}>
                   <div className="space-y-3">
-                    <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight">Mengenal Profil Kami</h2>
+                    <h2 className={`font-black uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Mengenal Profil Kami</h2>
                     <div className="w-16 h-1.5 mx-auto rounded-full" style={{ backgroundColor: primaryColor }} />
                   </div>
                   <div className={`grid gap-8 text-left ${isMobile ? 'grid-cols-1 gap-6' : 'grid-cols-1 md:grid-cols-3'}`}>
@@ -529,10 +578,10 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
           case 'products':
             return (
-              <section id="products" key="products" className={`max-w-6xl mx-auto space-y-16 ${isMobile ? 'py-10 px-4 space-y-10' : 'py-20 px-6 md:px-12'}`}>
+              <section id="products" key="products" className={`max-w-6xl mx-auto ${isMobile ? 'py-8 px-4 space-y-6' : 'py-20 px-6 md:px-12 space-y-16'}`}>
                 <div className="text-center space-y-3">
-                  <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight">Layanan & Produk Unggulan</h2>
-                  <p className="text-slate-500 max-w-lg mx-auto text-[10px] md:text-xs font-bold uppercase tracking-widest">Dukungan penuh untuk efisiensi ekosistem operasional Anda</p>
+                  <h2 className={`font-black uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Layanan & Produk Unggulan</h2>
+                  <p className={`max-w-lg mx-auto font-bold uppercase tracking-widest ${isDarkTheme ? 'text-slate-450' : 'text-slate-500'} ${isMobile ? 'text-[9px]' : 'text-[10px] md:text-xs'}`}>Dukungan penuh untuk efisiensi ekosistem operasional Anda</p>
                   <div className="w-16 h-1.5 mx-auto rounded-full" style={{ backgroundColor: primaryColor }} />
                 </div>
                 <div className={`grid gap-8 ${isMobile ? 'grid-cols-1 gap-6' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'}`}>
@@ -551,7 +600,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                       <div className="p-6 space-y-3 flex-1 flex flex-col justify-between">
                         <div>
                           <h4 className="text-sm font-black uppercase tracking-tight">{prod.name}</h4>
-                          <p className="text-xs text-slate-500 font-medium leading-relaxed line-clamp-3">{prod.description}</p>
+                          <p className="text-xs font-medium leading-relaxed line-clamp-3" style={{ color: isDarkTheme ? '#94a3b8' : '#64748b' }}>{prod.description}</p>
                         </div>
                         {contact.whatsapp && (
                           <a 
@@ -573,7 +622,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
           case 'advantages':
             return (
-              <section key="advantages" className={`${isMobile ? 'py-10 px-4' : 'py-20 px-6 md:px-12'} ${isDarkTheme ? 'bg-[#0f172a]' : 'bg-slate-900 text-white'}`}>
+              <section key="advantages" className={`${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'} ${isDarkTheme ? 'bg-[#0f172a]' : 'bg-slate-900 text-white'}`}>
                 <div className={`max-w-4xl mx-auto grid gap-8 ${isMobile ? 'grid-cols-1 gap-6' : 'grid-cols-1 md:grid-cols-3'}`}>
                   {advantages.map((adv, i) => (
                     <div key={i} className="text-center space-y-4">
@@ -590,9 +639,9 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
           case 'gallery':
             return (
-              <section key="gallery" className={`max-w-6xl mx-auto space-y-12 ${isMobile ? 'py-10 px-4' : 'py-20 px-6 md:px-12'}`}>
+              <section key="gallery" className={`max-w-6xl mx-auto ${isMobile ? 'py-8 px-4 space-y-6' : 'py-20 px-6 md:px-12 space-y-12'}`}>
                 <div className="text-center space-y-3">
-                  <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight">Dokumentasi Portofolio</h2>
+                  <h2 className={`font-black uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Dokumentasi Portofolio</h2>
                   <div className="w-16 h-1.5 mx-auto rounded-full" style={{ backgroundColor: primaryColor }} />
                 </div>
                 <div className={`grid gap-6 ${isMobile ? 'grid-cols-2 gap-4' : 'grid-cols-2 md:grid-cols-3'}`}>
@@ -611,10 +660,10 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
           case 'testimonials':
             return (
-              <section id="testimonials" key="testimonials" className={`border-y ${isMobile ? 'py-10 px-4' : 'py-20 px-6 md:px-12'} ${isDarkTheme ? 'bg-[#111827]/40 border-slate-900' : 'bg-slate-100/50 border-slate-200/50'}`}>
-                <div className="max-w-4xl mx-auto space-y-12 text-center">
+              <section id="testimonials" key="testimonials" className={`border-y ${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'} ${isDarkTheme ? 'bg-[#111827]/40 border-slate-900' : 'bg-slate-100/50 border-slate-200/50'}`}>
+                <div className={`max-w-4xl mx-auto text-center ${isMobile ? 'space-y-6' : 'space-y-12'}`}>
                   <div className="space-y-3">
-                    <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight">Apa Kata Klien Kami?</h2>
+                    <h2 className={`font-black uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Apa Kata Klien Kami?</h2>
                     <div className="w-16 h-1.5 mx-auto rounded-full" style={{ backgroundColor: primaryColor }} />
                   </div>
                   <div className={`grid gap-8 text-left ${isMobile ? 'grid-cols-1 gap-6' : 'grid-cols-1 md:grid-cols-2'}`}>
@@ -637,9 +686,9 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
           case 'cta':
             return (
-              <section key="cta" className={`max-w-5xl mx-auto text-center relative overflow-hidden border space-y-8 my-12 ${cardColor} ${isMobile ? 'py-10 px-4 rounded-[24px] space-y-6 my-6' : 'py-16 md:py-24 px-6 md:px-12 rounded-[40px]'}`}>
+              <section key="cta" className={`max-w-5xl mx-auto text-center relative overflow-hidden border my-12 ${cardColor} ${isMobile ? 'py-8 px-4 rounded-[24px] space-y-6 my-6' : 'py-16 md:py-24 px-6 md:px-12 rounded-[40px] space-y-8'}`}>
                 <div className="space-y-3">
-                  <h2 className={`font-black uppercase tracking-tight ${isMobile ? 'text-2xl' : 'text-3xl md:text-4xl'}`}>{cta.title}</h2>
+                  <h2 className={`font-black uppercase tracking-tight ${isMobile ? 'text-xl' : 'text-3xl md:text-4xl'}`}>{cta.title}</h2>
                   <p className="text-slate-500 text-xs md:text-sm max-w-xl mx-auto font-medium">{cta.description}</p>
                 </div>
                 {contact.whatsapp && (
@@ -647,7 +696,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                     href={`https://wa.me/${contact.whatsapp}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-3 px-8 py-4 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:scale-105 transition-all shadow-lg"
+                    className={`inline-flex items-center gap-3 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:scale-105 transition-all shadow-lg ${isMobile ? 'px-5 py-3 text-xs rounded-xl' : 'px-8 py-4 text-sm rounded-2xl'}`}
                     style={{ backgroundColor: primaryColor }}
                   >
                     {cta.buttonText || 'Hubungi Kami'} <MessageCircle className="w-4.5 h-4.5" />

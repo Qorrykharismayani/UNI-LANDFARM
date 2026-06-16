@@ -175,7 +175,7 @@ const Features = ({ setView }: FeaturesProps) => {
                       <div className="absolute inset-0 bg-brand-blue/10 blur-xl rounded-full scale-125 group-hover/card:bg-brand-blue/30 transition-all duration-700"></div>
                       <div className="w-14 h-14 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/50 flex items-center justify-center relative z-10 transition-all duration-500 group-hover/card:scale-110 group-hover/card:border-brand-blue/50 shadow-lg">
                         {/* Adjust icon size to match HowItWorks (w-6 h-6) */}
-                        {React.cloneElement(f.icon as React.ReactElement, { className: "w-6 h-6 text-brand-blue" })}
+                        {React.cloneElement(f.icon as React.ReactElement<any>, { className: "w-6 h-6 text-brand-blue" })}
                       </div>
                     </div>
 

@@ -12,7 +12,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       return NextResponse.json({ success: false, message: 'Tidak diotorisasi.' }, { status: 401 });
     }
 
-    const page = await prisma.landingPage.findUnique({ where: { id } });
+    const page = await prisma.landingPage.findUnique({ where: { id: Number(id) } });
     if (!page) {
       return NextResponse.json({ success: false, message: 'Landing page tidak ditemukan.' }, { status: 404 });
     }
@@ -23,14 +23,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
     // Set page status to 'Pending Publish' (Pending Review)
     await prisma.landingPage.update({
-      where: { id },
+      where: { id: Number(id) },
       data: { status: 'Pending Publish' }
     });
 
     // Log request inside PublishRequest table
     const requestLog = await prisma.publishRequest.create({
       data: {
-        landingPageId: id,
+        landingPageId: Number(id),
         requestedBy: session.userId,
         status: 'Pending'
       }

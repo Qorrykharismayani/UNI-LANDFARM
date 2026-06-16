@@ -45,6 +45,8 @@ import LandingPagePage from './LandingPagePage';
 import TemplatePage from './TemplatePage';
 import ProfilePage from './ProfilePage';
 import AdminPanelPage from './AdminPanelPage';
+import AllProjectsPage from './AllProjectsPage';
+import { Folder } from 'lucide-react';
 
 interface DashboardFooterProps {
   setView: (v: string) => void;
@@ -146,6 +148,8 @@ export const DashboardView = ({
   setSystemSettings 
 }: DashboardViewProps) => {
   const [subView, setSubView] = useState(() => user?.role === 'ADMIN' ? 'admin_panel' : 'overview');
+  const [adminView, setAdminView] = useState<'dashboard' | 'users' | 'landing_pages' | 'templates' | 'content' | 'profile' | 'analytics'>('dashboard');
+  const [isAdminDropdownOpen, setIsAdminDropdownOpen] = useState(false);
 
   useEffect(() => {
     if (user?.role === 'ADMIN' && subView !== 'admin_panel') {
@@ -175,16 +179,7 @@ export const DashboardView = ({
   const [cmsSearchQuery, setCmsSearchQuery] = useState('');
   const [cmsCurrentPage, setCmsCurrentPage] = useState(1);
   const [guideSearchQuery, setGuideSearchQuery] = useState('');
-  const [cmsPosts, setCmsPosts] = useState([
-    { id: 1, title: "Strategi Kopi 2026", status: "Published", author: "Sarah Anderson", scoreBefore: 65, scoreAfter: 92, date: "24 Mei 2026", type: "Blog Post" },
-    { id: 2, title: "Menemukan Biji Terbaik", status: "Draft", author: "Sarah Anderson", scoreBefore: 45, scoreAfter: 78, date: "23 Mei 2026", type: "Blog Post" },
-    { id: 3, title: "Teknik Brewing Modern", status: "Published", author: "Admin", scoreBefore: 50, scoreAfter: 88, date: "22 Mei 2026", type: "Blog Post" },
-    { id: 4, title: "Membangun UMKM Digital", status: "Published", author: "Sarah Anderson", scoreBefore: 70, scoreAfter: 95, date: "20 Mei 2026", type: "Blog Post" },
-    { id: 5, title: "Tren Bisnis Kopi Global", status: "Published", author: "Admin", scoreBefore: 60, scoreAfter: 84, date: "18 Mei 2026", type: "Blog Post" },
-    { id: 6, title: "Optimasi SEO Konten Lokal", status: "Published", author: "Sarah Anderson", scoreBefore: 55, scoreAfter: 89, date: "16 Mei 2026", type: "Blog Post" },
-    { id: 7, title: "Analisis Pasar Industri Kopi", status: "Draft", author: "Admin", scoreBefore: 40, scoreAfter: 76, date: "14 Mei 2026", type: "Blog Post" },
-    { id: 8, title: "Panduan Memilih Biji Robusta", status: "Published", author: "Sarah Anderson", scoreBefore: 62, scoreAfter: 91, date: "12 Mei 2026", type: "Blog Post" }
-  ]);
+  const [cmsPosts, setCmsPosts] = useState<any[]>([]);
   const [aiTopic, setAiTopic] = useState('');
   const [aiTone, setAiTone] = useState('Profesional');
   const [aiLength, setAiLength] = useState('Sedang (600 kata)');
@@ -218,10 +213,10 @@ export const DashboardView = ({
     { id: 'overview', icon: <LucideLineChart className="w-5 h-5" />, label: 'Dashboard' },
     ...(user?.role === 'ADMIN' ? [{ id: 'admin_panel', icon: <Shield className="w-5 h-5" />, label: 'Admin Panel' }] : []),
     { id: 'buat_situs', icon: <Plus className="w-5 h-5" />, label: 'Create Site' },
+    { id: 'all_projects', icon: <Folder className="w-5 h-5" />, label: 'All Projects' },
     { id: 'templates', icon: <Layout className="w-5 h-5" />, label: 'Templates' },
     { id: 'cms', icon: <Layers className="w-5 h-5" />, label: 'CMS' },
     { id: 'tokens', icon: <Banknote className="w-5 h-5" />, label: 'Buy Tokens' },
-    { id: 'profile', icon: <User className="w-5 h-5" />, label: 'Profile' },
   ];
 
   const [userProjects, setUserProjects] = useState<any[]>([]);
@@ -721,7 +716,26 @@ export const DashboardView = ({
   const renderSubView = () => {
     switch (subView) {
       case 'admin_panel':
-        return <AdminPanelPage showNotification={showNotification} onSwitchToUserView={() => setSubView('overview')} onSettingsUpdate={setSystemSettings} />;
+        return (
+          <AdminPanelPage
+            showNotification={showNotification}
+            onSwitchToUserView={() => setSubView('overview')}
+            onSettingsUpdate={setSystemSettings}
+            adminView={adminView}
+            setAdminView={setAdminView}
+          />
+        );
+      case 'all_projects':
+        return (
+          <AllProjectsPage
+            userProjects={userProjects}
+            showNotification={showNotification}
+            setSubView={setSubView}
+            setActivePageId={setActivePageId}
+            setIsCmsEditorOpen={setIsCmsEditorOpen}
+            fetchProjects={fetchProjects}
+          />
+        );
       case 'panduan':
         return <ContentPlanPage guideSearchQuery={guideSearchQuery} />;
       case 'tokens':
@@ -730,6 +744,7 @@ export const DashboardView = ({
         return (
           <DashboardPage
             systemSettings={systemSettings}
+            user={user}
             userProjects={userProjects}
             showNotification={showNotification}
             setSubView={setSubView}
@@ -922,29 +937,12 @@ export const DashboardView = ({
       case 'cms':
         return (
           <CmsPage
-            cmsSubTab={cmsSubTab}
-            setCmsSubTab={setCmsSubTab}
             cmsPosts={cmsPosts}
             setCmsPosts={setCmsPosts}
             cmsSearchQuery={cmsSearchQuery}
             setCmsSearchQuery={setCmsSearchQuery}
             cmsCurrentPage={cmsCurrentPage}
             setCmsCurrentPage={setCmsCurrentPage}
-            aiTopic={aiTopic}
-            setAiTopic={setAiTopic}
-            aiTone={aiTone}
-            setAiTone={setAiTone}
-            aiLength={aiLength}
-            setAiLength={setAiLength}
-            isGeneratingAiPost={isGeneratingAiPost}
-            aiPostProgress={aiPostProgress}
-            aiPostStepText={aiPostStepText}
-            isSmartScheduling={isSmartScheduling}
-            setIsSmartScheduling={setIsSmartScheduling}
-            aiSchedulerFrequency={aiSchedulerFrequency}
-            setAiSchedulerFrequency={setAiSchedulerFrequency}
-            handleGenerateAiPost={handleGenerateAiPost}
-            showNotification={showNotification}
           />
         );
 
@@ -1022,9 +1020,9 @@ export const DashboardView = ({
   ) : (
     <>
       {isAdminPanelActive ? (
-        <div className="min-h-screen bg-[#070b19] flex flex-col font-sans relative pt-[72px]">
+        <div className="min-h-screen bg-[#070b19] dark:bg-[#070b19] bg-slate-50 flex flex-col font-sans relative pt-[72px] transition-colors duration-300">
           {/* ADMIN PERSISTENT HEADER BAR */}
-          <header className="fixed top-0 left-0 right-0 z-50 bg-[#070b19] border-b border-slate-800/60 h-[72px] flex items-center justify-between px-8 text-white">
+          <header className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-[#070b19] border-b border-slate-200 dark:border-slate-800/60 h-[72px] flex items-center justify-between px-8 text-slate-800 dark:text-white transition-colors duration-300">
             <div className="flex items-center gap-4">
               <div
                 className="cursor-pointer hover:scale-105 transition-all"
@@ -1037,18 +1035,30 @@ export const DashboardView = ({
                 )}
               </div>
               <div>
-                <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-md text-[8px] font-black uppercase tracking-wider">
+                <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-md text-[8px] font-black uppercase tracking-wider">
                   Admin Panel
                 </span>
-                <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest block mt-0.5">Control Center</span>
+                <span className="text-[8px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest block mt-0.5">Control Center</span>
               </div>
             </div>
 
-            <div className="flex items-center gap-6">
-              {/* Admin User Info */}
-              <div className="flex items-center gap-3">
+            <div className="flex items-center gap-6 relative">
+              {/* Dark/Light Theme Toggle */}
+              <button
+                onClick={toggleTheme}
+                className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-brand-blue dark:hover:text-brand-blue transition-all cursor-pointer shadow-sm border-none flex items-center justify-center"
+                title="Ganti Tema"
+              >
+                {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-500" /> : <Moon className="w-4 h-4 text-indigo-500" />}
+              </button>
+
+              {/* Admin User Info with Dropdown */}
+              <div 
+                onClick={() => setIsAdminDropdownOpen(!isAdminDropdownOpen)}
+                className="flex items-center gap-3 cursor-pointer group select-none"
+              >
                 <div className="text-right hidden sm:block">
-                  <p className="text-xs font-black uppercase tracking-tighter leading-none mb-1 text-slate-200">
+                  <p className="text-xs font-black uppercase tracking-tighter leading-none mb-1 text-slate-200 group-hover:text-brand-blue transition-colors">
                     Uni-Inside Administrator
                   </p>
                   <div className="flex items-center justify-end gap-1.5 leading-none">
@@ -1058,12 +1068,59 @@ export const DashboardView = ({
                     </p>
                   </div>
                 </div>
-                <div className="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center border border-slate-700 shadow-sm overflow-hidden">
+                <div className="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center border border-slate-700 shadow-sm overflow-hidden group-hover:border-brand-blue/50 transition-colors">
                   <div className="w-full h-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xs font-black uppercase">
                     U
                   </div>
                 </div>
               </div>
+
+              {/* Admin Header Dropdown */}
+              {isAdminDropdownOpen && (
+                <>
+                  <div 
+                    className="fixed inset-0 z-30" 
+                    onClick={() => setIsAdminDropdownOpen(false)} 
+                  />
+                  <div className="absolute right-0 top-12 z-45 w-48 bg-[#0b1226] border border-slate-800 rounded-2xl p-2 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-150">
+                    <button
+                      onClick={() => {
+                        setAdminView('profile');
+                        setIsAdminDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-left text-[10px] font-black uppercase tracking-wider text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors cursor-pointer"
+                    >
+                      <User className="w-3.5 h-3.5 text-slate-400" />
+                      <span>Profile</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setAdminView('profile');
+                        setIsAdminDropdownOpen(false);
+                        setTimeout(() => {
+                          const el = document.querySelector('input[placeholder="••••••••"]');
+                          if (el) (el as HTMLInputElement).focus();
+                        }, 100);
+                      }}
+                      className="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-left text-[10px] font-black uppercase tracking-wider text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors cursor-pointer"
+                    >
+                      <Lock className="w-3.5 h-3.5 text-slate-400" />
+                      <span>Ubah Password</span>
+                    </button>
+                    <div className="border-t border-slate-800 my-1" />
+                    <button
+                      onClick={() => {
+                        setIsAdminDropdownOpen(false);
+                        setShowLogoutConfirm(true);
+                      }}
+                      className="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-left text-[10px] font-black uppercase tracking-wider text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors cursor-pointer"
+                    >
+                      <LogOut className="w-3.5 h-3.5 text-red-400" />
+                      <span>Logout</span>
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </header>
 
@@ -1074,9 +1131,13 @@ export const DashboardView = ({
               onLogout={() => setShowLogoutConfirm(true)}
               onSettingsUpdate={setSystemSettings}
               onSwitchToUserView={() => setSubView('overview')}
+              adminView={adminView}
+              setAdminView={setAdminView}
             />
           </main>
-          <DashboardFooter setView={setView} setSubView={handleSetSubView} systemSettings={systemSettings} />
+          <footer className="py-6 text-center text-xs text-slate-550 bg-[#070b19] border-t border-slate-800/60 font-medium select-none">
+            © 2026 UNI-LandFarm | Admin Panel Uni-Inside
+          </footer>
         </div>
       ) : (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col font-sans transition-colors duration-300 relative">
@@ -1252,7 +1313,7 @@ export const DashboardView = ({
             >
               <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-white/5">
                 <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">
-                  Ubah Password
+                  Change Password
                 </h3>
                 <button 
                   onClick={() => setIsChangingPassword(false)}
@@ -1264,7 +1325,7 @@ export const DashboardView = ({
               <form onSubmit={handleChangePassword} className="space-y-4">
                 {user?.provider !== 'google' && (
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Password Lama</label>
+                    <label className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Old Password</label>
                     <input
                       type="password"
                       required
@@ -1276,18 +1337,18 @@ export const DashboardView = ({
                   </div>
                 )}
                 <div className="space-y-1.5">
-                  <label className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Password Baru</label>
+                  <label className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">New Password</label>
                   <input
                     type="password"
                     required
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     className="w-full bg-slate-50 dark:bg-slate-900/50 border-2 border-transparent focus:border-brand-blue/30 rounded-2xl p-4 text-xs font-black outline-none transition-all text-slate-900 dark:text-white"
-                    placeholder="Minimal 6 karakter"
+                    placeholder="At least 6 characters"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Konfirmasi Password Baru</label>
+                  <label className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Confirm New Password</label>
                   <input
                     type="password"
                     required
@@ -1303,13 +1364,13 @@ export const DashboardView = ({
                     onClick={() => setIsChangingPassword(false)}
                     className="flex-1 py-3 text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest border border-slate-200 dark:border-white/5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-all"
                   >
-                    Batal
+                    Cancel
                   </button>
                   <button
                     type="submit"
                     className="flex-1 py-3 bg-brand-blue text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-brand-blue/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
                   >
-                    Simpan
+                    Save
                   </button>
                 </div>
               </form>
@@ -1339,15 +1400,15 @@ export const DashboardView = ({
                 <LogOut className="w-5 h-5" />
               </div>
               <div className="space-y-2">
-                <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Konfirmasi Logout</h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Apakah Anda yakin ingin logout dari akun?</p>
+                <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Confirm Logout</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Are you sure you want to log out?</p>
               </div>
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowLogoutConfirm(false)}
                   className="flex-1 py-3 text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest border border-slate-200 dark:border-white/5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-all"
                 >
-                  Batal
+                  Cancel
                 </button>
                 <button
                   onClick={() => {
