@@ -45,14 +45,14 @@ const ContentPlanPage = ({ guideSearchQuery }: ContentPlanPageProps) => {
     },
     {
       title: "Panduan Publikasi Landing Page",
-      desc: "Pelajari proses pengajuan publish hingga landing page dapat diakses melalui link publik.",
+      desc: "Pelajari proses publikasi instan hingga landing page langsung aktif dapat diakses oleh publik.",
       time: "Membaca 2 Menit",
       icon: <Rocket className="w-4 h-4 text-amber-500" />,
       bg: "bg-amber-500/5 dark:bg-amber-600/10",
       steps: [
         "Periksa preview landing page",
-        "Ajukan publish",
-        "Tunggu persetujuan admin"
+        "Klik Publish Landing Page",
+        "Situs langsung aktif secara online"
       ]
     }
   ];

@@ -5,7 +5,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   try {
     const { id } = await params;
     const template = await prisma.template.findUnique({
-      where: { id }
+      where: { id: Number(id) }
     });
 
     if (!template) {

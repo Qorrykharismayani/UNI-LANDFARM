@@ -172,7 +172,8 @@ export async function GET(request: Request) {
       userId: user.id,
       email: user.email,
       role: user.role,
-      status: user.status
+      status: user.status,
+      name: user.name
     });
 
     // 5. Create redirect response and set cookie

@@ -13,7 +13,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     }
 
     const pubRequest = await prisma.publishRequest.findUnique({
-      where: { id },
+      where: { id: Number(id) },
       include: { landingPage: true }
     });
 
@@ -33,7 +33,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
     // Update request log
     await prisma.publishRequest.update({
-      where: { id },
+      where: { id: Number(id) },
       data: {
         status: 'Approved',
         reviewedBy: session.userId,

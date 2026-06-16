@@ -15,7 +15,8 @@ export async function POST(request: Request) {
 
     const formData = await request.formData();
     const file = formData.get('file') as File;
-    const landingPageId = formData.get('landingPageId') as string | null;
+    const landingPageIdVal = formData.get('landingPageId') as string | null;
+    const landingPageId = landingPageIdVal && landingPageIdVal !== 'null' && landingPageIdVal !== 'undefined' ? Number(landingPageIdVal) : undefined;
 
     if (!file) {
       return NextResponse.json({ success: false, message: 'Tidak ada berkas yang diunggah.' }, { status: 400 });
@@ -40,7 +41,7 @@ export async function POST(request: Request) {
     const mediaLog = await prisma.mediaFile.create({
       data: {
         userId: session.userId,
-        landingPageId: landingPageId || undefined,
+        landingPageId: landingPageId ?? undefined,
         fileName: file.name,
         fileUrl: relativeUrl,
         fileType: file.type

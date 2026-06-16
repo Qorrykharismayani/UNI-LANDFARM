@@ -3,10 +3,11 @@ import jwt from 'jsonwebtoken';
 const JWT_SECRET = process.env.JWT_SECRET || 'uni_lanfaram_super_secret_jwt_key_2026_uninside';
 
 export interface JWTPayload {
-  userId: string;
+  userId: number;
   email: string;
   role: string;
   status: string;
+  name?: string;
 }
 
 export function signToken(payload: JWTPayload): string {

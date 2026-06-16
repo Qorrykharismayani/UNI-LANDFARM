@@ -13,7 +13,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     }
 
     const page = await prisma.landingPage.findUnique({
-      where: { id },
+      where: { id: Number(id) },
       include: {
         content: true,
         template: true,
@@ -54,7 +54,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       return NextResponse.json({ success: false, message: 'Tidak diotorisasi.' }, { status: 401 });
     }
 
-    const page = await prisma.landingPage.findUnique({ where: { id } });
+    const page = await prisma.landingPage.findUnique({ where: { id: Number(id) } });
     if (!page) {
       return NextResponse.json({ success: false, message: 'Landing page tidak ditemukan.' }, { status: 404 });
     }
@@ -63,16 +63,11 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       return NextResponse.json({ success: false, message: 'Akses ditolak.' }, { status: 403 });
     }
 
+
     const { title, businessName, slug, status, publicUrl, publishedAt, contentJson } = await request.json();
 
-    if (status === 'Published') {
-      if (session.role !== 'ADMIN' && page.status !== 'Approved' && page.status !== 'Published') {
-        return NextResponse.json({ success: false, message: 'Halaman ini belum disetujui oleh admin untuk diterbitkan.' }, { status: 403 });
-      }
-    }
-
     const updated = await prisma.landingPage.update({
-      where: { id },
+      where: { id: Number(id) },
       data: {
         title: title || undefined,
         businessName: businessName || undefined,
@@ -106,7 +101,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
       return NextResponse.json({ success: false, message: 'Tidak diotorisasi.' }, { status: 401 });
     }
 
-    const page = await prisma.landingPage.findUnique({ where: { id } });
+    const page = await prisma.landingPage.findUnique({ where: { id: Number(id) } });
     if (!page) {
       return NextResponse.json({ success: false, message: 'Landing page tidak ditemukan.' }, { status: 404 });
     }
@@ -115,7 +110,13 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
       return NextResponse.json({ success: false, message: 'Akses ditolak.' }, { status: 403 });
     }
 
-    await prisma.landingPage.delete({ where: { id } });
+    // Set landingPageId of associated MediaFile records to null to avoid foreign key restrict errors
+    await prisma.mediaFile.updateMany({
+      where: { landingPageId: Number(id) },
+      data: { landingPageId: null }
+    });
+
+    await prisma.landingPage.delete({ where: { id: Number(id) } });
 
     return NextResponse.json({ success: true, message: 'Landing page berhasil dihapus!' });
   } catch (error: any) {

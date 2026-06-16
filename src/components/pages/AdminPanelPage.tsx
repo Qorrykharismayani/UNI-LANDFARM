@@ -26,18 +26,23 @@ interface AdminPanelPageProps {
   onLogout?: () => void;
   onSwitchToUserView?: () => void;
   onSettingsUpdate?: (s: any) => void;
+  adminView?: 'dashboard' | 'users' | 'landing_pages' | 'templates' | 'content' | 'profile' | 'analytics';
+  setAdminView?: (v: 'dashboard' | 'users' | 'landing_pages' | 'templates' | 'content' | 'profile' | 'analytics') => void;
 }
 
 const AdminPanelPage = ({ 
   showNotification, 
   onLogout,
   onSwitchToUserView,
-  onSettingsUpdate
+  onSettingsUpdate,
+  adminView: propsAdminView,
+  setAdminView: propsSetAdminView
 }: AdminPanelPageProps) => {
-  const [adminView, setAdminView] = useState<'dashboard' | 'users' | 'landing_pages' | 'templates' | 'content' | 'analytics' | 'profile'>('dashboard');
+  const [localAdminView, setLocalAdminView] = useState<'dashboard' | 'users' | 'landing_pages' | 'templates' | 'content' | 'profile' | 'analytics'>('dashboard');
+  const adminView = propsAdminView || localAdminView;
+  const setAdminView = propsSetAdminView || setLocalAdminView;
   const [users, setUsers] = useState<any[]>([]);
   const [landingPages, setLandingPages] = useState<any[]>([]);
-  const [requests, setRequests] = useState<any[]>([]);
   const [templatesList, setTemplatesList] = useState<any[]>([]);
   const [systemSettings, setSystemSettings] = useState<any>({
     platformName: '',
@@ -57,6 +62,8 @@ const AdminPanelPage = ({
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [userRoleFilter, setUserRoleFilter] = useState<'ALL' | 'ADMIN' | 'USER'>('ALL');
+  const [lpSearchQuery, setLpSearchQuery] = useState('');
+  const [lpStatusFilter, setLpStatusFilter] = useState<'ALL' | 'Published' | 'Draft' | 'Inactive'>('ALL');
   
   // Change password states
   const [oldPassword, setOldPassword] = useState('');
@@ -120,9 +127,7 @@ const AdminPanelPage = ({
     status: 'Aktif'
   });
 
-  // Rejection state
-  const [rejectingId, setRejectingId] = useState<string | null>(null);
-  const [reason, setReason] = useState('');
+  // (admin review/reject removed — publishing is now automatic)
 
   // CMS Tab state
   const [cmsSettingsTab, setCmsSettingsTab] = useState<'basic' | 'support' | 'seo' | 'features' | 'testimonials' | 'faqs' | 'user_dashboard'>('basic');
@@ -131,17 +136,15 @@ const AdminPanelPage = ({
   const fetchAllData = async () => {
     setLoading(true);
     try {
-      const [resUsers, resPages, resRequests, resTemplates, resSettings] = await Promise.all([
+      const [resUsers, resPages, resTemplates, resSettings] = await Promise.all([
         fetch('/api/admin/users').then(r => r.json()),
         fetch('/api/landing-pages').then(r => r.json()),
-        fetch('/api/admin/publication-requests').then(r => r.json()),
         fetch('/api/templates').then(r => r.json()),
         fetch('/api/settings').then(r => r.json())
       ]);
 
       if (resUsers.success) setUsers(resUsers.data);
       if (resPages.success) setLandingPages(resPages.data);
-      if (resRequests.success) setRequests(resRequests.data);
       if (resTemplates.success) setTemplatesList(resTemplates.data);
       if (resSettings.success) {
         const fetched = resSettings.data || {};
@@ -207,61 +210,37 @@ const AdminPanelPage = ({
     }
   };
 
-  const handleApprove = async (requestId: string) => {
-    setActionLoading(`approve-${requestId}`);
+  const [selectedPageDetails, setSelectedPageDetails] = useState<any | null>(null);
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'Published' | 'Draft' | 'Inactive'>('ALL');
+
+  const togglePageStatus = async (pageId: string, currentStatus: string) => {
+    const newStatus = currentStatus === 'Published' ? 'Inactive' : 'Published';
+    setActionLoading(`page-${pageId}`);
     try {
-      const res = await fetch(`/api/admin/publication-requests/${requestId}/approve`, {
-        method: 'POST'
+      const res = await fetch(`/api/landing-pages/${pageId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
       });
       const data = await res.json();
       if (data.success) {
-        showNotification('Permintaan publikasi disetujui!', 'success');
-        setRequests(requests.filter(r => r.id !== requestId));
-        // Refresh landing pages
-        const resPages = await fetch('/api/landing-pages').then(r => r.json());
-        if (resPages.success) setLandingPages(resPages.data);
+        showNotification(`Status landing page berhasil diubah menjadi ${newStatus}!`, 'success');
+        setLandingPages(landingPages.map(lp => lp.id === pageId ? { ...lp, status: newStatus } : lp));
+        if (selectedPageDetails && selectedPageDetails.id === pageId) {
+          setSelectedPageDetails(prev => prev ? { ...prev, status: newStatus } : null);
+        }
       } else {
-        showNotification(data.message || 'Gagal menyetujui.', 'info');
+        showNotification(data.message || 'Gagal mengubah status.', 'info');
       }
     } catch (err) {
       console.error(err);
-      showNotification('Terjadi kesalahan koneksi.', 'info');
+      showNotification('Gagal menghubungi server.', 'info');
     } finally {
       setActionLoading(null);
     }
   };
 
-  const handleReject = async () => {
-    if (!reason.trim()) {
-      showNotification('Harap isi alasan penolakan.', 'info');
-      return;
-    }
-    setActionLoading(`reject-${rejectingId}`);
-    try {
-      const res = await fetch(`/api/admin/publication-requests/${rejectingId}/reject`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ note: reason })
-      });
-      const data = await res.json();
-      if (data.success) {
-        showNotification('Pengajuan berhasil ditolak.', 'success');
-        setRequests(requests.filter(r => r.id !== rejectingId));
-        setRejectingId(null);
-        setReason('');
-        // Refresh landing pages
-        const resPages = await fetch('/api/landing-pages').then(r => r.json());
-        if (resPages.success) setLandingPages(resPages.data);
-      } else {
-        showNotification(data.message || 'Gagal menolak.', 'info');
-      }
-    } catch (err) {
-      console.error(err);
-      showNotification('Terjadi kesalahan koneksi.', 'info');
-    } finally {
-      setActionLoading(null);
-    }
-  };
+
 
   const updateFeature = (index: number, field: string, value: any) => {
     const list = [...(systemSettings.featuresJson || [])];
@@ -391,23 +370,22 @@ const AdminPanelPage = ({
   };
 
   const publishedPagesCount = landingPages.filter(p => p.status === 'Published').length;
-  const pendingPagesCount = requests.length;
+  const draftPagesCount = landingPages.filter(p => p.status === 'Draft').length;
+  const inactivePagesCount = landingPages.filter(p => p.status === 'Inactive').length;
 
   const sidebarMenu = [
     { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="w-4.5 h-4.5" /> },
     { id: 'users', label: 'User Management', icon: <User className="w-4.5 h-4.5" /> },
-    { id: 'landing_pages', label: 'Landing Page Management', icon: <Layers className="w-4.5 h-4.5" /> },
+    { id: 'landing_pages', label: 'Publications', icon: <Layers className="w-4.5 h-4.5" /> },
     { id: 'templates', label: 'Template Management', icon: <Layout className="w-4.5 h-4.5" /> },
     { id: 'content', label: 'Content Management (CMS)', icon: <Database className="w-4.5 h-4.5" /> },
-    { id: 'analytics', label: 'Analytics', icon: <TrendingUp className="w-4.5 h-4.5" /> },
-    { id: 'profile', label: 'Profile', icon: <ShieldCheck className="w-4.5 h-4.5" /> },
   ];
 
   return (
-    <div className="bg-[#070b19] text-slate-100 min-h-screen flex flex-col md:flex-row font-sans">
+    <div className="bg-[#070b19] dark:bg-[#070b19] bg-slate-50 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col md:flex-row font-sans transition-colors duration-300">
       
       {/* 1. SIDEBAR NAVIGATION */}
-      <aside className="w-full md:w-[250px] bg-[#0b1226] border-r border-slate-800/60 p-6 flex flex-col gap-6 shrink-0 z-10">
+      <aside className="w-full md:w-[250px] bg-white dark:bg-[#0b1226] border-r border-slate-200 dark:border-slate-800/60 p-6 flex flex-col gap-6 shrink-0 z-10 transition-colors duration-300">
         <nav className="flex flex-col gap-1 flex-1">
           {sidebarMenu.map(menu => (
             <button
@@ -416,7 +394,7 @@ const AdminPanelPage = ({
               className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-[10.5px] font-black uppercase tracking-wider transition-all text-left cursor-pointer ${
                 adminView === menu.id
                   ? 'bg-brand-blue/10 text-brand-blue border-l-4 border-brand-blue shadow-[0_0_20px_rgba(255,176,0,0.1)]'
-                  : 'text-slate-400 hover:text-brand-blue hover:bg-slate-800/30'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-brand-blue dark:hover:text-brand-blue hover:bg-slate-100 dark:hover:bg-slate-800/30'
               }`}
             >
               {menu.icon}
@@ -425,22 +403,22 @@ const AdminPanelPage = ({
           ))}
         </nav>
         
-        <div className="pt-4 border-t border-slate-800/60 flex flex-col gap-3">
+        <div className="pt-4 border-t border-slate-200 dark:border-slate-800/60 flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <button
               type="button"
               onClick={fetchAllData}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900/60 hover:bg-slate-900 border border-slate-800 rounded-xl text-[9px] font-black uppercase tracking-wider text-slate-400 hover:text-white transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 dark:bg-slate-900/60 hover:bg-slate-200 dark:hover:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-[9px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors cursor-pointer"
             >
               <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} /> Sync
             </button>
-            <span className="text-[8px] font-bold text-slate-500 uppercase">v1.2.0</span>
+            <span className="text-[8px] font-bold text-slate-400 dark:text-slate-500 uppercase">v1.2.0</span>
           </div>
         </div>
       </aside>
 
       {/* 2. MAIN DASHBOARD CONTENT WINDOW */}
-      <main className="flex-1 p-8 bg-[#070b19] overflow-y-auto custom-scrollbar relative min-h-[500px]">
+      <main className="flex-1 p-8 bg-slate-50 dark:bg-[#070b19] overflow-y-auto custom-scrollbar relative min-h-[500px] transition-colors duration-300">
         {loading ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#070b19]/80 backdrop-blur-sm z-30">
             <div className="w-10 h-10 border-4 border-slate-800 border-t-brand-blue rounded-full animate-spin"></div>
@@ -458,7 +436,7 @@ const AdminPanelPage = ({
                 <span className="px-3 py-1 bg-white/10 rounded-full text-[8.5px] font-black uppercase tracking-widest">Selamat Datang</span>
                 <h1 className="text-xl md:text-2xl font-black tracking-tight leading-none uppercase">Selamat Datang, Admin Uni-LandFarm</h1>
                 <p className="text-white/80 text-[11px] leading-relaxed font-medium">
-                  Kelola sistem AI CMS, tinjau permintaan publikasi draf landing page, pantau data template, serta monitor aktivitas pengguna dari panel kendali terpusat.
+                  Kelola sistem AI CMS, pantau landing page yang dipublikasikan, kelola data template, serta monitor aktivitas pengguna dari panel kendali terpusat.
                 </p>
               </div>
             </div>
@@ -612,99 +590,252 @@ const AdminPanelPage = ({
           </div>
         )}
 
-        {/* VIEW: LANDING PAGE MANAGEMENT */}
-        {adminView === 'landing_pages' && (
-          <div className="space-y-8 animate-in fade-in duration-300">
-            
-            {/* PENDING PUBLICATION REQUESTS */}
-            <div className="space-y-4">
-              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Permintaan Publikasi Pending ({requests.length})</h3>
-              {requests.length === 0 ? (
-                <div className="p-6 bg-slate-900/30 border border-slate-800/60 rounded-2xl text-center text-xs text-slate-500 font-medium uppercase tracking-wider">
-                  Tidak ada permintaan publikasi yang tertunda.
+        {/* VIEW: LANDING PAGE MONITORING */}
+        {adminView === 'landing_pages' && (() => {
+          const filteredLPs = landingPages.filter(lp => {
+            const name = (lp.name || lp.businessName || lp.title || '').toLowerCase();
+            const owner = (lp.user?.name || '').toLowerCase();
+            const matchSearch = name.includes(lpSearchQuery.toLowerCase()) || owner.includes(lpSearchQuery.toLowerCase());
+            const matchStatus = lpStatusFilter === 'ALL' || lp.status === lpStatusFilter;
+            return matchSearch && matchStatus;
+          });
+
+          return (
+            <div className="space-y-6 animate-in fade-in duration-300">
+              {/* Header */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
+                <div>
+                  <h2 className="text-md font-black uppercase tracking-widest text-slate-800 dark:text-white">Kelola Publikasi</h2>
+                  <p className="text-[9.5px] text-slate-550 dark:text-slate-400 font-bold uppercase tracking-wider mt-1">Kelola seluruh landing page yang dipublikasikan pada platform UNI-LandFarm.</p>
                 </div>
-              ) : (
-                <div className="bg-slate-900/50 border border-slate-800/80 rounded-[24px] shadow-sm overflow-hidden">
-                  <table className="w-full text-left text-xs">
+                <button
+                  type="button"
+                  onClick={fetchAllData}
+                  className="flex items-center gap-1.5 px-3 py-2 bg-white dark:bg-slate-900/60 hover:bg-slate-100 dark:hover:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-[9px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors cursor-pointer shrink-0"
+                >
+                  <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} /> Refresh
+                </button>
+              </div>
+
+              {/* Stats Row */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {[
+                  { label: 'Total Landing Page', val: landingPages.length, color: 'text-brand-blue', bg: 'bg-blue-500/10' },
+                  { label: 'Published', val: publishedPagesCount, color: 'text-emerald-500 dark:text-emerald-400', bg: 'bg-emerald-500/10' },
+                  { label: 'Draft', val: draftPagesCount, color: 'text-amber-500 dark:text-amber-400', bg: 'bg-amber-500/10' },
+                  { label: 'Inactive', val: inactivePagesCount, color: 'text-red-500 dark:text-red-400', bg: 'bg-red-500/10' },
+                ].map((s, i) => (
+                  <div key={i} className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-4 flex items-center gap-3 shadow-sm">
+                    <div className={`w-10 h-10 rounded-xl ${s.bg} flex items-center justify-center shrink-0`}>
+                      <span className={`text-lg font-black ${s.color}`}>{s.val}</span>
+                    </div>
+                    <span className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider leading-tight">{s.label}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Search + Filter */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+                  <input
+                    type="text"
+                    placeholder="Cari nama landing page atau pemilik..."
+                    value={lpSearchQuery}
+                    onChange={e => setLpSearchQuery(e.target.value)}
+                    className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue w-full"
+                  />
+                </div>
+                <div className="flex gap-1.5 flex-wrap">
+                  {(['ALL','Published','Draft','Inactive'] as const).map(f => (
+                    <button
+                      key={f}
+                      onClick={() => setLpStatusFilter(f)}
+                      className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all cursor-pointer ${
+                        lpStatusFilter === f
+                          ? 'bg-brand-blue text-white shadow-sm'
+                          : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+                      }`}
+                    >
+                      {f === 'ALL' ? 'Semua' : f}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Table */}
+              <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 rounded-[24px] shadow-sm overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs min-w-[700px]">
                     <thead>
-                      <tr className="bg-slate-950/40 border-b border-slate-800/60">
-                        <th className="px-6 py-3.5 text-[9px] font-black text-slate-400 uppercase tracking-widest">Situs</th>
-                        <th className="px-6 py-3.5 text-[9px] font-black text-slate-400 uppercase tracking-widest">Kategori</th>
-                        <th className="px-6 py-3.5 text-[9px] font-black text-slate-400 uppercase tracking-widest">Subdomain</th>
-                        <th className="px-6 py-3.5 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Aksi</th>
+                      <tr className="bg-slate-100/50 dark:bg-slate-955/40 border-b border-slate-200 dark:border-slate-800/60">
+                        <th className="px-5 py-3.5 text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Nama Landing Page</th>
+                        <th className="px-5 py-3.5 text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Pemilik</th>
+                        <th className="px-5 py-3.5 text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">URL</th>
+                        <th className="px-5 py-3.5 text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Status</th>
+                        <th className="px-5 py-3.5 text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Tanggal Publish</th>
+                        <th className="px-5 py-3.5 text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest text-right">Aksi</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-800/60">
-                      {requests.map((req) => (
-                        <tr key={req.id} className="hover:bg-slate-800/20 transition-colors">
-                          <td className="px-6 py-4">
-                            <span className="font-bold text-white uppercase">{req.landingPage?.businessName || req.landingPage?.title || 'Tanpa Nama'}</span>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 text-slate-700 dark:text-slate-300">
+                      {filteredLPs.length === 0 ? (
+                        <tr><td colSpan={6} className="px-6 py-10 text-center text-xs text-slate-400 dark:text-slate-500 font-medium uppercase">Tidak ada data yang cocok.</td></tr>
+                      ) : filteredLPs.map((lp) => (
+                        <tr key={lp.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-colors">
+                          <td className="px-5 py-4">
+                            <span className="font-bold text-slate-800 dark:text-white uppercase text-[11px] leading-tight block">{lp.name || lp.businessName || lp.title || 'Tanpa Nama'}</span>
+                            <span className="text-[9px] text-slate-400 dark:text-slate-500 font-medium">{lp.template?.name || '-'}</span>
                           </td>
-                          <td className="px-6 py-4 text-slate-400 font-medium uppercase text-[10px]">{req.landingPage?.category || '-'}</td>
-                          <td className="px-6 py-4 text-brand-blue font-bold text-[11px]">{req.landingPage?.subdomain || '-'}.unilanfarm.com</td>
-                          <td className="px-6 py-4 text-right space-x-2">
-                            <button
-                              onClick={() => handleApprove(req.id)}
-                              disabled={actionLoading === `approve-${req.id}`}
-                              className="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-colors cursor-pointer"
+                          <td className="px-5 py-4 text-slate-600 dark:text-slate-300 font-medium text-[10px]">{lp.user?.name || '-'}</td>
+                          <td className="px-5 py-4">
+                            <a 
+                              href={`/site/${lp.slug}`} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-brand-blue hover:underline font-mono text-[10px] font-bold"
                             >
-                              {actionLoading === `approve-${req.id}` ? '...' : 'Setujui'}
-                            </button>
-                            <button
-                              onClick={() => setRejectingId(req.id)}
-                              className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 rounded-xl text-[9px] font-black uppercase tracking-widest transition-colors cursor-pointer"
-                            >
-                              Tolak
-                            </button>
+                              {lp.slug || '-'}
+                            </a>
+                          </td>
+                          <td className="px-5 py-4">
+                            <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest border ${
+                              lp.status === 'Published' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' :
+                              lp.status === 'Inactive' ? 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20' :
+                              'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20'
+                            }`}>
+                              {lp.status}
+                            </span>
+                          </td>
+                          <td className="px-5 py-4 text-slate-500 dark:text-slate-400 font-medium text-[10px]">
+                            {(() => {
+                              const dateVal = lp.publishedAt || lp.createdAt;
+                              if (!dateVal) return '-';
+                              const d = new Date(dateVal);
+                              return isNaN(d.getTime()) ? '-' : d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+                            })()}
+                          </td>
+                          <td className="px-5 py-4 text-right">
+                            <div className="flex items-center justify-end gap-1.5 whitespace-nowrap">
+                              <button
+                                onClick={() => setSelectedPageDetails(lp)}
+                                className="px-2.5 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-200 rounded-lg text-[9px] font-black uppercase tracking-wider transition-colors cursor-pointer"
+                              >
+                                Detail
+                              </button>
+                              {lp.status !== 'Draft' && (
+                                <button
+                                  onClick={() => {
+                                    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+                                    navigator.clipboard.writeText(`${origin}/site/${lp.slug}`);
+                                    showNotification('URL disalin!', 'success');
+                                  }}
+                                  className="px-2.5 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-200 rounded-lg text-[9px] font-black uppercase tracking-wider transition-colors cursor-pointer"
+                                >
+                                  Copy URL
+                                </button>
+                              )}
+                              {lp.status === 'Published' && (
+                                <button
+                                  onClick={() => togglePageStatus(lp.id, lp.status)}
+                                  disabled={actionLoading === `page-${lp.id}`}
+                                  className="px-2.5 py-1 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-650 dark:text-red-400 rounded-lg text-[9px] font-black uppercase tracking-wider transition-colors cursor-pointer"
+                                >
+                                  {actionLoading === `page-${lp.id}` ? '...' : 'Deactivate'}
+                                </button>
+                              )}
+                              {lp.status === 'Inactive' && (
+                                <button
+                                  onClick={() => togglePageStatus(lp.id, lp.status)}
+                                  disabled={actionLoading === `page-${lp.id}`}
+                                  className="px-2.5 py-1 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-lg text-[9px] font-black uppercase tracking-wider transition-colors cursor-pointer"
+                                >
+                                  {actionLoading === `page-${lp.id}` ? '...' : 'Activate'}
+                                </button>
+                              )}
+                            </div>
                           </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
+              </div>
+
+              {/* Detail Modal */}
+              {selectedPageDetails && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setSelectedPageDetails(null)}>
+                  <div className="bg-[#0b1226] border border-slate-700 rounded-[24px] shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+                    <div className="flex items-center justify-between p-6 border-b border-slate-800">
+                      <div>
+                        <h3 className="text-sm font-black uppercase tracking-widest text-white">{selectedPageDetails.name || selectedPageDetails.businessName || selectedPageDetails.title}</h3>
+                        <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Detail Landing Page</p>
+                      </div>
+                      <button onClick={() => setSelectedPageDetails(null)} className="w-8 h-8 flex items-center justify-center bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors cursor-pointer">
+                        <X className="w-4 h-4 text-slate-300" />
+                      </button>
+                    </div>
+                    <div className="p-6 space-y-5">
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-xs">
+                        {[
+                          { label: 'Nama Bisnis', val: selectedPageDetails.businessName || '-' },
+                          { label: 'Pemilik', val: selectedPageDetails.user?.name || '-' },
+                          { label: 'Template', val: selectedPageDetails.template?.name || '-' },
+                          { label: 'URL Slug', val: selectedPageDetails.slug || '-' },
+                          { label: 'Status', val: selectedPageDetails.status || '-' },
+                          { label: 'Total Views', val: (selectedPageDetails.views || 0).toLocaleString() },
+                        ].map((item, i) => (
+                          <div key={i} className="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+                            <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1">{item.label}</span>
+                            <span className="font-bold text-white text-[11px] truncate block">{item.val}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => window.open(`/site/${selectedPageDetails.slug}`, '_blank')}
+                          className="flex-1 py-2.5 bg-brand-blue hover:bg-blue-600 text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-colors cursor-pointer text-center"
+                        >
+                          Buka Situs
+                        </button>
+                        {selectedPageDetails.status === 'Published' && (
+                          <button
+                            onClick={() => { togglePageStatus(selectedPageDetails.id, selectedPageDetails.status); }}
+                            className="flex-1 py-2.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 rounded-xl text-[9px] font-black uppercase tracking-widest transition-colors cursor-pointer text-center"
+                          >
+                            Nonaktifkan
+                          </button>
+                        )}
+                        {selectedPageDetails.status === 'Inactive' && (
+                          <button
+                            onClick={() => { togglePageStatus(selectedPageDetails.id, selectedPageDetails.status); }}
+                            className="flex-1 py-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-400 rounded-xl text-[9px] font-black uppercase tracking-widest transition-colors cursor-pointer text-center"
+                          >
+                            Aktifkan
+                          </button>
+                        )}
+                      </div>
+                      <div className="rounded-xl border border-slate-800 overflow-hidden">
+                        <div className="bg-slate-950 px-4 py-2 border-b border-slate-800 flex items-center gap-2">
+                          <div className="flex gap-1.5">
+                            <span className="w-2.5 h-2.5 bg-red-500 rounded-full" />
+                            <span className="w-2.5 h-2.5 bg-amber-400 rounded-full" />
+                            <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full" />
+                          </div>
+                          <span className="text-[9px] font-mono text-slate-500">{(typeof window !== 'undefined' ? window.location.origin : '')}/site/{selectedPageDetails.slug}</span>
+                        </div>
+                        <iframe
+                          src={`/site/${selectedPageDetails.slug}`}
+                          className="w-full h-[400px] bg-white"
+                          title={`Preview: ${selectedPageDetails.title}`}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
-
-            {/* ALL LANDING PAGES LIST */}
-            <div className="space-y-4">
-              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Semua Landing Page ({landingPages.length})</h3>
-              <div className="bg-slate-900/50 border border-slate-800/80 rounded-[24px] shadow-sm overflow-hidden">
-                <table className="w-full text-left text-xs">
-                  <thead>
-                    <tr className="bg-slate-950/40 border-b border-slate-800/60">
-                      <th className="px-6 py-3.5 text-[9px] font-black text-slate-400 uppercase tracking-widest">Situs</th>
-                      <th className="px-6 py-3.5 text-[9px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-                      <th className="px-6 py-3.5 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800/60">
-                    {landingPages.map((lp) => (
-                      <tr key={lp.id} className="hover:bg-slate-800/20 transition-colors">
-                        <td className="px-6 py-4 font-bold text-white uppercase">{lp.name || lp.businessName || lp.title || 'Tanpa Nama'}</td>
-                        <td className="px-6 py-4">
-                          <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest border ${
-                            lp.status === 'Published' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-slate-800/65 text-slate-400 border-slate-700'
-                          }`}>
-                            {lp.status}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <button
-                            onClick={() => window.open(`/site/${lp.slug}`, '_blank')}
-                            className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-xl text-[9px] font-black uppercase tracking-widest transition-colors cursor-pointer"
-                          >
-                            Tinjau
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-          </div>
-        )}
+          );
+        })()}
 
         {/* VIEW: TEMPLATE MANAGEMENT */}
         {adminView === 'templates' && (
@@ -1442,45 +1573,7 @@ const AdminPanelPage = ({
           </div>
         )}
 
-        {/* MODAL: REJECT REQUEST */}
-        {rejectingId && (
-          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" onClick={() => setRejectingId(null)} />
-            <div className="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-[28px] p-6 shadow-2xl space-y-6 z-10 animate-in fade-in zoom-in-95 duration-200">
-              <div className="border-b border-slate-800 pb-4">
-                <h3 className="text-sm font-black text-white uppercase tracking-widest">Tolak Permintaan Publikasi</h3>
-              </div>
-              <div className="space-y-4">
-                <div className="space-y-1.5">
-                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Alasan Penolakan</label>
-                  <textarea
-                    value={reason}
-                    onChange={(e) => setReason(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none min-h-[100px] resize-none"
-                    placeholder="Masukkan alasan penolakan agar dipelajari oleh pemilik situs..."
-                    required
-                  />
-                </div>
-                <div className="flex gap-4 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => { setRejectingId(null); setReason(''); }}
-                    className="flex-1 py-3 text-[9px] font-black text-slate-400 hover:text-white uppercase tracking-widest border border-slate-800 hover:border-slate-700 rounded-xl transition-all cursor-pointer"
-                  >
-                    Batal
-                  </button>
-                  <button
-                    onClick={handleReject}
-                    disabled={actionLoading === `reject-${rejectingId}`}
-                    className="flex-1 py-3 bg-red-500 hover:bg-red-650 text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all cursor-pointer"
-                  >
-                    {actionLoading === `reject-${rejectingId}` ? 'Memproses...' : 'Kirim Penolakan'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+
 
         {/* VIEW: ADMIN PROFILE */}
         {adminView === 'profile' && (

@@ -7,7 +7,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const { name, category, description, thumbnail, structureJson } = await request.json();
 
     const updated = await prisma.template.update({
-      where: { id },
+      where: { id: Number(id) },
       data: {
         name: name || undefined,
         category: category || undefined,

@@ -59,12 +59,18 @@ export default function PreviewLandingPage({ pageId, onBack, onPublishSuccess }:
   const handlePublish = async () => {
     setPublishLoading(true);
     try {
-      const res = await fetch(`/api/landing-pages/${pageId}/publish-request`, {
-        method: 'POST'
+      const res = await fetch(`/api/landing-pages/${pageId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: 'Published',
+          publishedAt: new Date().toISOString(),
+          publicUrl: `/site/${pageData?.slug}`
+        })
       });
       const data = await res.json();
       if (data.success) {
-        triggerToast('Pengajuan publikasi berhasil dikirim!');
+        triggerToast('Landing page berhasil dipublikasikan!');
         // Refresh page details
         const refreshed = await fetch(`/api/landing-pages/${pageId}`);
         const refData = await refreshed.json();
@@ -75,7 +81,7 @@ export default function PreviewLandingPage({ pageId, onBack, onPublishSuccess }:
           onPublishSuccess();
         }, 1500);
       } else {
-        triggerToast(data.message || 'Gagal mengajukan publikasi.');
+        triggerToast(data.message || 'Gagal mempublikasikan landing page.');
       }
     } catch (err) {
       triggerToast('Gagal terhubung ke server.');
@@ -102,7 +108,6 @@ export default function PreviewLandingPage({ pageId, onBack, onPublishSuccess }:
   }
 
   const isPublished = pageData?.status === 'Published';
-  const isPending = pageData?.status === 'Pending Publish';
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col font-sans text-slate-200 rounded-[24px] overflow-hidden relative border border-white/5">
@@ -125,8 +130,7 @@ export default function PreviewLandingPage({ pageId, onBack, onPublishSuccess }:
               <span className="text-sm font-black text-white tracking-tight uppercase">{pageData?.businessName || pageData?.name}</span>
               <span className={`px-2 py-0.5 rounded-full text-[7.5px] font-black uppercase tracking-wider ${
                 isPublished ? 'bg-emerald-500/10 text-emerald-400' :
-                isPending ? 'bg-amber-500/10 text-amber-400' :
-                'bg-slate-800 text-slate-400'
+                'bg-slate-850 text-slate-400'
               }`}>
                 {pageData?.status || 'Draft'}
               </span>
@@ -167,7 +171,7 @@ export default function PreviewLandingPage({ pageId, onBack, onPublishSuccess }:
             <Share2 className="w-3.5 h-3.5" /> Share
           </button>
 
-          {!isPublished && !isPending && (
+          {!isPublished && (
             <button 
               onClick={handlePublish}
               disabled={publishLoading}
@@ -175,12 +179,6 @@ export default function PreviewLandingPage({ pageId, onBack, onPublishSuccess }:
             >
               {publishLoading ? 'Publishing...' : 'Publish'} <Rocket className="w-3.5 h-3.5" />
             </button>
-          )}
-
-          {isPending && (
-            <span className="px-4 py-2.5 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2">
-              <Clock className="w-3.5 h-3.5" /> Pending Approval
-            </span>
           )}
 
           {isPublished && (
@@ -250,7 +248,7 @@ export default function PreviewLandingPage({ pageId, onBack, onPublishSuccess }:
           <Share2 className="w-3.5 h-3.5" /> Share
         </button>
 
-        {!isPublished && !isPending && (
+        {!isPublished && (
           <button 
             onClick={handlePublish}
             disabled={publishLoading}
@@ -258,12 +256,6 @@ export default function PreviewLandingPage({ pageId, onBack, onPublishSuccess }:
           >
             {publishLoading ? 'Publishing...' : 'Publish'} <Rocket className="w-3.5 h-3.5" />
           </button>
-        )}
-
-        {isPending && (
-          <div className="flex-[2] py-3 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-xl text-[9px] font-black uppercase tracking-widest text-center flex items-center justify-center gap-2">
-            <Clock className="w-3.5 h-3.5" /> Pending
-          </div>
         )}
 
         {isPublished && (
