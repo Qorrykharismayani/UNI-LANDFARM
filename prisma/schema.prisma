@@ -28,6 +28,7 @@ model User {
   reviewedRequests    PublishRequest[]     @relation("ReviewedByAdmin")
   mediaFiles          MediaFile[]
   notifications       Notification[]
+  transactions        Transaction[]
 
   @@map("users")
 }
@@ -155,4 +156,19 @@ model Notification {
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("notifications")
+}
+
+model Transaction {
+  id            String   @id @default(cuid())
+  userId        String
+  packageName   String
+  packageTokens Int
+  amount        Int
+  method        String
+  refId         String   @unique
+  status        String   @default("berhasil")
+  createdAt     DateTime @default(now())
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("transactions")
 }

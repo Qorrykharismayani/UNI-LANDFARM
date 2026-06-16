@@ -199,22 +199,35 @@ export const DashboardView = ({
   const [selectedAiFeatures, setSelectedAiFeatures] = useState<string[]>(['Headline', 'Subheadline']);
 
   // Notification state
-  const [notifications, setNotifications] = useState<Notification[]>([
-    { id: 1, type: 'welcome', title: 'Selamat Datang di Uni-LandFarm!', desc: 'Akun Anda berhasil dibuat. Mulai buat landing page pertama Anda dan jelajahi fitur AI kami.', time: 'Baru saja', read: false }
-  ]);
-  let notifIdCounter = 100;
+  const [notifications, setNotifications] = useState<Notification[]>([]);
 
-  const addNotification = (notif: { type: string; title: string; desc: string }) => {
-    notifIdCounter++;
-    const newNotif: Notification = {
-      id: Date.now(),
-      type: notif.type as any,
-      title: notif.title,
-      desc: notif.desc,
-      time: 'Baru saja',
-      read: false
-    };
-    setNotifications(prev => [newNotif, ...prev]);
+  useEffect(() => {
+    fetchNotifications();
+  }, [user]);
+
+  const fetchNotifications = async () => {
+    if (!user) return;
+    try {
+      const res = await fetch('/api/notifications');
+      const data = await res.json();
+      if (data.success && Array.isArray(data.data)) {
+        const mapped = data.data.map((n: any) => {
+          const d = new Date(n.createdAt);
+          const timeStr = `${d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' })} ${d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`;
+          return {
+            id: n.id,
+            type: n.type === 'success' ? 'token' : n.type === 'info' ? 'system' : n.type,
+            title: n.title,
+            desc: n.message,
+            time: timeStr,
+            read: n.isRead
+          };
+        });
+        setNotifications(mapped);
+      }
+    } catch (err) {
+      console.error('Failed to fetch notifications:', err);
+    }
   };
 
   const handleTokenUpdate = (newTokens: number) => {
@@ -224,12 +237,28 @@ export const DashboardView = ({
     }
   };
 
-  const handleMarkAllRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+  const handleMarkAllRead = async () => {
+    try {
+      const res = await fetch('/api/notifications', { method: 'PATCH' });
+      const data = await res.json();
+      if (data.success) {
+        setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+      }
+    } catch (err) {
+      console.error('Failed to mark all read:', err);
+    }
   };
 
-  const handleClearAllNotifications = () => {
-    setNotifications([]);
+  const handleClearAllNotifications = async () => {
+    try {
+      const res = await fetch('/api/notifications', { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        setNotifications([]);
+      }
+    } catch (err) {
+      console.error('Failed to clear notifications:', err);
+    }
   };
 
   const [aiData, setAiData] = useState({
@@ -760,7 +789,7 @@ export const DashboardView = ({
       case 'panduan':
         return <ContentPlanPage guideSearchQuery={guideSearchQuery} />;
       case 'tokens':
-        return <RepositoryPage showNotification={showNotification} user={user} onTokenUpdate={handleTokenUpdate} onNewNotification={addNotification} />;
+        return <RepositoryPage showNotification={showNotification} user={user} onTokenUpdate={handleTokenUpdate} onTransactionComplete={fetchNotifications} />;
       case 'notifications':
         return <NotificationsView user={user} notifications={notifications} onMarkAllRead={handleMarkAllRead} onClearAll={handleClearAllNotifications} />;
       case 'overview':
