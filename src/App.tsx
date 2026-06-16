@@ -16,7 +16,8 @@ import {
   Footer,
   LoginPage as LoginView,
   SignupPage as SignupView,
-  AboutUsView
+  AboutUsView,
+  ForgotPasswordPage
 } from './components/pages/PublicViews';
 
 import { DashboardView } from './components/pages/DashboardView';
@@ -26,6 +27,7 @@ export default function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
   const [user, setUser] = useState<any>(null);
   const [systemSettings, setSystemSettings] = useState<any>(null);
+  const [prefilledEmail, setPrefilledEmail] = useState('');
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -99,9 +101,11 @@ export default function App() {
       case 'about':
         return <AboutUsView />;
       case 'login':
-        return <LoginView setView={setView} setUser={setUser} />;
+        return <LoginView setView={setView} setUser={setUser} prefilledEmail={prefilledEmail} setPrefilledEmail={setPrefilledEmail} />;
       case 'signup':
-        return <SignupView setView={setView} setUser={setUser} />;
+        return <SignupView setView={setView} setUser={setUser} prefilledEmail={prefilledEmail} setPrefilledEmail={setPrefilledEmail} />;
+      case 'forgot-password':
+        return <ForgotPasswordPage setView={setView} prefilledEmail={prefilledEmail} setPrefilledEmail={setPrefilledEmail} />;
       case 'dashboard':
         return <DashboardView setView={setView} theme={theme} toggleTheme={toggleTheme} user={user} setUser={setUser} systemSettings={systemSettings} setSystemSettings={setSystemSettings} />;
       default:

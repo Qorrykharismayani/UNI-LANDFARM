@@ -8,3 +8,5 @@ export { PricingView, FinalCTA } from './PricingView';
 export { default as Footer } from './Footer';
 export { default as LoginPage } from './LoginPage';
 export { default as SignupPage } from './SignupPage';
+export { default as ForgotPasswordPage } from './ForgotPasswordPage';
+

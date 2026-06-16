@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Globe, Eye, Plus, Search, ArrowLeft, Clipboard, ExternalLink, Edit, Trash2 } from 'lucide-react';
+import { Globe, Eye, Plus, Search, Clipboard, ExternalLink } from 'lucide-react';
 
 interface AllProjectsPageProps {
   userProjects: any[];
@@ -37,28 +37,6 @@ const AllProjectsPage = ({
     return matchesSearch && matchesStatus;
   });
 
-  const handleDeleteProject = async (id: string) => {
-    if (!window.confirm("Apakah Anda yakin ingin menghapus proyek ini? Tindakan ini tidak dapat dibatalkan.")) {
-      return;
-    }
-    try {
-      showNotification("Menghapus proyek...", "info");
-      const res = await fetch(`/api/landing-pages/${id}`, {
-        method: "DELETE"
-      });
-      const data = await res.json();
-      if (data.success) {
-        showNotification("Proyek berhasil dihapus!", "success");
-        fetchProjects();
-      } else {
-        showNotification(data.message || "Gagal menghapus proyek.", "info");
-      }
-    } catch (err) {
-      console.error(err);
-      showNotification("Terjadi kesalahan koneksi.", "info");
-    }
-  };
-
   return (
     <div className="max-w-6xl mx-auto space-y-8 relative">
       {/* Background Glows for Dark Mode */}
@@ -89,7 +67,7 @@ const AllProjectsPage = ({
       {/* Filter and Search Bar */}
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
         <div className="relative w-full md:max-w-md">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-450 dark:text-slate-500" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" />
           <input
             type="text"
             placeholder="Cari berdasarkan nama atau kategori..."
@@ -125,7 +103,7 @@ const AllProjectsPage = ({
               className="group bg-gradient-to-br from-white to-slate-50/30 dark:from-slate-900/50 dark:to-slate-950/50 rounded-2xl p-4 border border-slate-200/60 dark:border-slate-800/85 hover:border-brand-blue/20 dark:hover:border-brand-blue/30 hover:shadow-md transition-all flex flex-col gap-4 cursor-pointer"
             >
               {/* Thumbnail */}
-              <div className="w-full aspect-[16/10] rounded-xl overflow-hidden shadow-sm relative bg-slate-250 dark:bg-slate-800 shrink-0">
+              <div className="w-full aspect-[16/10] rounded-xl overflow-hidden shadow-sm relative bg-slate-200 dark:bg-slate-800 shrink-0">
                 <img
                   src={project.image || "https://picsum.photos/seed/placeholder/800/600"}
                   alt={project.name}
@@ -136,7 +114,7 @@ const AllProjectsPage = ({
                     project.status === 'Published' ? 'bg-[#DCFCE7] text-[#15803D]' :
                     project.status === 'Pending' ? 'bg-amber-100 text-amber-600 border border-amber-200/50' :
                     project.status === 'Inactive' ? 'bg-red-50 text-red-500 border border-red-100/50' :
-                    'bg-slate-200 text-slate-600 dark:bg-slate-850 dark:text-slate-400'
+                    'bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
                   }`}>
                     {project.status === 'Published' && <span className="inline-block w-1.5 h-1.5 bg-[#22C55E] rounded-full animate-pulse" />}
                     {project.status}
@@ -159,114 +137,45 @@ const AllProjectsPage = ({
                 {/* Actions */}
                 <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-white/5">
                   {project.status === 'Published' ? (
-                    <div className="space-y-2">
-                      <div className="grid grid-cols-2 gap-2">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            window.open(`/site/${project.slug}`, '_blank');
-                          }}
-                          className="bg-[#22C55E] hover:bg-[#15803D] text-white py-2 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm transition-all flex items-center justify-center gap-1 cursor-pointer"
-                        >
-                          <ExternalLink className="w-2.5 h-2.5" /> Buka Link
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigator.clipboard.writeText(`${window.location.origin}/site/${project.slug}`);
-                            showNotification('Tautan berhasil disalin!', 'success');
-                          }}
-                          className="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-white py-2 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm transition-all flex items-center justify-center gap-1 cursor-pointer"
-                        >
-                          <Clipboard className="w-2.5 h-2.5" /> Salin Link
-                        </button>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setActivePageId(project.id);
-                            setIsCmsEditorOpen(true);
-                          }}
-                          className="bg-brand-blue text-white py-2.5 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 cursor-pointer"
-                        >
-                          <Edit className="w-2.5 h-2.5" /> Edit Situs
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteProject(project.id);
-                          }}
-                          className="bg-red-50 hover:bg-red-100 dark:bg-red-950/20 dark:hover:bg-red-900/30 text-red-500 py-2.5 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
-                        >
-                          <Trash2 className="w-2.5 h-2.5" /> Hapus
-                        </button>
-                      </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.open(`/site/${project.slug}`, '_blank');
+                        }}
+                        className="bg-[#22C55E] hover:bg-[#15803D] text-white py-2 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm transition-all flex items-center justify-center gap-1 cursor-pointer"
+                      >
+                        <ExternalLink className="w-2.5 h-2.5" /> Buka Link
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigator.clipboard.writeText(`${window.location.origin}/site/${project.slug}`);
+                          showNotification('Tautan berhasil disalin!', 'success');
+                        }}
+                        className="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-white py-2 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm transition-all flex items-center justify-center gap-1 cursor-pointer"
+                      >
+                        <Clipboard className="w-2.5 h-2.5" /> Salin Link
+                      </button>
                     </div>
                   ) : project.status === 'Inactive' ? (
-                    <div className="space-y-2">
-                      <div className="w-full bg-red-550/10 text-red-500 border border-red-500/20 py-2.5 rounded-xl text-[8px] font-black uppercase tracking-widest text-center">
-                        Situs Dinonaktifkan Admin
-                      </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setActivePageId(project.id);
-                            setIsCmsEditorOpen(true);
-                          }}
-                          className="bg-brand-blue text-white py-2.5 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 cursor-pointer font-black"
-                        >
-                          <Edit className="w-2.5 h-2.5" /> Edit Situs
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteProject(project.id);
-                          }}
-                          className="bg-red-50 hover:bg-red-100 dark:bg-red-950/20 dark:hover:bg-red-900/30 text-red-500 py-2.5 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
-                        >
-                          <Trash2 className="w-2.5 h-2.5" /> Hapus
-                        </button>
-                      </div>
+                    <div className="w-full bg-red-500/10 text-red-500 border border-red-500/20 py-2.5 rounded-xl text-[8px] font-black uppercase tracking-widest text-center">
+                      Situs Dinonaktifkan Admin
                     </div>
                   ) : (
-                    <div className="space-y-2">
-                      <div className="grid grid-cols-2 gap-2 opacity-50 pointer-events-none">
-                        <button
-                          disabled
-                          className="bg-slate-200 dark:bg-slate-800 text-slate-400 py-2 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm flex items-center justify-center gap-1"
-                        >
-                          Buka Link
-                        </button>
-                        <button
-                          disabled
-                          className="bg-slate-200 dark:bg-slate-800 text-slate-400 py-2 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm flex items-center justify-center gap-1"
-                        >
-                          Salin Link
-                        </button>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setActivePageId(project.id);
-                            setIsCmsEditorOpen(true);
-                          }}
-                          className="bg-brand-blue text-white py-2.5 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 cursor-pointer font-black"
-                        >
-                          <Edit className="w-2.5 h-2.5" /> Edit Situs
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteProject(project.id);
-                          }}
-                          className="bg-red-50 hover:bg-red-100 dark:bg-red-950/20 dark:hover:bg-red-900/30 text-red-500 py-2.5 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
-                        >
-                          <Trash2 className="w-2.5 h-2.5" /> Hapus
-                        </button>
-                      </div>
+                    <div className="grid grid-cols-2 gap-2 opacity-50 pointer-events-none">
+                      <button
+                        disabled
+                        className="bg-slate-200 dark:bg-slate-800 text-slate-400 py-2 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm flex items-center justify-center gap-1"
+                      >
+                        Buka Link
+                      </button>
+                      <button
+                        disabled
+                        className="bg-slate-200 dark:bg-slate-800 text-slate-400 py-2 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm flex items-center justify-center gap-1"
+                      >
+                        Salin Link
+                      </button>
                     </div>
                   )}
                 </div>
@@ -277,7 +186,7 @@ const AllProjectsPage = ({
       ) : (
         <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-900/40 rounded-3xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm">
           <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
-            <Globe className="w-8 h-8 text-slate-300 dark:text-slate-650" />
+            <Globe className="w-8 h-8 text-slate-300 dark:text-slate-600" />
           </div>
           <h3 className="text-sm font-black text-slate-900 dark:text-white mb-1 tracking-tight">Tidak Ada Proyek Ditemukan</h3>
           <p className="text-slate-400 dark:text-slate-500 text-[10px] font-medium max-w-xs text-center mb-4">

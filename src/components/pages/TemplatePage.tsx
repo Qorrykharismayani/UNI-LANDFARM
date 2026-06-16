@@ -229,7 +229,7 @@ const TemplatePage = ({
                   value={creationWebsiteTitle}
                   onChange={(e) => setCreationWebsiteTitle(e.target.value)}
                   placeholder="Contoh: Toko Kopi Merdeka"
-                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-850 rounded-xl px-4 py-3.5 text-xs font-bold dark:text-white focus:ring-2 focus:ring-brand-blue/20 transition-all outline-none"
+                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5 text-xs font-bold dark:text-white focus:ring-2 focus:ring-brand-blue/20 transition-all outline-none"
                   required
                 />
               </div>
@@ -241,7 +241,7 @@ const TemplatePage = ({
                   value={creationBusinessName}
                   onChange={(e) => setCreationBusinessName(e.target.value)}
                   placeholder="Contoh: Kopi Merdeka Indonesia"
-                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-850 rounded-xl px-4 py-3.5 text-xs font-bold dark:text-white focus:ring-2 focus:ring-brand-blue/20 transition-all outline-none"
+                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5 text-xs font-bold dark:text-white focus:ring-2 focus:ring-brand-blue/20 transition-all outline-none"
                   required
                 />
               </div>
@@ -260,14 +260,14 @@ const TemplatePage = ({
                       setCreationSlug(val);
                     }}
                     placeholder="kopimerdeka"
-                    className="flex-1 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-850 rounded-l-xl px-4 py-3.5 text-xs font-bold dark:text-white focus:ring-2 focus:ring-brand-blue/20 transition-all outline-none"
+                    className="flex-1 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-l-xl px-4 py-3.5 text-xs font-bold dark:text-white focus:ring-2 focus:ring-brand-blue/20 transition-all outline-none"
                     required
                   />
-                  <span className="bg-slate-100 dark:bg-slate-800 px-4 py-3.5 border border-l-0 border-slate-200 dark:border-slate-850 rounded-r-xl text-xs font-black text-slate-400 dark:text-slate-500 flex items-center">
+                  <span className="bg-slate-100 dark:bg-slate-800 px-4 py-3.5 border border-l-0 border-slate-200 dark:border-slate-800 rounded-r-xl text-xs font-black text-slate-400 dark:text-slate-500 flex items-center">
                     /site/[slug]
                   </span>
                 </div>
-                <p className="text-[9px] text-slate-450 dark:text-slate-550 italic font-bold">Alamat publik website Anda nantinya akan menjadi: /site/{creationSlug || '[slug]'}</p>
+                <p className="text-[9px] text-slate-400 dark:text-slate-500 italic font-bold">Alamat publik website Anda nantinya akan menjadi: /site/{creationSlug || '[slug]'}</p>
               </div>
 
               <button

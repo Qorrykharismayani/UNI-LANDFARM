@@ -164,22 +164,13 @@ export const DashboardView = ({
   const [isCmsEditorOpen, setIsCmsEditorOpen] = useState(false);
   const [selectedEditorSection, setSelectedEditorSection] = useState('Hero Section');
   const [cmsNavMode, setCmsNavMode] = useState('landing'); // 'landing', 'manual', 'ai', 'editor', 'preview', 'drafts', 'setup-progress'
-  const [savedDrafts, setSavedDrafts] = useState<any[]>([
-    {
-      id: 'DRAFT-7712',
-      name: 'Bengkel Cepat Jaya',
-      category: 'Jasa Profesional',
-      description: 'Layanan servis motor dan mobil cepat, terpercaya, dan bergaransi dengan mekanik handal.',
-      createdAt: '24 Mei 2026',
-      color: '#3B82F6',
-      image: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=500&q=80'
-    }
-  ]);
+
   const [cmsSubTab, setCmsSubTab] = useState('manual');
   const [cmsSearchQuery, setCmsSearchQuery] = useState('');
   const [cmsCurrentPage, setCmsCurrentPage] = useState(1);
   const [guideSearchQuery, setGuideSearchQuery] = useState('');
   const [cmsPosts, setCmsPosts] = useState<any[]>([]);
+  const [selectedCmsProjectId, setSelectedCmsProjectId] = useState<string>('');
   const [aiTopic, setAiTopic] = useState('');
   const [aiTone, setAiTone] = useState('Profesional');
   const [aiLength, setAiLength] = useState('Sedang (600 kata)');
@@ -239,6 +230,28 @@ export const DashboardView = ({
     }
   };
 
+  const handleDeleteProject = async (id: string) => {
+    if (!window.confirm("Apakah Anda yakin ingin menghapus proyek ini? Tindakan ini tidak dapat dibatalkan.")) {
+      return;
+    }
+    try {
+      showNotification("Menghapus proyek...", "info");
+      const res = await fetch(`/api/landing-pages/${id}`, {
+        method: "DELETE"
+      });
+      const data = await res.json();
+      if (data.success) {
+        showNotification("Proyek berhasil dihapus!", "success");
+        fetchProjects();
+      } else {
+        showNotification(data.message || "Gagal menghapus proyek.", "info");
+      }
+    } catch (err) {
+      console.error(err);
+      showNotification("Terjadi kesalahan koneksi.", "info");
+    }
+  };
+
   const fetchTemplates = async () => {
     try {
       const res = await fetch('/api/templates');
@@ -281,9 +294,22 @@ export const DashboardView = ({
     setView('home');
   };
 
+  const fetchArticles = async () => {
+    try {
+      const res = await fetch('/api/articles');
+      const data = await res.json();
+      if (data.success && Array.isArray(data.data)) {
+        setCmsPosts(data.data);
+      }
+    } catch (err) {
+      console.error("Gagal mengambil daftar artikel:", err);
+    }
+  };
+
   useEffect(() => {
     fetchProjects();
     fetchTemplates();
+    fetchArticles();
   }, []);
 
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -525,42 +551,7 @@ export const DashboardView = ({
     showNotification('Website berhasil dikonfigurasi!', 'success');
   };
 
-  const handleCreateRancangan = async () => {
-    const errors: Record<string, string> = {};
-    if (!manualData.name.trim()) errors.name = 'Nama website wajib diisi';
-    if (!manualData.description.trim()) errors.description = 'Deskripsi bisnis wajib diisi';
 
-    if (Object.keys(errors).length > 0) {
-      setFormErrors(errors);
-      return;
-    }
-
-    setFormErrors({});
-    setIsGenerating(true);
-    setGenProgress(0);
-
-    try {
-      // Simulate saving
-      const newDraft = {
-        id: `DRAFT-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
-        name: manualData.name,
-        category: manualData.category,
-        description: manualData.description,
-        color: manualData.color,
-        createdAt: new Date().toLocaleDateString('id-ID'),
-        image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500&q=80'
-      };
-
-      await new Promise(r => setTimeout(r, 1500));
-      setSavedDrafts(prev => [newDraft, ...prev]);
-      setCmsNavMode('drafts');
-      showNotification('Rancangan draf berhasil disimpan!', 'success');
-    } catch (e) {
-      showNotification('Gagal menyimpan draf.', 'info');
-    } finally {
-      setIsGenerating(false);
-    }
-  };
 
   const handleGenerateAiPost = async () => {
     if (!aiTopic.trim()) {
@@ -585,21 +576,64 @@ export const DashboardView = ({
       setAiPostProgress(step.progress);
     }
 
-    const newPost = {
-      id: cmsPosts.length + 1,
-      title: aiTopic,
-      status: "Draft",
-      author: "Agentic AI Writer",
-      scoreBefore: Math.floor(Math.random() * 20) + 40,
-      scoreAfter: Math.floor(Math.random() * 15) + 85,
-      date: new Date().toLocaleDateString('id-ID'),
-      type: "Blog Post"
-    };
+    // Determine target project name for article association
+    let projectType = 'Blog Post';
+    if (selectedCmsProjectId) {
+      const proj = userProjects.find(p => String(p.id) === String(selectedCmsProjectId));
+      if (proj) {
+        projectType = proj.name; // Use the project's businessName as type/badge
+      }
+    }
 
-    setCmsPosts(prev => [newPost, ...prev]);
-    setIsGeneratingAiPost(false);
-    setAiTopic('');
-    showNotification('Artikel AI berhasil dibuat dan disimpan ke Draf!', 'success');
+    try {
+      const res = await fetch('/api/articles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: aiTopic,
+          status: 'Draft',
+          author: 'Agentic AI Writer',
+          scoreBefore: Math.floor(Math.random() * 20) + 40,
+          scoreAfter: Math.floor(Math.random() * 15) + 85,
+          type: projectType
+        })
+      });
+      const data = await res.json();
+      if (data.success && data.data) {
+        setCmsPosts(prev => [data.data, ...prev]);
+        showNotification('Artikel AI berhasil dibuat dan disimpan ke Draf!', 'success');
+      } else {
+        showNotification(data.message || 'Gagal menyimpan artikel ke database.', 'info');
+      }
+    } catch (err) {
+      console.error(err);
+      showNotification('Terjadi kesalahan koneksi saat menyimpan artikel.', 'info');
+    } finally {
+      setIsGeneratingAiPost(false);
+      setAiTopic('');
+    }
+  };
+
+  const handleDeleteArticle = async (id: number) => {
+    if (!window.confirm("Apakah Anda yakin ingin menghapus artikel ini?")) {
+      return;
+    }
+    try {
+      showNotification("Menghapus artikel...", "info");
+      const res = await fetch(`/api/articles?id=${id}`, {
+        method: "DELETE"
+      });
+      const data = await res.json();
+      if (data.success) {
+        showNotification("Artikel berhasil dihapus!", "success");
+        setCmsPosts(prev => prev.filter(p => p.id !== id));
+      } else {
+        showNotification(data.message || "Gagal menghapus artikel.", "info");
+      }
+    } catch (err) {
+      console.error(err);
+      showNotification("Terjadi kesalahan koneksi.", "info");
+    }
   };
 
   const [activeTemplateFilter, setActiveTemplateFilter] = useState('Semua');
@@ -918,8 +952,6 @@ export const DashboardView = ({
             genProgress={genProgress}
             isGenerating={isGenerating}
             generatedDraft={generatedDraft}
-            savedDrafts={savedDrafts}
-            setSavedDrafts={setSavedDrafts}
             manualData={manualData}
             setManualData={setManualData}
             aiData={aiData}
@@ -927,13 +959,11 @@ export const DashboardView = ({
             formErrors={formErrors}
             handleAiBuild={handleAiBuild}
             handleManualSetup={handleManualSetup}
-            handleCreateRancangan={handleCreateRancangan}
             handlePublish={handlePublish}
             setSubView={setSubView}
             setCmsSubTab={setCmsSubTab}
           />
         );
-
       case 'cms':
         return (
           <CmsPage
@@ -943,6 +973,23 @@ export const DashboardView = ({
             setCmsSearchQuery={setCmsSearchQuery}
             cmsCurrentPage={cmsCurrentPage}
             setCmsCurrentPage={setCmsCurrentPage}
+            userProjects={userProjects}
+            selectedCmsProjectId={selectedCmsProjectId}
+            setSelectedCmsProjectId={setSelectedCmsProjectId}
+            aiTopic={aiTopic}
+            setAiTopic={setAiTopic}
+            aiTone={aiTone}
+            setAiTone={setAiTone}
+            aiLength={aiLength}
+            setAiLength={setAiLength}
+            isGeneratingAiPost={isGeneratingAiPost}
+            aiPostProgress={aiPostProgress}
+            aiPostStepText={aiPostStepText}
+            handleGenerateAiPost={handleGenerateAiPost}
+            handleDeleteArticle={handleDeleteArticle}
+            setActivePageId={setActivePageId}
+            setIsCmsEditorOpen={setIsCmsEditorOpen}
+            handleDeleteProject={handleDeleteProject}
           />
         );
 
@@ -1135,7 +1182,7 @@ export const DashboardView = ({
               setAdminView={setAdminView}
             />
           </main>
-          <footer className="py-6 text-center text-xs text-slate-550 bg-[#070b19] border-t border-slate-800/60 font-medium select-none">
+          <footer className="py-6 text-center text-xs text-slate-500 bg-[#070b19] border-t border-slate-800/60 font-medium select-none">
             © 2026 UNI-LandFarm | Admin Panel Uni-Inside
           </footer>
         </div>

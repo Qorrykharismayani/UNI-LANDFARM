@@ -357,7 +357,7 @@ export const CMSPreview = ({ setView }: CMSProps) => (
                 <Cpu className="w-3 h-3" />
               </div>
               {[Layout, BarChart3, Bot].map((Icon, i) => (
-                <div key={i} className="text-slate-100">
+                <div key={i} className="text-slate-400">
                   <Icon className="w-3 h-3" />
                 </div>
               ))}

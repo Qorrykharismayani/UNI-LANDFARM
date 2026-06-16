@@ -504,7 +504,7 @@ const AdminPanelPage = ({
                     ].map((act, i) => (
                       <li key={i}>
                         <div className="relative pb-8">
-                          {i !== 3 && <span className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-slate-850" aria-hidden="true" />}
+                          {i !== 3 && <span className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-slate-800" aria-hidden="true" />}
                           <div className="relative flex space-x-3">
                             <div>
                               <span className={`h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-slate-900 ${act.color} text-white`}>
@@ -515,7 +515,7 @@ const AdminPanelPage = ({
                               <div>
                                 <p className="text-[10px] font-bold text-slate-300 uppercase tracking-wide leading-relaxed">{act.text}</p>
                               </div>
-                              <div className="text-right text-[8px] font-black uppercase whitespace-nowrap text-slate-550">
+                              <div className="text-right text-[8px] font-black uppercase whitespace-nowrap text-slate-500">
                                 <span>{act.time}</span>
                               </div>
                             </div>
@@ -534,7 +534,7 @@ const AdminPanelPage = ({
         {/* VIEW: USER MANAGEMENT */}
         {adminView === 'users' && (
           <div className="space-y-6 animate-in fade-in duration-300">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-805 pb-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
               <div>
                 <h2 className="text-md font-black uppercase tracking-widest text-white">User Management Panel</h2>
                 <p className="text-[9.5px] text-slate-400 font-bold uppercase tracking-wider mt-1">Kelola hak akses pengguna, status akun, dan memblokir sementara</p>
@@ -542,13 +542,13 @@ const AdminPanelPage = ({
               
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-550" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" />
                   <input
                     type="text"
                     placeholder="Cari pengguna..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="bg-slate-950 border border-slate-850 rounded-xl pl-9 pr-4 py-2 text-xs font-bold text-white outline-none focus:border-brand-blue focus:ring-1 focus:ring-brand-blue w-48 md:w-64"
+                    className="bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs font-bold text-white outline-none focus:border-brand-blue focus:ring-1 focus:ring-brand-blue w-48 md:w-64"
                   />
                 </div>
               </div>
@@ -606,7 +606,7 @@ const AdminPanelPage = ({
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
                 <div>
                   <h2 className="text-md font-black uppercase tracking-widest text-slate-800 dark:text-white">Kelola Publikasi</h2>
-                  <p className="text-[9.5px] text-slate-550 dark:text-slate-400 font-bold uppercase tracking-wider mt-1">Kelola seluruh landing page yang dipublikasikan pada platform UNI-LandFarm.</p>
+                  <p className="text-[9.5px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-1">Kelola seluruh landing page yang dipublikasikan pada platform UNI-LandFarm.</p>
                 </div>
                 <button
                   type="button"
@@ -668,7 +668,7 @@ const AdminPanelPage = ({
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs min-w-[700px]">
                     <thead>
-                      <tr className="bg-slate-100/50 dark:bg-slate-955/40 border-b border-slate-200 dark:border-slate-800/60">
+                      <tr className="bg-slate-100/50 dark:bg-slate-900/40 border-b border-slate-200 dark:border-slate-800/60">
                         <th className="px-5 py-3.5 text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Nama Landing Page</th>
                         <th className="px-5 py-3.5 text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Pemilik</th>
                         <th className="px-5 py-3.5 text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">URL</th>
@@ -738,7 +738,7 @@ const AdminPanelPage = ({
                                 <button
                                   onClick={() => togglePageStatus(lp.id, lp.status)}
                                   disabled={actionLoading === `page-${lp.id}`}
-                                  className="px-2.5 py-1 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-650 dark:text-red-400 rounded-lg text-[9px] font-black uppercase tracking-wider transition-colors cursor-pointer"
+                                  className="px-2.5 py-1 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-600 dark:text-red-400 rounded-lg text-[9px] font-black uppercase tracking-wider transition-colors cursor-pointer"
                                 >
                                   {actionLoading === `page-${lp.id}` ? '...' : 'Deactivate'}
                                 </button>
@@ -889,7 +889,7 @@ const AdminPanelPage = ({
                         <h4 className="text-xs font-black text-white uppercase tracking-tight">{tpl.name}</h4>
                         <p className="text-[10px] text-slate-400 font-medium leading-relaxed line-clamp-2">{tpl.description}</p>
                       </div>
-                      <div className="pt-3 border-t border-slate-850 flex gap-2">
+                      <div className="pt-3 border-t border-slate-800 flex gap-2">
                         <button
                           onClick={() => {
                             const nextStatus = tpl.status === 'Aktif' ? 'Nonaktif' : 'Aktif';
@@ -1343,7 +1343,7 @@ const AdminPanelPage = ({
                   <h3 className="text-xs font-black uppercase tracking-widest text-white">Grafik Kunjungan 7 Hari Terakhir</h3>
                   <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Total tayangan halaman unik dari semua situs user</p>
                 </div>
-                <div className="h-64 flex items-center justify-center bg-slate-950/40 rounded-2xl p-4 border border-slate-850">
+                <div className="h-64 flex items-center justify-center bg-slate-950/40 rounded-2xl p-4 border border-slate-800">
                   <svg className="w-full h-full" viewBox="0 0 500 200" preserveAspectRatio="none">
                     {/* Grid Lines */}
                     <line x1="0" y1="40" x2="500" y2="40" stroke="#1e293b" strokeDasharray="4 4" strokeWidth="1" />
@@ -1415,7 +1415,7 @@ const AdminPanelPage = ({
                   <h3 className="text-xs font-black uppercase tracking-widest text-white">Distribusi Kategori Situs</h3>
                   <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Persentase landing page terbit berdasarkan model bisnis</p>
                 </div>
-                <div className="h-64 flex flex-col justify-around bg-slate-950/40 rounded-2xl p-6 border border-slate-850">
+                <div className="h-64 flex flex-col justify-around bg-slate-950/40 rounded-2xl p-6 border border-slate-800">
                   {[
                     { name: "Pertanian & Pangan", count: 45, width: "85%", color: "bg-emerald-500" },
                     { name: "Makanan & Retail", count: 28, width: "60%", color: "bg-brand-blue" },
@@ -1588,11 +1588,11 @@ const AdminPanelPage = ({
                 <div>
                   <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 pb-4 border-b border-slate-800/60">Informasi Akun</h3>
                   <div className="space-y-4 text-xs">
-                    <div className="flex flex-col gap-1.5 p-3.5 bg-slate-950/40 border border-slate-850 rounded-2xl">
+                    <div className="flex flex-col gap-1.5 p-3.5 bg-slate-950/40 border border-slate-800 rounded-2xl">
                       <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">EMAIL OPERASIONAL</span>
                       <span className="text-white font-bold">admin@unilanfarm.com</span>
                     </div>
-                    <div className="flex flex-col gap-1.5 p-3.5 bg-slate-950/40 border border-slate-850 rounded-2xl">
+                    <div className="flex flex-col gap-1.5 p-3.5 bg-slate-950/40 border border-slate-800 rounded-2xl">
                       <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">TIPE HAK AKSES</span>
                       <span className="text-brand-blue font-bold">SYSTEM ROOT ADMINISTRATOR</span>
                     </div>

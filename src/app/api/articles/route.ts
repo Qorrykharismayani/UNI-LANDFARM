@@ -54,3 +54,36 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, message: error.message || 'Terjadi kesalahan sistem.' }, { status: 500 });
   }
 }
+
+export async function DELETE(request: Request) {
+  try {
+    const cookiesString = request.headers.get('cookie');
+    const session = getSessionFromCookies(cookiesString);
+
+    if (!session) {
+      return NextResponse.json({ success: false, message: 'Tidak diotorisasi.' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ success: false, message: 'ID artikel wajib disertakan.' }, { status: 400 });
+    }
+
+    const article = await prisma.article.findUnique({ where: { id: Number(id) } });
+    if (!article) {
+      return NextResponse.json({ success: false, message: 'Artikel tidak ditemukan.' }, { status: 404 });
+    }
+
+    if (article.userId !== session.userId && session.role !== 'ADMIN') {
+      return NextResponse.json({ success: false, message: 'Akses ditolak.' }, { status: 403 });
+    }
+
+    await prisma.article.delete({ where: { id: Number(id) } });
+
+    return NextResponse.json({ success: true, message: 'Artikel berhasil dihapus!' });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, message: error.message || 'Terjadi kesalahan sistem.' }, { status: 500 });
+  }
+}

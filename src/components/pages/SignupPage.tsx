@@ -12,11 +12,13 @@ import {
 interface SignupPageProps {
   setView: (v: string) => void;
   setUser: (u: any) => void;
+  prefilledEmail: string;
+  setPrefilledEmail: (e: string) => void;
 }
 
-const SignupPage = ({ setView, setUser }: SignupPageProps) => {
+const SignupPage = ({ setView, setUser, prefilledEmail, setPrefilledEmail }: SignupPageProps) => {
   const [businessName, setBusinessName] = useState('');
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(prefilledEmail || '');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [agree, setAgree] = useState(false);
@@ -47,18 +49,7 @@ const SignupPage = ({ setView, setUser }: SignupPageProps) => {
       });
       const data = await response.json();
       if (data.success) {
-        const loginRes = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password })
-        });
-        const loginData = await loginRes.json();
-        if (loginData.success) {
-          setUser(loginData.data);
-          setView('dashboard');
-        } else {
-          setView('login');
-        }
+        setView('login');
       } else {
         setErrors({ email: data.message });
       }
@@ -92,7 +83,7 @@ const SignupPage = ({ setView, setUser }: SignupPageProps) => {
         {/* Google Button */}
         <button
           onClick={() => window.location.href = '/api/auth/login/google'}
-          className="w-full flex items-center justify-center gap-3 py-3 px-4 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-650 hover:border-slate-300 transition-all mb-5 shadow-sm group"
+          className="w-full flex items-center justify-center gap-3 py-3 px-4 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-300 transition-all mb-5 shadow-sm group"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -178,7 +169,7 @@ const SignupPage = ({ setView, setUser }: SignupPageProps) => {
               <div className="flex gap-1 mt-1">
                 {[1, 2, 3, 4].map((i) => (
                   <div key={i} className={`h-1 flex-1 rounded-full transition-all ${password.length >= i * 2
-                      ? password.length >= 8 ? 'bg-emerald-450' : password.length >= 6 ? 'bg-amber-450' : 'bg-red-400'
+                      ? password.length >= 8 ? 'bg-emerald-500' : password.length >= 6 ? 'bg-amber-500' : 'bg-red-400'
                       : 'bg-slate-100 dark:bg-slate-700'
                     }`} />
                 ))}
@@ -231,7 +222,10 @@ const SignupPage = ({ setView, setUser }: SignupPageProps) => {
             Sudah punya akun?{' '}
             <button
               id="goto-login-btn"
-              onClick={() => setView('login')}
+              onClick={() => {
+                setPrefilledEmail(email);
+                setView('login');
+              }}
               className="text-brand-blue font-black hover:underline"
             >
               Masuk di sini

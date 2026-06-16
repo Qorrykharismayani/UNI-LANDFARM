@@ -46,27 +46,33 @@ const Navbar = ({ setView, currentView, theme, toggleTheme }: NavbarProps) => {
         </div>
 
         <div className="flex items-center gap-2 lg:gap-4">
-          <button 
+          <motion.button 
             onClick={toggleTheme} 
-            className="p-2.5 rounded-full bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-brand-blue transition-all"
+            whileHover={{ scale: 1.1, rotate: 15 }}
+            whileTap={{ scale: 0.9 }}
+            className="p-2.5 rounded-full bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-brand-blue transition-all cursor-pointer"
             aria-label="Toggle Theme"
           >
             {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
-          </button>
+          </motion.button>
           
           <div className="hidden lg:flex items-center gap-2">
-            <button 
+            <motion.button 
               onClick={() => setView('login')}
-              className={`px-6 py-2.5 text-[15px] font-black transition-all ${currentView === 'login' ? 'text-brand-blue' : 'text-slate-600 dark:text-slate-300 hover:text-brand-blue dark:hover:text-brand-blue'}`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={`px-6 py-2.5 text-[15px] font-black transition-all rounded-full hover:bg-slate-100 dark:hover:bg-slate-900/60 cursor-pointer ${currentView === 'login' ? 'text-brand-blue' : 'text-slate-600 dark:text-slate-300 hover:text-brand-blue dark:hover:text-brand-blue'}`}
             >
               Masuk
-            </button>
-            <button 
+            </motion.button>
+            <motion.button 
               onClick={() => setView('signup')}
-              className="px-7 py-2.5 text-[15px] font-black text-white bg-brand-blue rounded-full shadow-blue hover:shadow-blue-lg transition-all transform hover:-translate-y-0.5 active:scale-95"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={`px-6 py-2.5 text-[15px] font-black transition-all rounded-full hover:bg-slate-100 dark:hover:bg-slate-900/60 cursor-pointer ${currentView === 'signup' ? 'text-brand-blue' : 'text-slate-600 dark:text-slate-300 hover:text-brand-blue dark:hover:text-brand-blue'}`}
             >
               Daftar
-            </button>
+            </motion.button>
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -100,18 +106,22 @@ const Navbar = ({ setView, currentView, theme, toggleTheme }: NavbarProps) => {
               ))}
               <div className="h-px bg-slate-100 dark:bg-slate-800 my-2"></div>
               <div className="grid grid-cols-2 gap-4 pt-2">
-                <button 
+                <motion.button 
                   onClick={() => { setView('login'); setIsMobileMenuOpen(false); }}
-                  className="py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-black text-sm"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-black text-sm cursor-pointer"
                 >
                   Masuk
-                </button>
-                <button 
+                </motion.button>
+                <motion.button 
                   onClick={() => { setView('signup'); setIsMobileMenuOpen(false); }}
-                  className="py-4 rounded-2xl bg-brand-blue text-white font-black text-sm shadow-blue"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-black text-sm cursor-pointer"
                 >
                   Daftar
-                </button>
+                </motion.button>
               </div>
             </div>
           </motion.div>

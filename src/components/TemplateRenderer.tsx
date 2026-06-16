@@ -130,7 +130,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                 href={`https://wa.me/${contact.whatsapp}`} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className={`bg-amber-650 hover:bg-amber-700 text-white rounded-full font-bold uppercase tracking-wider transition-all shadow-sm ${isMobile ? 'px-3 py-1.5 text-[9px] shrink-0' : 'px-5 py-2.5 text-xs'}`}
+                className={`bg-amber-600 hover:bg-amber-700 text-white rounded-full font-bold uppercase tracking-wider transition-all shadow-sm ${isMobile ? 'px-3 py-1.5 text-[9px] shrink-0' : 'px-5 py-2.5 text-xs'}`}
                 style={{ backgroundColor: '#d97706' }}
               >
                 Order WA
@@ -196,7 +196,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                   <div className={`max-w-4xl mx-auto text-center ${isMobile ? 'space-y-6' : 'space-y-12'}`}>
                     <div className="space-y-3">
                       <h2 className={`font-black text-amber-950 uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Kisah Di Balik Produk Kami</h2>
-                      <div className="w-16 h-1.5 bg-amber-550 mx-auto rounded-full" style={{ backgroundColor: '#d97706' }} />
+                      <div className="w-16 h-1.5 bg-amber-500 mx-auto rounded-full" style={{ backgroundColor: '#d97706' }} />
                     </div>
                     <div className={`grid gap-8 text-left ${isMobile ? 'grid-cols-1 gap-6' : 'grid-cols-1 md:grid-cols-3'}`}>
                       <div className="bg-white p-6 rounded-2xl border border-amber-100/50 shadow-sm space-y-3">
@@ -222,7 +222,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                   <div className="text-center space-y-3">
                     <h2 className={`font-black text-amber-950 uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Produk Pilihan Terbaik</h2>
                     <p className={`text-amber-900/60 max-w-lg mx-auto font-bold uppercase tracking-widest ${isMobile ? 'text-[9px]' : 'text-[10px] md:text-xs'}`}>Segar, berkualitas, diproduksi langsung dari petani & pengrajin lokal</p>
-                    <div className="w-16 h-1.5 bg-amber-550 mx-auto rounded-full" style={{ backgroundColor: '#d97706' }} />
+                    <div className="w-16 h-1.5 bg-amber-500 mx-auto rounded-full" style={{ backgroundColor: '#d97706' }} />
                   </div>
                   <div className={`grid gap-8 ${isMobile ? 'grid-cols-1 gap-6' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'}`}>
                     {products.map((prod, i) => (
@@ -281,7 +281,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                 <section key="gallery" className={`max-w-6xl mx-auto ${isMobile ? 'py-8 px-4 space-y-6' : 'py-20 px-6 md:px-12 space-y-12'}`}>
                   <div className="text-center space-y-3">
                     <h2 className={`font-black text-amber-950 uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Galeri Kegiatan Kami</h2>
-                    <div className="w-16 h-1.5 bg-amber-550 mx-auto rounded-full" style={{ backgroundColor: '#d97706' }} />
+                    <div className="w-16 h-1.5 bg-amber-500 mx-auto rounded-full" style={{ backgroundColor: '#d97706' }} />
                   </div>
                   <div className={`grid gap-6 ${isMobile ? 'grid-cols-2 gap-4' : 'grid-cols-2 md:grid-cols-3'}`}>
                     {gallery.map((img, i) => (
@@ -303,7 +303,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                   <div className={`max-w-4xl mx-auto text-center ${isMobile ? 'space-y-6' : 'space-y-12'}`}>
                     <div className="space-y-3">
                       <h2 className={`font-black text-amber-950 uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Ulasan Pelanggan</h2>
-                      <div className="w-16 h-1.5 bg-amber-550 mx-auto rounded-full" style={{ backgroundColor: '#d97706' }} />
+                      <div className="w-16 h-1.5 bg-amber-500 mx-auto rounded-full" style={{ backgroundColor: '#d97706' }} />
                     </div>
                     <div className={`grid gap-8 text-left ${isMobile ? 'grid-cols-1 gap-6' : 'grid-cols-1 md:grid-cols-2'}`}>
                       {testimonials.map((t, i) => (
@@ -561,15 +561,15 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                   <div className={`grid gap-8 text-left ${isMobile ? 'grid-cols-1 gap-6' : 'grid-cols-1 md:grid-cols-3'}`}>
                     <div className={`p-6 rounded-2xl border shadow-sm space-y-3 ${cardColor}`}>
                       <h4 className="font-black uppercase text-xs tracking-wider" style={{ color: primaryColor }}>Tentang Kami</h4>
-                      <p className={`text-xs font-medium leading-relaxed ${isDarkTheme ? 'text-slate-450' : 'text-slate-650'}`}>{about.description || 'Penyedia solusi profesional dan terintegrasi.'}</p>
+                      <p className={`text-xs font-medium leading-relaxed ${isDarkTheme ? 'text-slate-400' : 'text-slate-600'}`}>{about.description || 'Penyedia solusi profesional dan terintegrasi.'}</p>
                     </div>
                     <div className={`p-6 rounded-2xl border shadow-sm space-y-3 ${cardColor}`}>
                       <h4 className="font-black uppercase text-xs tracking-wider" style={{ color: primaryColor }}>Profil Bisnis</h4>
-                      <p className={`text-xs font-medium leading-relaxed ${isDarkTheme ? 'text-slate-450' : 'text-slate-650'}`}>{about.profile || 'Kami berdedikasi memberikan hasil kerja bermutu tinggi.'}</p>
+                      <p className={`text-xs font-medium leading-relaxed ${isDarkTheme ? 'text-slate-400' : 'text-slate-600'}`}>{about.profile || 'Kami berdedikasi memberikan hasil kerja bermutu tinggi.'}</p>
                     </div>
                     <div className={`p-6 rounded-2xl border shadow-sm space-y-3 ${cardColor}`}>
                       <h4 className="font-black uppercase text-xs tracking-wider" style={{ color: primaryColor }}>Kisah Perjalanan</h4>
-                      <p className={`text-xs font-medium leading-relaxed ${isDarkTheme ? 'text-slate-450' : 'text-slate-650'}`}>{about.story || 'Mengawali langkah kecil demi mendigitalisasi jutaan bisnis lokal.'}</p>
+                      <p className={`text-xs font-medium leading-relaxed ${isDarkTheme ? 'text-slate-400' : 'text-slate-600'}`}>{about.story || 'Mengawali langkah kecil demi mendigitalisasi jutaan bisnis lokal.'}</p>
                     </div>
                   </div>
                 </div>
@@ -581,7 +581,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
               <section id="products" key="products" className={`max-w-6xl mx-auto ${isMobile ? 'py-8 px-4 space-y-6' : 'py-20 px-6 md:px-12 space-y-16'}`}>
                 <div className="text-center space-y-3">
                   <h2 className={`font-black uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Layanan & Produk Unggulan</h2>
-                  <p className={`max-w-lg mx-auto font-bold uppercase tracking-widest ${isDarkTheme ? 'text-slate-450' : 'text-slate-500'} ${isMobile ? 'text-[9px]' : 'text-[10px] md:text-xs'}`}>Dukungan penuh untuk efisiensi ekosistem operasional Anda</p>
+                  <p className={`max-w-lg mx-auto font-bold uppercase tracking-widest ${isDarkTheme ? 'text-slate-400' : 'text-slate-500'} ${isMobile ? 'text-[9px]' : 'text-[10px] md:text-xs'}`}>Dukungan penuh untuk efisiensi ekosistem operasional Anda</p>
                   <div className="w-16 h-1.5 mx-auto rounded-full" style={{ backgroundColor: primaryColor }} />
                 </div>
                 <div className={`grid gap-8 ${isMobile ? 'grid-cols-1 gap-6' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'}`}>
@@ -752,7 +752,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
             {isSocialActive && (
               <div className="space-y-4 text-left">
                 <h4 className="text-xs font-black uppercase tracking-widest text-white">Media Sosial</h4>
-                <div className="flex gap-4 text-slate-450">
+                <div className="flex gap-4 text-slate-400">
                   {socialMedia.instagram && <a href={socialMedia.instagram} target="_blank" rel="noreferrer" className="hover:text-white"><Instagram className="w-5 h-5" /></a>}
                   {socialMedia.facebook && <a href={socialMedia.facebook} target="_blank" rel="noreferrer" className="hover:text-white"><Facebook className="w-5 h-5" /></a>}
                   {socialMedia.youtube && <a href={socialMedia.youtube} target="_blank" rel="noreferrer" className="hover:text-white"><Youtube className="w-5 h-5" /></a>}

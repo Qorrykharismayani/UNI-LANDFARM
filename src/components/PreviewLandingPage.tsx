@@ -130,7 +130,7 @@ export default function PreviewLandingPage({ pageId, onBack, onPublishSuccess }:
               <span className="text-sm font-black text-white tracking-tight uppercase">{pageData?.businessName || pageData?.name}</span>
               <span className={`px-2 py-0.5 rounded-full text-[7.5px] font-black uppercase tracking-wider ${
                 isPublished ? 'bg-emerald-500/10 text-emerald-400' :
-                'bg-slate-850 text-slate-400'
+                'bg-slate-800 text-slate-400'
               }`}>
                 {pageData?.status || 'Draft'}
               </span>
@@ -145,7 +145,7 @@ export default function PreviewLandingPage({ pageId, onBack, onPublishSuccess }:
             className={`px-3 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all cursor-pointer flex items-center gap-1.5 ${
               previewDevice === 'desktop'
                 ? 'bg-brand-blue text-white shadow-lg shadow-brand-blue/20'
-                : 'text-slate-500 hover:text-slate-350'
+                : 'text-slate-500 hover:text-slate-300'
             }`}
           >
             <Monitor className="w-4 h-4" /> <span className="hidden md:inline">Desktop</span>
@@ -155,7 +155,7 @@ export default function PreviewLandingPage({ pageId, onBack, onPublishSuccess }:
             className={`px-3 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all cursor-pointer flex items-center gap-1.5 ${
               previewDevice === 'mobile'
                 ? 'bg-brand-blue text-white shadow-lg shadow-brand-blue/20'
-                : 'text-slate-500 hover:text-slate-350'
+                : 'text-slate-500 hover:text-slate-300'
             }`}
           >
             <Smartphone className="w-4 h-4" /> <span className="hidden md:inline">Mobile</span>
@@ -175,7 +175,7 @@ export default function PreviewLandingPage({ pageId, onBack, onPublishSuccess }:
             <button 
               onClick={handlePublish}
               disabled={publishLoading}
-              className="px-5 py-2.5 bg-gradient-to-r from-brand-blue to-indigo-650 hover:from-blue-600 hover:to-indigo-700 text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all shadow-md flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95"
+              className="px-5 py-2.5 bg-gradient-to-r from-brand-blue to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all shadow-md flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95"
             >
               {publishLoading ? 'Publishing...' : 'Publish'} <Rocket className="w-3.5 h-3.5" />
             </button>
@@ -252,7 +252,7 @@ export default function PreviewLandingPage({ pageId, onBack, onPublishSuccess }:
           <button 
             onClick={handlePublish}
             disabled={publishLoading}
-            className="flex-[2] py-3 bg-gradient-to-r from-brand-blue to-indigo-650 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 cursor-pointer font-black"
+            className="flex-[2] py-3 bg-gradient-to-r from-brand-blue to-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 cursor-pointer font-black"
           >
             {publishLoading ? 'Publishing...' : 'Publish'} <Rocket className="w-3.5 h-3.5" />
           </button>
