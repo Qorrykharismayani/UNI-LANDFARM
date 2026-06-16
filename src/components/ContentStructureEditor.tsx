@@ -860,7 +860,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                         </div>
                       </div>
 
-                      {/* Right side controls: Move up/down, status toggle */
+                      {/* Right side controls: Move up/down, status toggle */}
                       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={(e) => {
