@@ -698,27 +698,27 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
     <div className="fixed inset-0 bg-slate-50 z-[100] flex flex-col font-sans text-slate-800">
 
       {/* 1. TOP BAR CONTROL PANEL (Tinggi 72px) */}
-      <div className="h-[72px] border-b border-slate-200 bg-white flex items-center justify-between px-6 shrink-0 relative z-30 shadow-md">
+      <div className="h-[72px] border-b border-slate-200 bg-white flex items-center justify-between px-6 shrink-0 relative z-30 shadow-sm">
         {/* Left: Project Details */}
         <div className="flex items-center gap-4">
           <button
             onClick={onBack}
-            className="w-10 h-10 flex items-center justify-center bg-slate-900 border border-slate-200 hover:bg-slate-800 rounded-xl transition-all cursor-pointer"
+            className="w-10 h-10 flex items-center justify-center bg-slate-50 border border-slate-200 hover:bg-slate-100 rounded-xl transition-all cursor-pointer"
             title="Kembali ke Dashboard"
           >
-            <ArrowLeft className="w-4 h-4 text-slate-500 hover:text-white" />
+            <ArrowLeft className="w-4 h-4 text-slate-600 hover:text-brand-blue" />
           </button>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-base font-black text-white tracking-tight uppercase">{pageData?.businessName || 'Visual Editor'}</span>
-              <span className={`px-2 py-0.5 rounded-full text-base font-black uppercase tracking-wider ${pageData?.status === 'Published' ? 'bg-emerald-500/10 text-emerald-400' :
-                  pageData?.status === 'Pending Publish' ? 'bg-amber-500/10 text-amber-400' :
-                    'bg-slate-800 text-slate-500'
+              <span className="text-base font-black text-slate-900 tracking-tight uppercase">{pageData?.businessName || 'Visual Editor'}</span>
+              <span className={`px-2 py-0.5 rounded-full text-sm font-black uppercase tracking-wider ${pageData?.status === 'Published' ? 'bg-emerald-500/10 text-emerald-600' :
+                  pageData?.status === 'Pending Publish' ? 'bg-amber-500/10 text-amber-600' :
+                    'bg-slate-100 text-slate-500'
                 }`}>
                 {pageData?.status || 'Draft'}
               </span>
             </div>
-            <div className="flex items-center gap-2 text-base font-bold text-slate-500 uppercase tracking-widest leading-none mt-1">
+            <div className="flex items-center gap-2 text-sm font-bold text-slate-500 uppercase tracking-widest leading-none mt-1">
               <span>Template: {pageData?.template?.name || pageData?.template}</span>
               <span>•</span>
               <span className={saveStatus === 'Saving' ? 'text-amber-500 animate-pulse' : saveStatus === 'Error' ? 'text-red-500' : 'text-emerald-500'}>
@@ -729,18 +729,18 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
         </div>
 
         {/* Center: Main Tab Switching System */}
-        <div className="flex items-center bg-slate-900 p-1 rounded-2xl border border-slate-200 gap-1">
+        <div className="flex items-center bg-slate-100 p-1.5 rounded-2xl border border-slate-200 gap-1 shadow-inner">
           {[
-            { id: 'sections', label: 'Daftar Section', icon: <Layers className="w-3.5 h-3.5" /> },
-            { id: 'ai_writer', label: 'Tulis dengan AI & Jadwal', icon: <Bot className="w-3.5 h-3.5" /> },
-            { id: 'preview', label: 'Preview Situs', icon: <Eye className="w-3.5 h-3.5" /> }
+            { id: 'sections', label: 'Daftar Section', icon: <Layers className="w-4 h-4" /> },
+            { id: 'ai_writer', label: 'Tulis dengan AI & Jadwal', icon: <Bot className="w-4 h-4" /> },
+            { id: 'preview', label: 'Preview Situs', icon: <Eye className="w-4 h-4" /> }
           ].map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-base font-black uppercase tracking-widest transition-all cursor-pointer ${activeTab === tab.id
-                  ? 'bg-brand-blue text-white shadow-lg shadow-brand-blue/20'
-                  : 'text-slate-500 hover:text-slate-500 hover:bg-slate-100'
+              className={`flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-black uppercase tracking-widest transition-all cursor-pointer ${activeTab === tab.id
+                  ? 'bg-brand-blue text-white shadow-md'
+                  : 'text-slate-500 hover:text-slate-800 hover:bg-slate-200'
                 }`}
             >
               {tab.icon}
@@ -754,9 +754,9 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
           {pageData?.status !== 'Pending Publish' && pageData?.status !== 'Published' && (
             <button
               onClick={() => setShowPublishConfirm(true)}
-              className="px-5 py-2.5 bg-gradient-to-r from-brand-blue to-indigo-600 text-white rounded-xl text-base font-black uppercase tracking-widest hover:scale-105 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer font-black"
+              className="px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-550 hover:from-emerald-400 hover:to-teal-500 text-white rounded-xl text-sm font-black uppercase tracking-widest hover:scale-105 transition-all shadow-md shadow-emerald-500/20 flex items-center justify-center gap-2 cursor-pointer font-black"
             >
-              Publish <Send className="w-3.5 h-3.5" />
+              Publish <Send className="w-4 h-4" />
             </button>
           )}
         </div>
@@ -843,8 +843,8 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                       key={sec.id}
                       onClick={() => setActiveAccordion(sec.id)}
                       className={`group w-full flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer ${isActive
-                          ? 'bg-brand-blue/10 border-brand-blue/30 text-white shadow-md'
-                          : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-800'
+                          ? 'bg-brand-blue/10 border-brand-blue/30 text-brand-blue shadow-sm'
+                          : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:text-slate-900'
                         }`}
                     >
                       <div className="flex items-center gap-3 min-w-0">
@@ -856,8 +856,8 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                         </div>
 
                         <div className="truncate">
-                          <span className="text-base font-black uppercase tracking-wider block truncate">{sec.name}</span>
-                          <span className={`text-base font-black uppercase tracking-widest ${isSectionAktif ? 'text-brand-blue' : 'text-slate-500'}`}>
+                          <span className="text-sm font-black uppercase tracking-wider block truncate text-slate-700 group-hover:text-slate-900 transition-colors">{sec.name}</span>
+                          <span className={`text-xs font-bold uppercase tracking-widest px-1.5 py-0.5 rounded mt-0.5 inline-block ${isSectionAktif ? 'bg-emerald-500/10 text-emerald-600' : 'bg-slate-100 text-slate-500'}`}>
                             {sec.status}
                           </span>
                         </div>
@@ -870,7 +870,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                             e.stopPropagation();
                             moveSection(idx, 'up');
                           }}
-                          className="p-1 hover:bg-slate-800 rounded text-slate-500 hover:text-slate-800"
+                          className="p-1 hover:bg-slate-100 rounded text-slate-400 hover:text-slate-700 transition-colors"
                           title="Pindahkan Ke Atas"
                         >
                           <ChevronUp className="w-3.5 h-3.5" />
@@ -880,7 +880,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                             e.stopPropagation();
                             moveSection(idx, 'down');
                           }}
-                          className="p-1 hover:bg-slate-800 rounded text-slate-500 hover:text-slate-800"
+                          className="p-1 hover:bg-slate-100 rounded text-slate-400 hover:text-slate-700 transition-colors"
                           title="Pindahkan Ke Bawah"
                         >
                           <ChevronDown className="w-3.5 h-3.5" />
@@ -910,7 +910,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
               <div className="p-5 border-b border-slate-200 flex items-center justify-between bg-white shrink-0">
                 <div>
                   <h2 className="text-base font-black uppercase tracking-widest text-slate-900 leading-none">Property Editor</h2>
-                  <span className="text-base font-black text-brand-blue uppercase tracking-wider block mt-1.5 font-black">
+                  <span className="text-sm font-bold text-slate-500 uppercase tracking-widest block mt-1.5">
                     Mengedit Section: {sections.find(s => s.id === activeAccordion)?.name || activeAccordion}
                   </span>
                 </div>
@@ -934,7 +934,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                 {activeAccordion === 'navbar' && (
                   <div className="space-y-4">
                     <div className="space-y-1.5">
-                      <label className="text-base font-black text-slate-500 uppercase tracking-wider">Nama Brand / Judul Navigasi</label>
+                      <label className="text-sm font-bold text-slate-600 uppercase tracking-widest">Nama Brand / Judul Navigasi</label>
                       <input
                         type="text"
                         value={contentJson?.navbar?.brand || ''}
@@ -943,11 +943,11 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                           updated.navbar.brand = e.target.value;
                           setContentJson(updated);
                         }}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-base font-bold text-slate-900 outline-none focus:border-brand-blue"
+                        className="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm shadow-sm font-bold text-slate-900 outline-none focus:border-brand-blue"
                       />
                     </div>
                     <div className="space-y-3">
-                      <label className="text-base font-black text-slate-500 uppercase tracking-wider block">Menu Link Navigasi</label>
+                      <label className="text-sm font-bold text-slate-600 uppercase tracking-widest block">Menu Link Navigasi</label>
                       {contentJson?.navbar?.items?.map((item: any, i: number) => (
                         <div key={item.id} className="flex gap-2 items-center">
                           <input
@@ -959,7 +959,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                               updated.navbar.items[i].label = e.target.value;
                               setContentJson(updated);
                             }}
-                            className="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-base text-slate-900 outline-none"
+                            className="flex-1 bg-white border border-slate-300 rounded-xl p-2.5 text-sm shadow-sm text-slate-900 outline-none"
                           />
                           <button
                             onClick={() => {
@@ -992,7 +992,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                 {activeAccordion === 'logo' && (
                   <div className="space-y-4">
                     <div className="space-y-1.5">
-                      <label className="text-base font-black text-slate-500 uppercase tracking-wider">Logo URL / Unggah Gambar</label>
+                      <label className="text-sm font-bold text-slate-600 uppercase tracking-widest">Logo URL / Unggah Gambar</label>
                       <div className="flex gap-3 items-center">
                         <div className="w-12 h-12 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-center overflow-hidden shrink-0">
                           {contentJson?.logo ? (
@@ -1010,7 +1010,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                             setContentJson(updated);
                           }}
                           placeholder="https://link-logo.png"
-                          className="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-3 text-base text-slate-900 outline-none"
+                          className="flex-1 bg-white border border-slate-300 rounded-xl p-3 text-sm shadow-sm text-slate-900 outline-none"
                         />
                       </div>
                       <div className="pt-2">
@@ -1032,7 +1032,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                 {activeAccordion === 'hero' && (
                   <div className="space-y-4">
                     <div className="space-y-1.5">
-                      <label className="text-base font-black text-slate-500 uppercase tracking-wider">Headline Utama</label>
+                      <label className="text-sm font-bold text-slate-600 uppercase tracking-widest">Headline Utama</label>
                       <input
                         type="text"
                         value={contentJson?.hero?.headline || ''}
@@ -1041,11 +1041,11 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                           updated.hero.headline = e.target.value;
                           setContentJson(updated);
                         }}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-base font-bold text-slate-900 outline-none"
+                        className="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm shadow-sm font-bold text-slate-900 outline-none"
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-base font-black text-slate-500 uppercase tracking-wider">Sub-headline Copywriter</label>
+                      <label className="text-sm font-bold text-slate-600 uppercase tracking-widest">Sub-headline Copywriter</label>
                       <textarea
                         value={contentJson?.hero?.subheadline || ''}
                         onChange={(e) => {
@@ -1053,11 +1053,11 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                           updated.hero.subheadline = e.target.value;
                           setContentJson(updated);
                         }}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-base text-slate-900 outline-none resize-none h-24"
+                        className="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm shadow-sm text-slate-900 outline-none resize-none h-24"
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-base font-black text-slate-500 uppercase tracking-wider">Gambar Utama (Banner)</label>
+                      <label className="text-sm font-bold text-slate-600 uppercase tracking-widest">Gambar Utama (Banner)</label>
                       <div className="flex gap-3 items-center">
                         <input
                           type="text"
@@ -1068,7 +1068,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                             setContentJson(updated);
                           }}
                           placeholder="https://link-gambar-banner.jpg"
-                          className="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-3 text-base text-slate-900 outline-none"
+                          className="flex-1 bg-white border border-slate-300 rounded-xl p-3 text-sm shadow-sm text-slate-900 outline-none"
                         />
                         <label className="p-3 bg-slate-800 hover:bg-slate-700 rounded-xl cursor-pointer transition-colors border border-slate-200">
                           <Upload className="w-4 h-4 text-brand-blue" />
@@ -1086,7 +1086,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                       </div>
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-base font-black text-slate-500 uppercase tracking-wider">Teks Tombol Aksi (CTA)</label>
+                      <label className="text-sm font-bold text-slate-600 uppercase tracking-widest">Teks Tombol Aksi (CTA)</label>
                       <input
                         type="text"
                         value={contentJson?.hero?.cta || ''}
@@ -1095,7 +1095,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                           updated.hero.cta = e.target.value;
                           setContentJson(updated);
                         }}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-base text-slate-900 outline-none"
+                        className="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm shadow-sm text-slate-900 outline-none"
                       />
                     </div>
                   </div>
@@ -1105,7 +1105,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                 {activeAccordion === 'about' && (
                   <div className="space-y-4">
                     <div className="space-y-1.5">
-                      <label className="text-base font-black text-slate-500 uppercase tracking-wider">Deskripsi Singkat</label>
+                      <label className="text-sm font-bold text-slate-600 uppercase tracking-widest">Deskripsi Singkat</label>
                       <textarea
                         value={contentJson?.about?.description || ''}
                         onChange={(e) => {
@@ -1113,11 +1113,11 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                           updated.about.description = e.target.value;
                           setContentJson(updated);
                         }}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-base text-slate-900 outline-none resize-none h-20"
+                        className="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm shadow-sm text-slate-900 outline-none resize-none h-20"
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-base font-black text-slate-500 uppercase tracking-wider">Profil Usaha</label>
+                      <label className="text-sm font-bold text-slate-600 uppercase tracking-widest">Profil Usaha</label>
                       <textarea
                         value={contentJson?.about?.profile || ''}
                         onChange={(e) => {
@@ -1125,11 +1125,11 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                           updated.about.profile = e.target.value;
                           setContentJson(updated);
                         }}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-base text-slate-900 outline-none resize-none h-20"
+                        className="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm shadow-sm text-slate-900 outline-none resize-none h-20"
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-base font-black text-slate-500 uppercase tracking-wider">Sejarah Singkat / Kisah</label>
+                      <label className="text-sm font-bold text-slate-600 uppercase tracking-widest">Sejarah Singkat / Kisah</label>
                       <textarea
                         value={contentJson?.about?.story || ''}
                         onChange={(e) => {
@@ -1137,7 +1137,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                           updated.about.story = e.target.value;
                           setContentJson(updated);
                         }}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-base text-slate-900 outline-none resize-none h-20"
+                        className="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm shadow-sm text-slate-900 outline-none resize-none h-20"
                       />
                     </div>
                   </div>
@@ -1162,7 +1162,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                         <div className="text-base font-black text-brand-blue uppercase tracking-widest leading-none mb-1">PRODUK #{i + 1}</div>
 
                         <div className="space-y-1">
-                          <label className="text-base font-black text-slate-500 uppercase tracking-wider">Nama Produk</label>
+                          <label className="text-sm font-bold text-slate-600 uppercase tracking-widest">Nama Produk</label>
                           <input
                             type="text"
                             value={prod.name}
@@ -1175,7 +1175,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                           />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-base font-black text-slate-500 uppercase tracking-wider">Harga Produk</label>
+                          <label className="text-sm font-bold text-slate-600 uppercase tracking-widest">Harga Produk</label>
                           <input
                             type="text"
                             value={prod.price}
@@ -1188,7 +1188,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                           />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-base font-black text-slate-500 uppercase tracking-wider">Deskripsi Singkat</label>
+                          <label className="text-sm font-bold text-slate-600 uppercase tracking-widest">Deskripsi Singkat</label>
                           <textarea
                             value={prod.description}
                             onChange={(e) => {
@@ -1200,7 +1200,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                           />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-base font-black text-slate-500 uppercase tracking-wider">Gambar Produk</label>
+                          <label className="text-sm font-bold text-slate-600 uppercase tracking-widest">Gambar Produk</label>
                           <div className="flex gap-2">
                             <input
                               type="text"
@@ -1259,7 +1259,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                           <Trash2 className="w-4 h-4" />
                         </button>
                         <div className="space-y-2">
-                          <label className="text-base font-black text-slate-500 uppercase tracking-wider">Icon Keunggulan</label>
+                          <label className="text-sm font-bold text-slate-600 uppercase tracking-widest">Icon Keunggulan</label>
                           <select
                             value={adv.icon}
                             onChange={(e) => {
@@ -1277,7 +1277,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                           </select>
                         </div>
                         <div className="space-y-1">
-                          <label className="text-base font-black text-slate-500 uppercase tracking-wider">Judul</label>
+                          <label className="text-sm font-bold text-slate-600 uppercase tracking-widest">Judul</label>
                           <input
                             type="text"
                             value={adv.title}
@@ -1290,7 +1290,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                           />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-base font-black text-slate-500 uppercase tracking-wider">Deskripsi Singkat</label>
+                          <label className="text-sm font-bold text-slate-600 uppercase tracking-widest">Deskripsi Singkat</label>
                           <textarea
                             value={adv.description}
                             onChange={(e) => {
@@ -1374,7 +1374,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                           <Trash2 className="w-4 h-4" />
                         </button>
                         <div className="space-y-1">
-                          <label className="text-base font-black text-slate-500 uppercase tracking-wider">Nama Klien</label>
+                          <label className="text-sm font-bold text-slate-600 uppercase tracking-widest">Nama Klien</label>
                           <input
                             type="text"
                             value={t.name}
@@ -1387,7 +1387,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                           />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-base font-black text-slate-500 uppercase tracking-wider">Isi Testimoni</label>
+                          <label className="text-sm font-bold text-slate-600 uppercase tracking-widest">Isi Testimoni</label>
                           <textarea
                             value={t.content}
                             onChange={(e) => {
@@ -1399,7 +1399,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                           />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-base font-black text-slate-500 uppercase tracking-wider">Foto Klien (URL/Upload)</label>
+                          <label className="text-sm font-bold text-slate-600 uppercase tracking-widest">Foto Klien (URL/Upload)</label>
                           <div className="flex gap-2">
                             <input
                               type="text"
@@ -1446,7 +1446,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                 {activeAccordion === 'cta' && (
                   <div className="space-y-4">
                     <div className="space-y-1.5">
-                      <label className="text-base font-black text-slate-500 uppercase tracking-wider">Judul Penawaran</label>
+                      <label className="text-sm font-bold text-slate-600 uppercase tracking-widest">Judul Penawaran</label>
                       <input
                         type="text"
                         value={contentJson?.cta?.title || ''}
@@ -1455,11 +1455,11 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                           updated.cta.title = e.target.value;
                           setContentJson(updated);
                         }}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-base text-slate-900 outline-none"
+                        className="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm shadow-sm text-slate-900 outline-none"
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-base font-black text-slate-500 uppercase tracking-wider">Deskripsi Penawaran</label>
+                      <label className="text-sm font-bold text-slate-600 uppercase tracking-widest">Deskripsi Penawaran</label>
                       <textarea
                         value={contentJson?.cta?.description || ''}
                         onChange={(e) => {
@@ -1467,11 +1467,11 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                           updated.cta.description = e.target.value;
                           setContentJson(updated);
                         }}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-base text-white h-20 resize-none outline-none"
+                        className="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm shadow-sm text-white h-20 resize-none outline-none"
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-base font-black text-slate-500 uppercase tracking-wider">Teks Tombol CTA</label>
+                      <label className="text-sm font-bold text-slate-600 uppercase tracking-widest">Teks Tombol CTA</label>
                       <input
                         type="text"
                         value={contentJson?.cta?.buttonText || ''}
@@ -1480,7 +1480,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                           updated.cta.buttonText = e.target.value;
                           setContentJson(updated);
                         }}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-base text-slate-900 outline-none"
+                        className="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm shadow-sm text-slate-900 outline-none"
                       />
                     </div>
                   </div>
@@ -1490,7 +1490,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                 {activeAccordion === 'contact' && (
                   <div className="space-y-4">
                     <div className="space-y-1.5">
-                      <label className="text-base font-black text-slate-500 uppercase tracking-wider">Nomor WhatsApp (Format: 628xxxx)</label>
+                      <label className="text-sm font-bold text-slate-600 uppercase tracking-widest">Nomor WhatsApp (Format: 628xxxx)</label>
                       <input
                         type="text"
                         value={contentJson?.contact?.whatsapp || ''}
@@ -1499,11 +1499,11 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                           updated.contact.whatsapp = e.target.value;
                           setContentJson(updated);
                         }}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-base text-slate-900 outline-none"
+                        className="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm shadow-sm text-slate-900 outline-none"
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-base font-black text-slate-500 uppercase tracking-wider">Email Bisnis</label>
+                      <label className="text-sm font-bold text-slate-600 uppercase tracking-widest">Email Bisnis</label>
                       <input
                         type="email"
                         value={contentJson?.contact?.email || ''}
@@ -1512,11 +1512,11 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                           updated.contact.email = e.target.value;
                           setContentJson(updated);
                         }}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-base text-slate-900 outline-none"
+                        className="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm shadow-sm text-slate-900 outline-none"
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-base font-black text-slate-500 uppercase tracking-wider">Alamat Fisik</label>
+                      <label className="text-sm font-bold text-slate-600 uppercase tracking-widest">Alamat Fisik</label>
                       <textarea
                         value={contentJson?.contact?.address || ''}
                         onChange={(e) => {
@@ -1524,11 +1524,11 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                           updated.contact.address = e.target.value;
                           setContentJson(updated);
                         }}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-base text-white h-20 resize-none outline-none"
+                        className="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm shadow-sm text-white h-20 resize-none outline-none"
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-base font-black text-slate-500 uppercase tracking-wider">Jam Operasional</label>
+                      <label className="text-sm font-bold text-slate-600 uppercase tracking-widest">Jam Operasional</label>
                       <input
                         type="text"
                         value={contentJson?.contact?.operatingHours || ''}
@@ -1538,7 +1538,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                           setContentJson(updated);
                         }}
                         placeholder="Senin - Jumat, 09:00 - 17:00 WIB"
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-base text-slate-900 outline-none"
+                        className="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm shadow-sm text-slate-900 outline-none"
                       />
                     </div>
                   </div>
@@ -1549,7 +1549,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                   <div className="space-y-4">
                     {['instagram', 'tiktok', 'facebook', 'youtube'].map((sm) => (
                       <div key={sm} className="space-y-1.5">
-                        <label className="text-base font-black text-slate-500 uppercase tracking-wider">{sm}</label>
+                        <label className="text-sm font-bold text-slate-600 uppercase tracking-widest">{sm}</label>
                         <input
                           type="text"
                           value={contentJson?.socialMedia?.[sm] || ''}
@@ -1560,7 +1560,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                             setContentJson(updated);
                           }}
                           placeholder={`https://${sm}.com/username`}
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-base text-slate-900 outline-none"
+                          className="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm shadow-sm text-slate-900 outline-none"
                         />
                       </div>
                     ))}
@@ -1572,7 +1572,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                   <div className="space-y-4">
                     {['shopee', 'tokopedia', 'lazada', 'externalWebsite'].map((mp) => (
                       <div key={mp} className="space-y-1.5">
-                        <label className="text-base font-black text-slate-500 uppercase tracking-wider">{mp === 'externalWebsite' ? 'Website Eksternal' : mp}</label>
+                        <label className="text-sm font-bold text-slate-600 uppercase tracking-widest">{mp === 'externalWebsite' ? 'Website Eksternal' : mp}</label>
                         <input
                           type="text"
                           value={contentJson?.marketplaces?.[mp] || ''}
@@ -1583,7 +1583,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                             setContentJson(updated);
                           }}
                           placeholder="https://..."
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-base text-slate-900 outline-none"
+                          className="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm shadow-sm text-slate-900 outline-none"
                         />
                       </div>
                     ))}
@@ -1594,7 +1594,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                 {activeAccordion === 'footer' && (
                   <div className="space-y-4">
                     <div className="space-y-1.5">
-                      <label className="text-base font-black text-slate-500 uppercase tracking-wider">Logo Footer (URL)</label>
+                      <label className="text-sm font-bold text-slate-600 uppercase tracking-widest">Logo Footer (URL)</label>
                       <div className="flex gap-2">
                         <input
                           type="text"
@@ -1604,7 +1604,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                             updated.footer.logo = e.target.value;
                             setContentJson(updated);
                           }}
-                          className="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-3 text-base text-slate-900 outline-none"
+                          className="flex-1 bg-white border border-slate-300 rounded-xl p-3 text-sm shadow-sm text-slate-900 outline-none"
                         />
                         <label className="p-3 bg-slate-800 hover:bg-slate-700 rounded-xl cursor-pointer border border-slate-200">
                           <Upload className="w-4 h-4 text-brand-blue" />
@@ -1622,7 +1622,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                       </div>
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-base font-black text-slate-500 uppercase tracking-wider">Nama Bisnis Footer</label>
+                      <label className="text-sm font-bold text-slate-600 uppercase tracking-widest">Nama Bisnis Footer</label>
                       <input
                         type="text"
                         value={contentJson?.footer?.businessName || ''}
@@ -1631,11 +1631,11 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                           updated.footer.businessName = e.target.value;
                           setContentJson(updated);
                         }}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-base text-slate-900 outline-none"
+                        className="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm shadow-sm text-slate-900 outline-none"
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-base font-black text-slate-500 uppercase tracking-wider">Teks Copyright</label>
+                      <label className="text-sm font-bold text-slate-600 uppercase tracking-widest">Teks Copyright</label>
                       <input
                         type="text"
                         value={contentJson?.footer?.copyright || ''}
@@ -1644,7 +1644,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                           updated.footer.copyright = e.target.value;
                           setContentJson(updated);
                         }}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-base text-slate-900 outline-none"
+                        className="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm shadow-sm text-slate-900 outline-none"
                       />
                     </div>
                   </div>
