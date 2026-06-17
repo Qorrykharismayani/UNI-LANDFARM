@@ -87,30 +87,45 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: 'Nama/slug website sudah terpakai. Pilih nama lain.' }, { status: 409 });
     }
 
-    const newPage = await prisma.landingPage.create({
-      data: {
-        userId: session.userId,
-        templateId: Number(templateId),
-        title,
-        businessName,
-        slug,
-        status: 'Draft',
-        views: 0,
-        content: {
-          create: {
-            contentJson: contentJson || {
-              hero: { headline: title, subheadline: 'Website CMS baru Anda.', cta: 'Hubungi Kami' }
-            }
-          }
-        }
-      },
-      include: {
-        content: true
-      }
+    // Periksa saldo token user
+    const user = await (prisma.user as any).findUnique({
+      where: { id: session.userId },
+      select: { tokens: true }
     });
 
-    return NextResponse.json({ success: true, message: 'Draf landing page berhasil dibuat!', data: newPage });
+    if (!user || user.tokens < 1) {
+      return NextResponse.json({ success: false, message: 'Token tidak cukup. Silakan beli token terlebih dahulu.' }, { status: 402 });
+    }
+
+    // Gunakan transaksi agar pembuatan halaman dan pengurangan token terjadi bersamaan
+    const [newPage] = await prisma.$transaction([
+      prisma.landingPage.create({
+        data: {
+          userId: session.userId,
+          templateId: Number(templateId),
+          title,
+          businessName,
+          slug,
+          status: 'Draft',
+          views: 0,
+          content: {
+            create: {
+              contentJson: contentJson || {
+                hero: { headline: title, subheadline: 'Website CMS baru Anda.', cta: 'Hubungi Kami' }
+              }
+            }
+          }
+        },
+      }),
+      (prisma.user as any).update({
+        where: { id: session.userId },
+        data: { tokens: { decrement: 1 } }
+      })
+    ]);
+
+    return NextResponse.json({ success: true, message: 'Draf berhasil dibuat!', data: newPage }, { status: 201 });
   } catch (error: any) {
-    return NextResponse.json({ success: false, message: error.message || 'Terjadi kesalahan sistem.' }, { status: 500 });
+    console.error('Error creating landing page:', error);
+    return NextResponse.json({ success: false, message: error.message || 'Gagal membuat draf.' }, { status: 500 });
   }
 }

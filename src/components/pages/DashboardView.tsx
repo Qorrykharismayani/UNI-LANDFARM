@@ -463,6 +463,12 @@ export const DashboardView = ({
   };
 
   const handleAiBuild = async () => {
+    if (user?.tokens < 1) {
+      showNotification('Token Anda tidak cukup. Silakan beli token terlebih dahulu.', 'info');
+      setSubView('tokens');
+      return;
+    }
+
     const errors: Record<string, string> = {};
     if (!aiData.description.trim()) errors.description = 'Deskripsi bisnis wajib diisi';
     if (!aiData.target.trim()) errors.target = 'Target audiens wajib diisi';
@@ -502,6 +508,7 @@ export const DashboardView = ({
         sections: ['Hero Section', 'Tentang Kami', 'Produk/Layanan', 'Galeri', 'CTA', 'Footer']
       });
       setSelectedColor(draft.themeColor);
+      setUser({ ...user, tokens: user.tokens - 1 });
       setCmsNavMode('preview');
       showNotification('Website berhasil dibangun!', 'success');
     } catch (error) {
@@ -521,6 +528,12 @@ export const DashboardView = ({
   };
 
   const handleManualSetup = async () => {
+    if (user?.tokens < 1) {
+      showNotification('Token Anda tidak cukup. Silakan beli token terlebih dahulu.', 'info');
+      setSubView('tokens');
+      return;
+    }
+
     const errors: Record<string, string> = {};
     if (!manualData.name.trim()) errors.name = 'Nama website wajib diisi';
     if (!manualData.subdomain.trim()) errors.subdomain = 'Domain wajib diisi';
@@ -533,22 +546,52 @@ export const DashboardView = ({
 
     setFormErrors({});
     setIsGenerating(true);
+    setGenProgress(0);
 
-    const draft = await generateWebsiteDraft(
-      manualData.name,
-      manualData.category,
-      manualData.description
-    );
+    const steps = [
+      { progress: 20, text: 'Menyiapkan konfigurasi...' },
+      { progress: 50, text: 'Membuat struktur dasar...' },
+      { progress: 80, text: 'Menerapkan tema...' },
+      { progress: 100, text: 'Selesai!' }
+    ];
 
-    setGeneratedDraft({
-      ...draft,
-      sections: ['Hero Section', 'Tentang Kami', 'Produk/Layanan', 'Galeri', 'CTA', 'Footer']
-    });
-    setSelectedColor(manualData.color);
+    for (const step of steps) {
+      await new Promise(r => setTimeout(r, 400));
+      setGenProgress(step.progress);
+    }
 
-    setIsGenerating(false);
-    setCmsNavMode('preview');
-    showNotification('Website berhasil dikonfigurasi!', 'success');
+    try {
+      const draft = await generateWebsiteDraft(
+        manualData.name,
+        manualData.category,
+        manualData.description
+      );
+
+      setGeneratedDraft({
+        ...draft,
+        sections: ['Hero Section', 'Tentang Kami', 'Produk/Layanan', 'Galeri', 'CTA', 'Footer']
+      });
+      setSelectedColor(manualData.color);
+      setUser({ ...user, tokens: user.tokens - 1 });
+
+      setCmsNavMode('preview');
+      showNotification('Website berhasil dikonfigurasi!', 'success');
+    } catch (error: any) {
+      console.error(error);
+      setGeneratedDraft({
+        headline: manualData.name,
+        subheadline: manualData.description,
+        cta: 'Mulai Sekarang',
+        url: manualData.subdomain + '.unilandfarm.ai',
+        sections: ['Hero Section', 'Tentang Kami', 'Produk/Layanan', 'Galeri', 'CTA', 'Footer'],
+        themeColor: manualData.color
+      });
+      setSelectedColor(manualData.color);
+      setCmsNavMode('preview');
+      showNotification('Gagal menghubungi AI (API Key tidak valid). Draf default digunakan.', 'info');
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
 
@@ -650,6 +693,12 @@ export const DashboardView = ({
 
   const handleCreatePageFromTemplate = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (user?.tokens < 1) {
+      showNotification('Token Anda tidak cukup. Silakan beli token terlebih dahulu.', 'info');
+      setSubView('tokens');
+      return;
+    }
+    
     if (!creationWebsiteTitle.trim() || !creationBusinessName.trim() || !creationSlug.trim()) {
       setCreationError('Semua field wajib diisi.');
       return;
@@ -673,6 +722,7 @@ export const DashboardView = ({
 
       const data = await res.json();
       if (data.success && data.data) {
+        setUser({ ...user, tokens: user.tokens - 1 });
         showNotification('Situs baru berhasil dibuat dari template!', 'success');
         setTemplateForCreation(null);
         setCreationWebsiteTitle('');
@@ -684,7 +734,13 @@ export const DashboardView = ({
         setActivePageId(data.data.id);
         setIsCmsEditorOpen(true);
       } else {
-        setCreationError(data.message || 'Gagal membuat situs.');
+        if (data.status === 402 || data.message?.includes('Token')) {
+          setSubView('tokens');
+          setTemplateForCreation(null);
+          showNotification('Token Anda tidak cukup. Silakan beli token.', 'info');
+        } else {
+          setCreationError(data.message || 'Gagal membuat situs.');
+        }
       }
     } catch (err) {
       setCreationError('Terjadi kesalahan koneksi.');
@@ -773,7 +829,13 @@ export const DashboardView = ({
       case 'panduan':
         return <ContentPlanPage guideSearchQuery={guideSearchQuery} />;
       case 'tokens':
-        return <RepositoryPage showNotification={showNotification} />;
+        return (
+          <RepositoryPage 
+            showNotification={showNotification} 
+            user={user}
+            onTokenUpdate={(newTokens) => setUser({ ...user, tokens: newTokens })}
+          />
+        );
       case 'overview':
         return (
           <DashboardPage
