@@ -179,7 +179,12 @@ export const DashboardView = ({
   const [cmsSearchQuery, setCmsSearchQuery] = useState('');
   const [cmsCurrentPage, setCmsCurrentPage] = useState(1);
   const [guideSearchQuery, setGuideSearchQuery] = useState('');
+<<<<<<< Updated upstream
   const [cmsPosts, setCmsPosts] = useState<any[]>([]);
+=======
+  const [cmsSchedules, setCmsSchedules] = useState<any[]>([]);
+  const [selectedCmsProjectId, setSelectedCmsProjectId] = useState<string>('');
+>>>>>>> Stashed changes
   const [aiTopic, setAiTopic] = useState('');
   const [aiTone, setAiTone] = useState('Profesional');
   const [aiLength, setAiLength] = useState('Sedang (600 kata)');
@@ -202,9 +207,10 @@ export const DashboardView = ({
     name: '',
     subdomain: '',
     category: 'E-Commerce / Toko Online',
-    template: 'Modern Dark Pro (Recommended)',
+    templateId: 0,
     color: '#3B82F6',
-    description: ''
+    description: '',
+    logo: ''
   });
 
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
@@ -245,6 +251,9 @@ export const DashboardView = ({
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
         setTemplates(data.data);
+        if (data.data.length > 0) {
+          setManualData(prev => ({ ...prev, templateId: data.data[0].id }));
+        }
       }
     } catch (err) {
       console.error("Gagal mengambil daftar template:", err);
@@ -281,9 +290,28 @@ export const DashboardView = ({
     setView('home');
   };
 
+<<<<<<< Updated upstream
   useEffect(() => {
     fetchProjects();
     fetchTemplates();
+=======
+  const fetchSchedules = async () => {
+    try {
+      const res = await fetch('/api/content-schedules');
+      const data = await res.json();
+      if (data.success && Array.isArray(data.data)) {
+        setCmsSchedules(data.data);
+      }
+    } catch (err) {
+      console.error("Gagal mengambil daftar jadwal:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchProjects();
+    fetchTemplates();
+    fetchSchedules();
+>>>>>>> Stashed changes
   }, []);
 
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -508,6 +536,7 @@ export const DashboardView = ({
     setFormErrors({});
     setIsGenerating(true);
 
+<<<<<<< Updated upstream
     const draft = await generateWebsiteDraft(
       manualData.name,
       manualData.category,
@@ -557,11 +586,102 @@ export const DashboardView = ({
       showNotification('Rancangan draf berhasil disimpan!', 'success');
     } catch (e) {
       showNotification('Gagal menyimpan draf.', 'info');
+=======
+    try {
+      const selectedTplId = manualData.templateId || templates[0]?.id;
+      const selectedTemplate = templates.find(t => t.id === selectedTplId);
+
+      let draft: any;
+      try {
+        draft = await generateWebsiteDraft(
+          manualData.name,
+          manualData.category,
+          manualData.description,
+          selectedTemplate?.name || 'Software SaaS'
+        );
+      } catch (aiErr) {
+        console.warn("Gagal menghubungi AI:", aiErr);
+        draft = {
+          headline: `Selamat Datang di ${manualData.name}`,
+          subheadline: manualData.description,
+          cta: 'Hubungi Kami',
+          themeColor: manualData.color
+        };
+        showNotification('Menggunakan draf tanpa AI karena koneksi AI terganggu.', 'info');
+      }
+
+      const baseContent = selectedTemplate?.defaultContent || {};
+      const updatedContent = {
+        ...baseContent,
+        logo: manualData.logo || baseContent.logo || '',
+        themeColor: manualData.color,
+        navbar: {
+          ...(baseContent.navbar || {}),
+          brand: manualData.name
+        },
+        hero: {
+          ...(baseContent.hero || {}),
+          headline: draft.headline || manualData.name,
+          subheadline: draft.subheadline || manualData.description,
+          cta: draft.cta || 'Hubungi Kami'
+        },
+        about: {
+          ...(baseContent.about || {}),
+          description: manualData.description
+        },
+        footer: {
+          ...(baseContent.footer || {}),
+          businessName: manualData.name,
+          copyright: `© 2026 ${manualData.name}. All rights reserved.`
+        }
+      };
+
+      const res = await fetch('/api/landing-pages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          templateId: Number(selectedTplId),
+          title: manualData.name,
+          businessName: manualData.name,
+          slug: manualData.subdomain.trim().toLowerCase().replace(/\s+/g, '-'),
+          contentJson: updatedContent
+        })
+      });
+
+      const data = await res.json();
+      if (!data.success) {
+        showNotification(data.message || 'Gagal menyimpan draf ke database.', 'info');
+        setIsGenerating(false);
+        return;
+      }
+
+      const newPage = data.data;
+      setActivePageId(newPage.id);
+
+      setGeneratedDraft({
+        id: newPage.id,
+        headline: draft.headline || manualData.name,
+        subheadline: draft.subheadline || manualData.description,
+        cta: draft.cta || 'Hubungi Kami',
+        url: `/site/${newPage.slug}`,
+        contentJson: updatedContent,
+        templateId: selectedTplId
+      });
+
+      await fetchProjects();
+
+      setCmsNavMode('preview');
+      showNotification('Website berhasil disimpan sebagai draf!', 'success');
+    } catch (err: any) {
+      console.error(err);
+      showNotification(err.message || 'Gagal mengonfigurasi website.', 'info');
+>>>>>>> Stashed changes
     } finally {
       setIsGenerating(false);
     }
   };
 
+<<<<<<< Updated upstream
   const handleGenerateAiPost = async () => {
     if (!aiTopic.trim()) {
       showNotification('Silakan isi topik atau judul artikel terlebih dahulu!', 'info');
@@ -600,6 +720,30 @@ export const DashboardView = ({
     setIsGeneratingAiPost(false);
     setAiTopic('');
     showNotification('Artikel AI berhasil dibuat dan disimpan ke Draf!', 'success');
+=======
+
+
+  const handleDeleteSchedule = async (id: number) => {
+    if (!window.confirm("Apakah Anda yakin ingin menghapus jadwal ini?")) {
+      return;
+    }
+    try {
+      showNotification("Menghapus jadwal...", "info");
+      const res = await fetch(`/api/content-schedules?id=${id}`, {
+        method: "DELETE"
+      });
+      const data = await res.json();
+      if (data.success) {
+        showNotification("Jadwal berhasil dihapus!", "success");
+        setCmsSchedules(prev => prev.filter(p => p.id !== id));
+      } else {
+        showNotification(data.message || "Gagal menghapus jadwal.", "info");
+      }
+    } catch (err) {
+      console.error(err);
+      showNotification("Terjadi kesalahan koneksi.", "info");
+    }
+>>>>>>> Stashed changes
   };
 
   const [activeTemplateFilter, setActiveTemplateFilter] = useState('Semua');
@@ -675,25 +819,35 @@ export const DashboardView = ({
 
   const templateCategories = ['Semua', ...Array.from(new Set(templates.map(t => t.category)))];
 
-  const handlePublish = () => {
+  const handlePublish = async () => {
+    if (!generatedDraft || !generatedDraft.id) return;
     setIsPublishing(true);
-    setTimeout(() => {
-      setIsPublishing(false);
-      showNotification('Situs berhasil dipublikasikan!');
+    try {
+      const res = await fetch(`/api/landing-pages/${generatedDraft.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: 'Published',
+          publishedAt: new Date().toISOString(),
+          publicUrl: `/site/${manualData.subdomain.trim().toLowerCase().replace(/\s+/g, '-')}`
+        })
+      });
 
-      // Update userProjects when published
-      const newProject = {
-        id: `PROJ-0${userProjects.length + 1}`,
-        name: businessData.name || 'Situs Baru',
-        status: 'Online',
-        views: '0',
-        type: businessData.category || 'Landing Page',
-        image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500&q=80'
-      };
-      setUserProjects([newProject, ...userProjects]);
-      setSubView('overview');
-      setCmsNavMode('landing');
-    }, 2000);
+      const data = await res.json();
+      if (data.success) {
+        showNotification('Situs baru berhasil dipublikasikan!', 'success');
+        fetchProjects(); // Refresh project list
+        setSubView('overview');
+        setCmsNavMode('landing');
+      } else {
+        showNotification(data.message || 'Gagal mempublikasikan situs.', 'info');
+      }
+    } catch (err) {
+      console.error(err);
+      showNotification('Terjadi kesalahan koneksi.', 'info');
+    } finally {
+      setIsPublishing(false);
+    }
   };
 
   const [integrations, setIntegrations] = useState([
@@ -737,7 +891,7 @@ export const DashboardView = ({
           />
         );
       case 'panduan':
-        return <ContentPlanPage guideSearchQuery={guideSearchQuery} />;
+        return <ContentPlanPage guideSearchQuery={guideSearchQuery} systemSettings={systemSettings} />;
       case 'tokens':
         return <RepositoryPage showNotification={showNotification} />;
       case 'overview':
@@ -931,18 +1085,32 @@ export const DashboardView = ({
             handlePublish={handlePublish}
             setSubView={setSubView}
             setCmsSubTab={setCmsSubTab}
+            templates={templates}
+            isPublishing={isPublishing}
           />
         );
 
       case 'cms':
         return (
           <CmsPage
-            cmsPosts={cmsPosts}
-            setCmsPosts={setCmsPosts}
+            cmsSchedules={cmsSchedules}
+            setCmsSchedules={setCmsSchedules}
             cmsSearchQuery={cmsSearchQuery}
             setCmsSearchQuery={setCmsSearchQuery}
             cmsCurrentPage={cmsCurrentPage}
             setCmsCurrentPage={setCmsCurrentPage}
+<<<<<<< Updated upstream
+=======
+            userProjects={userProjects}
+            selectedCmsProjectId={selectedCmsProjectId}
+            setSelectedCmsProjectId={setSelectedCmsProjectId}
+            handleDeleteSchedule={handleDeleteSchedule}
+            fetchSchedules={fetchSchedules}
+            setActivePageId={setActivePageId}
+            setIsCmsEditorOpen={setIsCmsEditorOpen}
+            handleDeleteProject={handleDeleteProject}
+            showNotification={showNotification}
+>>>>>>> Stashed changes
           />
         );
 
@@ -1020,7 +1188,7 @@ export const DashboardView = ({
   ) : (
     <>
       {isAdminPanelActive ? (
-        <div className="min-h-screen bg-[#070b19] dark:bg-[#070b19] bg-slate-50 flex flex-col font-sans relative pt-[72px] transition-colors duration-300">
+        <div className="min-h-screen bg-slate-50 dark:bg-[#070b19] flex flex-col font-sans relative pt-[72px] transition-colors duration-300">
           {/* ADMIN PERSISTENT HEADER BAR */}
           <header className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-[#070b19] border-b border-slate-200 dark:border-slate-800/60 h-[72px] flex items-center justify-between px-8 text-slate-800 dark:text-white transition-colors duration-300">
             <div className="flex items-center gap-4">
@@ -1058,18 +1226,18 @@ export const DashboardView = ({
                 className="flex items-center gap-3 cursor-pointer group select-none"
               >
                 <div className="text-right hidden sm:block">
-                  <p className="text-xs font-black uppercase tracking-tighter leading-none mb-1 text-slate-200 group-hover:text-brand-blue transition-colors">
+                  <p className="text-xs font-black uppercase tracking-tighter leading-none mb-1 text-slate-800 dark:text-slate-200 group-hover:text-brand-blue transition-colors">
                     Uni-Inside Administrator
                   </p>
                   <div className="flex items-center justify-end gap-1.5 leading-none">
                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
-                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none">
+                    <p className="text-[8px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none">
                       Root Admin
                     </p>
                   </div>
                 </div>
-                <div className="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center border border-slate-700 shadow-sm overflow-hidden group-hover:border-brand-blue/50 transition-colors">
-                  <div className="w-full h-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xs font-black uppercase">
+                <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden group-hover:border-brand-blue/50 transition-colors">
+                  <div className="w-full h-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs font-black uppercase">
                     U
                   </div>
                 </div>
@@ -1082,15 +1250,15 @@ export const DashboardView = ({
                     className="fixed inset-0 z-30" 
                     onClick={() => setIsAdminDropdownOpen(false)} 
                   />
-                  <div className="absolute right-0 top-12 z-45 w-48 bg-[#0b1226] border border-slate-800 rounded-2xl p-2 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="absolute right-0 top-12 z-45 w-48 bg-white dark:bg-[#0b1226] border border-slate-200 dark:border-slate-800 rounded-2xl p-2 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-150">
                     <button
                       onClick={() => {
                         setAdminView('profile');
                         setIsAdminDropdownOpen(false);
                       }}
-                      className="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-left text-[10px] font-black uppercase tracking-wider text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors cursor-pointer"
+                      className="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-left text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
                     >
-                      <User className="w-3.5 h-3.5 text-slate-400" />
+                      <User className="w-3.5 h-3.5 text-slate-450 dark:text-slate-400" />
                       <span>Profile</span>
                     </button>
                     <button
@@ -1102,20 +1270,20 @@ export const DashboardView = ({
                           if (el) (el as HTMLInputElement).focus();
                         }, 100);
                       }}
-                      className="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-left text-[10px] font-black uppercase tracking-wider text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors cursor-pointer"
+                      className="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-left text-[10px] font-black uppercase tracking-wider text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
                     >
-                      <Lock className="w-3.5 h-3.5 text-slate-400" />
+                      <Lock className="w-3.5 h-3.5 text-slate-450 dark:text-slate-400" />
                       <span>Ubah Password</span>
                     </button>
-                    <div className="border-t border-slate-800 my-1" />
+                    <div className="border-t border-slate-200 dark:border-slate-800 my-1" />
                     <button
                       onClick={() => {
                         setIsAdminDropdownOpen(false);
                         setShowLogoutConfirm(true);
                       }}
-                      className="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-left text-[10px] font-black uppercase tracking-wider text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors cursor-pointer"
+                      className="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-left text-[10px] font-black uppercase tracking-wider text-red-500 hover:text-red-650 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-500/10 transition-colors cursor-pointer"
                     >
-                      <LogOut className="w-3.5 h-3.5 text-red-400" />
+                      <LogOut className="w-3.5 h-3.5 text-red-500 dark:text-red-400" />
                       <span>Logout</span>
                     </button>
                   </div>
@@ -1135,7 +1303,11 @@ export const DashboardView = ({
               setAdminView={setAdminView}
             />
           </main>
+<<<<<<< Updated upstream
           <footer className="py-6 text-center text-xs text-slate-550 bg-[#070b19] border-t border-slate-800/60 font-medium select-none">
+=======
+          <footer className="py-6 text-center text-xs text-slate-500 bg-slate-50 dark:bg-[#070b19] border-t border-slate-200 dark:border-slate-800/60 font-medium select-none">
+>>>>>>> Stashed changes
             © 2026 UNI-LandFarm | Admin Panel Uni-Inside
           </footer>
         </div>

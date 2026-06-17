@@ -18,7 +18,8 @@ import {
   Lock,
   Smartphone,
   Wallet,
-  BarChart3
+  BarChart3,
+  Upload
 } from 'lucide-react';
 
 interface AdminPanelPageProps {
@@ -29,6 +30,41 @@ interface AdminPanelPageProps {
   adminView?: 'dashboard' | 'users' | 'landing_pages' | 'templates' | 'content' | 'profile' | 'analytics';
   setAdminView?: (v: 'dashboard' | 'users' | 'landing_pages' | 'templates' | 'content' | 'profile' | 'analytics') => void;
 }
+
+const getRelativeTime = (dateString: string) => {
+  if (!dateString) return 'Baru saja';
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  if (isNaN(diffMs) || diffMs < 0) return 'Baru saja';
+  
+  const diffSec = Math.floor(diffMs / 1000);
+  const diffMin = Math.floor(diffSec / 60);
+  const diffHr = Math.floor(diffMin / 60);
+  const diffDay = Math.floor(diffHr / 24);
+
+  if (diffSec < 60) return 'Baru saja';
+  if (diffMin < 60) return `${diffMin} menit lalu`;
+  if (diffHr < 24) return `${diffHr} jam lalu`;
+  if (diffDay === 1) return 'Kemarin';
+  return `${diffDay} hari lalu`;
+};
+
+const renderActivityIcon = (iconName: string) => {
+  switch (iconName) {
+    case 'user':
+      return <User className="w-3.5 h-3.5" />;
+    case 'globe':
+      return <Globe className="w-3.5 h-3.5" />;
+    case 'layout':
+      return <Layout className="w-3.5 h-3.5" />;
+    case 'shield':
+      return <ShieldCheck className="w-3.5 h-3.5" />;
+    case 'create':
+    default:
+      return <Sparkles className="w-3.5 h-3.5" />;
+  }
+};
 
 const AdminPanelPage = ({ 
   showNotification, 
@@ -64,6 +100,7 @@ const AdminPanelPage = ({
   const [userRoleFilter, setUserRoleFilter] = useState<'ALL' | 'ADMIN' | 'USER'>('ALL');
   const [lpSearchQuery, setLpSearchQuery] = useState('');
   const [lpStatusFilter, setLpStatusFilter] = useState<'ALL' | 'Published' | 'Draft' | 'Inactive'>('ALL');
+  const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
   
   // Change password states
   const [oldPassword, setOldPassword] = useState('');
@@ -130,8 +167,37 @@ const AdminPanelPage = ({
   // (admin review/reject removed — publishing is now automatic)
 
   // CMS Tab state
-  const [cmsSettingsTab, setCmsSettingsTab] = useState<'basic' | 'support' | 'seo' | 'features' | 'testimonials' | 'faqs' | 'user_dashboard'>('basic');
+  const [cmsSettingsTab, setCmsSettingsTab] = useState<'basic' | 'support' | 'seo' | 'features' | 'testimonials' | 'faqs' | 'user_dashboard' | 'guides'>('basic');
   const [savingSettings, setSavingSettings] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+
+  const handleUploadLogo = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    setUploadingLogo(true);
+    try {
+      const res = await fetch('/api/media/upload', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+      if (data.success && data.data?.fileUrl) {
+        setSystemSettings({ ...systemSettings, logo: data.data.fileUrl });
+        showNotification('Logo platform berhasil diunggah!', 'success');
+      } else {
+        showNotification(data.message || 'Gagal mengunggah logo.', 'info');
+      }
+    } catch (err) {
+      console.error(err);
+      showNotification('Koneksi upload bermasalah.', 'info');
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
 
   const fetchAllData = async () => {
     setLoading(true);
@@ -305,6 +371,43 @@ const AdminPanelPage = ({
     setSystemSettings({ ...systemSettings, userPageJson: obj });
   };
 
+  const updateGuideField = (guideIndex: number, field: string, value: any) => {
+    const userPage = { ...(systemSettings.userPageJson || { welcomeTitle: '', welcomeSubtitle: '', guides: [] }) };
+    const guides = [...(userPage.guides || [])];
+    guides[guideIndex] = { ...guides[guideIndex], [field]: value };
+    userPage.guides = guides;
+    setSystemSettings({ ...systemSettings, userPageJson: userPage });
+  };
+
+  const updateGuideStep = (guideIndex: number, stepIndex: number, value: string) => {
+    const userPage = { ...(systemSettings.userPageJson || { welcomeTitle: '', welcomeSubtitle: '', guides: [] }) };
+    const guides = [...(userPage.guides || [])];
+    const steps = [...(guides[guideIndex].steps || [])];
+    steps[stepIndex] = value;
+    guides[guideIndex] = { ...guides[guideIndex], steps };
+    userPage.guides = guides;
+    setSystemSettings({ ...systemSettings, userPageJson: userPage });
+  };
+
+  const addGuideStep = (guideIndex: number) => {
+    const userPage = { ...(systemSettings.userPageJson || { welcomeTitle: '', welcomeSubtitle: '', guides: [] }) };
+    const guides = [...(userPage.guides || [])];
+    const steps = [...(guides[guideIndex].steps || [])];
+    steps.push('');
+    guides[guideIndex] = { ...guides[guideIndex], steps };
+    userPage.guides = guides;
+    setSystemSettings({ ...systemSettings, userPageJson: userPage });
+  };
+
+  const removeGuideStep = (guideIndex: number, stepIndex: number) => {
+    const userPage = { ...(systemSettings.userPageJson || { welcomeTitle: '', welcomeSubtitle: '', guides: [] }) };
+    const guides = [...(userPage.guides || [])];
+    const steps = (guides[guideIndex].steps || []).filter((_: any, idx: number) => idx !== stepIndex);
+    guides[guideIndex] = { ...guides[guideIndex], steps };
+    userPage.guides = guides;
+    setSystemSettings({ ...systemSettings, userPageJson: userPage });
+  };
+
   const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
     setSavingSettings(true);
@@ -369,20 +472,145 @@ const AdminPanelPage = ({
     showNotification('Template baru berhasil ditambahkan (simulasi)!', 'success');
   };
 
+  const activities = React.useMemo(() => {
+    const list: any[] = [];
+
+    // 1. Users Sign Up
+    users.forEach((u: any) => {
+      if (u.createdAt) {
+        list.push({
+          id: `user-${u.id}`,
+          text: `Pendaftaran Pengguna: ${u.name} mendaftar akun baru`,
+          time: u.createdAt,
+          color: "bg-blue-500",
+          icon: "user"
+        });
+      }
+    });
+
+    // 2. Landing Pages
+    landingPages.forEach((lp: any) => {
+      // Creation
+      if (lp.createdAt) {
+        list.push({
+          id: `lp-create-${lp.id}`,
+          text: `Pembuatan Landing Page: Draf "${lp.businessName || lp.title || 'Tanpa Nama'}" dibuat oleh ${lp.user?.name || lp.userName || 'Pengguna'}`,
+          time: lp.createdAt,
+          color: "bg-amber-500",
+          icon: "create"
+        });
+      }
+      // Publication
+      if (lp.status === 'Published') {
+        const pubTime = lp.publishedAt || lp.createdAt;
+        list.push({
+          id: `lp-publish-${lp.id}`,
+          text: `Publikasi Landing Page: "${lp.businessName || lp.title || 'Tanpa Nama'}" telah dipublikasikan oleh ${lp.user?.name || lp.userName || 'Pengguna'}`,
+          time: pubTime,
+          color: "bg-emerald-500",
+          icon: "globe"
+        });
+      }
+      // Deactivated
+      if (lp.status === 'Inactive') {
+        list.push({
+          id: `lp-deactivate-${lp.id}`,
+          text: `Deaktivasi Landing Page: "${lp.businessName || lp.title || 'Tanpa Nama'}" telah dinonaktifkan oleh Administrator`,
+          time: lp.createdAt,
+          color: "bg-red-500",
+          icon: "shield"
+        });
+      }
+    });
+
+    // 3. Templates
+    templatesList.forEach((t: any) => {
+      if (t.createdAt) {
+        list.push({
+          id: `template-${t.id}`,
+          text: `Pembaruan Template: Template "${t.name}" dimodifikasi oleh sistem`,
+          time: t.createdAt,
+          color: "bg-purple-500",
+          icon: "layout"
+        });
+      }
+    });
+
+    // Sort descending by time
+    return list.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
+  }, [users, landingPages, templatesList]);
+
+  const dailyData = React.useMemo(() => {
+    const dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+    const result = [];
+    
+    const dates: string[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      dates.push(d.toISOString().split('T')[0]);
+    }
+
+    const dailyCreations = new Array(7).fill(0);
+
+    landingPages.forEach((lp: any) => {
+      const lpDate = lp.createdAt ? lp.createdAt.split('T')[0] : '';
+      const dayIdx = dates.indexOf(lpDate);
+      if (dayIdx >= 0) {
+        dailyCreations[dayIdx] += 1;
+      }
+    });
+
+    for (let i = 0; i < 7; i++) {
+      const d = new Date();
+      d.setDate(d.getDate() - (6 - i));
+      const dayLabel = dayNames[d.getDay()];
+      result.push({
+        label: dayLabel,
+        value: dailyCreations[i],
+        date: dates[i]
+      });
+    }
+
+    return result;
+  }, [landingPages]);
+
+  const maxVal = Math.max(...dailyData.map(d => d.value), 4);
+
+  const points = dailyData.map((d, i) => {
+    const x = 30 + i * 70;
+    const y = 140 - (maxVal > 0 ? (d.value / maxVal) * 110 : 0);
+    return { x, y };
+  });
+
+  const bezierPath = points.reduce((acc, p, i, arr) => {
+    if (i === 0) return `M ${p.x} ${p.y}`;
+    const prev = arr[i - 1];
+    const cpX1 = prev.x + 35;
+    const cpY1 = prev.y;
+    const cpX2 = p.x - 35;
+    const cpY2 = p.y;
+    return `${acc} C ${cpX1} ${cpY1}, ${cpX2} ${cpY2}, ${p.x} ${p.y}`;
+  }, '');
+
+  const areaPath = points.length > 0
+    ? `${bezierPath} L ${points[points.length - 1].x} 140 L ${points[0].x} 140 Z`
+    : '';
+
   const publishedPagesCount = landingPages.filter(p => p.status === 'Published').length;
   const draftPagesCount = landingPages.filter(p => p.status === 'Draft').length;
   const inactivePagesCount = landingPages.filter(p => p.status === 'Inactive').length;
 
   const sidebarMenu = [
     { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="w-4.5 h-4.5" /> },
-    { id: 'users', label: 'User Management', icon: <User className="w-4.5 h-4.5" /> },
-    { id: 'landing_pages', label: 'Publications', icon: <Layers className="w-4.5 h-4.5" /> },
-    { id: 'templates', label: 'Template Management', icon: <Layout className="w-4.5 h-4.5" /> },
-    { id: 'content', label: 'Content Management (CMS)', icon: <Database className="w-4.5 h-4.5" /> },
+    { id: 'users', label: 'Manajemen Pengguna', icon: <User className="w-4.5 h-4.5" /> },
+    { id: 'landing_pages', label: 'Publikasi Landing Page', icon: <Layers className="w-4.5 h-4.5" /> },
+    { id: 'templates', label: 'Manajemen Template', icon: <Layout className="w-4.5 h-4.5" /> },
+    { id: 'content', label: 'Manajemen Konten (CMS)', icon: <Database className="w-4.5 h-4.5" /> },
   ];
 
   return (
-    <div className="bg-[#070b19] dark:bg-[#070b19] bg-slate-50 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col md:flex-row font-sans transition-colors duration-300">
+    <div className="bg-slate-50 dark:bg-[#070b19] text-slate-800 dark:text-slate-100 min-h-screen flex flex-col md:flex-row font-sans transition-colors duration-300">
       
       {/* 1. SIDEBAR NAVIGATION */}
       <aside className="w-full md:w-[250px] bg-white dark:bg-[#0b1226] border-r border-slate-200 dark:border-slate-800/60 p-6 flex flex-col gap-6 shrink-0 z-10 transition-colors duration-300">
@@ -444,15 +672,15 @@ const AdminPanelPage = ({
             {/* Statistics Cards Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {[
-                { title: "Total Users", val: users.length, icon: <User className="w-5 h-5" />, bg: "bg-blue-500/10", border: "border-slate-800/80", text: "text-brand-blue" },
-                { title: "Total Landing Pages", val: landingPages.length, icon: <Layers className="w-5 h-5" />, bg: "bg-indigo-500/10", border: "border-slate-800/80", text: "text-indigo-400" },
-                { title: "Published Landing Pages", val: publishedPagesCount, icon: <Globe className="w-5 h-5" />, bg: "bg-emerald-500/10", border: "border-slate-800/80", text: "text-emerald-400" },
-                { title: "Total Templates", val: templatesList.length || 5, icon: <Layout className="w-5 h-5" />, bg: "bg-purple-500/10", border: "border-slate-800/80", text: "text-purple-400" }
+                { title: "Total Pengguna", val: users.length, icon: <User className="w-5 h-5" />, bg: "bg-blue-500/10", border: "border-slate-200 dark:border-slate-800/80", text: "text-brand-blue" },
+                { title: "Total Landing Page", val: landingPages.length, icon: <Layers className="w-5 h-5" />, bg: "bg-indigo-500/10", border: "border-slate-200 dark:border-slate-800/80", text: "text-indigo-450" },
+                { title: "Landing Page Terbit", val: publishedPagesCount, icon: <Globe className="w-5 h-5" />, bg: "bg-emerald-500/10", border: "border-slate-200 dark:border-slate-800/80", text: "text-emerald-500 dark:text-emerald-400" },
+                { title: "Total Template", val: templatesList.length || 5, icon: <Layout className="w-5 h-5" />, bg: "bg-purple-500/10", border: "border-slate-200 dark:border-slate-800/80", text: "text-purple-400" }
               ].map((stat, i) => (
-                <div key={i} className="bg-slate-900/50 border border-slate-800/80 p-6 rounded-2xl shadow-sm hover:shadow-md transition-all flex items-center justify-between">
+                <div key={i} className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 p-6 rounded-2xl shadow-sm hover:shadow-md transition-all flex items-center justify-between">
                   <div className="space-y-1">
-                    <span className="text-[8.5px] font-black text-slate-400 uppercase tracking-widest block">{stat.title}</span>
-                    <h2 className="text-2xl font-black text-white leading-none">{stat.val}</h2>
+                    <span className="text-[8.5px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest block">{stat.title}</span>
+                    <h2 className="text-2xl font-black text-slate-900 dark:text-white leading-none">{stat.val}</h2>
                   </div>
                   <div className={`w-12 h-12 rounded-2xl ${stat.bg} ${stat.text} flex items-center justify-center`}>
                     {stat.icon}
@@ -465,36 +693,124 @@ const AdminPanelPage = ({
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
               
               {/* Performance Overview (lg:span-7) */}
-              <div className="lg:col-span-7 bg-slate-900/50 border border-slate-800/80 p-6 rounded-[24px] shadow-sm space-y-6">
+              <div className="lg:col-span-7 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 p-6 rounded-[24px] shadow-sm space-y-6">
                 <div>
-                  <h3 className="text-xs font-black uppercase tracking-widest text-white">Landing Page Performance Overview</h3>
-                  <p className="text-[9.5px] text-slate-400 font-bold uppercase tracking-wider mt-1">Metrik performa pengunjung dan rasio status penerbitan</p>
+                  <h3 className="text-xs font-black uppercase tracking-widest text-slate-800 dark:text-white">Ikhtisar Pembuatan Landing Page</h3>
+                  <p className="text-[9.5px] text-slate-550 dark:text-slate-400 font-bold uppercase tracking-wider mt-1">Statistik pembuatan dan status penerbitan landing page</p>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4 bg-slate-950/40 p-4 rounded-xl border border-slate-880/50">
-                  <div className="text-center py-2">
-                    <span className="text-[7.5px] font-black text-slate-400 uppercase block mb-1">Total Visitors</span>
-                    <span className="text-lg font-black text-slate-200">{landingPages.reduce((acc, p) => acc + (p.views || 0), 0).toLocaleString()}</span>
-                  </div>
-                  <div className="text-center py-2 border-x border-slate-800/60">
-                    <span className="text-[7.5px] font-black text-slate-400 uppercase block mb-1">Published Pages</span>
-                    <span className="text-lg font-black text-emerald-400">{publishedPagesCount}</span>
+                <div className="grid grid-cols-2 gap-4 bg-slate-50 dark:bg-slate-950/40 p-4 rounded-xl border border-slate-200 dark:border-slate-800/50">
+                  <div className="text-center py-2 border-r border-slate-200 dark:border-slate-800/60">
+                    <span className="text-[7.5px] font-black text-slate-500 dark:text-slate-400 uppercase block mb-1">Halaman Diterbitkan</span>
+                    <span className="text-lg font-black text-emerald-600 dark:text-emerald-400">{publishedPagesCount}</span>
                   </div>
                   <div className="text-center py-2">
-                    <span className="text-[7.5px] font-black text-slate-400 uppercase block mb-1">Active Pages</span>
+                    <span className="text-[7.5px] font-black text-slate-500 dark:text-slate-400 uppercase block mb-1">Halaman Aktif</span>
                     <span className="text-lg font-black text-brand-blue">{landingPages.filter(p => p.status !== 'Draft').length}</span>
+                  </div>
+                </div>
+                {/* Creation Trend SVG Graph */}
+                <div className="pt-4 border-t border-slate-100 dark:border-slate-800/60 relative">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-[8.5px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Tren Pembuatan Landing Page (7 Hari Terakhir)</span>
+                    <span className="text-[8.5px] font-bold text-slate-450 dark:text-slate-500 uppercase">Total: {landingPages.length} Halaman Dibuat</span>
+                  </div>
+
+                  <div className="h-[180px] w-full relative">
+                    <svg viewBox="0 0 480 160" className="w-full h-full overflow-visible" preserveAspectRatio="none">
+                      <defs>
+                        <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.25" />
+                          <stop offset="100%" stopColor="#3B82F6" stopOpacity="0.0" />
+                        </linearGradient>
+                        <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
+                          <stop offset="0%" stopColor="#3B82F6" />
+                          <stop offset="100%" stopColor="#6366F1" />
+                        </linearGradient>
+                      </defs>
+
+                      {/* Grid Lines */}
+                      <line x1="30" y1="30" x2="450" y2="30" stroke="currentColor" className="text-slate-200 dark:text-slate-800/40" strokeDasharray="3 3" />
+                      <line x1="30" y1="85" x2="450" y2="85" stroke="currentColor" className="text-slate-200 dark:text-slate-800/40" strokeDasharray="3 3" />
+                      <line x1="30" y1="140" x2="450" y2="140" stroke="currentColor" className="text-slate-200 dark:text-slate-800/60" />
+
+                      {/* Y-Axis labels */}
+                      <text x="15" y="34" className="text-[8px] font-black text-slate-450 dark:text-slate-500 text-right uppercase fill-current">{(maxVal).toLocaleString()}</text>
+                      <text x="15" y="89" className="text-[8px] font-black text-slate-450 dark:text-slate-500 text-right uppercase fill-current">{Math.floor(maxVal / 2).toLocaleString()}</text>
+                      <text x="15" y="144" className="text-[8px] font-black text-slate-450 dark:text-slate-500 text-right uppercase fill-current">0</text>
+
+                      {/* Area Path */}
+                      {areaPath && <path d={areaPath} fill="url(#chartGradient)" className="transition-all duration-500" />}
+
+                      {/* Line Path */}
+                      {bezierPath && <path d={bezierPath} fill="none" stroke="url(#lineGradient)" strokeWidth="2.5" strokeLinecap="round" className="transition-all duration-500" />}
+
+                      {/* Highlight Hover Line */}
+                      {hoveredPoint !== null && (
+                        <line 
+                          x1={points[hoveredPoint].x} 
+                          y1="30" 
+                          x2={points[hoveredPoint].x} 
+                          y2="140" 
+                          stroke="#6366F1" 
+                          strokeWidth="1" 
+                          strokeDasharray="2 2"
+                        />
+                      )}
+
+                      {/* Interaction Nodes */}
+                      {points.map((p, i) => (
+                        <g key={i} className="cursor-pointer" onMouseEnter={() => setHoveredPoint(i)} onMouseLeave={() => setHoveredPoint(null)}>
+                          {/* Invisible larger hover target circle */}
+                          <circle cx={p.x} cy={p.y} r={12} fill="transparent" />
+                          
+                          {/* Active highlight circle */}
+                          {hoveredPoint === i ? (
+                            <>
+                              <circle cx={p.x} cy={p.y} r={7} fill="#3B82F6" fillOpacity="0.25" className="animate-ping" />
+                              <circle cx={p.x} cy={p.y} r={5} fill="#6366F1" stroke="#FFFFFF" strokeWidth="1.5" />
+                            </>
+                          ) : (
+                            <circle cx={p.x} cy={p.y} r={3.5} fill="#3B82F6" stroke="#FFFFFF" strokeWidth="1" className="hover:scale-125 transition-transform" />
+                          )}
+                        </g>
+                      ))}
+                    </svg>
+
+                    {/* Tooltip Overlay */}
+                    {hoveredPoint !== null && (
+                      <div 
+                        className="absolute bg-slate-900/90 dark:bg-slate-950/95 border border-slate-800 dark:border-slate-800 text-white p-2.5 rounded-xl shadow-xl z-20 pointer-events-none transition-all duration-200"
+                        style={{
+                          left: `${(points[hoveredPoint].x / 480) * 100}%`,
+                          top: `${(points[hoveredPoint].y / 160) * 100 - 35}%`,
+                          transform: 'translate(-50%, -50%)',
+                        }}
+                      >
+                        <p className="text-[7.5px] font-black uppercase text-slate-400 tracking-wider mb-0.5">{dailyData[hoveredPoint].label} ({dailyData[hoveredPoint].date})</p>
+                        <p className="text-[10px] font-black text-brand-blue leading-none">{dailyData[hoveredPoint].value.toLocaleString()} <span className="text-[7.5px] text-white/80 font-medium">Halaman Baru</span></p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* X-Axis labels */}
+                  <div className="flex justify-between pl-[30px] pr-[30px] mt-2">
+                    {dailyData.map((d, i) => (
+                      <span key={i} className="text-[8px] font-black uppercase tracking-wider text-slate-450 dark:text-slate-500 w-[40px] text-center">{d.label}</span>
+                    ))}
                   </div>
                 </div>
               </div>
 
               {/* Recent Activity (lg:span-5) */}
-              <div className="lg:col-span-5 bg-slate-900/50 border border-slate-800/80 p-6 rounded-[24px] shadow-sm space-y-6">
+              <div className="lg:col-span-5 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 p-6 rounded-[24px] shadow-sm space-y-6">
                 <div>
-                  <h3 className="text-xs font-black uppercase tracking-widest text-white">Recent Activity Section</h3>
-                  <p className="text-[9.5px] text-slate-400 font-bold uppercase tracking-wider mt-1">Catatan log aktivitas administratif sistem</p>
+                  <h3 className="text-xs font-black uppercase tracking-widest text-slate-850 dark:text-white">Aktivitas Terbaru</h3>
+                  <p className="text-[9.5px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-1">Catatan log aktivitas administratif sistem</p>
                 </div>
 
                 <div className="flow-root">
+<<<<<<< Updated upstream
                   <ul className="-mb-8">
                     {[
                       { text: "User registration: Sarah Anderson mendaftar akun baru", time: "Baru saja", color: "bg-brand-blue" },
@@ -512,18 +828,43 @@ const AdminPanelPage = ({
                               </span>
                             </div>
                             <div className="flex-1 min-w-0 pt-1.5 flex justify-between space-x-4">
+=======
+                  {activities.length === 0 ? (
+                    <div className="text-center py-8 text-[9.5px] font-black uppercase tracking-wider text-slate-450 dark:text-slate-500">
+                      Belum ada log aktivitas
+                    </div>
+                  ) : (
+                    <ul className="-mb-8">
+                      {activities.slice(0, 5).map((act, i) => (
+                        <li key={act.id}>
+                          <div className="relative pb-8">
+                            {i !== (activities.slice(0, 5).length - 1) && <span className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-slate-200 dark:bg-slate-800" aria-hidden="true" />}
+                            <div className="relative flex space-x-3">
+>>>>>>> Stashed changes
                               <div>
-                                <p className="text-[10px] font-bold text-slate-300 uppercase tracking-wide leading-relaxed">{act.text}</p>
+                                <span className={`h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-white dark:ring-slate-900 ${act.color} text-white`}>
+                                  {renderActivityIcon(act.icon)}
+                                </span>
                               </div>
+<<<<<<< Updated upstream
                               <div className="text-right text-[8px] font-black uppercase whitespace-nowrap text-slate-550">
                                 <span>{act.time}</span>
+=======
+                              <div className="flex-1 min-w-0 pt-1.5 flex justify-between space-x-4">
+                                <div>
+                                  <p className="text-[10.5px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide leading-relaxed">{act.text}</p>
+                                </div>
+                                <div className="text-right text-[8px] font-black uppercase whitespace-nowrap text-slate-400 dark:text-slate-500">
+                                  <span>{getRelativeTime(act.time)}</span>
+                                </div>
+>>>>>>> Stashed changes
                               </div>
                             </div>
                           </div>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
               </div>
 
@@ -534,50 +875,62 @@ const AdminPanelPage = ({
         {/* VIEW: USER MANAGEMENT */}
         {adminView === 'users' && (
           <div className="space-y-6 animate-in fade-in duration-300">
+<<<<<<< Updated upstream
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-805 pb-5">
+=======
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
+>>>>>>> Stashed changes
               <div>
-                <h2 className="text-md font-black uppercase tracking-widest text-white">User Management Panel</h2>
-                <p className="text-[9.5px] text-slate-400 font-bold uppercase tracking-wider mt-1">Kelola hak akses pengguna, status akun, dan memblokir sementara</p>
+                <h2 className="text-md font-black uppercase tracking-widest text-slate-850 dark:text-white">Panel Manajemen Pengguna</h2>
+                <p className="text-[9.5px] text-slate-550 dark:text-slate-400 font-bold uppercase tracking-wider mt-1">Kelola hak akses pengguna, status akun, dan memblokir sementara</p>
               </div>
               
               <div className="flex items-center gap-3">
                 <div className="relative">
+<<<<<<< Updated upstream
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-550" />
+=======
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-450 dark:text-slate-500" />
+>>>>>>> Stashed changes
                   <input
                     type="text"
                     placeholder="Cari pengguna..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
+<<<<<<< Updated upstream
                     className="bg-slate-950 border border-slate-850 rounded-xl pl-9 pr-4 py-2 text-xs font-bold text-white outline-none focus:border-brand-blue focus:ring-1 focus:ring-brand-blue w-48 md:w-64"
+=======
+                    className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue focus:ring-1 focus:ring-brand-blue w-48 md:w-64"
+>>>>>>> Stashed changes
                   />
                 </div>
               </div>
             </div>
 
-            <div className="bg-slate-900/50 border border-slate-800/80 rounded-[24px] shadow-sm overflow-hidden">
+            <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 rounded-[24px] shadow-sm overflow-hidden">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="bg-slate-950/40 border-b border-slate-800/60">
-                    <th className="px-6 py-3.5 text-[9px] font-black text-slate-400 uppercase tracking-widest">Nama Lengkap</th>
-                    <th className="px-6 py-3.5 text-[9px] font-black text-slate-400 uppercase tracking-widest">Email</th>
-                    <th className="px-6 py-3.5 text-[9px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-                    <th className="px-6 py-3.5 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Aksi</th>
+                  <tr className="bg-slate-100/50 dark:bg-slate-950/40 border-b border-slate-200 dark:border-slate-800/60">
+                    <th className="px-6 py-3.5 text-[9px] font-black text-slate-550 dark:text-slate-400 uppercase tracking-widest">Nama Lengkap</th>
+                    <th className="px-6 py-3.5 text-[9px] font-black text-slate-550 dark:text-slate-400 uppercase tracking-widest">Email</th>
+                    <th className="px-6 py-3.5 text-[9px] font-black text-slate-550 dark:text-slate-400 uppercase tracking-widest">Status</th>
+                    <th className="px-6 py-3.5 text-[9px] font-black text-slate-550 dark:text-slate-400 uppercase tracking-widest text-right">Aksi</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/60">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
                   {users.map((usr) => (
-                    <tr key={usr.id} className="hover:bg-slate-800/20 transition-colors">
-                      <td className="px-6 py-4 font-bold text-white">{usr.name}</td>
-                      <td className="px-6 py-4 text-slate-400 font-medium">{usr.email}</td>
+                    <tr key={usr.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-colors">
+                      <td className="px-6 py-4 font-bold text-slate-800 dark:text-white">{usr.name}</td>
+                      <td className="px-6 py-4 text-slate-600 dark:text-slate-400 font-medium">{usr.email}</td>
                       <td className="px-6 py-4">
-                        <span className={`px-2 py-0.5 text-[8px] font-black uppercase tracking-widest border rounded ${usr.status === 'Aktif' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
+                        <span className={`px-2 py-0.5 text-[8px] font-black uppercase tracking-widest border rounded ${usr.status === 'Aktif' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20'}`}>
                           {usr.status}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">
                         <button
                           onClick={() => toggleUserStatus(usr.id, usr.status)}
-                          className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-[9px] font-black text-slate-200 uppercase tracking-widest transition-all"
+                          className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all cursor-pointer"
                         >
                           Ubah Status
                         </button>
@@ -761,17 +1114,16 @@ const AdminPanelPage = ({
                 </div>
               </div>
 
-              {/* Detail Modal */}
-              {selectedPageDetails && (
+              {/* Detail Modal */}              {selectedPageDetails && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setSelectedPageDetails(null)}>
-                  <div className="bg-[#0b1226] border border-slate-700 rounded-[24px] shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-                    <div className="flex items-center justify-between p-6 border-b border-slate-800">
+                  <div className="bg-white dark:bg-[#0b1226] border border-slate-200 dark:border-slate-700 rounded-[24px] shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+                    <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-800">
                       <div>
-                        <h3 className="text-sm font-black uppercase tracking-widest text-white">{selectedPageDetails.name || selectedPageDetails.businessName || selectedPageDetails.title}</h3>
-                        <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Detail Landing Page</p>
+                        <h3 className="text-sm font-black uppercase tracking-widest text-slate-850 dark:text-white">{selectedPageDetails.name || selectedPageDetails.businessName || selectedPageDetails.title}</h3>
+                        <p className="text-[9px] text-slate-550 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5">Detail Landing Page</p>
                       </div>
-                      <button onClick={() => setSelectedPageDetails(null)} className="w-8 h-8 flex items-center justify-center bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors cursor-pointer">
-                        <X className="w-4 h-4 text-slate-300" />
+                      <button onClick={() => setSelectedPageDetails(null)} className="w-8 h-8 flex items-center justify-center bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl transition-colors cursor-pointer">
+                        <X className="w-4 h-4 text-slate-650 dark:text-slate-300" />
                       </button>
                     </div>
                     <div className="p-6 space-y-5">
@@ -784,9 +1136,9 @@ const AdminPanelPage = ({
                           { label: 'Status', val: selectedPageDetails.status || '-' },
                           { label: 'Total Views', val: (selectedPageDetails.views || 0).toLocaleString() },
                         ].map((item, i) => (
-                          <div key={i} className="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
-                            <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1">{item.label}</span>
-                            <span className="font-bold text-white text-[11px] truncate block">{item.val}</span>
+                          <div key={i} className="bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+                            <span className="text-[8px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-1">{item.label}</span>
+                            <span className="font-bold text-slate-800 dark:text-white text-[11px] truncate block">{item.val}</span>
                           </div>
                         ))}
                       </div>
@@ -800,7 +1152,7 @@ const AdminPanelPage = ({
                         {selectedPageDetails.status === 'Published' && (
                           <button
                             onClick={() => { togglePageStatus(selectedPageDetails.id, selectedPageDetails.status); }}
-                            className="flex-1 py-2.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 rounded-xl text-[9px] font-black uppercase tracking-widest transition-colors cursor-pointer text-center"
+                            className="flex-1 py-2.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-500 dark:text-red-400 rounded-xl text-[9px] font-black uppercase tracking-widest transition-colors cursor-pointer text-center"
                           >
                             Nonaktifkan
                           </button>
@@ -808,20 +1160,20 @@ const AdminPanelPage = ({
                         {selectedPageDetails.status === 'Inactive' && (
                           <button
                             onClick={() => { togglePageStatus(selectedPageDetails.id, selectedPageDetails.status); }}
-                            className="flex-1 py-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-400 rounded-xl text-[9px] font-black uppercase tracking-widest transition-colors cursor-pointer text-center"
+                            className="flex-1 py-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-xl text-[9px] font-black uppercase tracking-widest transition-colors cursor-pointer text-center"
                           >
                             Aktifkan
                           </button>
                         )}
                       </div>
-                      <div className="rounded-xl border border-slate-800 overflow-hidden">
-                        <div className="bg-slate-950 px-4 py-2 border-b border-slate-800 flex items-center gap-2">
+                      <div className="rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+                        <div className="bg-slate-100 dark:bg-slate-950 px-4 py-2 border-b border-slate-200 dark:border-slate-800 flex items-center gap-2">
                           <div className="flex gap-1.5">
                             <span className="w-2.5 h-2.5 bg-red-500 rounded-full" />
                             <span className="w-2.5 h-2.5 bg-amber-400 rounded-full" />
                             <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full" />
                           </div>
-                          <span className="text-[9px] font-mono text-slate-500">{(typeof window !== 'undefined' ? window.location.origin : '')}/site/{selectedPageDetails.slug}</span>
+                          <span className="text-[9px] font-mono text-slate-550 dark:text-slate-500">{(typeof window !== 'undefined' ? window.location.origin : '')}/site/{selectedPageDetails.slug}</span>
                         </div>
                         <iframe
                           src={`/site/${selectedPageDetails.slug}`}
@@ -840,10 +1192,10 @@ const AdminPanelPage = ({
         {/* VIEW: TEMPLATE MANAGEMENT */}
         {adminView === 'templates' && (
           <div className="space-y-6 animate-in fade-in duration-300">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
               <div>
-                <h2 className="text-md font-black uppercase tracking-widest text-white">Template Management Panel</h2>
-                <p className="text-[9.5px] text-slate-400 font-bold uppercase tracking-wider mt-1">Kelola pustaka template situs, ubah status, dan tambahkan desain baru</p>
+                <h2 className="text-md font-black uppercase tracking-widest text-slate-850 dark:text-white">Panel Manajemen Template</h2>
+                <p className="text-[9.5px] text-slate-550 dark:text-slate-400 font-bold uppercase tracking-wider mt-1">Kelola pustaka template situs, ubah status, dan tambahkan desain baru</p>
               </div>
               <button
                 onClick={() => setShowAddTemplateModal(true)}
@@ -862,41 +1214,45 @@ const AdminPanelPage = ({
                   { id: 't2', name: 'FreshMarket Store', category: 'E-Commerce / Retail', thumbnail: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=500&q=80', status: 'Aktif', description: 'Template e-commerce sayur, buah, dan pangan segar.' },
                   { id: 't3', name: 'SmartFarm Tech', category: 'Teknologi & IoT', thumbnail: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=500&q=80', status: 'Aktif', description: 'Tampilan futuristik untuk teknologi IoT pertanian.' }
                 ].map((tpl) => (
-                  <div key={tpl.id} className="bg-slate-900/50 border border-slate-800/80 rounded-2xl overflow-hidden shadow-sm hover:border-slate-700/80 transition-all flex flex-col group">
-                    <div className="h-40 bg-slate-950 relative overflow-hidden shrink-0 border-b border-slate-800/55">
+                  <div key={tpl.id} className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 rounded-2xl overflow-hidden shadow-sm hover:border-slate-350 dark:hover:border-slate-700/80 transition-all flex flex-col group">
+                    <div className="h-40 bg-slate-50 dark:bg-slate-950 relative overflow-hidden shrink-0 border-b border-slate-200 dark:border-slate-800/55">
                       <img src={tpl.thumbnail} alt={tpl.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                      <span className="absolute top-3 right-3 px-2 py-0.5 rounded text-[8px] font-black uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">{tpl.status}</span>
+                      <span className="absolute top-3 right-3 px-2 py-0.5 rounded text-[8px] font-black uppercase bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">{tpl.status}</span>
                     </div>
                     <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
                       <div className="space-y-1">
                         <span className="text-[8.5px] font-black text-brand-blue uppercase tracking-widest">{tpl.category}</span>
-                        <h4 className="text-xs font-black text-white uppercase tracking-tight">{tpl.name}</h4>
-                        <p className="text-[10px] text-slate-400 font-medium leading-relaxed line-clamp-2">{tpl.description}</p>
+                        <h4 className="text-xs font-black text-slate-800 dark:text-white uppercase tracking-tight">{tpl.name}</h4>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium leading-relaxed line-clamp-2">{tpl.description}</p>
                       </div>
                     </div>
                   </div>
                 ))
               ) : (
                 templatesList.map((tpl) => (
-                  <div key={tpl.id} className="bg-slate-900/50 border border-slate-800/80 rounded-2xl overflow-hidden shadow-sm hover:border-slate-700/80 transition-all flex flex-col group">
-                    <div className="h-40 bg-slate-950 relative overflow-hidden shrink-0 border-b border-slate-800/55">
+                  <div key={tpl.id} className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 rounded-2xl overflow-hidden shadow-sm hover:border-slate-350 dark:hover:border-slate-700/80 transition-all flex flex-col group">
+                    <div className="h-40 bg-slate-50 dark:bg-slate-950 relative overflow-hidden shrink-0 border-b border-slate-200 dark:border-slate-800/55">
                       <img src={tpl.thumbnail || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=500&q=80'} alt={tpl.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                      <span className={`absolute top-3 right-3 px-2 py-0.5 rounded text-[8px] font-black uppercase border ${tpl.status === 'Aktif' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-slate-800/80 text-slate-400 border-slate-700'}`}>{tpl.status}</span>
+                      <span className={`absolute top-3 right-3 px-2 py-0.5 rounded text-[8px] font-black uppercase border ${tpl.status === 'Aktif' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' : 'bg-slate-100 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700'}`}>{tpl.status}</span>
                     </div>
                     <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
                       <div className="space-y-1">
                         <span className="text-[8.5px] font-black text-brand-blue uppercase tracking-widest">{tpl.category}</span>
-                        <h4 className="text-xs font-black text-white uppercase tracking-tight">{tpl.name}</h4>
-                        <p className="text-[10px] text-slate-400 font-medium leading-relaxed line-clamp-2">{tpl.description}</p>
+                        <h4 className="text-xs font-black text-slate-800 dark:text-white uppercase tracking-tight">{tpl.name}</h4>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium leading-relaxed line-clamp-2">{tpl.description}</p>
                       </div>
+<<<<<<< Updated upstream
                       <div className="pt-3 border-t border-slate-850 flex gap-2">
+=======
+                      <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex gap-2">
+>>>>>>> Stashed changes
                         <button
                           onClick={() => {
                             const nextStatus = tpl.status === 'Aktif' ? 'Nonaktif' : 'Aktif';
                             setTemplatesList(templatesList.map(t => t.id === tpl.id ? { ...t, status: nextStatus } : t));
                             showNotification(`Template ${tpl.name} diubah menjadi ${nextStatus}`, 'success');
                           }}
-                          className="flex-1 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-lg text-[9px] font-black uppercase tracking-widest transition-colors cursor-pointer text-center"
+                          className="flex-1 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-[9px] font-black uppercase tracking-widest transition-colors cursor-pointer text-center"
                         >
                           Ubah Status
                         </button>
@@ -912,14 +1268,14 @@ const AdminPanelPage = ({
         {/* VIEW: CONTENT MANAGEMENT (CMS) */}
         {adminView === 'content' && (
           <div className="space-y-6 animate-in fade-in duration-300">
-            <div className="border-b border-slate-800 pb-5">
-              <h2 className="text-md font-black uppercase tracking-widest text-white">Global CMS Content Management</h2>
-              <p className="text-[9.5px] text-slate-400 font-bold uppercase tracking-wider mt-1">Kelola informasi publik, teks promosi, dan kontak yang dipublikasikan sistem</p>
+            <div className="border-b border-slate-200 dark:border-slate-800 pb-5">
+              <h2 className="text-md font-black uppercase tracking-widest text-slate-800 dark:text-white">Global CMS Content Management</h2>
+              <p className="text-[9.5px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-1">Kelola informasi publik, teks promosi, dan kontak yang dipublikasikan sistem</p>
             </div>
 
             {/* Tabs for sections */}
-            <div className="flex gap-2 border-b border-slate-800 pb-px overflow-x-auto scrollbar-none">
-              {['basic', 'features', 'testimonials', 'faqs', 'user_dashboard', 'seo', 'support'].map((tab) => (
+            <div className="flex gap-2 border-b border-slate-200 dark:border-slate-800 pb-px overflow-x-auto scrollbar-none">
+              {['basic', 'features', 'testimonials', 'faqs', 'user_dashboard', 'guides', 'seo', 'support'].map((tab) => (
                 <button
                   key={tab}
                   type="button"
@@ -927,7 +1283,7 @@ const AdminPanelPage = ({
                   className={`px-4 py-2.5 text-[9.5px] font-black uppercase tracking-widest transition-all cursor-pointer whitespace-nowrap ${
                     cmsSettingsTab === tab
                       ? 'border-b-2 border-brand-blue text-brand-blue'
-                      : 'text-slate-400 hover:text-slate-200'
+                      : 'text-slate-500 hover:text-slate-750 dark:text-slate-400 dark:hover:text-slate-200'
                   }`}
                 >
                   {tab === 'basic' ? 'Informasi Dasar' :
@@ -935,71 +1291,92 @@ const AdminPanelPage = ({
                    tab === 'testimonials' ? 'Testimoni' :
                    tab === 'faqs' ? 'Daftar FAQ' :
                    tab === 'user_dashboard' ? 'Welcome Dashboard' :
+                   tab === 'guides' ? 'Buku Pedoman' :
                    tab === 'seo' ? 'Pengaturan SEO' : 'Kontak'}
                 </button>
               ))}
             </div>
 
-            <form onSubmit={handleSaveSettings} className="space-y-6 bg-slate-900/40 p-8 rounded-[24px] border border-slate-800/80">
+            <form onSubmit={handleSaveSettings} className="space-y-6 bg-white dark:bg-slate-900/40 p-8 rounded-[24px] border border-slate-200 dark:border-slate-800/80 shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-none">
               {cmsSettingsTab === 'basic' && (
                 <div className="space-y-4 animate-in fade-in duration-200">
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Platform Name</label>
+                    <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Platform Name</label>
                     <input
                       type="text"
                       value={systemSettings.platformName}
                       onChange={(e) => setSystemSettings({ ...systemSettings, platformName: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none"
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none"
                       required
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Platform Logo (URL)</label>
-                    <input
-                      type="text"
-                      value={systemSettings.logo}
-                      onChange={(e) => setSystemSettings({ ...systemSettings, logo: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none"
-                    />
+                    <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Platform Logo</label>
+                    <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                      <div className="w-12 h-12 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 rounded-xl flex items-center justify-center overflow-hidden shrink-0">
+                        {systemSettings.logo ? (
+                          <img src={systemSettings.logo} alt="Logo" className="w-full h-full object-contain" />
+                        ) : (
+                          <span className="text-[8px] font-black text-slate-500 uppercase">NO LOGO</span>
+                        )}
+                      </div>
+                      <input
+                        type="text"
+                        value={systemSettings.logo}
+                        onChange={(e) => setSystemSettings({ ...systemSettings, logo: e.target.value })}
+                        placeholder="https://link-logo.png atau unggah file di samping"
+                        className="flex-1 w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none"
+                      />
+                      <label className="px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700/80 rounded-xl cursor-pointer transition-colors text-xs font-bold text-slate-700 dark:text-white flex items-center gap-2 whitespace-nowrap">
+                        <Upload className="w-4 h-4 text-brand-blue" />
+                        {uploadingLogo ? 'Mengunggah...' : 'Unggah File Logo'}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleUploadLogo}
+                          disabled={uploadingLogo}
+                        />
+                      </label>
+                    </div>
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Judul Utama Hero (Landing Page)</label>
+                    <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Judul Utama Hero (Landing Page)</label>
                     <input
                       type="text"
                       value={systemSettings.heroTitle}
                       onChange={(e) => setSystemSettings({ ...systemSettings, heroTitle: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none"
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none"
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Deskripsi Hero</label>
+                    <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Deskripsi Hero</label>
                     <textarea
                       value={systemSettings.heroDescription}
                       onChange={(e) => setSystemSettings({ ...systemSettings, heroDescription: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none min-h-[100px] resize-none"
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none min-h-[100px] resize-none"
                     />
                   </div>
                 </div>
               )}
-
               {cmsSettingsTab === 'seo' && (
                 <div className="space-y-4 animate-in fade-in duration-200">
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Meta Deskripsi Default</label>
+                    <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Meta Deskripsi Default</label>
                     <textarea
                       value={systemSettings.heroDescription || ''}
                       onChange={(e) => setSystemSettings({ ...systemSettings, heroDescription: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none min-h-[100px] resize-none"
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none min-h-[100px] resize-none"
                       placeholder="Deskripsi SEO yang digunakan sistem"
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Default Footer Text</label>
+                    <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Default Footer Text</label>
                     <input
                       type="text"
                       value={systemSettings.footerText}
                       onChange={(e) => setSystemSettings({ ...systemSettings, footerText: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none"
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none"
                     />
                   </div>
                 </div>
@@ -1008,22 +1385,22 @@ const AdminPanelPage = ({
               {cmsSettingsTab === 'support' && (
                 <div className="space-y-4 animate-in fade-in duration-200">
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Kontak Utama</label>
+                    <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Email Kontak Utama</label>
                     <input
                       type="email"
                       value={systemSettings.contactEmail}
                       onChange={(e) => setSystemSettings({ ...systemSettings, contactEmail: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none"
+                      className="w-full bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none"
                       required
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Nomor WhatsApp Operasional</label>
+                    <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Nomor WhatsApp Operasional</label>
                     <input
                       type="text"
                       value={systemSettings.whatsapp}
                       onChange={(e) => setSystemSettings({ ...systemSettings, whatsapp: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none"
+                      className="w-full bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none"
                       placeholder="628123456..."
                     />
                   </div>
@@ -1033,7 +1410,7 @@ const AdminPanelPage = ({
               {cmsSettingsTab === 'features' && (
                 <div className="space-y-6 animate-in fade-in duration-200">
                   <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-300">Daftar Fitur Platform</h3>
+                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">Daftar Fitur Platform</h3>
                     <button
                       type="button"
                       onClick={addFeature}
@@ -1044,13 +1421,13 @@ const AdminPanelPage = ({
                   </div>
 
                   {(systemSettings.featuresJson || []).length === 0 ? (
-                    <div className="text-center py-8 text-[11px] text-slate-500 font-bold uppercase tracking-wider bg-slate-950/40 border border-dashed border-slate-800/80 rounded-xl">
+                    <div className="text-center py-8 text-[11px] text-slate-500 font-bold uppercase tracking-wider bg-slate-50 dark:bg-slate-950/40 border border-dashed border-slate-200 dark:border-slate-800/80 rounded-xl">
                       Belum ada fitur. Klik "Tambah Fitur" untuk memulai.
                     </div>
                   ) : (
                     <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent">
                       {(systemSettings.featuresJson || []).map((feature: any, idx: number) => (
-                        <div key={idx} className="relative bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 space-y-3">
+                        <div key={idx} className="relative bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-4 space-y-3">
                           <div className="absolute top-4 right-4 flex items-center gap-2">
                             <span className="text-[10px] text-slate-500 font-black italic">#{feature.num || String(idx + 1).padStart(2, '0')}</span>
                             <button
@@ -1065,22 +1442,22 @@ const AdminPanelPage = ({
 
                           <div className="grid grid-cols-2 gap-3 pr-12">
                             <div className="space-y-1.5">
-                              <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Judul Fitur</label>
+                              <label className="text-[8px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Judul Fitur</label>
                               <input
                                 type="text"
                                 value={feature.title || ''}
                                 onChange={(e) => updateFeature(idx, 'title', e.target.value)}
-                                className="w-full bg-slate-900 border border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-white outline-none"
+                                className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none"
                                 placeholder="Nama Fitur"
                                 required
                               />
                             </div>
                             <div className="space-y-1.5">
-                              <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Ikon (Lucide)</label>
+                              <label className="text-[8px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Ikon (Lucide)</label>
                               <select
                                 value={feature.icon || 'Zap'}
                                 onChange={(e) => updateFeature(idx, 'icon', e.target.value)}
-                                className="w-full bg-slate-900 border border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-white outline-none"
+                                className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none"
                               >
                                 {['Zap', 'Folder', 'Smartphone', 'Wallet', 'BarChart3', 'Cpu', 'Globe', 'Database', 'Shield', 'Coffee', 'Leaf', 'Tractor'].map((ico) => (
                                   <option key={ico} value={ico}>{ico}</option>
@@ -1090,11 +1467,11 @@ const AdminPanelPage = ({
                           </div>
 
                           <div className="space-y-1.5">
-                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Deskripsi Fitur</label>
+                            <label className="text-[8px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Deskripsi Fitur</label>
                             <textarea
                               value={feature.desc || ''}
                               onChange={(e) => updateFeature(idx, 'desc', e.target.value)}
-                              className="w-full bg-slate-900 border border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-white outline-none min-h-[60px] resize-none"
+                              className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none min-h-[60px] resize-none"
                               placeholder="Deskripsi lengkap kegunaan fitur ini..."
                               required
                             />
@@ -1109,7 +1486,7 @@ const AdminPanelPage = ({
               {cmsSettingsTab === 'testimonials' && (
                 <div className="space-y-6 animate-in fade-in duration-200">
                   <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-300">Daftar Testimoni Klien</h3>
+                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">Daftar Testimoni Klien</h3>
                     <button
                       type="button"
                       onClick={addTestimonial}
@@ -1120,13 +1497,13 @@ const AdminPanelPage = ({
                   </div>
 
                   {(systemSettings.testimonialsJson || []).length === 0 ? (
-                    <div className="text-center py-8 text-[11px] text-slate-500 font-bold uppercase tracking-wider bg-slate-950/40 border border-dashed border-slate-800/80 rounded-xl">
+                    <div className="text-center py-8 text-[11px] text-slate-550 font-bold uppercase tracking-wider bg-slate-50 dark:bg-slate-950/40 border border-dashed border-slate-200 dark:border-slate-800/80 rounded-xl">
                       Belum ada testimoni. Klik "Tambah Testimoni" untuk memulai.
                     </div>
                   ) : (
                     <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent">
                       {(systemSettings.testimonialsJson || []).map((testi: any, idx: number) => (
-                        <div key={idx} className="relative bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 space-y-3">
+                        <div key={idx} className="relative bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-4 space-y-3">
                           <div className="absolute top-4 right-4">
                             <button
                               type="button"
@@ -1140,23 +1517,23 @@ const AdminPanelPage = ({
 
                           <div className="grid grid-cols-2 gap-3 pr-12">
                             <div className="space-y-1.5">
-                              <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Nama Klien</label>
+                              <label className="text-[8px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Nama Klien</label>
                               <input
                                 type="text"
                                 value={testi.name || ''}
                                 onChange={(e) => updateTestimonial(idx, 'name', e.target.value)}
-                                className="w-full bg-slate-900 border border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-white outline-none"
+                                className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none"
                                 placeholder="Nama Lengkap"
                                 required
                               />
                             </div>
                             <div className="space-y-1.5">
-                              <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Jabatan / Perusahaan</label>
+                              <label className="text-[8px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Jabatan / Perusahaan</label>
                               <input
                                 type="text"
                                 value={testi.role || ''}
                                 onChange={(e) => updateTestimonial(idx, 'role', e.target.value)}
-                                className="w-full bg-slate-900 border border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-white outline-none"
+                                className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none"
                                 placeholder="Contoh: CEO of TokoKopi"
                                 required
                               />
@@ -1165,23 +1542,23 @@ const AdminPanelPage = ({
 
                           <div className="grid grid-cols-1 gap-3">
                             <div className="space-y-1.5">
-                              <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Avatar URL</label>
+                              <label className="text-[8px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Avatar URL</label>
                               <input
                                 type="text"
                                 value={testi.avatar || ''}
                                 onChange={(e) => updateTestimonial(idx, 'avatar', e.target.value)}
-                                className="w-full bg-slate-900 border border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-white outline-none"
+                                className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none"
                                 placeholder="https://picsum.photos/seed/..."
                               />
                             </div>
                           </div>
 
                           <div className="space-y-1.5">
-                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Isi Testimoni</label>
+                            <label className="text-[8px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Isi Testimoni</label>
                             <textarea
                               value={testi.content || ''}
                               onChange={(e) => updateTestimonial(idx, 'content', e.target.value)}
-                              className="w-full bg-slate-900 border border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-white outline-none min-h-[60px] resize-none"
+                              className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none min-h-[60px] resize-none"
                               placeholder="Ulasan positif klien..."
                               required
                             />
@@ -1196,7 +1573,7 @@ const AdminPanelPage = ({
               {cmsSettingsTab === 'faqs' && (
                 <div className="space-y-6 animate-in fade-in duration-200">
                   <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-300">Daftar Pertanyaan Umum (FAQ)</h3>
+                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">Daftar Pertanyaan Umum (FAQ)</h3>
                     <button
                       type="button"
                       onClick={addFaq}
@@ -1207,13 +1584,13 @@ const AdminPanelPage = ({
                   </div>
 
                   {(systemSettings.faqsJson || []).length === 0 ? (
-                    <div className="text-center py-8 text-[11px] text-slate-500 font-bold uppercase tracking-wider bg-slate-950/40 border border-dashed border-slate-800/80 rounded-xl">
+                    <div className="text-center py-8 text-[11px] text-slate-500 font-bold uppercase tracking-wider bg-slate-50 dark:bg-slate-950/40 border border-dashed border-slate-200 dark:border-slate-800/80 rounded-xl">
                       Belum ada FAQ. Klik "Tambah FAQ" untuk memulai.
                     </div>
                   ) : (
                     <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent">
                       {(systemSettings.faqsJson || []).map((faq: any, idx: number) => (
-                        <div key={idx} className="relative bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 space-y-3">
+                        <div key={idx} className="relative bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-4 space-y-3">
                           <div className="absolute top-4 right-4 flex items-center gap-2">
                             <span className={`w-3.5 h-3.5 rounded-full ${faq.color || 'bg-blue-500'} opacity-75`} title="Warna Aksen" />
                             <button
@@ -1228,22 +1605,22 @@ const AdminPanelPage = ({
 
                           <div className="grid grid-cols-2 gap-3 pr-16">
                             <div className="space-y-1.5 col-span-2 sm:col-span-1">
-                              <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Pertanyaan</label>
+                              <label className="text-[8px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Pertanyaan</label>
                               <input
                                 type="text"
                                 value={faq.q || ''}
                                 onChange={(e) => updateFaq(idx, 'q', e.target.value)}
-                                className="w-full bg-slate-900 border border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-white outline-none"
+                                className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none"
                                 placeholder="Contoh: Apakah bisa custom domain?"
                                 required
                               />
                             </div>
                             <div className="space-y-1.5 col-span-2 sm:col-span-1">
-                              <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Aksen Warna (Tailwind)</label>
+                              <label className="text-[8px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Aksen Warna (Tailwind)</label>
                               <select
                                 value={faq.color || 'bg-blue-500'}
                                 onChange={(e) => updateFaq(idx, 'color', e.target.value)}
-                                className="w-full bg-slate-900 border border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-white outline-none"
+                                className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none"
                               >
                                 <option value="bg-blue-500">Blue (Biru)</option>
                                 <option value="bg-purple-500">Purple (Ungu)</option>
@@ -1256,11 +1633,11 @@ const AdminPanelPage = ({
                           </div>
 
                           <div className="space-y-1.5">
-                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Jawaban</label>
+                            <label className="text-[8px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Jawaban</label>
                             <textarea
                               value={faq.a || ''}
                               onChange={(e) => updateFaq(idx, 'a', e.target.value)}
-                              className="w-full bg-slate-900 border border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-white outline-none min-h-[60px] resize-none"
+                              className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none min-h-[60px] resize-none"
                               placeholder="Tulis jawaban lengkap di sini..."
                               required
                             />
@@ -1274,32 +1651,138 @@ const AdminPanelPage = ({
 
               {cmsSettingsTab === 'user_dashboard' && (
                 <div className="space-y-4 animate-in fade-in duration-200">
-                  <div className="border-b border-slate-800/50 pb-3 mb-2">
-                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-300">Header Welcome Dashboard Pengguna</h3>
+                  <div className="border-b border-slate-200 dark:border-slate-800/55 pb-3 mb-2">
+                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">Header Welcome Dashboard Pengguna</h3>
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Judul Selamat Datang (Welcome Title)</label>
+                    <label className="text-[9px] font-black text-slate-550 dark:text-slate-400 uppercase tracking-widest ml-1">Judul Selamat Datang (Welcome Title)</label>
                     <input
                       type="text"
                       value={systemSettings.userPageJson?.welcomeTitle || ''}
                       onChange={(e) => updateUserPage('welcomeTitle', e.target.value)}
-                      className="w-full bg-slate-950 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none"
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none"
                       placeholder="Halo, Pebisnis Modern!"
                       required
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Sub-judul Selamat Datang (Welcome Subtitle)</label>
+                    <label className="text-[9px] font-black text-slate-550 dark:text-slate-400 uppercase tracking-widest ml-1">Sub-judul Selamat Datang (Welcome Subtitle)</label>
                     <textarea
                       value={systemSettings.userPageJson?.welcomeSubtitle || ''}
                       onChange={(e) => updateUserPage('welcomeSubtitle', e.target.value)}
-                      className="w-full bg-slate-950 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none min-h-[80px] resize-none"
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none min-h-[80px] resize-none"
                       placeholder="Siap untuk mengotomatisasi ekosistem digital Anda hari ini?"
                       required
                     />
                   </div>
                 </div>
               )}
+              {cmsSettingsTab === 'guides' && (
+                <div className="space-y-6 animate-in fade-in duration-200">
+                  <div className="border-b border-slate-200 dark:border-slate-800/55 pb-3 mb-2">
+                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">Daftar Buku Pedoman & Panduan</h3>
+                  </div>
+
+                  <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent">
+                    {(systemSettings.userPageJson?.guides || []).map((guide: any, idx: number) => (
+                      <div key={idx} className="relative bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-5 space-y-4">
+                        <div className="flex justify-between items-center">
+                          <span className="text-[10px] text-brand-blue font-black uppercase tracking-widest">Panduan #{idx + 1}</span>
+                          <span className="text-[9px] text-slate-500 font-bold uppercase">{guide.time || 'Membaca 3 Menit'}</span>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                          <div className="space-y-1.5 md:col-span-2">
+                            <label className="text-[8px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Judul Panduan</label>
+                            <input
+                              type="text"
+                              value={guide.title || ''}
+                              onChange={(e) => updateGuideField(idx, 'title', e.target.value)}
+                              className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none"
+                              placeholder="Judul Panduan"
+                              required
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-[8px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Ikon (Lucide)</label>
+                            <select
+                              value={guide.icon || 'Zap'}
+                              onChange={(e) => updateGuideField(idx, 'icon', e.target.value)}
+                              className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none"
+                            >
+                              {['Zap', 'Database', 'Layout', 'Rocket'].map((ico) => (
+                                  <option key={ico} value={ico}>{ico}</option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div className="space-y-1.5">
+                            <label className="text-[8px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Deskripsi Panduan</label>
+                            <textarea
+                              value={guide.desc || ''}
+                              onChange={(e) => updateGuideField(idx, 'desc', e.target.value)}
+                              className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none min-h-[60px] resize-none"
+                              placeholder="Deskripsi ringkas..."
+                              required
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-[8px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Estimasi Waktu Membaca</label>
+                            <input
+                              type="text"
+                              value={guide.time || ''}
+                              onChange={(e) => updateGuideField(idx, 'time', e.target.value)}
+                              className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none"
+                              placeholder="Contoh: Membaca 3 Menit"
+                              required
+                            />
+                          </div>
+                        </div>
+
+                        {/* Steps Editor */}
+                        <div className="space-y-2.5 border-t border-slate-200 dark:border-slate-900 pt-3">
+                          <div className="flex justify-between items-center mb-1">
+                            <h4 className="text-[8px] font-black text-slate-500 dark:text-slate-450 uppercase tracking-widest">Langkah-langkah Utama</h4>
+                            <button
+                              type="button"
+                              onClick={() => addGuideStep(idx)}
+                              className="px-2 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white rounded text-[8px] font-black uppercase tracking-widest transition-all cursor-pointer"
+                            >
+                              + Tambah Langkah
+                            </button>
+                          </div>
+                          <div className="space-y-2">
+                            {(guide.steps || []).map((step: string, stepIdx: number) => (
+                              <div key={stepIdx} className="flex gap-2 items-center">
+                                <span className="text-[9px] text-slate-500 font-bold w-4">{stepIdx + 1}.</span>
+                                <input
+                                  type="text"
+                                  value={step}
+                                  onChange={(e) => updateGuideStep(idx, stepIdx, e.target.value)}
+                                  className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-1.5 text-xs text-slate-800 dark:text-white outline-none"
+                                  placeholder={`Langkah ke-${stepIdx + 1}`}
+                                  required
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => removeGuideStep(idx, stepIdx)}
+                                  className="p-1.5 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-lg transition-all cursor-pointer"
+                                  title="Hapus Langkah"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
 
               <button
                 type="submit"
@@ -1311,13 +1794,12 @@ const AdminPanelPage = ({
             </form>
           </div>
         )}
-
         {/* VIEW: ANALYTICS */}
         {adminView === 'analytics' && (
           <div className="space-y-6 animate-in fade-in duration-300">
-            <div className="border-b border-slate-800 pb-5">
-              <h2 className="text-md font-black uppercase tracking-widest text-white">System Growth & Analytics</h2>
-              <p className="text-[9.5px] text-slate-400 font-bold uppercase tracking-wider mt-1">Pantau grafik pertumbuhan pengunjung, pembuatan halaman, dan keaktifan sistem</p>
+            <div className="border-b border-slate-200 dark:border-slate-800 pb-5">
+              <h2 className="text-md font-black uppercase tracking-widest text-slate-800 dark:text-white">Analitik & Pertumbuhan Sistem</h2>
+              <p className="text-[9.5px] text-slate-550 dark:text-slate-400 font-bold uppercase tracking-wider mt-1">Pantau grafik pertumbuhan pengunjung, pembuatan halaman, dan keaktifan sistem</p>
             </div>
 
             {/* Analytics Statistics Row */}
@@ -1327,9 +1809,9 @@ const AdminPanelPage = ({
                 { label: "Rasio Konversi SEO", value: "94.2% SCORE", trend: "Sangat Optimal" },
                 { label: "Halaman Baru Bulan Ini", value: "+38 SITUS", trend: "Target bulanan tercapai 110%" }
               ].map((an, i) => (
-                <div key={i} className="bg-slate-900/50 border border-slate-800/80 p-6 rounded-2xl shadow-sm space-y-1">
-                  <span className="text-[8.5px] font-black text-slate-400 uppercase tracking-widest block">{an.label}</span>
-                  <h3 className="text-xl font-black text-white leading-none">{an.value}</h3>
+                <div key={i} className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 p-6 rounded-2xl shadow-sm space-y-1">
+                  <span className="text-[8.5px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest block">{an.label}</span>
+                  <h3 className="text-xl font-black text-slate-800 dark:text-white leading-none">{an.value}</h3>
                   <span className="text-[9px] font-bold text-brand-blue uppercase tracking-wider block pt-2">{an.trend}</span>
                 </div>
               ))}
@@ -1338,12 +1820,16 @@ const AdminPanelPage = ({
             {/* Graphic Chart representation using SVG */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* SVG Area Chart: Tren Pengunjung */}
-              <div className="bg-slate-900/50 border border-slate-800/80 p-6 rounded-[24px] space-y-6">
+              <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 p-6 rounded-[24px] space-y-6">
                 <div>
-                  <h3 className="text-xs font-black uppercase tracking-widest text-white">Grafik Kunjungan 7 Hari Terakhir</h3>
-                  <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Total tayangan halaman unik dari semua situs user</p>
+                  <h3 className="text-xs font-black uppercase tracking-widest text-slate-800 dark:text-white">Grafik Kunjungan 7 Hari Terakhir</h3>
+                  <p className="text-[9px] text-slate-550 dark:text-slate-400 font-bold uppercase tracking-wider">Total tayangan halaman unik dari semua situs user</p>
                 </div>
+<<<<<<< Updated upstream
                 <div className="h-64 flex items-center justify-center bg-slate-950/40 rounded-2xl p-4 border border-slate-850">
+=======
+                <div className="h-64 flex items-center justify-center bg-slate-50 dark:bg-slate-950/40 rounded-2xl p-4 border border-slate-200 dark:border-slate-800">
+>>>>>>> Stashed changes
                   <svg className="w-full h-full" viewBox="0 0 500 200" preserveAspectRatio="none">
                     {/* Grid Lines */}
                     <line x1="0" y1="40" x2="500" y2="40" stroke="#1e293b" strokeDasharray="4 4" strokeWidth="1" />
@@ -1410,12 +1896,16 @@ const AdminPanelPage = ({
               </div>
 
               {/* SVG Bar Chart: Distribusi Kategori */}
-              <div className="bg-slate-900/50 border border-slate-800/80 p-6 rounded-[24px] space-y-6">
+              <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 p-6 rounded-[24px] space-y-6">
                 <div>
-                  <h3 className="text-xs font-black uppercase tracking-widest text-white">Distribusi Kategori Situs</h3>
-                  <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Persentase landing page terbit berdasarkan model bisnis</p>
+                  <h3 className="text-xs font-black uppercase tracking-widest text-slate-800 dark:text-white">Distribusi Kategori Situs</h3>
+                  <p className="text-[9px] text-slate-550 dark:text-slate-400 font-bold uppercase tracking-wider">Persentase landing page terbit berdasarkan model bisnis</p>
                 </div>
+<<<<<<< Updated upstream
                 <div className="h-64 flex flex-col justify-around bg-slate-950/40 rounded-2xl p-6 border border-slate-850">
+=======
+                <div className="h-64 flex flex-col justify-around bg-slate-50 dark:bg-slate-950/40 rounded-2xl p-6 border border-slate-200 dark:border-slate-800">
+>>>>>>> Stashed changes
                   {[
                     { name: "Pertanian & Pangan", count: 45, width: "85%", color: "bg-emerald-500" },
                     { name: "Makanan & Retail", count: 28, width: "60%", color: "bg-brand-blue" },
@@ -1423,11 +1913,11 @@ const AdminPanelPage = ({
                     { name: "IoT & Smart Tech", count: 12, width: "25%", color: "bg-amber-500" }
                   ].map((bar, idx) => (
                     <div key={idx} className="space-y-1.5">
-                      <div className="flex justify-between text-[9px] font-black uppercase text-slate-300">
+                      <div className="flex justify-between text-[9px] font-black uppercase text-slate-700 dark:text-slate-300">
                         <span>{bar.name}</span>
-                        <span className="text-white">{bar.count} situs</span>
+                        <span className="text-slate-800 dark:text-white">{bar.count} situs</span>
                       </div>
-                      <div className="w-full bg-slate-900 rounded-full h-2.5 overflow-hidden">
+                      <div className="w-full bg-slate-200 dark:bg-slate-900 rounded-full h-2.5 overflow-hidden">
                         <div className={`h-full ${bar.color} rounded-full`} style={{ width: bar.width }}></div>
                       </div>
                     </div>
@@ -1437,44 +1927,43 @@ const AdminPanelPage = ({
             </div>
           </div>
         )}
-
         {/* MODAL: ADD USER */}
         {showAddUserModal && (
           <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" onClick={() => setShowAddUserModal(false)} />
-            <div className="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-[28px] p-6 shadow-2xl space-y-6 z-10 animate-in fade-in zoom-in-95 duration-200">
-              <div className="border-b border-slate-800 pb-4">
-                <h3 className="text-sm font-black text-white uppercase tracking-widest">Tambah Pengguna Baru</h3>
+            <div className="relative w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[28px] p-6 shadow-2xl space-y-6 z-10 animate-in fade-in zoom-in-95 duration-200">
+              <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
+                <h3 className="text-sm font-black text-slate-850 dark:text-white uppercase tracking-widest">Tambah Pengguna Baru</h3>
               </div>
               <form onSubmit={handleAddUserMock} className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Nama Lengkap</label>
+                  <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Nama Lengkap</label>
                   <input
                     type="text"
                     value={newUserData.name}
                     onChange={(e) => setNewUserData({ ...newUserData, name: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none"
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none"
                     placeholder="Masukkan nama lengkap"
                     required
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Email</label>
+                  <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Email</label>
                   <input
                     type="email"
                     value={newUserData.email}
                     onChange={(e) => setNewUserData({ ...newUserData, email: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none"
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none"
                     placeholder="contoh@domain.com"
                     required
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Peran / Role</label>
+                  <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Peran / Role</label>
                   <select
                     value={newUserData.role}
                     onChange={(e) => setNewUserData({ ...newUserData, role: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none"
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none"
                   >
                     <option value="USER">USER</option>
                     <option value="ADMIN">ADMIN</option>
@@ -1484,7 +1973,7 @@ const AdminPanelPage = ({
                   <button
                     type="button"
                     onClick={() => setShowAddUserModal(false)}
-                    className="flex-1 py-3 text-[9px] font-black text-slate-400 hover:text-white uppercase tracking-widest border border-slate-800 hover:border-slate-700 rounded-xl transition-all cursor-pointer"
+                    className="flex-1 py-3 text-[9px] font-black text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white uppercase tracking-widest border border-slate-200 dark:border-slate-850 hover:border-slate-350 dark:hover:border-slate-700 rounded-xl transition-all cursor-pointer"
                   >
                     Batal
                   </button>
@@ -1504,28 +1993,28 @@ const AdminPanelPage = ({
         {showAddTemplateModal && (
           <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" onClick={() => setShowAddTemplateModal(false)} />
-            <div className="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-[28px] p-6 shadow-2xl space-y-6 z-10 animate-in fade-in zoom-in-95 duration-200">
-              <div className="border-b border-slate-800 pb-4">
-                <h3 className="text-sm font-black text-white uppercase tracking-widest">Tambah Template Baru</h3>
+            <div className="relative w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[28px] p-6 shadow-2xl space-y-6 z-10 animate-in fade-in zoom-in-95 duration-200">
+              <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
+                <h3 className="text-sm font-black text-slate-850 dark:text-white uppercase tracking-widest">Tambah Template Baru</h3>
               </div>
               <form onSubmit={handleAddTemplateMock} className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Nama Template</label>
+                  <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Nama Template</label>
                   <input
                     type="text"
                     value={newTemplateData.name}
                     onChange={(e) => setNewTemplateData({ ...newTemplateData, name: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none"
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none"
                     placeholder="Masukkan nama template"
                     required
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Kategori</label>
+                  <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Kategori</label>
                   <select
                     value={newTemplateData.category}
                     onChange={(e) => setNewTemplateData({ ...newTemplateData, category: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none"
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none"
                   >
                     <option value="Makanan & Retail">Makanan & Retail</option>
                     <option value="Jasa Profesional">Jasa Profesional</option>
@@ -1534,22 +2023,22 @@ const AdminPanelPage = ({
                   </select>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Deskripsi Singkat</label>
+                  <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Deskripsi Singkat</label>
                   <input
                     type="text"
                     value={newTemplateData.description}
                     onChange={(e) => setNewTemplateData({ ...newTemplateData, description: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none"
+                    className="w-full bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none"
                     placeholder="Deskripsi template"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Thumbnail URL</label>
+                  <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Thumbnail URL</label>
                   <input
                     type="text"
                     value={newTemplateData.thumbnail}
                     onChange={(e) => setNewTemplateData({ ...newTemplateData, thumbnail: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none"
+                    className="w-full bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none"
                     placeholder="https://..."
                   />
                 </div>
@@ -1557,7 +2046,7 @@ const AdminPanelPage = ({
                   <button
                     type="button"
                     onClick={() => setShowAddTemplateModal(false)}
-                    className="flex-1 py-3 text-[9px] font-black text-slate-400 hover:text-white uppercase tracking-widest border border-slate-800 hover:border-slate-700 rounded-xl transition-all cursor-pointer"
+                    className="flex-1 py-3 text-[9px] font-black text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white uppercase tracking-widest border border-slate-200 dark:border-slate-850 hover:border-slate-350 dark:hover:border-slate-700 rounded-xl transition-all cursor-pointer"
                   >
                     Batal
                   </button>
@@ -1574,26 +2063,34 @@ const AdminPanelPage = ({
         )}
 
 
-
         {/* VIEW: ADMIN PROFILE */}
         {adminView === 'profile' && (
           <div className="space-y-6 animate-in fade-in duration-300">
-            <div className="border-b border-slate-800 pb-5">
-              <h2 className="text-md font-black uppercase tracking-widest text-white">Administrator Profile</h2>
+            <div className="border-b border-slate-200 dark:border-slate-800 pb-5">
+              <h2 className="text-md font-black uppercase tracking-widest text-slate-800 dark:text-white">Profil Administrator</h2>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl">
               {/* Left Card: Account Information */}
-              <div className="bg-slate-900/50 border border-slate-800/80 rounded-[24px] p-8 shadow-sm space-y-6 flex flex-col justify-between">
+              <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 rounded-[24px] p-8 shadow-sm space-y-6 flex flex-col justify-between">
                 <div>
-                  <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 pb-4 border-b border-slate-800/60">Informasi Akun</h3>
+                  <h3 className="text-xs font-black text-slate-550 dark:text-slate-400 uppercase tracking-widest mb-6 pb-4 border-b border-slate-200 dark:border-slate-800/60">Informasi Akun</h3>
                   <div className="space-y-4 text-xs">
+<<<<<<< Updated upstream
                     <div className="flex flex-col gap-1.5 p-3.5 bg-slate-950/40 border border-slate-850 rounded-2xl">
                       <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">EMAIL OPERASIONAL</span>
                       <span className="text-white font-bold">admin@unilanfarm.com</span>
                     </div>
                     <div className="flex flex-col gap-1.5 p-3.5 bg-slate-950/40 border border-slate-850 rounded-2xl">
                       <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">TIPE HAK AKSES</span>
+=======
+                    <div className="flex flex-col gap-1.5 p-3.5 bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-2xl">
+                      <span className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">EMAIL OPERASIONAL</span>
+                      <span className="text-slate-800 dark:text-white font-bold">admin@unilanfarm.com</span>
+                    </div>
+                    <div className="flex flex-col gap-1.5 p-3.5 bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-2xl">
+                      <span className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">TIPE HAK AKSES</span>
+>>>>>>> Stashed changes
                       <span className="text-brand-blue font-bold">SYSTEM ROOT ADMINISTRATOR</span>
                     </div>
                   </div>
@@ -1610,38 +2107,38 @@ const AdminPanelPage = ({
               </div>
 
               {/* Right Card: Change Password Form */}
-              <div className="bg-slate-900/50 border border-slate-800/80 rounded-[24px] p-8 shadow-sm">
-                <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 pb-4 border-b border-slate-800/60">Keamanan & Ubah Password</h3>
+              <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 rounded-[24px] p-8 shadow-sm">
+                <h3 className="text-xs font-black text-slate-550 dark:text-slate-400 uppercase tracking-widest mb-6 pb-4 border-b border-slate-200 dark:border-slate-800/60">Keamanan & Ubah Password</h3>
                 <form onSubmit={handleAdminChangePassword} className="space-y-4">
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Password Saat Ini</label>
+                    <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Password Saat Ini</label>
                     <input
                       type="password"
                       value={oldPassword}
                       onChange={(e) => setOldPassword(e.target.value)}
-                      className="w-full bg-slate-950/60 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none transition-all"
+                      className="w-full bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none transition-all"
                       placeholder="••••••••"
                       required
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Password Baru</label>
+                    <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Password Baru</label>
                     <input
                       type="password"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      className="w-full bg-slate-950/60 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none transition-all"
+                      className="w-full bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none transition-all"
                       placeholder="Minimal 6 karakter"
                       required
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Konfirmasi Password Baru</label>
+                    <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Konfirmasi Password Baru</label>
                     <input
                       type="password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="w-full bg-slate-950/60 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none transition-all"
+                      className="w-full bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none transition-all"
                       placeholder="Ulangi password baru"
                       required
                     />

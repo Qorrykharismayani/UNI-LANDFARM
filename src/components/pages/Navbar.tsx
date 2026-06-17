@@ -7,9 +7,10 @@ interface NavbarProps {
   currentView: string;
   theme: string;
   toggleTheme: () => void;
+  systemSettings?: any;
 }
 
-const Navbar = ({ setView, currentView, theme, toggleTheme }: NavbarProps) => {
+const Navbar = ({ setView, currentView, theme, toggleTheme, systemSettings }: NavbarProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const menuItems = [
@@ -28,7 +29,11 @@ const Navbar = ({ setView, currentView, theme, toggleTheme }: NavbarProps) => {
           className="flex items-center gap-3 group cursor-pointer flex-shrink-0"
           onClick={() => setView('home')}
         >
-          <img src="/logo.png?v=8" alt="Uni-LandFarm Logo" className="h-[78px] object-contain" />
+          {systemSettings?.logo && (systemSettings.logo.startsWith('http') || systemSettings.logo.startsWith('/')) ? (
+            <img src={systemSettings.logo.startsWith('/') ? `${systemSettings.logo}?v=8` : systemSettings.logo} alt="Logo" className="h-[78px] object-contain" />
+          ) : (
+            <img src="/logo.png?v=8" alt="Uni-LandFarm Logo" className="h-[78px] object-contain" />
+          )}
         </div>
         
         {/* Desktop Nav */}

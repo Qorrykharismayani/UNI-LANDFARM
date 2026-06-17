@@ -28,7 +28,7 @@ model User {
   mediaFiles       MediaFile[]
   notifications    Notification[]
   reviewedRequests PublishRequest[] @relation("ReviewedByAdmin")
-  articles         Article[]
+  contentSchedules ContentSchedule[]
 
   @@map("users")
 }
@@ -68,6 +68,7 @@ model LandingPage {
   mediaFiles      MediaFile[]
   publishRequests PublishRequest[]
   content         TemplateSection?
+  contentSchedules ContentSchedule[]
 
   @@index([templateId], map: "landing_pages_templateId_fkey")
   @@index([userId], map: "landing_pages_userId_fkey")
@@ -162,18 +163,19 @@ model Notification {
   @@map("notifications")
 }
 
-model Article {
-  id          Int      @id @default(autoincrement())
-  userId      Int
-  title       String
-  status      String   @default("Draft")
-  author      String
-  scoreBefore Int      @default(0)
-  scoreAfter  Int      @default(0)
-  date        DateTime @default(now())
-  type        String   @default("Blog Post")
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+model ContentSchedule {
+  id             Int          @id @default(autoincrement())
+  userId         Int
+  landingPageId  Int
+  title          String       // Nama Jadwal
+  component      String       // Komponen yang akan diubah (e.g. Hero Title)
+  newValue       String       @db.Text // Nilai Baru
+  date           DateTime     @default(now()) // Waktu Eksekusi
+  status         String       @default("Scheduled") // Scheduled, Queued, Completed, Failed
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  landingPage    LandingPage  @relation(fields: [landingPageId], references: [id], onDelete: Cascade)
 
-  @@index([userId], map: "articles_userId_fkey")
-  @@map("articles")
+  @@index([userId], map: "content_schedules_userId_fkey")
+  @@index([landingPageId], map: "content_schedules_landingPageId_fkey")
+  @@map("content_schedules")
 }

@@ -89,6 +89,8 @@ export async function GET(request: Request) {
       businessName: p.businessName,
       title: p.title,
       createdDate: p.createdAt.toISOString().split('T')[0],
+      createdAt: p.createdAt.toISOString(),
+      publishedAt: p.publishedAt ? p.publishedAt.toISOString() : null,
       status: p.status,
       views: p.views,
       type: p.template.category,

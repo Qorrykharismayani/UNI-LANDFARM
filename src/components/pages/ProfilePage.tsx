@@ -36,8 +36,8 @@ const ProfilePage = ({
     ? user.name.charAt(0).toUpperCase() 
     : (user?.email ? user.email.charAt(0).toUpperCase() : '?');
   const isSubscribed = user?.plan && user?.plan !== 'Regular Access' && user?.plan !== '-';
-  const planDisplay = isSubscribed ? user.plan : '-';
-  const tokensDisplay = isSubscribed ? `${user.tokens?.toLocaleString()} PTS` : '-';
+  const planDisplay = user?.plan || 'Regular Access';
+  const tokensDisplay = `${(user?.tokens ?? 0).toLocaleString()} PTS`;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500 relative">
@@ -106,7 +106,7 @@ const ProfilePage = ({
                   <label className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Nama Lengkap</label>
                   <input
                     type="text"
-                    value={profileData.name}
+                    value={profileData.name || ''}
                     onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
                     className="w-full bg-slate-50 dark:bg-slate-900/50 border-2 border-transparent focus:border-brand-blue/30 rounded-2xl p-4 text-xs font-black outline-none transition-all text-slate-900 dark:text-white"
                     placeholder="Nama Lengkap"
@@ -116,7 +116,7 @@ const ProfilePage = ({
                   <label className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Email Bisnis (Tetap)</label>
                   <input
                     type="email"
-                    value={profileData.email}
+                    value={profileData.email || ''}
                     disabled
                     className="w-full bg-slate-100/80 dark:bg-slate-900/80 border-2 border-transparent rounded-2xl p-4 text-xs font-black outline-none transition-all text-slate-400 dark:text-slate-600 cursor-not-allowed"
                   />
@@ -125,7 +125,7 @@ const ProfilePage = ({
                   <label className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Nomor Telepon</label>
                   <input
                     type="text"
-                    value={profileData.phone}
+                    value={profileData.phone || ''}
                     onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
                     className="w-full bg-slate-50 dark:bg-slate-900/50 border-2 border-transparent focus:border-brand-blue/30 rounded-2xl p-4 text-xs font-black outline-none transition-all text-slate-900 dark:text-white"
                     placeholder="Contoh: 0812-3456-7890"
@@ -135,7 +135,7 @@ const ProfilePage = ({
                   <label className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Domisili</label>
                   <input
                     type="text"
-                    value={profileData.location}
+                    value={profileData.location || ''}
                     onChange={(e) => setProfileData({ ...profileData, location: e.target.value })}
                     className="w-full bg-slate-50 dark:bg-slate-900/50 border-2 border-transparent focus:border-brand-blue/30 rounded-2xl p-4 text-xs font-black outline-none transition-all text-slate-900 dark:text-white"
                     placeholder="Contoh: Jakarta, Indonesia"

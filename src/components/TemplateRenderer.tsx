@@ -70,6 +70,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
   // 1. UMKM Template Layout (Makanan & Retail)
   if (tid === 'tpl-umkm' || tid === 'Makanan & Retail') {
+    const primaryColor = c.themeColor || '#d97706';
     const defaultSectionsList = [
       { id: 'logo', status: 'Aktif' },
       { id: 'navbar', status: 'Aktif' },
@@ -114,7 +115,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
               {logo ? (
                 <img src={logo} alt="Logo" className={`${isMobile ? 'w-9 h-9' : 'w-16 h-16'} object-contain`} />
               ) : (
-                <div className="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center text-white font-black">L</div>
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-black" style={{ backgroundColor: primaryColor }}>L</div>
               )}
               <span className={`tracking-tight uppercase font-black text-amber-950 ${isMobile ? 'text-[10px] leading-tight line-clamp-2' : 'text-lg'}`}>{navbar.brand || 'UMKM Nusantara'}</span>
             </div>
@@ -130,8 +131,13 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                 href={`https://wa.me/${contact.whatsapp}`} 
                 target="_blank" 
                 rel="noopener noreferrer"
+<<<<<<< Updated upstream
                 className={`bg-amber-650 hover:bg-amber-700 text-white rounded-full font-bold uppercase tracking-wider transition-all shadow-sm ${isMobile ? 'px-3 py-1.5 text-[9px] shrink-0' : 'px-5 py-2.5 text-xs'}`}
                 style={{ backgroundColor: '#d97706' }}
+=======
+                className={`bg-amber-600 hover:bg-amber-700 text-white rounded-full font-bold uppercase tracking-wider transition-all shadow-sm ${isMobile ? 'px-3 py-1.5 text-[9px] shrink-0' : 'px-5 py-2.5 text-xs'}`}
+                style={{ backgroundColor: primaryColor }}
+>>>>>>> Stashed changes
               >
                 Order WA
               </a>
@@ -173,7 +179,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                         target="_blank"
                         rel="noopener noreferrer"
                         className={`inline-flex items-center gap-3 bg-amber-600 text-white font-black uppercase tracking-widest hover:bg-amber-700 transition-all shadow-lg hover:scale-105 ${isMobile ? 'px-5 py-3 text-xs rounded-xl' : 'px-8 py-4 text-sm rounded-2xl'}`}
-                        style={{ backgroundColor: '#d97706' }}
+                        style={{ backgroundColor: primaryColor }}
                       >
                         {hero.cta || 'Beli Sekarang'} <ShoppingCart className="w-4 h-4" />
                       </a>
@@ -196,7 +202,11 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                   <div className={`max-w-4xl mx-auto text-center ${isMobile ? 'space-y-6' : 'space-y-12'}`}>
                     <div className="space-y-3">
                       <h2 className={`font-black text-amber-950 uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Kisah Di Balik Produk Kami</h2>
+<<<<<<< Updated upstream
                       <div className="w-16 h-1.5 bg-amber-550 mx-auto rounded-full" style={{ backgroundColor: '#d97706' }} />
+=======
+                      <div className="w-16 h-1.5 mx-auto rounded-full" style={{ backgroundColor: primaryColor }} />
+>>>>>>> Stashed changes
                     </div>
                     <div className={`grid gap-8 text-left ${isMobile ? 'grid-cols-1 gap-6' : 'grid-cols-1 md:grid-cols-3'}`}>
                       <div className="bg-white p-6 rounded-2xl border border-amber-100/50 shadow-sm space-y-3">
@@ -222,7 +232,11 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                   <div className="text-center space-y-3">
                     <h2 className={`font-black text-amber-950 uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Produk Pilihan Terbaik</h2>
                     <p className={`text-amber-900/60 max-w-lg mx-auto font-bold uppercase tracking-widest ${isMobile ? 'text-[9px]' : 'text-[10px] md:text-xs'}`}>Segar, berkualitas, diproduksi langsung dari petani & pengrajin lokal</p>
+<<<<<<< Updated upstream
                     <div className="w-16 h-1.5 bg-amber-550 mx-auto rounded-full" style={{ backgroundColor: '#d97706' }} />
+=======
+                    <div className="w-16 h-1.5 mx-auto rounded-full" style={{ backgroundColor: primaryColor }} />
+>>>>>>> Stashed changes
                   </div>
                   <div className={`grid gap-8 ${isMobile ? 'grid-cols-1 gap-6' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'}`}>
                     {products.map((prod, i) => (
@@ -233,7 +247,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-amber-400 font-bold uppercase text-[10px] tracking-widest">[ Image {i+1} ]</div>
                           )}
-                          <div className="absolute bottom-4 right-4 bg-amber-600 text-white font-black px-3 py-1 rounded-xl text-xs" style={{ backgroundColor: '#d97706' }}>
+                          <div className="absolute bottom-4 right-4 text-white font-black px-3 py-1 rounded-xl text-xs" style={{ backgroundColor: primaryColor }}>
                             {prod.price}
                           </div>
                         </div>
@@ -281,7 +295,11 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                 <section key="gallery" className={`max-w-6xl mx-auto ${isMobile ? 'py-8 px-4 space-y-6' : 'py-20 px-6 md:px-12 space-y-12'}`}>
                   <div className="text-center space-y-3">
                     <h2 className={`font-black text-amber-950 uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Galeri Kegiatan Kami</h2>
+<<<<<<< Updated upstream
                     <div className="w-16 h-1.5 bg-amber-550 mx-auto rounded-full" style={{ backgroundColor: '#d97706' }} />
+=======
+                    <div className="w-16 h-1.5 mx-auto rounded-full" style={{ backgroundColor: primaryColor }} />
+>>>>>>> Stashed changes
                   </div>
                   <div className={`grid gap-6 ${isMobile ? 'grid-cols-2 gap-4' : 'grid-cols-2 md:grid-cols-3'}`}>
                     {gallery.map((img, i) => (
@@ -303,7 +321,11 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                   <div className={`max-w-4xl mx-auto text-center ${isMobile ? 'space-y-6' : 'space-y-12'}`}>
                     <div className="space-y-3">
                       <h2 className={`font-black text-amber-950 uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Ulasan Pelanggan</h2>
+<<<<<<< Updated upstream
                       <div className="w-16 h-1.5 bg-amber-550 mx-auto rounded-full" style={{ backgroundColor: '#d97706' }} />
+=======
+                      <div className="w-16 h-1.5 mx-auto rounded-full" style={{ backgroundColor: primaryColor }} />
+>>>>>>> Stashed changes
                     </div>
                     <div className={`grid gap-8 text-left ${isMobile ? 'grid-cols-1 gap-6' : 'grid-cols-1 md:grid-cols-2'}`}>
                       {testimonials.map((t, i) => (
@@ -336,7 +358,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                       target="_blank"
                       rel="noopener noreferrer"
                       className={`inline-flex items-center gap-3 bg-amber-600 text-white font-black uppercase tracking-widest hover:bg-amber-700 transition-all shadow-lg ${isMobile ? 'px-5 py-3 text-xs rounded-xl' : 'px-8 py-4 text-sm rounded-2xl'}`}
-                      style={{ backgroundColor: '#d97706' }}
+                      style={{ backgroundColor: primaryColor }}
                     >
                       {cta.buttonText || 'Hubungi Kami'} <MessageCircle className="w-4.5 h-4.5" />
                     </a>
@@ -410,8 +432,8 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
   // Fallback for other templates (Jasa, Promo, Portfolio, Event)
   const isDarkTheme = tid === 'tpl-portfolio' || tid === 'Agensi & Kreatif' || tid === 'tpl-promo' || tid === 'Campaign & Promo';
   
-  let primaryColor = '#3a86ff'; // Brand Blue
-  let primaryColorHover = '#2563eb';
+  let primaryColor = c.themeColor || '#3a86ff'; // Brand Blue
+  let primaryColorHover = c.themeColor ? `${c.themeColor}dd` : '#2563eb';
   let bgColor = isDarkTheme ? 'bg-[#0b0f19]' : 'bg-slate-50';
   let textColor = isDarkTheme ? 'text-slate-100' : 'text-slate-900';
   let cardColor = isDarkTheme ? 'bg-slate-900/60 border-slate-800' : 'bg-white border-slate-100';

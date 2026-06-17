@@ -2,27 +2,29 @@ import React from 'react';
 import { Sparkles, Target, Rocket, CheckCircle2, Bot, Zap } from 'lucide-react';
 import { motion } from 'motion/react';
 
-export const Testimonials = () => {
-  const testimonials = [
-    {
-      name: "Budi Santoso",
-      role: "CEO of TechFlow",
-      content: "Uni-LandFarm benar-benar mengubah cara kami mengelola kehadiran digital. AI-nya sangat intuitif dan membantu kami menghemat waktu hingga 70%.",
-      avatar: "https://picsum.photos/seed/budi/100/100"
-    },
-    {
-      name: "Sari Wijaya",
-      role: "Founder of CreativeHub",
-      content: "Landing page yang dihasilkan AI sangat profesional. Saya tidak menyangka bisa membangun situs sekelas agensi dalam hitungan menit.",
-      avatar: "https://picsum.photos/seed/sari/100/100"
-    },
-    {
-      name: "Andi Pratama",
-      role: "Marketing Director",
-      content: "Fitur Agentic AI CMS adalah game changer. Konten kami sekarang teroptimasi secara otomatis untuk SEO dan audiens kami.",
-      avatar: "https://picsum.photos/seed/andi/100/100"
-    }
-  ];
+export const Testimonials = ({ systemSettings }: { systemSettings?: any }) => {
+  const testimonials = (systemSettings?.testimonialsJson && systemSettings.testimonialsJson.length > 0)
+    ? systemSettings.testimonialsJson
+    : [
+        {
+          name: "Budi Santoso",
+          role: "CEO of TechFlow",
+          content: "Uni-LandFarm benar-benar mengubah cara kami mengelola kehadiran digital. AI-nya sangat intuitif dan membantu kami menghemat waktu hingga 70%.",
+          avatar: "https://picsum.photos/seed/budi/100/100"
+        },
+        {
+          name: "Sari Wijaya",
+          role: "Founder of CreativeHub",
+          content: "Landing page yang dihasilkan AI sangat profesional. Saya tidak menyangka bisa membangun situs sekelas agensi dalam hitungan menit.",
+          avatar: "https://picsum.photos/seed/sari/100/100"
+        },
+        {
+          name: "Andi Pratama",
+          role: "Marketing Director",
+          content: "Fitur Agentic AI CMS adalah game changer. Konten kami sekarang teroptimasi secara otomatis untuk SEO dan audiens kami.",
+          avatar: "https://picsum.photos/seed/andi/100/100"
+        }
+      ];
 
   return (
     <section className="py-32 px-6 bg-slate-50 dark:bg-slate-900 relative overflow-hidden transition-colors duration-300">
@@ -73,13 +75,15 @@ export const Testimonials = () => {
   );
 };
 
-export const FAQ = () => {
-  const faqs = [
-    { q: "Apakah saya perlu keahlian coding?", a: "Tidak sama sekali. Uni-LandFarm dirancang untuk pebisnis tanpa latar belakang teknis. AI kami menangani semua aspek teknis.", color: "bg-blue-500" },
-    { q: "Berapa lama waktu yang dibutuhkan untuk membuat situs?", a: "Hanya butuh sekitar 30-60 detik untuk menghasilkan draf pertama yang profesional.", color: "bg-purple-500" },
-    { q: "Apakah situs saya akan SEO-friendly?", a: "Ya, AI kami secara otomatis mengoptimalkan struktur, meta tag, dan konten untuk mesin pencari.", color: "bg-indigo-500" },
-    { q: "Bisakah saya menggunakan domain sendiri?", a: "Tentu. Anda dapat menghubungkan domain kustom Anda dengan mudah di dashboard.", color: "bg-violet-500" }
-  ];
+export const FAQ = ({ systemSettings }: { systemSettings?: any }) => {
+  const faqs = (systemSettings?.faqsJson && systemSettings.faqsJson.length > 0)
+    ? systemSettings.faqsJson
+    : [
+        { q: "Apakah saya perlu keahlian coding?", a: "Tidak sama sekali. Uni-LandFarm dirancang untuk pebisnis tanpa latar belakang teknis. AI kami menangani semua aspek teknis.", color: "bg-blue-500" },
+        { q: "Berapa lama waktu yang dibutuhkan untuk membuat situs?", a: "Hanya butuh sekitar 30-60 detik untuk menghasilkan draf pertama yang profesional.", color: "bg-purple-500" },
+        { q: "Apakah situs saya akan SEO-friendly?", a: "Ya, AI kami secara otomatis mengoptimalkan struktur, meta tag, dan konten untuk mesin pencari.", color: "bg-indigo-500" },
+        { q: "Bisakah saya menggunakan domain sendiri?", a: "Tentu. Anda dapat menghubungkan domain kustom Anda dengan mudah di dashboard.", color: "bg-violet-500" }
+      ];
 
   return (
     <section className="py-32 px-6 bg-white dark:bg-slate-950 relative overflow-hidden transition-colors duration-300">

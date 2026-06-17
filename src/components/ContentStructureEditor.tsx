@@ -5,6 +5,7 @@ import {
   Tablet,
   Smartphone,
   Bot,
+  Calendar,
   ChevronRight,
   Image as ImageIcon,
   Upload,
@@ -199,17 +200,33 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
   const [aiSuggestions, setAiSuggestions] = useState<any>(null);
   
   // Custom Scheduler Timeline States
-  const [schedules, setSchedules] = useState<any[]>([
-    { title: "Promo Ramadhan Kopi Nusantara", date: "Besok 09:00", status: "Scheduled" },
-    { title: "Tips Memilih Biji Kopi Robusta", date: "Besok 10:00", status: "Queued" },
-    { title: "Promo Akhir Pekan", date: "Jumat 08:00", status: "Published" }
-  ]);
+  const [schedules, setSchedules] = useState<any[]>([]);
   const [isSchedulerModalOpen, setIsSchedulerModalOpen] = useState(false);
   const [newScheduleTitle, setNewScheduleTitle] = useState('');
   const [newScheduleDate, setNewScheduleDate] = useState('');
   const [newScheduleStatus, setNewScheduleStatus] = useState('Scheduled');
+  const [newScheduleComponent, setNewScheduleComponent] = useState('Hero Title');
+  const [newScheduleValue, setNewScheduleValue] = useState('');
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
   const [isPublishedSuccess, setIsPublishedSuccess] = useState(false);
+
+  const fetchPageSchedules = async () => {
+    try {
+      const res = await fetch(`/api/content-schedules?landingPageId=${pageId}`);
+      const data = await res.json();
+      if (data.success && Array.isArray(data.data)) {
+        setSchedules(data.data);
+      }
+    } catch (err) {
+      console.warn("Gagal memuat jadwal halaman:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (pageId) {
+      fetchPageSchedules();
+    }
+  }, [pageId]);
 
   // Sections List State (Allows Reordering & Activation)
   const [sections, setSections] = useState<any[]>([
@@ -647,20 +664,40 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
   };
 
   // Add item to schedule list
-  const handleAddSchedule = () => {
-    if (!newScheduleTitle.trim() || !newScheduleDate.trim()) {
-      triggerToast('Judul dan waktu publikasi harus diisi!');
+  const handleAddSchedule = async () => {
+    if (!newScheduleTitle.trim() || !newScheduleDate.trim() || !newScheduleValue.trim()) {
+      triggerToast('Semua kolom jadwal wajib diisi!');
       return;
     }
-    setSchedules(prev => [
-      ...prev,
-      { title: newScheduleTitle, date: newScheduleDate, status: newScheduleStatus }
-    ]);
-    setNewScheduleTitle('');
-    setNewScheduleDate('');
-    setNewScheduleStatus('Scheduled');
-    setIsSchedulerModalOpen(false);
-    triggerToast('Konten baru berhasil dijadwalkan!');
+    try {
+      const res = await fetch('/api/content-schedules', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: newScheduleTitle,
+          landingPageId: Number(pageId),
+          component: newScheduleComponent,
+          newValue: newScheduleValue,
+          date: new Date(newScheduleDate).toISOString(),
+          status: newScheduleStatus
+        })
+      });
+      const data = await res.json();
+      if (data.success && data.data) {
+        setSchedules(prev => [data.data, ...prev]);
+        setNewScheduleTitle('');
+        setNewScheduleDate('');
+        setNewScheduleValue('');
+        setNewScheduleStatus('Scheduled');
+        setIsSchedulerModalOpen(false);
+        triggerToast('Jadwal perubahan konten berhasil disimpan!');
+      } else {
+        triggerToast(data.message || 'Gagal menyimpan jadwal.');
+      }
+    } catch (err) {
+      console.error(err);
+      triggerToast('Terjadi kesalahan koneksi.');
+    }
   };
 
   if (loading) {
@@ -984,7 +1021,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
         <div className="flex items-center bg-slate-50 dark:bg-slate-950 p-0.5 rounded-xl border border-slate-200 dark:border-slate-800 gap-0.5">
           {[
             { id: 'sections', label: 'Daftar Section', icon: <Layers className="w-3 h-3" /> },
-            { id: 'ai_writer', label: 'Tulis dengan AI & Jadwal', icon: <Bot className="w-3 h-3" /> },
+            { id: 'ai_writer', label: 'AI Content Scheduler', icon: <Bot className="w-3 h-3" /> },
             { id: 'preview', label: 'Preview Situs', icon: <Eye className="w-3 h-3" /> }
           ].map(tab => (
             <button
@@ -1821,7 +1858,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
           </div>
         )}
 
-        {/* TAB 2: TULIS DENGAN AI & JADWAL */}
+        {/* TAB 2: AI CONTENT SCHEDULER */}
         {activeTab === 'ai_writer' && (
           <div className="flex-grow overflow-y-auto p-4 md:p-5 max-w-5xl mx-auto w-full space-y-5 custom-scrollbar pb-16">
             {/* Redesigned AI Header with Gradient and premium layout */}
@@ -1834,10 +1871,10 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                 </div>
                 <div>
                   <h2 className="text-lg font-black tracking-wide flex items-center gap-1.5 leading-none">
-                    🤖 AI Copywriting & Scheduling Assistant
+                    🤖 AI Content Scheduler
                   </h2>
                   <p className="text-xs text-white/90 font-medium mt-1 max-w-xl leading-relaxed">
-                    Buat konten landing page yang persuasif dan jadwalkan publikasi secara otomatis dengan bantuan AI.
+                    Buat konten menggunakan AI dan jadwalkan perubahan elemen landing page otomatis.
                   </p>
                 </div>
               </div>
@@ -1872,27 +1909,27 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                     {[
                       {
                         id: 'headline',
-                        title: '✨ Headline Hero',
-                        desc: 'Buat headline yang menarik perhatian',
-                        prompt: 'Buat headline yang menarik perhatian untuk target section Hero Banner'
+                        title: 'Headline Hero',
+                        desc: 'Generate headline persuasif',
+                        prompt: 'Buat headline utama yang sangat menarik dan persuasif untuk bisnis kami'
                       },
                       {
                         id: 'cta',
-                        title: '✨ CTA WhatsApp',
-                        desc: 'Buat ajakan tindakan yang meningkatkan konversi',
-                        prompt: 'Buat ajakan tindakan WhatsApp yang meyakinkan untuk meningkatkan penjualan'
+                        title: 'CTA Promosi',
+                        desc: 'Generate ajakan tindakan',
+                        prompt: 'Buat ajakan tindakan / CTA Button yang meyakinkan untuk memicu penjualan langsung'
                       },
                       {
                         id: 'product',
-                        title: '✨ Deskripsi Produk',
-                        desc: 'Buat deskripsi yang persuasif',
-                        prompt: 'Buat deskripsi produk yang persuasif, informatif, dan menonjolkan keunggulan produk'
+                        title: 'Deskripsi Produk',
+                        desc: 'Generate spesifikasi visual',
+                        prompt: 'Buat deskripsi produk yang informatif, menarik, dan menonjolkan fitur unik'
                       },
                       {
                         id: 'advantage',
-                        title: '✨ Keunggulan Bisnis',
-                        desc: 'Tonjolkan nilai unik usaha',
-                        prompt: 'Buat daftar keunggulan bisnis yang unik, kredibel, dan membujuk pembaca'
+                        title: 'Keunggulan Bisnis',
+                        desc: 'Generate poin keunggulan',
+                        prompt: 'Buat poin-poin keunggulan bisnis utama yang kredibel dan menonjolkan value proposition'
                       }
                     ].map((preset) => {
                       const isActive = selectedPreset === preset.id;
@@ -1931,8 +1968,13 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                       setAiCommand(e.target.value);
                       setSelectedPreset(null);
                     }}
+<<<<<<< Updated upstream
                     placeholder="Tuliskan instruksi untuk AI. Contoh: Buat headline yang meyakinkan untuk jasa kebersihan rumah dengan gaya profesional dan terpercaya."
                     className="w-full bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl p-3 text-xs text-slate-800 dark:text-slate-200 outline-none resize-none h-24 focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all leading-relaxed placeholder:text-slate-400"
+=======
+                    placeholder="Tuliskan instruksi untuk AI. Contoh: Buat headline diskon 30% menyambut grand opening toko kopi."
+                    className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 text-xs text-slate-800 dark:text-slate-200 outline-none resize-none h-24 focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all leading-relaxed placeholder:text-slate-400"
+>>>>>>> Stashed changes
                   />
                 </div>
 
@@ -1944,7 +1986,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                 >
                   {isGeneratingCopy ? (
                     <>
-                      <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Menulis salinan copywriting...
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Menganalisis konten...
                     </>
                   ) : (
                     <>
@@ -1973,18 +2015,9 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                         Pilih preset atau tulis instruksi, lalu klik Generate Konten AI untuk menghasilkan copywriting secara instan.
                       </p>
                     </div>
-                    <button
-                      onClick={() => {
-                        setAiCommand('Buat headline yang meyakinkan untuk bisnis kami dengan gaya profesional.');
-                        setSelectedPreset('headline');
-                      }}
-                      className="px-5 py-2 bg-green-50 hover:bg-green-100 dark:bg-green-950/20 dark:hover:bg-green-950/30 text-green-600 dark:text-green-400 border border-green-200 dark:border-green-800/50 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer"
-                    >
-                      Generate Sekarang
-                    </button>
                   </div>
                 ) : (
-                  /* Results Available (Card with light green border) */
+                  /* Results Available */
                   <div className="flex-grow flex flex-col justify-between space-y-4 animate-in fade-in duration-300">
                     <div className="flex-1 p-4 bg-green-50/20 dark:bg-green-950/10 border border-green-500/20 dark:border-green-800/50 rounded-xl space-y-4 text-xs">
                       <div className="flex items-center justify-between border-b border-green-500/10 dark:border-green-800/20 pb-2">
@@ -1996,12 +2029,18 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
 
                       <div className="space-y-3">
                         {aiSuggestions.suggestedData?.headline && (
+<<<<<<< Updated upstream
                           <div className="bg-white dark:bg-slate-950 p-3 rounded-lg border border-slate-100 dark:border-slate-850 shadow-sm space-y-1">
                             <span className="text-[9px] font-black text-slate-455 dark:text-slate-400 uppercase tracking-widest block">Headline / Title</span>
+=======
+                          <div className="bg-white dark:bg-slate-950 p-3 rounded-lg border border-slate-100 dark:border-slate-800 shadow-sm space-y-1">
+                            <span className="text-[9px] font-black text-slate-400 dark:text-slate-450 uppercase tracking-widest block">Headline / Title</span>
+>>>>>>> Stashed changes
                             <p className="font-extrabold text-slate-800 dark:text-slate-100 text-xs leading-snug">{aiSuggestions.suggestedData.headline}</p>
                           </div>
                         )}
                         {aiSuggestions.suggestedData?.subheadline && (
+<<<<<<< Updated upstream
                           <div className="bg-white dark:bg-slate-950 p-3 rounded-lg border border-slate-100 dark:border-slate-850 shadow-sm space-y-1">
                             <span className="text-[9px] font-black text-slate-455 dark:text-slate-400 uppercase tracking-widest block">Subheadline / Deskripsi</span>
                             <p className="text-slate-600 dark:text-slate-300 text-xs font-semibold leading-relaxed">{aiSuggestions.suggestedData.subheadline}</p>
@@ -2010,24 +2049,52 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                         {aiSuggestions.suggestedData?.cta && (
                           <div className="bg-white dark:bg-slate-950 p-3 rounded-lg border border-slate-100 dark:border-slate-850 shadow-sm space-y-1">
                             <span className="text-[9px] font-black text-slate-455 dark:text-slate-400 uppercase tracking-widest block">CTA Button</span>
+=======
+                          <div className="bg-white dark:bg-slate-950 p-3 rounded-lg border border-slate-100 dark:border-slate-800 shadow-sm space-y-1">
+                            <span className="text-[9px] font-black text-slate-400 dark:text-slate-450 uppercase tracking-widest block">Subheadline / Deskripsi</span>
+                            <p className="text-slate-600 dark:text-slate-350 text-xs font-semibold leading-relaxed">{aiSuggestions.suggestedData.subheadline}</p>
+                          </div>
+                        )}
+                        {aiSuggestions.suggestedData?.cta && (
+                          <div className="bg-white dark:bg-slate-950 p-3 rounded-lg border border-slate-100 dark:border-slate-800 shadow-sm space-y-1">
+                            <span className="text-[9px] font-black text-slate-400 dark:text-slate-450 uppercase tracking-widest block">CTA Button</span>
+>>>>>>> Stashed changes
                             <p className="font-extrabold text-green-600 dark:text-green-400 text-xs uppercase tracking-wider">{aiSuggestions.suggestedData.cta}</p>
                           </div>
                         )}
                       </div>
                     </div>
 
-                    <div className="flex gap-3 pt-2 shrink-0">
+                    <div className="flex gap-2 pt-2 shrink-0">
                       <button
                         onClick={applyAiCopy}
-                        className="flex-1 py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-1.5 cursor-pointer shadow-md transition-all active:scale-95"
+                        className="flex-1 py-2 bg-green-500 hover:bg-green-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 border-none"
                       >
-                        <Check className="w-3.5 h-3.5" /> Gunakan Konten
+                        <Check className="w-3.5 h-3.5" /> Gunakan
+                      </button>
+                      <button
+                        onClick={() => {
+                          const finalVal = (aiSuggestions.suggestedData?.headline || '') + (aiSuggestions.suggestedData?.subheadline ? ` - ${aiSuggestions.suggestedData.subheadline}` : '');
+                          setNewScheduleValue(finalVal);
+                          setNewScheduleComponent(
+                            activeAccordion === 'hero' ? 'Hero Title' :
+                            activeAccordion === 'cta' ? 'CTA Button' :
+                            activeAccordion === 'products' ? 'Card Produk' :
+                            activeAccordion === 'advantages' ? 'Card Layanan' :
+                            activeAccordion === 'testimonials' ? 'Testimoni' : 'Hero Title'
+                          );
+                          setNewScheduleTitle(`Ubah ${activeAccordion} via AI`);
+                          setIsSchedulerModalOpen(true);
+                        }}
+                        className="flex-1 py-2 bg-brand-blue hover:bg-brand-blue/90 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 border-none"
+                      >
+                        <Calendar className="w-3.5 h-3.5" /> Jadwalkan
                       </button>
                       <button
                         onClick={handleAiGenerateSubmit}
-                        className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-1.5 cursor-pointer transition-all active:scale-95 border border-slate-200/50 dark:border-slate-700"
+                        className="px-3 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 border border-slate-200 dark:border-slate-700"
                       >
-                        <RefreshCw className="w-3.5 h-3.5" /> Generate Ulang
+                        <RefreshCw className="w-3.5 h-3.5" /> Ulang
                       </button>
                     </div>
                   </div>
@@ -2035,18 +2102,18 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
               </div>
             </div>
 
-            {/* Redesigned Jadwal Publikasi AI (Timeline) */}
+            {/* Redesigned Content Schedule (Timeline) */}
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-4 shadow-md hover:shadow-lg transition-all duration-300">
               <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-4 bg-amber-500 rounded-full"></div>
                   <h3 className="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-widest flex items-center gap-1">
-                    📅 Jadwal Publikasi AI
+                    📅 Content Schedule
                   </h3>
                 </div>
                 <button
                   onClick={() => setIsSchedulerModalOpen(true)}
-                  className="px-3.5 py-1.5 bg-green-50 hover:bg-green-100 dark:bg-green-950/20 dark:hover:bg-green-950/30 text-green-600 dark:text-green-400 border border-green-200 dark:border-green-800/50 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-1 transition-all cursor-pointer"
+                  className="px-3.5 py-1.5 bg-green-50 hover:bg-green-100 dark:bg-green-950/20 dark:hover:bg-green-950/30 text-green-600 dark:text-green-400 border border-green-200 dark:border-green-800/50 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-1 transition-all cursor-pointer border-none"
                 >
                   <Plus className="w-3 h-3" /> Jadwalkan Konten
                 </button>
@@ -2061,12 +2128,15 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                   if (q.status === 'Scheduled' || q.status === 'AI Scheduled') {
                     statusBg = 'bg-amber-100/60 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-900/50';
                     dotBg = 'bg-amber-500';
-                  } else if (q.status === 'Published') {
+                  } else if (q.status === 'Completed' || q.status === 'Published') {
                     statusBg = 'bg-green-100/60 dark:bg-green-950/20 text-green-600 dark:text-green-400 border-green-200 dark:border-green-900/50';
                     dotBg = 'bg-green-500';
                   } else if (q.status === 'Queued') {
-                    statusBg = 'bg-blue-100/60 dark:bg-blue-950/20 text-blue-600 dark:text-blue-450 border-blue-200 dark:border-blue-900/50';
+                    statusBg = 'bg-blue-100/60 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-900/50';
                     dotBg = 'bg-blue-500';
+                  } else if (q.status === 'Failed') {
+                    statusBg = 'bg-red-100/60 dark:bg-red-950/20 text-red-600 dark:text-red-400 border-red-200 dark:border-red-900/50';
+                    dotBg = 'bg-red-500';
                   }
 
                   return (
@@ -2076,15 +2146,21 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                       
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200/50 dark:border-slate-800/50 flex items-center justify-center text-slate-500 dark:text-slate-400 group-hover:bg-green-50/50 dark:group-hover:bg-green-950/20 group-hover:text-green-500 transition-colors">
-                          <Activity className="w-3.5 h-3.5" />
+                          <Calendar className="w-3.5 h-3.5" />
                         </div>
                         <div>
                           <h6 className="text-xs font-black text-slate-800 dark:text-slate-200 uppercase leading-none mb-1 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
                             {q.title}
                           </h6>
-                          <p className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
-                            {q.date}
-                          </p>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[8px] font-black uppercase text-brand-blue tracking-widest bg-brand-blue/10 px-1 py-0.2 rounded leading-none">
+                              {q.component || 'Hero Title'}
+                            </span>
+                            <span className="w-1.5 h-1.5 rounded-full bg-slate-200 dark:bg-slate-800"></span>
+                            <p className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none">
+                              {new Date(q.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                            </p>
+                          </div>
                         </div>
                       </div>
 
@@ -2194,7 +2270,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                 {/* Embed template renderer */}
                 <div className="w-full h-full overflow-y-auto bg-white text-slate-900 custom-scrollbar pt-1">
                   <TemplateRenderer
-                    templateId={pageData?.template?.id || pageData?.template?.name}
+                    templateId={pageData?.template?.id || pageData?.template?.name || ''}
                     contentJson={contentJson}
                     isMobile={previewMode === 'mobile'}
                   />
@@ -2203,24 +2279,31 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
             </div>
           </div>
         )}
-
       </div>
-
-      {/* Scheduler Modal */}
+             {/* Scheduler Modal */}
       {isSchedulerModalOpen && (
         <div className="fixed inset-0 z-[250] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm" onClick={() => setIsSchedulerModalOpen(false)} />
           <div className="relative w-full max-w-sm bg-white dark:bg-slate-900 rounded-[20px] p-6 space-y-4 shadow-2xl border border-slate-200 dark:border-slate-800 z-10 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
+<<<<<<< Updated upstream
               <h3 className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-205 flex items-center gap-1.5">📅 Jadwalkan Konten Baru</h3>
               <button onClick={() => setIsSchedulerModalOpen(false)} className="text-slate-400 hover:text-slate-655 dark:hover:text-slate-200">
+=======
+              <h3 className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200 flex items-center gap-1.5">📅 Jadwalkan Perubahan Konten</h3>
+              <button onClick={() => setIsSchedulerModalOpen(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 border-none bg-transparent cursor-pointer">
+>>>>>>> Stashed changes
                 <X className="w-4 h-4" />
               </button>
             </div>
             
             <div className="space-y-3">
               <div className="space-y-1">
+<<<<<<< Updated upstream
                 <label className="text-[10px] font-black text-slate-455 dark:text-slate-400 uppercase tracking-wider block">Judul Konten</label>
+=======
+                <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Nama Jadwal</label>
+>>>>>>> Stashed changes
                 <input
                   type="text"
                   value={newScheduleTitle}
@@ -2230,15 +2313,50 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                 />
               </div>
 
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Target Komponen</label>
+                <select
+                  value={newScheduleComponent}
+                  onChange={(e) => setNewScheduleComponent(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
+                >
+                  <option>Hero Title</option>
+                  <option>Hero Subtitle</option>
+                  <option>Banner Promosi</option>
+                  <option>Card Produk</option>
+                  <option>Card Layanan</option>
+                  <option>Testimoni</option>
+                  <option>CTA Button</option>
+                  <option>Kontak</option>
+                </select>
+              </div>
 
               <div className="space-y-1">
+<<<<<<< Updated upstream
                 <label className="text-[10px] font-black text-slate-455 dark:text-slate-400 uppercase tracking-wider block">Waktu Publikasi</label>
+=======
+                <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Nilai Baru (Konten)</label>
+                <textarea
+                  value={newScheduleValue}
+                  onChange={(e) => setNewScheduleValue(e.target.value)}
+                  placeholder="Masukkan nilai baru..."
+                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 outline-none resize-none h-16 focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Waktu Eksekusi</label>
+>>>>>>> Stashed changes
                 <input
-                  type="text"
+                  type="datetime-local"
                   value={newScheduleDate}
                   onChange={(e) => setNewScheduleDate(e.target.value)}
+<<<<<<< Updated upstream
                   placeholder="Contoh: Besok 09:00, atau Jumat 15:30"
                   className="w-full bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-205 outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
+=======
+                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
+>>>>>>> Stashed changes
                 />
               </div>
 
@@ -2251,7 +2369,8 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                 >
                   <option value="Scheduled">Scheduled</option>
                   <option value="Queued">Queued</option>
-                  <option value="Published">Published</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Failed">Failed</option>
                 </select>
               </div>
             </div>
@@ -2259,13 +2378,13 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
             <div className="flex gap-3 pt-2">
               <button
                 onClick={() => setIsSchedulerModalOpen(false)}
-                className="flex-1 py-2.5 text-[10px] font-black uppercase tracking-wider border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all cursor-pointer text-slate-500 dark:text-slate-400"
+                className="flex-1 py-2.5 text-[10px] font-black uppercase tracking-wider border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all cursor-pointer text-slate-500 dark:text-slate-400 bg-transparent"
               >
                 Batal
               </button>
               <button
                 onClick={handleAddSchedule}
-                className="flex-1 py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider shadow-sm transition-all cursor-pointer"
+                className="flex-1 py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider shadow-sm transition-all cursor-pointer border-none"
               >
                 Jadwalkan
               </button>

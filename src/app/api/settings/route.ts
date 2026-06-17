@@ -40,7 +40,57 @@ export async function GET() {
         ],
         userPageJson: {
           welcomeTitle: "Halo, Pebisnis Modern!",
-          welcomeSubtitle: "Siap untuk mengotomatisasi ekosistem digital Anda hari ini?"
+          welcomeSubtitle: "Siap untuk mengotomatisasi ekosistem digital Anda hari ini?",
+          guides: [
+            {
+              title: "Panduan Memulai Uni-LandFarm",
+              desc: "Pelajari langkah awal membuat landing page menggunakan template yang tersedia.",
+              time: "Membaca 3 Menit",
+              icon: "Zap",
+              bg: "bg-blue-500/5 dark:bg-blue-600/10",
+              steps: [
+                "Pilih template landing page",
+                "Isi data usaha",
+                "Simpan landing page sebagai draft"
+              ]
+            },
+            {
+              title: "Panduan Pengelolaan CMS",
+              desc: "Kelola konten landing page seperti teks, gambar, kontak, tautan, dan informasi promosi melalui CMS.",
+              time: "Membaca 4 Menit",
+              icon: "Database",
+              bg: "bg-purple-500/5 dark:bg-purple-600/10",
+              steps: [
+                "Edit teks dan gambar",
+                "Kelola navigasi dan section",
+                "Simpan perubahan konten"
+              ]
+            },
+            {
+              title: "Panduan Template Landing Page",
+              desc: "Pahami cara memilih dan menyesuaikan template landing page sesuai kebutuhan bisnis.",
+              time: "Membaca 3 Menit",
+              icon: "Layout",
+              bg: "bg-emerald-500/5 dark:bg-emerald-600/10",
+              steps: [
+                "Pilih template yang sesuai",
+                "Sesuaikan konten dan tampilan",
+                "Lihat hasil melalui preview"
+              ]
+            },
+            {
+              title: "Panduan Publikasi Landing Page",
+              desc: "Pelajari proses publikasi instan hingga landing page langsung aktif dapat diakses oleh publik.",
+              time: "Membaca 2 Menit",
+              icon: "Rocket",
+              bg: "bg-amber-500/5 dark:bg-amber-600/10",
+              steps: [
+                "Periksa preview landing page",
+                "Klik Publish Landing Page",
+                "Situs langsung aktif secara online"
+              ]
+            }
+          ]
         }
       }
     });
@@ -48,6 +98,57 @@ export async function GET() {
 
   try {
     const settings = await prisma.systemSetting.findFirst();
+    const defaultGuides = [
+      {
+        title: "Panduan Memulai Uni-LandFarm",
+        desc: "Pelajari langkah awal membuat landing page menggunakan template yang tersedia.",
+        time: "Membaca 3 Menit",
+        icon: "Zap",
+        bg: "bg-blue-500/5 dark:bg-blue-600/10",
+        steps: [
+          "Pilih template landing page",
+          "Isi data usaha",
+          "Simpan landing page sebagai draft"
+        ]
+      },
+      {
+        title: "Panduan Pengelolaan CMS",
+        desc: "Kelola konten landing page seperti teks, gambar, kontak, tautan, dan informasi promosi melalui CMS.",
+        time: "Membaca 4 Menit",
+        icon: "Database",
+        bg: "bg-purple-500/5 dark:bg-purple-600/10",
+        steps: [
+          "Edit teks dan gambar",
+          "Kelola navigasi dan section",
+          "Simpan perubahan konten"
+        ]
+      },
+      {
+        title: "Panduan Template Landing Page",
+        desc: "Pahami cara memilih dan menyesuaikan template landing page sesuai kebutuhan bisnis.",
+        time: "Membaca 3 Menit",
+        icon: "Layout",
+        bg: "bg-emerald-500/5 dark:bg-emerald-600/10",
+        steps: [
+          "Pilih template yang sesuai",
+          "Sesuaikan konten dan tampilan",
+          "Lihat hasil melalui preview"
+        ]
+      },
+      {
+        title: "Panduan Publikasi Landing Page",
+        desc: "Pelajari proses publikasi instan hingga landing page langsung aktif dapat diakses oleh publik.",
+        time: "Membaca 2 Menit",
+        icon: "Rocket",
+        bg: "bg-amber-500/5 dark:bg-amber-600/10",
+        steps: [
+          "Periksa preview landing page",
+          "Klik Publish Landing Page",
+          "Situs langsung aktif secara online"
+        ]
+      }
+    ];
+
     if (settings) {
       if (!settings.featuresJson) {
         settings.featuresJson = [
@@ -76,8 +177,15 @@ export async function GET() {
       if (!settings.userPageJson) {
         settings.userPageJson = {
           welcomeTitle: "Halo, Pebisnis Modern!",
-          welcomeSubtitle: "Siap untuk mengotomatisasi ekosistem digital Anda hari ini?"
+          welcomeSubtitle: "Siap untuk mengotomatisasi ekosistem digital Anda hari ini?",
+          guides: defaultGuides
         };
+      } else {
+        const userPage = settings.userPageJson as any;
+        if (!userPage.guides) {
+          userPage.guides = defaultGuides;
+          settings.userPageJson = userPage;
+        }
       }
     }
     return NextResponse.json({ success: true, message: 'Berhasil', data: settings });
