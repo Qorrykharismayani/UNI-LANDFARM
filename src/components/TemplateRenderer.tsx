@@ -131,13 +131,8 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                 href={`https://wa.me/${contact.whatsapp}`} 
                 target="_blank" 
                 rel="noopener noreferrer"
-<<<<<<< Updated upstream
-                className={`bg-amber-650 hover:bg-amber-700 text-white rounded-full font-bold uppercase tracking-wider transition-all shadow-sm ${isMobile ? 'px-3 py-1.5 text-[9px] shrink-0' : 'px-5 py-2.5 text-xs'}`}
-                style={{ backgroundColor: '#d97706' }}
-=======
                 className={`bg-amber-600 hover:bg-amber-700 text-white rounded-full font-bold uppercase tracking-wider transition-all shadow-sm ${isMobile ? 'px-3 py-1.5 text-[9px] shrink-0' : 'px-5 py-2.5 text-xs'}`}
                 style={{ backgroundColor: primaryColor }}
->>>>>>> Stashed changes
               >
                 Order WA
               </a>
@@ -202,11 +197,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                   <div className={`max-w-4xl mx-auto text-center ${isMobile ? 'space-y-6' : 'space-y-12'}`}>
                     <div className="space-y-3">
                       <h2 className={`font-black text-amber-950 uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Kisah Di Balik Produk Kami</h2>
-<<<<<<< Updated upstream
-                      <div className="w-16 h-1.5 bg-amber-550 mx-auto rounded-full" style={{ backgroundColor: '#d97706' }} />
-=======
                       <div className="w-16 h-1.5 mx-auto rounded-full" style={{ backgroundColor: primaryColor }} />
->>>>>>> Stashed changes
                     </div>
                     <div className={`grid gap-8 text-left ${isMobile ? 'grid-cols-1 gap-6' : 'grid-cols-1 md:grid-cols-3'}`}>
                       <div className="bg-white p-6 rounded-2xl border border-amber-100/50 shadow-sm space-y-3">
@@ -232,11 +223,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                   <div className="text-center space-y-3">
                     <h2 className={`font-black text-amber-950 uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Produk Pilihan Terbaik</h2>
                     <p className={`text-amber-900/60 max-w-lg mx-auto font-bold uppercase tracking-widest ${isMobile ? 'text-[9px]' : 'text-[10px] md:text-xs'}`}>Segar, berkualitas, diproduksi langsung dari petani & pengrajin lokal</p>
-<<<<<<< Updated upstream
-                    <div className="w-16 h-1.5 bg-amber-550 mx-auto rounded-full" style={{ backgroundColor: '#d97706' }} />
-=======
                     <div className="w-16 h-1.5 mx-auto rounded-full" style={{ backgroundColor: primaryColor }} />
->>>>>>> Stashed changes
                   </div>
                   <div className={`grid gap-8 ${isMobile ? 'grid-cols-1 gap-6' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'}`}>
                     {products.map((prod, i) => (
@@ -295,11 +282,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                 <section key="gallery" className={`max-w-6xl mx-auto ${isMobile ? 'py-8 px-4 space-y-6' : 'py-20 px-6 md:px-12 space-y-12'}`}>
                   <div className="text-center space-y-3">
                     <h2 className={`font-black text-amber-950 uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Galeri Kegiatan Kami</h2>
-<<<<<<< Updated upstream
-                    <div className="w-16 h-1.5 bg-amber-550 mx-auto rounded-full" style={{ backgroundColor: '#d97706' }} />
-=======
                     <div className="w-16 h-1.5 mx-auto rounded-full" style={{ backgroundColor: primaryColor }} />
->>>>>>> Stashed changes
                   </div>
                   <div className={`grid gap-6 ${isMobile ? 'grid-cols-2 gap-4' : 'grid-cols-2 md:grid-cols-3'}`}>
                     {gallery.map((img, i) => (
@@ -321,11 +304,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                   <div className={`max-w-4xl mx-auto text-center ${isMobile ? 'space-y-6' : 'space-y-12'}`}>
                     <div className="space-y-3">
                       <h2 className={`font-black text-amber-950 uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Ulasan Pelanggan</h2>
-<<<<<<< Updated upstream
-                      <div className="w-16 h-1.5 bg-amber-550 mx-auto rounded-full" style={{ backgroundColor: '#d97706' }} />
-=======
                       <div className="w-16 h-1.5 mx-auto rounded-full" style={{ backgroundColor: primaryColor }} />
->>>>>>> Stashed changes
                     </div>
                     <div className={`grid gap-8 text-left ${isMobile ? 'grid-cols-1 gap-6' : 'grid-cols-1 md:grid-cols-2'}`}>
                       {testimonials.map((t, i) => (

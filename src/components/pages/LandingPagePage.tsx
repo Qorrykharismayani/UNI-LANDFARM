@@ -153,99 +153,6 @@ const LandingPagePage = ({
     );
   }
 
-  if (cmsNavMode === 'drafts') {
-    return (
-      <div className="max-w-6xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-700 pb-12">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-4">
-          <div>
-            <button
-              onClick={() => setCmsNavMode('landing')}
-              className="flex items-center gap-2 text-[10px] font-black text-slate-400 hover:text-brand-blue uppercase tracking-widest transition-colors mb-4"
-            >
-              <ArrowLeft className="w-3 h-3" /> Kembali ke Setup
-            </button>
-            <h2 className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter leading-none mb-2">Rancangan Draf</h2>
-            <p className="text-slate-500 dark:text-slate-400 font-medium text-sm">Lihat dan lanjutkan penyempurnaan website yang telah Anda simpan.</p>
-          </div>
-          <button
-            onClick={() => setCmsNavMode('landing')}
-            className="px-8 py-4 bg-brand-blue text-white rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-blue hover:shadow-blue-lg transition-all flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" /> Buat Rancangan Baru
-          </button>
-        </div>
-
-        {savedDrafts.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-4">
-            {savedDrafts.map((draft, i) => (
-              <div key={draft.id} className="group bg-gradient-to-br from-white to-blue-50/15 dark:from-slate-900/60 dark:to-slate-950/60 rounded-[32px] overflow-hidden border border-slate-200/60 dark:border-slate-800/80 shadow-[0_10px_35px_-5px_rgba(255,176,0,0.05)] dark:shadow-[0_15px_40px_-5px_rgba(255,176,0,0.15)] hover:border-brand-blue/20 dark:hover:border-brand-blue/30 hover:-translate-y-2 transition-all duration-500">
-                <div className="aspect-[16/10] overflow-hidden relative">
-                  <img src={draft.image} alt={draft.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-6 backdrop-blur-[2px]">
-                    <button
-                      onClick={() => {
-                        setManualData({
-                          name: draft.name,
-                          category: draft.category,
-                          description: draft.description,
-                          subdomain: draft.name.toLowerCase().replace(/\s+/g, '-'),
-                          color: draft.color,
-                          template: 'Modern Dark Pro (Recommended)'
-                        });
-                        setCmsNavMode('manual');
-                      }}
-                      className="bg-white text-slate-900 px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-2xl hover:bg-brand-blue hover:text-white transition-all"
-                    >
-                      Lanjutkan Setup
-                    </button>
-                  </div>
-                  <div className="absolute top-4 left-4">
-                    <span className="px-3 py-1 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-full text-[8px] font-black uppercase tracking-widest border border-slate-100 dark:border-slate-800 shadow-sm">{draft.category}</span>
-                  </div>
-                </div>
-                <div className="p-8 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[9px] font-black text-brand-blue uppercase tracking-widest">ID: {draft.id}</span>
-                    <span className="text-[9px] font-bold text-slate-400 uppercase">{draft.createdAt}</span>
-                  </div>
-                  <h4 className="text-xl font-black text-slate-900 dark:text-white tracking-tight uppercase leading-none">{draft.name}</h4>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 font-medium leading-relaxed">{draft.description}</p>
-                  <div className="flex gap-2 pt-2">
-                    <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: draft.color }} />
-                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Warna Utama: {draft.color}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center py-32 text-center space-y-8 relative">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-brand-blue/10 blur-[100px] rounded-full pointer-events-none" />
-
-            <div className="w-28 h-28 bg-white dark:bg-slate-900 rounded-[40px] flex items-center justify-center text-brand-blue shadow-premium border border-slate-100 dark:border-slate-800 relative group">
-              <div className="absolute inset-0 bg-brand-blue/5 rounded-[40px] scale-0 group-hover:scale-110 transition-transform duration-500" />
-              <FileSearch className="w-12 h-12 relative z-10 group-hover:scale-110 transition-transform duration-500" />
-              <div className="absolute -bottom-2 -right-2 bg-brand-blue text-white p-2 rounded-xl shadow-lg shadow-brand-blue/30">
-                <Plus className="w-4 h-4" />
-              </div>
-            </div>
-            <div className="relative z-10">
-              <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter uppercase mb-3">Belum Ada Draf</h3>
-              <p className="text-base text-slate-500 dark:text-slate-400 font-medium max-w-sm mx-auto">Mulai simpan rancangan website Anda untuk menemukannya di sini dan mengelolanya dengan mudah.</p>
-            </div>
-            <button
-              onClick={() => setCmsNavMode('manual')}
-              className="relative z-10 px-10 py-5 bg-gradient-to-r from-brand-blue to-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-[0_10px_30px_-10px_rgba(255,176,0,0.4)] hover:shadow-[0_15px_40px_-10px_rgba(255,176,0,0.6)] flex items-center gap-3 group"
-            >
-              Buka Setup Website
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </button>
-          </div>
-        )}
-      </div>
-    );
-  }
-
   if (isGenerating) {
     return (
       <div className="max-w-4xl mx-auto h-[60vh] flex flex-col items-center justify-center text-center space-y-8 animate-in fade-in duration-500">
@@ -558,14 +465,8 @@ const LandingPagePage = ({
               Kembali
             </button>
             <button
-              onClick={handleCreateRancangan}
-              className="flex-1 py-4 bg-brand-blue/10 border border-brand-blue/30 text-brand-blue rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-brand-blue hover:text-white transition-all active:scale-[0.98] flex items-center justify-center gap-2"
-            >
-              Simpan Draft
-            </button>
-            <button
               onClick={handleManualSetup}
-              className="flex-1 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-[11px] font-black uppercase tracking-widest shadow-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+              className="flex-grow py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-[11px] font-black uppercase tracking-widest shadow-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-2"
             >
               Mulai Setup Website
               <ArrowRight className="w-3.5 h-3.5" />
@@ -649,16 +550,6 @@ const LandingPagePage = ({
               >
                 Mulai Isi Form
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setCmsNavMode('drafts');
-                }}
-                className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 rounded-full text-xs font-black uppercase tracking-[0.2em] hover:bg-slate-100 dark:hover:bg-slate-700 transition-all duration-300"
-              >
-                Buka Rancangan Draf
-                <FolderOpen className="w-4 h-4" />
               </button>
             </div>
 

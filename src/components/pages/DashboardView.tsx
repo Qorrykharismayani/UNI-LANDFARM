@@ -164,27 +164,13 @@ export const DashboardView = ({
   const [isCmsEditorOpen, setIsCmsEditorOpen] = useState(false);
   const [selectedEditorSection, setSelectedEditorSection] = useState('Hero Section');
   const [cmsNavMode, setCmsNavMode] = useState('landing'); // 'landing', 'manual', 'ai', 'editor', 'preview', 'drafts', 'setup-progress'
-  const [savedDrafts, setSavedDrafts] = useState<any[]>([
-    {
-      id: 'DRAFT-7712',
-      name: 'Bengkel Cepat Jaya',
-      category: 'Jasa Profesional',
-      description: 'Layanan servis motor dan mobil cepat, terpercaya, dan bergaransi dengan mekanik handal.',
-      createdAt: '24 Mei 2026',
-      color: '#3B82F6',
-      image: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=500&q=80'
-    }
-  ]);
+  const [savedDrafts, setSavedDrafts] = useState<any[]>([]);
   const [cmsSubTab, setCmsSubTab] = useState('manual');
   const [cmsSearchQuery, setCmsSearchQuery] = useState('');
   const [cmsCurrentPage, setCmsCurrentPage] = useState(1);
   const [guideSearchQuery, setGuideSearchQuery] = useState('');
-<<<<<<< Updated upstream
-  const [cmsPosts, setCmsPosts] = useState<any[]>([]);
-=======
   const [cmsSchedules, setCmsSchedules] = useState<any[]>([]);
   const [selectedCmsProjectId, setSelectedCmsProjectId] = useState<string>('');
->>>>>>> Stashed changes
   const [aiTopic, setAiTopic] = useState('');
   const [aiTone, setAiTone] = useState('Profesional');
   const [aiLength, setAiLength] = useState('Sedang (600 kata)');
@@ -290,11 +276,6 @@ export const DashboardView = ({
     setView('home');
   };
 
-<<<<<<< Updated upstream
-  useEffect(() => {
-    fetchProjects();
-    fetchTemplates();
-=======
   const fetchSchedules = async () => {
     try {
       const res = await fetch('/api/content-schedules');
@@ -311,7 +292,6 @@ export const DashboardView = ({
     fetchProjects();
     fetchTemplates();
     fetchSchedules();
->>>>>>> Stashed changes
   }, []);
 
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -536,57 +516,6 @@ export const DashboardView = ({
     setFormErrors({});
     setIsGenerating(true);
 
-<<<<<<< Updated upstream
-    const draft = await generateWebsiteDraft(
-      manualData.name,
-      manualData.category,
-      manualData.description
-    );
-
-    setGeneratedDraft({
-      ...draft,
-      sections: ['Hero Section', 'Tentang Kami', 'Produk/Layanan', 'Galeri', 'CTA', 'Footer']
-    });
-    setSelectedColor(manualData.color);
-
-    setIsGenerating(false);
-    setCmsNavMode('preview');
-    showNotification('Website berhasil dikonfigurasi!', 'success');
-  };
-
-  const handleCreateRancangan = async () => {
-    const errors: Record<string, string> = {};
-    if (!manualData.name.trim()) errors.name = 'Nama website wajib diisi';
-    if (!manualData.description.trim()) errors.description = 'Deskripsi bisnis wajib diisi';
-
-    if (Object.keys(errors).length > 0) {
-      setFormErrors(errors);
-      return;
-    }
-
-    setFormErrors({});
-    setIsGenerating(true);
-    setGenProgress(0);
-
-    try {
-      // Simulate saving
-      const newDraft = {
-        id: `DRAFT-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
-        name: manualData.name,
-        category: manualData.category,
-        description: manualData.description,
-        color: manualData.color,
-        createdAt: new Date().toLocaleDateString('id-ID'),
-        image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500&q=80'
-      };
-
-      await new Promise(r => setTimeout(r, 1500));
-      setSavedDrafts(prev => [newDraft, ...prev]);
-      setCmsNavMode('drafts');
-      showNotification('Rancangan draf berhasil disimpan!', 'success');
-    } catch (e) {
-      showNotification('Gagal menyimpan draf.', 'info');
-=======
     try {
       const selectedTplId = manualData.templateId || templates[0]?.id;
       const selectedTemplate = templates.find(t => t.id === selectedTplId);
@@ -675,53 +604,69 @@ export const DashboardView = ({
     } catch (err: any) {
       console.error(err);
       showNotification(err.message || 'Gagal mengonfigurasi website.', 'info');
->>>>>>> Stashed changes
     } finally {
       setIsGenerating(false);
     }
   };
 
-<<<<<<< Updated upstream
-  const handleGenerateAiPost = async () => {
-    if (!aiTopic.trim()) {
-      showNotification('Silakan isi topik atau judul artikel terlebih dahulu!', 'info');
+  const handleCreateRancangan = async () => {
+    const errors: Record<string, string> = {};
+    if (!manualData.name.trim()) errors.name = 'Nama website wajib diisi';
+    if (!manualData.description.trim()) errors.description = 'Deskripsi bisnis wajib diisi';
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
       return;
     }
 
-    setIsGeneratingAiPost(true);
-    setAiPostProgress(0);
+    setFormErrors({});
+    setIsGenerating(true);
+    setGenProgress(0);
 
-    const steps = [
-      { progress: 15, text: 'Melakukan riset kompetitor & keyword SEO...' },
-      { progress: 35, text: 'Menyusun outline & kerangka heading artikel...' },
-      { progress: 60, text: 'Membangkitkan konten berkualitas tinggi menggunakan AI...' },
-      { progress: 85, text: 'Mengoptimasi kepadatan kata kunci & meta tag...' },
-      { progress: 100, text: 'Menyimpan artikel ke draf CMS...' }
-    ];
+    try {
+      // Simulate saving
+      const newDraft = {
+        id: `DRAFT-${Math.random().toString(36).substring(2, 11).toUpperCase()}`,
+        name: manualData.name,
+        category: manualData.category,
+        description: manualData.description,
+        color: manualData.color,
+        createdAt: new Date().toLocaleDateString('id-ID'),
+        image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500&q=80'
+      };
 
-    for (const step of steps) {
-      setAiPostStepText(step.text);
-      await new Promise(r => setTimeout(r, 600));
-      setAiPostProgress(step.progress);
+      await new Promise(r => setTimeout(r, 1500));
+      setSavedDrafts(prev => [newDraft, ...prev]);
+      setCmsNavMode('drafts');
+      showNotification('Rancangan draf berhasil disimpan!', 'success');
+    } catch (e) {
+      showNotification('Gagal menyimpan draf.', 'info');
+    } finally {
+      setIsGenerating(false);
     }
+  };
 
-    const newPost = {
-      id: cmsPosts.length + 1,
-      title: aiTopic,
-      status: "Draft",
-      author: "Agentic AI Writer",
-      scoreBefore: Math.floor(Math.random() * 20) + 40,
-      scoreAfter: Math.floor(Math.random() * 15) + 85,
-      date: new Date().toLocaleDateString('id-ID'),
-      type: "Blog Post"
-    };
-
-    setCmsPosts(prev => [newPost, ...prev]);
-    setIsGeneratingAiPost(false);
-    setAiTopic('');
-    showNotification('Artikel AI berhasil dibuat dan disimpan ke Draf!', 'success');
-=======
-
+  const handleDeleteProject = async (id: string) => {
+    if (!window.confirm("Apakah Anda yakin ingin menghapus proyek ini? Tindakan ini tidak dapat dibatalkan.")) {
+      return;
+    }
+    try {
+      showNotification("Menghapus proyek...", "info");
+      const res = await fetch(`/api/landing-pages/${id}`, {
+        method: "DELETE"
+      });
+      const data = await res.json();
+      if (data.success) {
+        showNotification("Proyek berhasil dihapus!", "success");
+        fetchProjects();
+      } else {
+        showNotification(data.message || "Gagal menghapus proyek.", "info");
+      }
+    } catch (err) {
+      console.error(err);
+      showNotification("Terjadi kesalahan koneksi.", "info");
+    }
+  };
 
   const handleDeleteSchedule = async (id: number) => {
     if (!window.confirm("Apakah Anda yakin ingin menghapus jadwal ini?")) {
@@ -743,7 +688,6 @@ export const DashboardView = ({
       console.error(err);
       showNotification("Terjadi kesalahan koneksi.", "info");
     }
->>>>>>> Stashed changes
   };
 
   const [activeTemplateFilter, setActiveTemplateFilter] = useState('Semua');
@@ -1099,8 +1043,6 @@ export const DashboardView = ({
             setCmsSearchQuery={setCmsSearchQuery}
             cmsCurrentPage={cmsCurrentPage}
             setCmsCurrentPage={setCmsCurrentPage}
-<<<<<<< Updated upstream
-=======
             userProjects={userProjects}
             selectedCmsProjectId={selectedCmsProjectId}
             setSelectedCmsProjectId={setSelectedCmsProjectId}
@@ -1110,7 +1052,6 @@ export const DashboardView = ({
             setIsCmsEditorOpen={setIsCmsEditorOpen}
             handleDeleteProject={handleDeleteProject}
             showNotification={showNotification}
->>>>>>> Stashed changes
           />
         );
 
@@ -1303,11 +1244,7 @@ export const DashboardView = ({
               setAdminView={setAdminView}
             />
           </main>
-<<<<<<< Updated upstream
-          <footer className="py-6 text-center text-xs text-slate-550 bg-[#070b19] border-t border-slate-800/60 font-medium select-none">
-=======
           <footer className="py-6 text-center text-xs text-slate-500 bg-slate-50 dark:bg-[#070b19] border-t border-slate-200 dark:border-slate-800/60 font-medium select-none">
->>>>>>> Stashed changes
             © 2026 UNI-LandFarm | Admin Panel Uni-Inside
           </footer>
         </div>

@@ -8,10 +8,7 @@ export async function GET() {
 export async function POST() {
   return NextResponse.json({ success: false, message: 'Rute ini telah didepresiasi. Silakan gunakan /api/content-schedules.' }, { status: 410 });
 }
-<<<<<<< Updated upstream
-=======
-
 export async function DELETE() {
   return NextResponse.json({ success: false, message: 'Rute ini telah didepresiasi. Silakan gunakan /api/content-schedules.' }, { status: 410 });
 }
->>>>>>> Stashed changes
+

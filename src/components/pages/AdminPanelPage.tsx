@@ -810,25 +810,6 @@ const AdminPanelPage = ({
                 </div>
 
                 <div className="flow-root">
-<<<<<<< Updated upstream
-                  <ul className="-mb-8">
-                    {[
-                      { text: "User registration: Sarah Anderson mendaftar akun baru", time: "Baru saja", color: "bg-brand-blue" },
-                      { text: "Landing page publication: Toko Kopi Merdeka live di internet", time: "1 jam lalu", color: "bg-indigo-500" },
-                      { text: "Content updates: Jasa Bersih Merdeka memperbarui detail kontak", time: "3 jam lalu", color: "bg-amber-500" },
-                      { text: "Template updates: Template Makanan & Retail dimodifikasi", time: "1 hari lalu", color: "bg-purple-500" }
-                    ].map((act, i) => (
-                      <li key={i}>
-                        <div className="relative pb-8">
-                          {i !== 3 && <span className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-slate-850" aria-hidden="true" />}
-                          <div className="relative flex space-x-3">
-                            <div>
-                              <span className={`h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-slate-900 ${act.color} text-white`}>
-                                <Sparkles className="w-3.5 h-3.5" />
-                              </span>
-                            </div>
-                            <div className="flex-1 min-w-0 pt-1.5 flex justify-between space-x-4">
-=======
                   {activities.length === 0 ? (
                     <div className="text-center py-8 text-[9.5px] font-black uppercase tracking-wider text-slate-450 dark:text-slate-500">
                       Belum ada log aktivitas
@@ -840,16 +821,11 @@ const AdminPanelPage = ({
                           <div className="relative pb-8">
                             {i !== (activities.slice(0, 5).length - 1) && <span className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-slate-200 dark:bg-slate-800" aria-hidden="true" />}
                             <div className="relative flex space-x-3">
->>>>>>> Stashed changes
                               <div>
                                 <span className={`h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-white dark:ring-slate-900 ${act.color} text-white`}>
                                   {renderActivityIcon(act.icon)}
                                 </span>
                               </div>
-<<<<<<< Updated upstream
-                              <div className="text-right text-[8px] font-black uppercase whitespace-nowrap text-slate-550">
-                                <span>{act.time}</span>
-=======
                               <div className="flex-1 min-w-0 pt-1.5 flex justify-between space-x-4">
                                 <div>
                                   <p className="text-[10.5px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide leading-relaxed">{act.text}</p>
@@ -857,7 +833,6 @@ const AdminPanelPage = ({
                                 <div className="text-right text-[8px] font-black uppercase whitespace-nowrap text-slate-400 dark:text-slate-500">
                                   <span>{getRelativeTime(act.time)}</span>
                                 </div>
->>>>>>> Stashed changes
                               </div>
                             </div>
                           </div>
@@ -875,11 +850,7 @@ const AdminPanelPage = ({
         {/* VIEW: USER MANAGEMENT */}
         {adminView === 'users' && (
           <div className="space-y-6 animate-in fade-in duration-300">
-<<<<<<< Updated upstream
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-805 pb-5">
-=======
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
->>>>>>> Stashed changes
               <div>
                 <h2 className="text-md font-black uppercase tracking-widest text-slate-850 dark:text-white">Panel Manajemen Pengguna</h2>
                 <p className="text-[9.5px] text-slate-550 dark:text-slate-400 font-bold uppercase tracking-wider mt-1">Kelola hak akses pengguna, status akun, dan memblokir sementara</p>
@@ -887,21 +858,13 @@ const AdminPanelPage = ({
               
               <div className="flex items-center gap-3">
                 <div className="relative">
-<<<<<<< Updated upstream
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-550" />
-=======
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-450 dark:text-slate-500" />
->>>>>>> Stashed changes
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-455 dark:text-slate-500" />
                   <input
                     type="text"
                     placeholder="Cari pengguna..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-<<<<<<< Updated upstream
-                    className="bg-slate-950 border border-slate-850 rounded-xl pl-9 pr-4 py-2 text-xs font-bold text-white outline-none focus:border-brand-blue focus:ring-1 focus:ring-brand-blue w-48 md:w-64"
-=======
                     className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue focus:ring-1 focus:ring-brand-blue w-48 md:w-64"
->>>>>>> Stashed changes
                   />
                 </div>
               </div>
@@ -1241,11 +1204,7 @@ const AdminPanelPage = ({
                         <h4 className="text-xs font-black text-slate-800 dark:text-white uppercase tracking-tight">{tpl.name}</h4>
                         <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium leading-relaxed line-clamp-2">{tpl.description}</p>
                       </div>
-<<<<<<< Updated upstream
-                      <div className="pt-3 border-t border-slate-850 flex gap-2">
-=======
                       <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex gap-2">
->>>>>>> Stashed changes
                         <button
                           onClick={() => {
                             const nextStatus = tpl.status === 'Aktif' ? 'Nonaktif' : 'Aktif';
@@ -1825,11 +1784,7 @@ const AdminPanelPage = ({
                   <h3 className="text-xs font-black uppercase tracking-widest text-slate-800 dark:text-white">Grafik Kunjungan 7 Hari Terakhir</h3>
                   <p className="text-[9px] text-slate-550 dark:text-slate-400 font-bold uppercase tracking-wider">Total tayangan halaman unik dari semua situs user</p>
                 </div>
-<<<<<<< Updated upstream
-                <div className="h-64 flex items-center justify-center bg-slate-950/40 rounded-2xl p-4 border border-slate-850">
-=======
                 <div className="h-64 flex items-center justify-center bg-slate-50 dark:bg-slate-950/40 rounded-2xl p-4 border border-slate-200 dark:border-slate-800">
->>>>>>> Stashed changes
                   <svg className="w-full h-full" viewBox="0 0 500 200" preserveAspectRatio="none">
                     {/* Grid Lines */}
                     <line x1="0" y1="40" x2="500" y2="40" stroke="#1e293b" strokeDasharray="4 4" strokeWidth="1" />
@@ -1901,11 +1856,7 @@ const AdminPanelPage = ({
                   <h3 className="text-xs font-black uppercase tracking-widest text-slate-800 dark:text-white">Distribusi Kategori Situs</h3>
                   <p className="text-[9px] text-slate-550 dark:text-slate-400 font-bold uppercase tracking-wider">Persentase landing page terbit berdasarkan model bisnis</p>
                 </div>
-<<<<<<< Updated upstream
-                <div className="h-64 flex flex-col justify-around bg-slate-950/40 rounded-2xl p-6 border border-slate-850">
-=======
                 <div className="h-64 flex flex-col justify-around bg-slate-50 dark:bg-slate-950/40 rounded-2xl p-6 border border-slate-200 dark:border-slate-800">
->>>>>>> Stashed changes
                   {[
                     { name: "Pertanian & Pangan", count: 45, width: "85%", color: "bg-emerald-500" },
                     { name: "Makanan & Retail", count: 28, width: "60%", color: "bg-brand-blue" },
@@ -2076,21 +2027,12 @@ const AdminPanelPage = ({
                 <div>
                   <h3 className="text-xs font-black text-slate-550 dark:text-slate-400 uppercase tracking-widest mb-6 pb-4 border-b border-slate-200 dark:border-slate-800/60">Informasi Akun</h3>
                   <div className="space-y-4 text-xs">
-<<<<<<< Updated upstream
-                    <div className="flex flex-col gap-1.5 p-3.5 bg-slate-950/40 border border-slate-850 rounded-2xl">
-                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">EMAIL OPERASIONAL</span>
-                      <span className="text-white font-bold">admin@unilanfarm.com</span>
-                    </div>
-                    <div className="flex flex-col gap-1.5 p-3.5 bg-slate-950/40 border border-slate-850 rounded-2xl">
-                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">TIPE HAK AKSES</span>
-=======
                     <div className="flex flex-col gap-1.5 p-3.5 bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-2xl">
                       <span className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">EMAIL OPERASIONAL</span>
                       <span className="text-slate-800 dark:text-white font-bold">admin@unilanfarm.com</span>
                     </div>
                     <div className="flex flex-col gap-1.5 p-3.5 bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-2xl">
                       <span className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">TIPE HAK AKSES</span>
->>>>>>> Stashed changes
                       <span className="text-brand-blue font-bold">SYSTEM ROOT ADMINISTRATOR</span>
                     </div>
                   </div>

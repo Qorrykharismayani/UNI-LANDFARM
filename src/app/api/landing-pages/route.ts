@@ -28,6 +28,7 @@ export async function GET(request: Request) {
       pages = await prisma.landingPage.findMany({
         where: { userId: session.userId },
         include: {
+          user: { select: { name: true, email: true } },
           template: { select: { name: true, category: true, thumbnail: true } },
           publishRequests: {
             orderBy: { requestedAt: 'desc' },
@@ -36,48 +37,9 @@ export async function GET(request: Request) {
         },
         orderBy: { createdAt: 'desc' }
       });
-
-      // Auto-create/save default landing page to DB for new users if they have none
-      if (pages.length === 0) {
-        const defaultTemplate = await prisma.template.findFirst({
-          where: { status: 'Aktif' }
-        });
-        if (defaultTemplate) {
-          const dbUser = await prisma.user.findUnique({
-            where: { id: session.userId }
-          });
-          const firstPage = await prisma.landingPage.create({
-            data: {
-              userId: session.userId,
-              templateId: defaultTemplate.id,
-              title: 'Situs Pertanian Uni-LandFarm',
-              businessName: dbUser?.name || 'Madu Klanceng Alami',
-              slug: `situs-baru-${String(session.userId).substring(0, 5).toLowerCase()}`,
-              status: 'Draft',
-              views: 0,
-              content: {
-                create: {
-                  contentJson: defaultTemplate.defaultContent || {
-                    hero: { headline: 'Situs Pertanian Uni-LandFarm', subheadline: 'Madu Klanceng Alami', cta: 'Hubungi Kami' }
-                  }
-                }
-              }
-            },
-            include: {
-              template: { select: { name: true, category: true, thumbnail: true } },
-              publishRequests: {
-                orderBy: { requestedAt: 'desc' },
-                take: 1
-              }
-            }
-          });
-          pages = [firstPage];
-        }
-      }
     }
 
-    // Map fields so frontend receives formatted outputs matching expected state variables
-    const formattedPages = pages.map(p => ({
+    const formattedPages = pages.map((p) => ({
       id: p.id,
       userId: p.userId,
       // Nested objects for admin monitoring panel

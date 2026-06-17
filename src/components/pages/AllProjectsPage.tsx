@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Globe, Eye, Plus, Search, ArrowLeft, Clipboard, ExternalLink, Edit, Trash2 } from 'lucide-react';
+import { Globe, Eye, Plus, Search, ArrowLeft, Clipboard, ExternalLink } from 'lucide-react';
 
 interface AllProjectsPageProps {
   userProjects: any[];
@@ -37,27 +37,7 @@ const AllProjectsPage = ({
     return matchesSearch && matchesStatus;
   });
 
-  const handleDeleteProject = async (id: string) => {
-    if (!window.confirm("Apakah Anda yakin ingin menghapus proyek ini? Tindakan ini tidak dapat dibatalkan.")) {
-      return;
-    }
-    try {
-      showNotification("Menghapus proyek...", "info");
-      const res = await fetch(`/api/landing-pages/${id}`, {
-        method: "DELETE"
-      });
-      const data = await res.json();
-      if (data.success) {
-        showNotification("Proyek berhasil dihapus!", "success");
-        fetchProjects();
-      } else {
-        showNotification(data.message || "Gagal menghapus proyek.", "info");
-      }
-    } catch (err) {
-      console.error(err);
-      showNotification("Terjadi kesalahan koneksi.", "info");
-    }
-  };
+
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 relative">
@@ -181,53 +161,11 @@ const AllProjectsPage = ({
                           <Clipboard className="w-2.5 h-2.5" /> Salin Link
                         </button>
                       </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setActivePageId(project.id);
-                            setIsCmsEditorOpen(true);
-                          }}
-                          className="bg-brand-blue text-white py-2.5 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 cursor-pointer"
-                        >
-                          <Edit className="w-2.5 h-2.5" /> Edit Situs
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteProject(project.id);
-                          }}
-                          className="bg-red-50 hover:bg-red-100 dark:bg-red-950/20 dark:hover:bg-red-900/30 text-red-500 py-2.5 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
-                        >
-                          <Trash2 className="w-2.5 h-2.5" /> Hapus
-                        </button>
-                      </div>
                     </div>
                   ) : project.status === 'Inactive' ? (
                     <div className="space-y-2">
                       <div className="w-full bg-red-550/10 text-red-500 border border-red-500/20 py-2.5 rounded-xl text-[8px] font-black uppercase tracking-widest text-center">
                         Situs Dinonaktifkan Admin
-                      </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setActivePageId(project.id);
-                            setIsCmsEditorOpen(true);
-                          }}
-                          className="bg-brand-blue text-white py-2.5 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 cursor-pointer font-black"
-                        >
-                          <Edit className="w-2.5 h-2.5" /> Edit Situs
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteProject(project.id);
-                          }}
-                          className="bg-red-50 hover:bg-red-100 dark:bg-red-950/20 dark:hover:bg-red-900/30 text-red-500 py-2.5 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
-                        >
-                          <Trash2 className="w-2.5 h-2.5" /> Hapus
-                        </button>
                       </div>
                     </div>
                   ) : (
@@ -244,27 +182,6 @@ const AllProjectsPage = ({
                           className="bg-slate-200 dark:bg-slate-800 text-slate-400 py-2 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm flex items-center justify-center gap-1"
                         >
                           Salin Link
-                        </button>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setActivePageId(project.id);
-                            setIsCmsEditorOpen(true);
-                          }}
-                          className="bg-brand-blue text-white py-2.5 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 cursor-pointer font-black"
-                        >
-                          <Edit className="w-2.5 h-2.5" /> Edit Situs
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteProject(project.id);
-                          }}
-                          className="bg-red-50 hover:bg-red-100 dark:bg-red-950/20 dark:hover:bg-red-900/30 text-red-500 py-2.5 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
-                        >
-                          <Trash2 className="w-2.5 h-2.5" /> Hapus
                         </button>
                       </div>
                     </div>

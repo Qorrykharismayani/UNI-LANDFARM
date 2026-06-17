@@ -1968,13 +1968,8 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                       setAiCommand(e.target.value);
                       setSelectedPreset(null);
                     }}
-<<<<<<< Updated upstream
-                    placeholder="Tuliskan instruksi untuk AI. Contoh: Buat headline yang meyakinkan untuk jasa kebersihan rumah dengan gaya profesional dan terpercaya."
-                    className="w-full bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl p-3 text-xs text-slate-800 dark:text-slate-200 outline-none resize-none h-24 focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all leading-relaxed placeholder:text-slate-400"
-=======
                     placeholder="Tuliskan instruksi untuk AI. Contoh: Buat headline diskon 30% menyambut grand opening toko kopi."
                     className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 text-xs text-slate-800 dark:text-slate-200 outline-none resize-none h-24 focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all leading-relaxed placeholder:text-slate-400"
->>>>>>> Stashed changes
                   />
                 </div>
 
@@ -2029,36 +2024,20 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
 
                       <div className="space-y-3">
                         {aiSuggestions.suggestedData?.headline && (
-<<<<<<< Updated upstream
-                          <div className="bg-white dark:bg-slate-950 p-3 rounded-lg border border-slate-100 dark:border-slate-850 shadow-sm space-y-1">
-                            <span className="text-[9px] font-black text-slate-455 dark:text-slate-400 uppercase tracking-widest block">Headline / Title</span>
-=======
                           <div className="bg-white dark:bg-slate-950 p-3 rounded-lg border border-slate-100 dark:border-slate-800 shadow-sm space-y-1">
-                            <span className="text-[9px] font-black text-slate-400 dark:text-slate-450 uppercase tracking-widest block">Headline / Title</span>
->>>>>>> Stashed changes
+                            <span className="text-[9px] font-black text-slate-400 dark:text-slate-455 uppercase tracking-widest block">Headline / Title</span>
                             <p className="font-extrabold text-slate-800 dark:text-slate-100 text-xs leading-snug">{aiSuggestions.suggestedData.headline}</p>
                           </div>
                         )}
                         {aiSuggestions.suggestedData?.subheadline && (
-<<<<<<< Updated upstream
-                          <div className="bg-white dark:bg-slate-950 p-3 rounded-lg border border-slate-100 dark:border-slate-850 shadow-sm space-y-1">
-                            <span className="text-[9px] font-black text-slate-455 dark:text-slate-400 uppercase tracking-widest block">Subheadline / Deskripsi</span>
-                            <p className="text-slate-600 dark:text-slate-300 text-xs font-semibold leading-relaxed">{aiSuggestions.suggestedData.subheadline}</p>
-                          </div>
-                        )}
-                        {aiSuggestions.suggestedData?.cta && (
-                          <div className="bg-white dark:bg-slate-950 p-3 rounded-lg border border-slate-100 dark:border-slate-850 shadow-sm space-y-1">
-                            <span className="text-[9px] font-black text-slate-455 dark:text-slate-400 uppercase tracking-widest block">CTA Button</span>
-=======
                           <div className="bg-white dark:bg-slate-950 p-3 rounded-lg border border-slate-100 dark:border-slate-800 shadow-sm space-y-1">
-                            <span className="text-[9px] font-black text-slate-400 dark:text-slate-450 uppercase tracking-widest block">Subheadline / Deskripsi</span>
+                            <span className="text-[9px] font-black text-slate-400 dark:text-slate-455 uppercase tracking-widest block">Subheadline / Deskripsi</span>
                             <p className="text-slate-600 dark:text-slate-350 text-xs font-semibold leading-relaxed">{aiSuggestions.suggestedData.subheadline}</p>
                           </div>
                         )}
                         {aiSuggestions.suggestedData?.cta && (
                           <div className="bg-white dark:bg-slate-950 p-3 rounded-lg border border-slate-100 dark:border-slate-800 shadow-sm space-y-1">
-                            <span className="text-[9px] font-black text-slate-400 dark:text-slate-450 uppercase tracking-widest block">CTA Button</span>
->>>>>>> Stashed changes
+                            <span className="text-[9px] font-black text-slate-400 dark:text-slate-455 uppercase tracking-widest block">CTA Button</span>
                             <p className="font-extrabold text-green-600 dark:text-green-400 text-xs uppercase tracking-wider">{aiSuggestions.suggestedData.cta}</p>
                           </div>
                         )}
@@ -2286,24 +2265,15 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
           <div className="absolute inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm" onClick={() => setIsSchedulerModalOpen(false)} />
           <div className="relative w-full max-w-sm bg-white dark:bg-slate-900 rounded-[20px] p-6 space-y-4 shadow-2xl border border-slate-200 dark:border-slate-800 z-10 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
-<<<<<<< Updated upstream
-              <h3 className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-205 flex items-center gap-1.5">📅 Jadwalkan Konten Baru</h3>
-              <button onClick={() => setIsSchedulerModalOpen(false)} className="text-slate-400 hover:text-slate-655 dark:hover:text-slate-200">
-=======
               <h3 className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200 flex items-center gap-1.5">📅 Jadwalkan Perubahan Konten</h3>
               <button onClick={() => setIsSchedulerModalOpen(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 border-none bg-transparent cursor-pointer">
->>>>>>> Stashed changes
                 <X className="w-4 h-4" />
               </button>
             </div>
             
             <div className="space-y-3">
               <div className="space-y-1">
-<<<<<<< Updated upstream
-                <label className="text-[10px] font-black text-slate-455 dark:text-slate-400 uppercase tracking-wider block">Judul Konten</label>
-=======
                 <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Nama Jadwal</label>
->>>>>>> Stashed changes
                 <input
                   type="text"
                   value={newScheduleTitle}
@@ -2332,9 +2302,6 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
               </div>
 
               <div className="space-y-1">
-<<<<<<< Updated upstream
-                <label className="text-[10px] font-black text-slate-455 dark:text-slate-400 uppercase tracking-wider block">Waktu Publikasi</label>
-=======
                 <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Nilai Baru (Konten)</label>
                 <textarea
                   value={newScheduleValue}
@@ -2346,17 +2313,11 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
 
               <div className="space-y-1">
                 <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Waktu Eksekusi</label>
->>>>>>> Stashed changes
                 <input
                   type="datetime-local"
                   value={newScheduleDate}
                   onChange={(e) => setNewScheduleDate(e.target.value)}
-<<<<<<< Updated upstream
-                  placeholder="Contoh: Besok 09:00, atau Jumat 15:30"
-                  className="w-full bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-205 outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
-=======
                   className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
->>>>>>> Stashed changes
                 />
               </div>
 
