@@ -167,13 +167,23 @@ export async function GET(request: Request) {
       });
     }
 
-    // 4. Sign our custom session JWT
     const token = signToken({
       userId: user.id,
       email: user.email,
       role: user.role,
       status: user.status,
       name: user.name
+    });
+
+    // Create a login notification
+    await (prisma.notification as any).create({
+      data: {
+        userId: user.id,
+        title: 'Login Berhasil',
+        message: 'Anda baru saja login ke akun Uni-LandFarm melalui Google.',
+        type: 'system',
+        isRead: false
+      }
     });
 
     // 5. Create redirect response and set cookie

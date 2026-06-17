@@ -6,6 +6,8 @@ import {
 import { motion } from 'motion/react';
 
 interface LandingPagePageProps {
+  user?: any;
+  showNotification?: (msg: string, type?: 'success' | 'info') => void;
   cmsNavMode: string;
   setCmsNavMode: (mode: string) => void;
   genProgress: number;
@@ -21,9 +23,12 @@ interface LandingPagePageProps {
   handlePublish: () => void;
   setSubView: (v: string) => void;
   setCmsSubTab: (tab: string) => void;
+  isPublishing?: boolean;
 }
 
 const LandingPagePage = ({
+  user,
+  showNotification,
   cmsNavMode,
   setCmsNavMode,
   genProgress,
@@ -39,6 +44,7 @@ const LandingPagePage = ({
   handlePublish,
   setSubView,
   setCmsSubTab,
+  isPublishing,
 }: LandingPagePageProps) => {
   if (cmsNavMode === 'setup-progress') {
     return (
@@ -159,9 +165,12 @@ const LandingPagePage = ({
             </button>
             <button
               onClick={handlePublish}
-              className="px-6 py-2.5 bg-brand-blue text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-blue hover:shadow-blue-lg transition-all flex items-center gap-2"
+              disabled={isPublishing}
+              className={`px-6 py-2.5 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-blue hover:shadow-blue-lg transition-all flex items-center gap-2 ${
+                isPublishing ? 'bg-brand-blue/70 cursor-not-allowed' : 'bg-brand-blue'
+              }`}
             >
-              <Send className="w-3 h-3" /> Publish Website
+              <Send className={`w-3 h-3 ${isPublishing ? 'animate-pulse' : ''}`} /> {isPublishing ? 'Publishing...' : 'Publish Website'}
             </button>
           </div>
         </div>
@@ -482,7 +491,14 @@ const LandingPagePage = ({
 
       <div className="flex justify-center animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-200">
         <motion.div
-          onClick={() => setCmsNavMode('manual')}
+          onClick={() => {
+            if (user?.tokens < 500) {
+              if (showNotification) showNotification('Token Anda tidak cukup (butuh 500). Silakan beli token terlebih dahulu.', 'info');
+              setSubView('tokens');
+              return;
+            }
+            setCmsNavMode('manual');
+          }}
           whileHover={{ y: -8 }}
           transition={{ type: "spring", stiffness: 300 }}
           className="group relative w-full max-w-md cursor-pointer"
@@ -515,6 +531,11 @@ const LandingPagePage = ({
               <button
                 onClick={(e) => {
                   e.stopPropagation();
+                  if (user?.tokens < 500) {
+                    if (showNotification) showNotification('Token Anda tidak cukup (butuh 500). Silakan beli token terlebih dahulu.', 'info');
+                    setSubView('tokens');
+                    return;
+                  }
                   setCmsNavMode('manual');
                 }}
                 className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-brand-blue to-indigo-600 text-white rounded-full text-xs font-black uppercase tracking-[0.2em] shadow-[0_10px_30px_-10px_rgba(255,176,0,0.4)] hover:shadow-[0_15px_40px_-10px_rgba(255,176,0,0.6)] transition-all duration-500"

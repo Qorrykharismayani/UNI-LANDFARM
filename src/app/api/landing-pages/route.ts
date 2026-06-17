@@ -76,7 +76,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: 'Tidak diotorisasi.' }, { status: 401 });
     }
 
-    const { templateId, title, businessName, slug, contentJson } = await request.json();
+    const { templateId, title, businessName, slug, contentJson, tokenCost = 500 } = await request.json();
 
     if (!templateId || !title || !businessName || !slug) {
       return NextResponse.json({ success: false, message: 'Form data pembuatan draf tidak lengkap.' }, { status: 400 });
@@ -93,8 +93,8 @@ export async function POST(request: Request) {
       select: { tokens: true }
     });
 
-    if (!user || user.tokens < 1) {
-      return NextResponse.json({ success: false, message: 'Token tidak cukup. Silakan beli token terlebih dahulu.' }, { status: 402 });
+    if (!user || user.tokens < tokenCost) {
+      return NextResponse.json({ success: false, message: `Token tidak cukup. Biaya pembuatan adalah ${tokenCost} Token. Silakan beli token terlebih dahulu.` }, { status: 402 });
     }
 
     // Gunakan transaksi agar pembuatan halaman dan pengurangan token terjadi bersamaan
@@ -119,7 +119,16 @@ export async function POST(request: Request) {
       }),
       (prisma.user as any).update({
         where: { id: session.userId },
-        data: { tokens: { decrement: 1 } }
+        data: { tokens: { decrement: tokenCost } }
+      }),
+      (prisma.notification as any).create({
+        data: {
+          userId: session.userId,
+          title: 'Draft Website Tersimpan',
+          message: `Berhasil menyimpan draft untuk website: ${title}`,
+          type: 'template',
+          isRead: false
+        }
       })
     ]);
 

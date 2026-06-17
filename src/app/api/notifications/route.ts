@@ -52,7 +52,7 @@ export async function POST(request: Request) {
   }
 }
 
-// PATCH /api/notifications — Mark all notifications as read
+// PATCH /api/notifications — Mark all or single notification as read
 export async function PATCH(request: Request) {
   try {
     const session = getSessionFromCookies(request.headers.get('cookie'));
@@ -60,12 +60,29 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ success: false, message: 'Belum login.' }, { status: 401 });
     }
 
-    await (prisma.notification as any).updateMany({
-      where: { userId: session.userId, isRead: false },
-      data: { isRead: true },
-    });
+    let id: number | undefined;
+    try {
+      const body = await request.json();
+      if (body && body.id) {
+        id = Number(body.id);
+      }
+    } catch (e) {
+      // Body might be empty
+    }
 
-    return NextResponse.json({ success: true, message: 'Semua notifikasi ditandai dibaca.' });
+    if (id) {
+      await (prisma.notification as any).updateMany({
+        where: { id: id, userId: session.userId, isRead: false },
+        data: { isRead: true },
+      });
+      return NextResponse.json({ success: true, message: 'Notifikasi ditandai dibaca.' });
+    } else {
+      await (prisma.notification as any).updateMany({
+        where: { userId: session.userId, isRead: false },
+        data: { isRead: true },
+      });
+      return NextResponse.json({ success: true, message: 'Semua notifikasi ditandai dibaca.' });
+    }
   } catch (error: any) {
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
   }

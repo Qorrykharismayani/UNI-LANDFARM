@@ -19,15 +19,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: 'Deskripsi wajib diisi.' }, { status: 400 });
     }
 
-    // Periksa saldo token user
-    const user = await (prisma.user as any).findUnique({
-      where: { id: session.userId },
-      select: { tokens: true }
-    });
-
-    if (!user || user.tokens < 1) {
-      return NextResponse.json({ success: false, message: 'Token tidak cukup. Silakan beli token terlebih dahulu.' }, { status: 402 });
-    }
+    // Token check removed since it is handled by the landing page creation process
 
     const draft = await generateWebsiteDraft(
       businessName || 'Situs Bisnis AI',
@@ -36,11 +28,7 @@ export async function POST(request: Request) {
       templateName
     );
 
-    // Kurangi token jika sukses generate AI
-    await (prisma.user as any).update({
-      where: { id: session.userId },
-      data: { tokens: { decrement: 1 } }
-    });
+    // Token deduction removed since it is handled by the landing page creation process
 
     return NextResponse.json({ success: true, data: draft });
   } catch (error: any) {

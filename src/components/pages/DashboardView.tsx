@@ -46,6 +46,7 @@ import TemplatePage from './TemplatePage';
 import ProfilePage from './ProfilePage';
 import AdminPanelPage from './AdminPanelPage';
 import AllProjectsPage from './AllProjectsPage';
+import NotificationsView from './NotificationsView';
 import { Folder } from 'lucide-react';
 
 interface DashboardFooterProps {
@@ -306,10 +307,55 @@ export const DashboardView = ({
     }
   };
 
+  const [notifications, setNotifications] = useState<any[]>([]);
+
+  const fetchNotifications = async () => {
+    try {
+      const res = await fetch('/api/notifications');
+      const data = await res.json();
+      if (data.success && Array.isArray(data.data)) {
+        setNotifications(data.data);
+      }
+    } catch (err) {
+      console.error("Gagal mengambil notifikasi:", err);
+    }
+  };
+
+  const handleMarkAllRead = async () => {
+    try {
+      const res = await fetch('/api/notifications', { method: 'PATCH' });
+      if (res.ok) {
+        fetchNotifications();
+      }
+    } catch (err) {}
+  };
+
+  const handleMarkRead = async (id: number) => {
+    try {
+      // Optimistically update the state
+      setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
+      await fetch('/api/notifications', { 
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      });
+    } catch (err) {}
+  };
+
+  const handleClearAllNotifications = async () => {
+    try {
+      const res = await fetch('/api/notifications', { method: 'DELETE' });
+      if (res.ok) {
+        setNotifications([]);
+      }
+    } catch (err) {}
+  };
+
   useEffect(() => {
-    fetchProjects();
     fetchTemplates();
+    fetchProjects();
     fetchArticles();
+    fetchNotifications();
   }, []);
 
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -356,8 +402,7 @@ export const DashboardView = ({
         showNotification(data.message || 'Gagal memperbarui password.', 'info');
       }
     } catch (err) {
-      console.error(err);
-      showNotification('Terjadi kesalahan koneksi.', 'info');
+      showNotification("Gagal mengambil proyek, silakan coba lagi.", "info");
     }
   };
 
@@ -463,8 +508,8 @@ export const DashboardView = ({
   };
 
   const handleAiBuild = async () => {
-    if (user?.tokens < 1) {
-      showNotification('Token Anda tidak cukup. Silakan beli token terlebih dahulu.', 'info');
+    if (user?.tokens < 1500) {
+      showNotification('Token Anda tidak cukup (butuh 1500). Silakan beli token terlebih dahulu.', 'info');
       setSubView('tokens');
       return;
     }
@@ -503,24 +548,73 @@ export const DashboardView = ({
         aiData.description
       );
 
-      setGeneratedDraft({
+      const finalDraft = {
         ...draft,
         sections: ['Hero Section', 'Tentang Kami', 'Produk/Layanan', 'Galeri', 'CTA', 'Footer']
-      });
+      };
+      setGeneratedDraft(finalDraft);
       setSelectedColor(draft.themeColor);
-      setUser({ ...user, tokens: user.tokens - 1 });
+
+      try {
+        const res = await fetch('/api/landing-pages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            templateId: 1,
+            title: 'Situs Bisnis AI',
+            businessName: 'Situs Bisnis AI',
+            slug: 'situs-bisnis-ai-' + Math.floor(Math.random() * 1000),
+            contentJson: finalDraft,
+            tokenCost: 1500
+          })
+        });
+        const data = await res.json();
+        if (data.success && data.data) {
+          setActivePageId(data.data.id);
+          fetchProjects();
+        }
+      } catch (err) {
+        console.error('Failed saving generated AI draft to DB:', err);
+      }
+
+      setUser({ ...user, tokens: user.tokens - 1500 });
       setCmsNavMode('preview');
       showNotification('Website berhasil dibangun!', 'success');
-    } catch (error) {
-      setGeneratedDraft({
+    } catch (error) {      const defaultDraft = {
         headline: 'Selamat Datang di Bisnis Kami',
         subheadline: aiData.description,
         cta: 'Mulai Sekarang',
         url: 'uni-landfarm.ai/preview-site',
         sections: ['Hero Section', 'Tentang Kami', 'Produk/Layanan', 'Galeri', 'CTA', 'Footer'],
-        themeColor: '#3B82F6'
-      });
-      setCmsNavMode('preview');
+        themeColor: '#3b82f6'
+      };
+      setGeneratedDraft(defaultDraft);
+      setSelectedColor('#3b82f6');
+
+      try {
+        const res = await fetch('/api/landing-pages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            templateId: 1,
+            title: 'Situs Bisnis AI',
+            businessName: 'Situs Bisnis AI',
+            slug: 'situs-bisnis-ai-' + Math.floor(Math.random() * 1000),
+            contentJson: defaultDraft,
+            tokenCost: 1500
+          })
+        });
+        const data = await res.json();
+        if (data.success && data.data) {
+          setActivePageId(data.data.id);
+          fetchProjects();
+        }
+      } catch (err) {
+        console.error('Failed saving default AI draft to DB:', err);
+      }
+
+      setUser({ ...user, tokens: user.tokens - 1500 });
+      setCmsNavMode('preview');;
       showNotification('Gagal menghubungi AI, menggunakan draf default.', 'info');
     } finally {
       setIsGenerating(false);
@@ -528,8 +622,8 @@ export const DashboardView = ({
   };
 
   const handleManualSetup = async () => {
-    if (user?.tokens < 1) {
-      showNotification('Token Anda tidak cukup. Silakan beli token terlebih dahulu.', 'info');
+    if (user?.tokens < 500) {
+      showNotification('Token Anda tidak cukup (butuh 500). Silakan beli token terlebih dahulu.', 'info');
       setSubView('tokens');
       return;
     }
@@ -567,28 +661,79 @@ export const DashboardView = ({
         manualData.description
       );
 
-      setGeneratedDraft({
+      const finalDraft = {
         ...draft,
         sections: ['Hero Section', 'Tentang Kami', 'Produk/Layanan', 'Galeri', 'CTA', 'Footer']
-      });
+      };
+      setGeneratedDraft(finalDraft);
       setSelectedColor(manualData.color);
-      setUser({ ...user, tokens: user.tokens - 1 });
+
+      try {
+        const res = await fetch('/api/landing-pages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            templateId: 1,
+            title: manualData.name,
+            businessName: manualData.name,
+            slug: manualData.subdomain,
+            contentJson: finalDraft,
+            tokenCost: 500
+          })
+        });
+        const data = await res.json();
+        if (data.success && data.data) {
+          setActivePageId(data.data.id);
+          fetchProjects();
+        }
+      } catch (err) {
+        console.error('Failed saving generated draft to DB:', err);
+      }
+
+      setUser({ ...user, tokens: user.tokens - 500 });
+
 
       setCmsNavMode('preview');
       showNotification('Website berhasil dikonfigurasi!', 'success');
     } catch (error: any) {
       console.error(error);
-      setGeneratedDraft({
+      const defaultDraft = {
         headline: manualData.name,
         subheadline: manualData.description,
         cta: 'Mulai Sekarang',
         url: manualData.subdomain + '.unilandfarm.ai',
         sections: ['Hero Section', 'Tentang Kami', 'Produk/Layanan', 'Galeri', 'CTA', 'Footer'],
         themeColor: manualData.color
-      });
+      };
+      setGeneratedDraft(defaultDraft);
       setSelectedColor(manualData.color);
+
+      try {
+        const res = await fetch('/api/landing-pages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            templateId: 1,
+            title: manualData.name,
+            businessName: manualData.name,
+            slug: manualData.subdomain,
+            contentJson: defaultDraft,
+            tokenCost: 500
+          })
+        });
+        const data = await res.json();
+        if (data.success && data.data) {
+          setActivePageId(data.data.id);
+          fetchProjects();
+        }
+      } catch (err) {
+        console.error('Failed saving default draft to DB:', err);
+      }
+      
+      setUser({ ...user, tokens: user.tokens - 500 });
+
       setCmsNavMode('preview');
-      showNotification('Gagal menghubungi AI (API Key tidak valid). Draf default digunakan.', 'info');
+      showNotification(error.message || 'Gagal memproses draf. Draf default digunakan.', 'info');
     } finally {
       setIsGenerating(false);
     }
@@ -693,8 +838,8 @@ export const DashboardView = ({
 
   const handleCreatePageFromTemplate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (user?.tokens < 1) {
-      showNotification('Token Anda tidak cukup. Silakan beli token terlebih dahulu.', 'info');
+    if (user?.tokens < 500) {
+      showNotification('Token Anda tidak cukup (butuh 500). Silakan beli token terlebih dahulu.', 'info');
       setSubView('tokens');
       return;
     }
@@ -722,7 +867,7 @@ export const DashboardView = ({
 
       const data = await res.json();
       if (data.success && data.data) {
-        setUser({ ...user, tokens: user.tokens - 1 });
+        setUser({ ...user, tokens: user.tokens - 500 });
         showNotification('Situs baru berhasil dibuat dari template!', 'success');
         setTemplateForCreation(null);
         setCreationWebsiteTitle('');
@@ -765,25 +910,25 @@ export const DashboardView = ({
 
   const templateCategories = ['Semua', ...Array.from(new Set(templates.map(t => t.category)))];
 
-  const handlePublish = () => {
+  const handlePublish = async () => {
     setIsPublishing(true);
-    setTimeout(() => {
-      setIsPublishing(false);
+    try {
+      if (activePageId) {
+        await fetch(`/api/landing-pages/${activePageId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'Published' })
+        });
+      }
       showNotification('Situs berhasil dipublikasikan!');
-
-      // Update userProjects when published
-      const newProject = {
-        id: `PROJ-0${userProjects.length + 1}`,
-        name: businessData.name || 'Situs Baru',
-        status: 'Online',
-        views: '0',
-        type: businessData.category || 'Landing Page',
-        image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500&q=80'
-      };
-      setUserProjects([newProject, ...userProjects]);
+      await fetchProjects();
       setSubView('overview');
       setCmsNavMode('landing');
-    }, 2000);
+    } catch (err) {
+      showNotification('Gagal mempublikasikan situs', 'info');
+    } finally {
+      setIsPublishing(false);
+    }
   };
 
   const [integrations, setIntegrations] = useState([
@@ -860,7 +1005,14 @@ export const DashboardView = ({
             previewTemplate={previewTemplate}
             setPreviewTemplate={setPreviewTemplate}
             templateForCreation={templateForCreation}
-            setTemplateForCreation={setTemplateForCreation}
+            setTemplateForCreation={(tpl) => {
+              if (tpl && user?.tokens < 500) {
+                showNotification('Token Anda tidak cukup (butuh 500). Silakan beli token terlebih dahulu.', 'info');
+                setSubView('tokens');
+                return;
+              }
+              setTemplateForCreation(tpl);
+            }}
             creationWebsiteTitle={creationWebsiteTitle}
             setCreationWebsiteTitle={setCreationWebsiteTitle}
             creationBusinessName={creationBusinessName}
@@ -1009,6 +1161,8 @@ export const DashboardView = ({
       case 'buat_situs':
         return (
           <LandingPagePage
+            user={user}
+            showNotification={showNotification}
             cmsNavMode={cmsNavMode}
             setCmsNavMode={setCmsNavMode}
             genProgress={genProgress}
@@ -1024,6 +1178,24 @@ export const DashboardView = ({
             handlePublish={handlePublish}
             setSubView={setSubView}
             setCmsSubTab={setCmsSubTab}
+            isPublishing={isPublishing}
+          />
+        );
+      case 'notifications':
+        return (
+          <NotificationsView 
+            user={user} 
+            notifications={notifications.map(n => ({
+              id: n.id,
+              type: n.type,
+              title: n.title,
+              desc: n.message,
+              time: new Date(n.createdAt).toLocaleDateString(),
+              read: n.isRead
+            }))}
+            onMarkAllRead={handleMarkAllRead}
+            onMarkRead={handleMarkRead}
+            onClearAll={handleClearAllNotifications}
           />
         );
       case 'cms':
@@ -1307,9 +1479,14 @@ export const DashboardView = ({
                   {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
                 </button>
 
-                <button className="p-3 rounded-2xl text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-all relative group border border-transparent hover:border-slate-100 dark:hover:border-white/5">
+                <button 
+                  onClick={() => setSubView('notifications')}
+                  className="p-3 rounded-2xl text-slate-400 hover:text-brand-blue hover:bg-brand-blue/10 transition-all relative group"
+                >
                   <Bell className="w-5 h-5" />
-                  <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-[#020617]"></span>
+                  {notifications.filter(n => !n.isRead).length > 0 && (
+                    <span className="absolute top-3 right-3 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                  )}
                 </button>
               </div>
 

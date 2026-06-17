@@ -63,32 +63,32 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
 
   const packages = [
     {
-      id: 'pemula',
-      name: 'Paket Pemula',
-      price: 25000,
-      tokens: 10,
-      description: 'Cocok untuk mencoba fitur dasar AI.',
-      features: ['10 Token / Generate Web', '2 Token / Revisi AI', 'Akses Template Dasar', 'Dukungan Komunitas'],
+      id: 'basic',
+      name: 'Paket Basic',
+      price: 75000,
+      tokens: 800,
+      description: 'Untuk kebutuhan desain dasar.',
+      features: ['1 prompt', 'Rasio 16:9', '1 konsep infografis', '500-800 token'],
       popular: false,
       gradient: 'from-blue-500 to-cyan-400'
     },
     {
-      id: 'pertumbuhan',
-      name: 'Paket Pertumbuhan',
-      price: 100000,
-      tokens: 250,
-      description: 'Untuk bisnis yang aktif berkembang.',
-      features: ['10 Token / Generate Web', '2 Token / Revisi AI', 'Akses Semua Template', 'Dukungan Prioritas'],
+      id: 'standard',
+      name: 'Paket Standard',
+      price: 250000,
+      tokens: 2500,
+      description: 'Pilihan terbaik untuk hasil profesional.',
+      features: ['3 alternatif desain', 'Prompt detail', 'Branding sesuai website', 'Struktur visual profesional', '1.000-2.500 token'],
       popular: true,
       gradient: 'from-amber-400 to-orange-500'
     },
     {
-      id: 'pro',
-      name: 'Paket Pro',
-      price: 350000,
-      tokens: 1000,
-      description: 'Solusi skala besar untuk agensi.',
-      features: ['10 Token / Generate Web', '2 Token / Revisi AI', 'Pengaturan Domain Kustom', 'Agen AI Khusus'],
+      id: 'premium',
+      name: 'Paket Premium',
+      price: 500000,
+      tokens: 5000,
+      description: 'Solusi terlengkap untuk berbagai format visual.',
+      features: ['Menggunakan screenshot website sebagai referensi', 'Prompt sangat detail', 'Storytelling visual', 'Layout presentasi/lomba/skripsi', '3.000-5.000 token', 'Beberapa versi (poster, banner, slide)'],
       popular: false,
       gradient: 'from-violet-500 to-purple-600'
     }
