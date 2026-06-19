@@ -1,19 +1,19 @@
 import React from 'react';
 import {
-  ArrowLeft, ArrowRight, ArrowUpRight, Plus, FileText, Zap, Sparkles,
-  FolderOpen, FileSearch, Send, Edit3, Upload
+  ArrowLeft, ArrowRight, ArrowUpRight, FileText, Zap, Sparkles,
+  Send, Edit3, Upload
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import TemplateRenderer from '../TemplateRenderer';
 
 interface LandingPagePageProps {
+  user?: any;
+  showNotification?: (msg: string, type?: 'success' | 'info') => void;
   cmsNavMode: string;
   setCmsNavMode: (mode: string) => void;
   genProgress: number;
   isGenerating: boolean;
   generatedDraft: any;
-  savedDrafts: any[];
-  setSavedDrafts: (fn: (prev: any[]) => any[]) => void;
   manualData: any;
   setManualData: (data: any) => void;
   aiData: any;
@@ -21,22 +21,21 @@ interface LandingPagePageProps {
   formErrors: Record<string, string>;
   handleAiBuild: () => void;
   handleManualSetup: () => void;
-  handleCreateRancangan: () => void;
   handlePublish: () => void;
   setSubView: (v: string) => void;
   setCmsSubTab: (tab: string) => void;
   templates: any[];
-  isPublishing: boolean;
+  isPublishing?: boolean;
 }
 
 const LandingPagePage = ({
+  user,
+  showNotification,
   cmsNavMode,
   setCmsNavMode,
   genProgress,
   isGenerating,
   generatedDraft,
-  savedDrafts,
-  setSavedDrafts,
   manualData,
   setManualData,
   aiData,
@@ -44,7 +43,6 @@ const LandingPagePage = ({
   formErrors,
   handleAiBuild,
   handleManualSetup,
-  handleCreateRancangan,
   handlePublish,
   setSubView,
   setCmsSubTab,
@@ -153,6 +151,7 @@ const LandingPagePage = ({
     );
   }
 
+
   if (isGenerating) {
     return (
       <div className="max-w-4xl mx-auto h-[60vh] flex flex-col items-center justify-center text-center space-y-8 animate-in fade-in duration-500">
@@ -200,9 +199,11 @@ const LandingPagePage = ({
             <button
               onClick={handlePublish}
               disabled={isPublishing}
-              className={`px-6 py-2.5 bg-brand-blue text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-blue hover:shadow-blue-lg transition-all flex items-center gap-2 ${isPublishing ? 'opacity-60 cursor-not-allowed' : ''}`}
+              className={`px-6 py-2.5 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-blue hover:shadow-blue-lg transition-all flex items-center gap-2 ${
+                isPublishing ? 'bg-brand-blue/70 cursor-not-allowed' : 'bg-brand-blue'
+              }`}
             >
-              <Send className="w-3 h-3" /> {isPublishing ? 'Mempublikasikan...' : 'Publish Website'}
+              <Send className={`w-3 h-3 ${isPublishing ? 'animate-pulse' : ''}`} /> {isPublishing ? 'Publishing...' : 'Publish Website'}
             </button>
           </div>
         </div>
@@ -511,7 +512,14 @@ const LandingPagePage = ({
 
       <div className="flex justify-center animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-200">
         <motion.div
-          onClick={() => setCmsNavMode('manual')}
+          onClick={() => {
+            if (user?.tokens < 500) {
+              if (showNotification) showNotification('Token Anda tidak cukup (butuh 500). Silakan beli token terlebih dahulu.', 'info');
+              setSubView('tokens');
+              return;
+            }
+            setCmsNavMode('manual');
+          }}
           whileHover={{ y: -8 }}
           transition={{ type: "spring", stiffness: 300 }}
           className="group relative w-full max-w-md cursor-pointer"
@@ -544,6 +552,11 @@ const LandingPagePage = ({
               <button
                 onClick={(e) => {
                   e.stopPropagation();
+                  if (user?.tokens < 500) {
+                    if (showNotification) showNotification('Token Anda tidak cukup (butuh 500). Silakan beli token terlebih dahulu.', 'info');
+                    setSubView('tokens');
+                    return;
+                  }
                   setCmsNavMode('manual');
                 }}
                 className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-brand-blue to-indigo-600 text-white rounded-full text-xs font-black uppercase tracking-[0.2em] shadow-[0_10px_30px_-10px_rgba(255,176,0,0.4)] hover:shadow-[0_15px_40px_-10px_rgba(255,176,0,0.6)] transition-all duration-500"

@@ -11,17 +11,13 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, message: 'Tidak diotorisasi. Khusus admin.' }, { status: 403 });
     }
 
-    const requests = await prisma.publishRequest.findMany({
-      where: { status: 'Pending' },
+    const requests = await prisma.landingPage.findMany({
+      where: { status: 'Pending Publish' },
       include: {
-        landingPage: {
-          include: {
-            user: { select: { name: true, email: true } },
-            template: { select: { name: true } }
-          }
-        }
+        user: { select: { name: true, email: true } },
+        template: { select: { name: true } }
       },
-      orderBy: { requestedAt: 'desc' }
+      orderBy: { createdAt: 'desc' }
     });
 
     return NextResponse.json({ success: true, message: 'Berhasil', data: requests });

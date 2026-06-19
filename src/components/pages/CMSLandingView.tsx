@@ -13,7 +13,10 @@ import {
   Zap, 
   TrendingUp, 
   Layout,
-  Cpu
+  Cpu,
+  Sparkles,
+  Calendar,
+  Clock
 } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -23,9 +26,9 @@ interface CMSProps {
 
 export const CMSLandingView = ({ setView }: CMSProps) => {
   const features = [
-    { num: "01", title: "AI Agent Panel", desc: "Interaksi real-time dengan asisten otonom untuk manajemen konten.", icon: <MessageSquare className="w-5 h-5" /> },
-    { num: "02", title: "Knowledge Base", desc: "Unggah data bisnis Anda untuk kustomisasi AI yang sangat spesifik.", icon: <Upload className="w-5 h-5" /> },
-    { num: "03", title: "Data Visualization", desc: "Visualisasi data real-time untuk pengambilan keputusan yang lebih cepat.", icon: <LucideLineChart className="w-5 h-5" /> }
+    { num: "01", title: "AI Content Assistant", desc: "Membantu membuat, memperbarui, dan mengoptimalkan konten landing page sesuai kebutuhan bisnis Anda.", icon: <Sparkles className="w-5 h-5" /> },
+    { num: "02", title: "Knowledge Base Bisnis", desc: "Menyimpan informasi bisnis sebagai referensi AI untuk menghasilkan rekomendasi dan konten yang lebih relevan.", icon: <Database className="w-5 h-5" /> },
+    { num: "03", title: "Smart Publishing Scheduler", desc: "Menjadwalkan publikasi dan pembaruan konten secara otomatis agar promosi berjalan lebih konsisten.", icon: <Calendar className="w-5 h-5" /> }
   ];
 
   return (
@@ -40,41 +43,40 @@ export const CMSLandingView = ({ setView }: CMSProps) => {
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="space-y-10"
+          className="space-y-8"
         >
-          <div className="space-y-6">
+          <div className="space-y-5">
             <motion.div 
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
-              className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-brand-blue/10 border border-brand-blue/20 backdrop-blur-md text-brand-blue text-[11px] font-black uppercase tracking-[0.25em] mb-6 shadow-[0_0_25px_rgba(255,176,0,0.15)]"
+              className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-brand-blue/10 border border-brand-blue/20 backdrop-blur-md text-brand-blue text-[11px] font-black uppercase tracking-[0.25em] mb-4 shadow-[0_0_25px_rgba(255,176,0,0.15)]"
             >
               <LayoutDashboard className="w-4 h-4 text-brand-blue animate-pulse" />
               CMS DASHBOARD
             </motion.div>
             
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white mb-6 tracking-tight leading-tight transition-colors">
-              CMS Kuat dengan <br />
-              <span className="text-brand-blue">Kecerdasan Bisnis AI</span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white mb-4 tracking-tight leading-tight transition-colors">
+              CMS Landing Page dengan <span className="text-brand-blue">Agentic AI</span>
             </h2>
             
-            <p className="text-slate-600 dark:text-slate-400 text-base sm:text-lg font-medium leading-relaxed max-w-lg transition-colors">
-              Kelola seluruh ekosistem digital bisnis Anda dengan bantuan AI yang proaktif. Dari analisis pasar hingga penjadwal konten pemasaran otomatis.
+            <p className="text-slate-600 dark:text-slate-400 text-base sm:text-lg font-medium leading-relaxed max-w-xl transition-colors text-justify">
+              Kelola landing page mikro secara lebih cepat dan efisien melalui CMS berbasis Agentic AI yang membantu pengelolaan konten, rekomendasi strategi, dan penjadwalan publikasi dalam satu platform.
             </p>
           </div>
           
           {/* Feature List */}
-          <div className="space-y-6">
+          <div className="space-y-5">
             {features.map((item, i) => (
               <div 
                 key={i}
-                className="flex items-start gap-5 group transition-all"
+                className="flex items-start gap-4 group transition-all"
               >
-                <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 group-hover:border-brand-blue/40 group-hover:text-brand-blue transition-all duration-300 shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 group-hover:border-brand-blue/40 group-hover:text-brand-blue transition-all duration-300 shrink-0">
                   {React.cloneElement(item.icon as React.ReactElement<any>, { className: "w-5 h-5" })}
                 </div>
-                <div className="space-y-0.5">
-                  <h4 className="text-lg font-black text-slate-900/90 dark:text-white/90 group-hover:text-brand-blue transition-colors tracking-tight leading-tight">{item.title}</h4>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium leading-relaxed max-w-sm transition-colors group-hover:text-slate-800 dark:group-hover:text-slate-300">{item.desc}</p>
+                <div className="space-y-1">
+                  <h4 className="text-base font-black text-slate-900/90 dark:text-white/90 group-hover:text-brand-blue transition-colors tracking-tight leading-tight">{item.title}</h4>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium leading-relaxed max-w-md transition-colors group-hover:text-slate-800 dark:group-hover:text-slate-300">{item.desc}</p>
                 </div>
               </div>
             ))}
@@ -297,18 +299,17 @@ export const CMSPreview = ({ setView }: CMSProps) => (
           Modern Agentic AI CMS
         </div>
         <h2 className="text-3xl lg:text-5xl font-black text-slate-900 dark:text-white mb-6 tracking-tight leading-tight uppercase transition-colors">
-          CMS Kuat dengan <br />
-          <span className="text-brand-blue">Kecerdasan Bisnis AI</span>
+          CMS Landing Page dengan <span className="text-brand-blue">Agentic AI</span>
         </h2>
-        <p className="text-base lg:text-lg text-slate-600 dark:text-slate-400 mb-8 leading-relaxed font-medium transition-colors">
-          Kelola seluruh ekosistem digital bisnis Anda dengan bantuan AI yang proaktif. Dari analisis pasar hingga penjadwal konten pemasaran otomatis.
+        <p className="text-base lg:text-lg text-slate-600 dark:text-slate-400 mb-8 leading-relaxed font-medium transition-colors max-w-xl text-justify">
+          Kelola landing page mikro secara lebih cepat dan efisien melalui CMS berbasis Agentic AI yang membantu pengelolaan konten, rekomendasi strategi, dan penjadwalan publikasi dalam satu platform.
         </p>
         
         <div className="space-y-4 mb-10">
           {[
-            { title: "AI Agent Panel", desc: "Interaksi real-time dengan asisten otonom.", icon: <MessageSquare className="w-4 h-4" /> },
-            { title: "Knowledge Base", desc: "Unggah data bisnis untuk kustomisasi AI.", icon: <Upload className="w-4 h-4" /> },
-            { title: "Data Visualization", desc: "Visualisasi data real-time untuk keputusan cepat.", icon: <BarChart3 className="w-4 h-4" /> }
+            { title: "AI Content Assistant", desc: "Membantu membuat, memperbarui, dan mengoptimalkan konten landing page sesuai kebutuhan bisnis Anda.", icon: <Sparkles className="w-4 h-4" /> },
+            { title: "Knowledge Base Bisnis", desc: "Menyimpan informasi bisnis sebagai referensi AI untuk menghasilkan rekomendasi dan konten yang lebih relevan.", icon: <Database className="w-4 h-4" /> },
+            { title: "Smart Publishing Scheduler", desc: "Menjadwalkan publikasi dan pembaruan konten secara otomatis agar promosi berjalan lebih konsisten.", icon: <Calendar className="w-4 h-4" /> }
           ].map((item, i) => (
             <div key={i} className="flex items-center gap-4 group">
               <div className="w-9 h-9 bg-brand-blue/10 border border-slate-200 dark:border-white/5 rounded-lg flex items-center justify-center text-brand-blue group-hover:bg-brand-blue group-hover:text-white transition-all duration-300 text-sm">
@@ -316,7 +317,7 @@ export const CMSPreview = ({ setView }: CMSProps) => (
               </div>
               <div>
                 <h4 className="font-bold text-slate-900 dark:text-white text-sm tracking-tight transition-colors">{item.title}</h4>
-                <p className="text-[10px] text-slate-600 dark:text-slate-500 font-medium transition-colors">{item.desc}</p>
+                <p className="text-[10px] text-slate-600 dark:text-slate-500 font-medium transition-colors max-w-md">{item.desc}</p>
               </div>
             </div>
           ))}
@@ -357,7 +358,7 @@ export const CMSPreview = ({ setView }: CMSProps) => (
                 <Cpu className="w-3 h-3" />
               </div>
               {[Layout, BarChart3, Bot].map((Icon, i) => (
-                <div key={i} className="text-slate-100">
+                <div key={i} className="text-slate-400">
                   <Icon className="w-3 h-3" />
                 </div>
               ))}

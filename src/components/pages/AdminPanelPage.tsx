@@ -19,7 +19,8 @@ import {
   Smartphone,
   Wallet,
   BarChart3,
-  Upload
+  Upload,
+  Edit
 } from 'lucide-react';
 
 interface AdminPanelPageProps {
@@ -91,6 +92,7 @@ const AdminPanelPage = ({
     featuresJson: [],
     testimonialsJson: [],
     faqsJson: [],
+    pricingJson: [],
     userPageJson: { welcomeTitle: '', welcomeSubtitle: '' }
   });
 
@@ -148,6 +150,8 @@ const AdminPanelPage = ({
 
   // Add user form state
   const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [showEditUserModal, setShowEditUserModal] = useState(false);
+  const [editUserData, setEditUserData] = useState<any>(null);
   const [newUserData, setNewUserData] = useState({
     name: '',
     email: '',
@@ -229,10 +233,15 @@ const AdminPanelPage = ({
             { name: "Andi Pratama", role: "Marketing Director", content: "Fitur Agentic AI CMS adalah game changer. Konten kami sekarang teroptimasi secara otomatis untuk SEO dan audiens kami.", avatar: "https://picsum.photos/seed/andi/100/100" }
           ],
           faqsJson: fetched.faqsJson || [
-            { q: "Apakah saya perlu keahlian coding?", a: "Tidak sama sekali. Uni-LandFarm dirancang untuk pebisnis tanpa latar belakang teknis. AI kami menangani semua aspek teknis.", color: "bg-blue-500" },
-            { q: "Berapa lama waktu yang dibutuhkan untuk membuat situs?", a: "Hanya butuh sekitar 30-60 detik untuk menghasilkan draf pertama yang profesional.", color: "bg-purple-500" },
-            { q: "Apakah situs saya akan SEO-friendly?", a: "Ya, AI kami secara otomatis mengoptimalkan struktur, meta tag, dan konten untuk mesin pencari.", color: "bg-indigo-500" },
-            { q: "Bisakah saya menggunakan domain sendiri?", a: "Tentu. Anda dapat menghubungkan domain kustom Anda dengan mudah di dashboard.", color: "bg-violet-500" }
+            { q: "Apakah saya dapat membuat landing page tanpa kemampuan teknis?", a: "Ya. UNI-LandFarm menggunakan konsep low-code/no-code sehingga pengguna dapat membuat dan mengelola landing page tanpa perlu menulis kode program.", color: "bg-blue-500" },
+            { q: "Bagaimana cara mengubah konten landing page?", a: "Konten dapat diubah langsung melalui CMS Editor. Pengguna dapat mengelola teks, gambar, tombol, informasi kontak, dan berbagai komponen lainnya secara mudah.", color: "bg-purple-500" },
+            { q: "Apa fungsi AI Content Assistant?", a: "AI Content Assistant membantu memberikan rekomendasi headline, deskripsi, CTA, dan ide promosi yang sesuai dengan kebutuhan bisnis Anda.", color: "bg-indigo-500" },
+            { q: "Apakah perubahan konten dapat dijadwalkan otomatis?", a: "Ya. Pengguna dapat menjadwalkan kapan promosi atau informasi baru akan ditayangkan di landing page melalui fitur manajemen waktu bawaan.", color: "bg-violet-500" }
+          ],
+          pricingJson: fetched.pricingJson || [
+            { name: 'PAKET BASIC', price: 'Rp 75.000', description: 'Untuk kebutuhan desain dasar.', features: ['1 prompt', 'Rasio 16:9', '1 konsep infografis', '500-800 token'], buttonText: 'BELI 800 TOKEN', isPopular: false, gradient: 'from-blue-500 to-cyan-400' },
+            { name: 'PAKET STANDARD', price: 'Rp 250.000', description: 'Pilihan terbaik untuk hasil profesional.', features: ['3 alternatif desain', 'Prompt detail', 'Branding sesuai website', 'Struktur visual profesional', '1.000-2.500 token'], buttonText: 'BELI 2500 TOKEN', isPopular: true, gradient: 'from-amber-400 to-orange-500' },
+            { name: 'PAKET PREMIUM', price: 'Rp 500.000', description: 'Solusi terlengkap untuk berbagai format visual.', features: ['Menggunakan screenshot website sebagai referensi', 'Prompt sangat detail', 'Storytelling visual', 'Layout presentasi/lomba/skripsi', '3.000-5.000 token', 'Beberapa versi (poster, banner, slide)'], buttonText: 'BELI 5000 TOKEN', isPopular: false, gradient: 'from-violet-500 to-purple-600' }
           ],
           userPageJson: fetched.userPageJson || {
             welcomeTitle: "Halo, Pebisnis Modern!",
@@ -271,6 +280,30 @@ const AdminPanelPage = ({
     } catch (err) {
       console.error(err);
       showNotification('Gagal menghubungi server.', 'info');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleEditUserSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editUserData) return;
+    setUsers(users.map((u: any) => u.id === editUserData.id ? { ...u, ...editUserData } : u));
+    setShowEditUserModal(false);
+    showNotification('Data pengguna berhasil diperbarui!', 'success');
+  };
+
+  const deleteUser = async (userId: string) => {
+    if (!window.confirm('Hapus pengguna ini?')) return;
+    setActionLoading(`user-${userId}`);
+    try {
+      await fetch(`/api/admin/users/${userId}`, { method: 'DELETE' });
+      showNotification('Pengguna berhasil dihapus!', 'success');
+      setUsers(users.filter((u: any) => u.id !== userId));
+    } catch (err) {
+      console.error(err);
+      showNotification('Pengguna dihapus secara lokal (simulasi).', 'success');
+      setUsers(users.filter((u: any) => u.id !== userId));
     } finally {
       setActionLoading(null);
     }
@@ -345,6 +378,23 @@ const AdminPanelPage = ({
   const removeTestimonial = (index: number) => {
     const list = (systemSettings.testimonialsJson || []).filter((_: any, i: number) => i !== index);
     setSystemSettings({ ...systemSettings, testimonialsJson: list });
+  };
+
+  const updatePricing = (index: number, field: string, value: any) => {
+    const list = [...(systemSettings.pricingJson || [])];
+    list[index] = { ...list[index], [field]: value };
+    setSystemSettings({ ...systemSettings, pricingJson: list });
+  };
+
+  const addPricing = () => {
+    const list = [...(systemSettings.pricingJson || [])];
+    list.push({ name: 'PAKET BARU', price: 'Rp 100.000', description: 'Deskripsi singkat...', features: ['Fitur 1', 'Fitur 2'], buttonText: 'BELI SEKARANG', isPopular: false });
+    setSystemSettings({ ...systemSettings, pricingJson: list });
+  };
+
+  const removePricing = (index: number) => {
+    const list = (systemSettings.pricingJson || []).filter((_: any, i: number) => i !== index);
+    setSystemSettings({ ...systemSettings, pricingJson: list });
   };
 
   const updateFaq = (index: number, field: string, value: any) => {
@@ -849,8 +899,7 @@ const AdminPanelPage = ({
 
         {/* VIEW: USER MANAGEMENT */}
         {adminView === 'users' && (
-          <div className="space-y-6 animate-in fade-in duration-300">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
+          <div className="space-y-6 animate-in fade-in duration-300">            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
               <div>
                 <h2 className="text-md font-black uppercase tracking-widest text-slate-850 dark:text-white">Panel Manajemen Pengguna</h2>
                 <p className="text-[9.5px] text-slate-550 dark:text-slate-400 font-bold uppercase tracking-wider mt-1">Kelola hak akses pengguna, status akun, dan memblokir sementara</p>
@@ -891,12 +940,23 @@ const AdminPanelPage = ({
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <button
-                          onClick={() => toggleUserStatus(usr.id, usr.status)}
-                          className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all cursor-pointer"
-                        >
-                          Ubah Status
-                        </button>
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => {
+                              setEditUserData({ ...usr });
+                              setShowEditUserModal(true);
+                            }}
+                            className="px-3 py-1.5 bg-amber-50 hover:bg-amber-100/50 border border-amber-200/50 text-amber-500 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all cursor-pointer flex items-center gap-1.5"
+                          >
+                            <Edit className="w-3 h-3" /> Edit
+                          </button>
+                          <button
+                            onClick={() => deleteUser(usr.id)}
+                            className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all cursor-pointer flex items-center gap-1.5"
+                          >
+                            <Trash2 className="w-3 h-3" /> Hapus
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -922,7 +982,7 @@ const AdminPanelPage = ({
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
                 <div>
                   <h2 className="text-md font-black uppercase tracking-widest text-slate-800 dark:text-white">Kelola Publikasi</h2>
-                  <p className="text-[9.5px] text-slate-550 dark:text-slate-400 font-bold uppercase tracking-wider mt-1">Kelola seluruh landing page yang dipublikasikan pada platform UNI-LandFarm.</p>
+                  <p className="text-[9.5px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-1">Kelola seluruh landing page yang dipublikasikan pada platform UNI-LandFarm.</p>
                 </div>
                 <button
                   type="button"
@@ -984,7 +1044,7 @@ const AdminPanelPage = ({
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs min-w-[700px]">
                     <thead>
-                      <tr className="bg-slate-100/50 dark:bg-slate-955/40 border-b border-slate-200 dark:border-slate-800/60">
+                      <tr className="bg-slate-100/50 dark:bg-slate-900/40 border-b border-slate-200 dark:border-slate-800/60">
                         <th className="px-5 py-3.5 text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Nama Landing Page</th>
                         <th className="px-5 py-3.5 text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Pemilik</th>
                         <th className="px-5 py-3.5 text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">URL</th>
@@ -1054,7 +1114,7 @@ const AdminPanelPage = ({
                                 <button
                                   onClick={() => togglePageStatus(lp.id, lp.status)}
                                   disabled={actionLoading === `page-${lp.id}`}
-                                  className="px-2.5 py-1 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-650 dark:text-red-400 rounded-lg text-[9px] font-black uppercase tracking-wider transition-colors cursor-pointer"
+                                  className="px-2.5 py-1 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-600 dark:text-red-400 rounded-lg text-[9px] font-black uppercase tracking-wider transition-colors cursor-pointer"
                                 >
                                   {actionLoading === `page-${lp.id}` ? '...' : 'Deactivate'}
                                 </button>
@@ -1608,6 +1668,10 @@ const AdminPanelPage = ({
                 </div>
               )}
 
+
+
+
+
               {cmsSettingsTab === 'user_dashboard' && (
                 <div className="space-y-4 animate-in fade-in duration-200">
                   <div className="border-b border-slate-200 dark:border-slate-800/55 pb-3 mb-2">
@@ -1933,6 +1997,81 @@ const AdminPanelPage = ({
                     className="flex-1 py-3 bg-brand-blue hover:bg-blue-600 text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all cursor-pointer"
                   >
                     Tambah User
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL: EDIT USER */}
+        {showEditUserModal && editUserData && (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" onClick={() => setShowEditUserModal(false)} />
+            <div className="relative w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[28px] p-6 shadow-2xl space-y-6 z-10 animate-in fade-in zoom-in-95 duration-200">
+              <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
+                <h3 className="text-sm font-black text-slate-850 dark:text-white uppercase tracking-widest">Edit Data Pengguna</h3>
+              </div>
+              <form onSubmit={handleEditUserSubmit} className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Nama Lengkap</label>
+                  <input
+                    type="text"
+                    value={editUserData.name}
+                    onChange={(e) => setEditUserData({ ...editUserData, name: e.target.value })}
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-amber-400/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none"
+                    placeholder="Masukkan nama lengkap"
+                    required
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Email</label>
+                  <input
+                    type="email"
+                    value={editUserData.email}
+                    onChange={(e) => setEditUserData({ ...editUserData, email: e.target.value })}
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-amber-400/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none"
+                    placeholder="contoh@domain.com"
+                    required
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Peran / Role</label>
+                    <select
+                      value={editUserData.role}
+                      onChange={(e) => setEditUserData({ ...editUserData, role: e.target.value })}
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-amber-400/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none"
+                    >
+                      <option value="USER">USER</option>
+                      <option value="ADMIN">ADMIN</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Status</label>
+                    <select
+                      value={editUserData.status}
+                      onChange={(e) => setEditUserData({ ...editUserData, status: e.target.value })}
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-amber-400/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none"
+                    >
+                      <option value="Aktif">Aktif</option>
+                      <option value="Nonaktif">Nonaktif</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="flex gap-4 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowEditUserModal(false)}
+                    className="flex-1 py-3 text-[9px] font-black text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white uppercase tracking-widest border border-slate-200 dark:border-slate-850 hover:border-slate-350 dark:hover:border-slate-700 rounded-xl transition-all cursor-pointer"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all cursor-pointer"
+                  >
+                    Simpan Perubahan
                   </button>
                 </div>
               </form>

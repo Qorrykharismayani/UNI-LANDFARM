@@ -41,6 +41,17 @@ export async function POST(request: Request) {
       name: user.name
     });
 
+    // Create a login notification
+    await (prisma.notification as any).create({
+      data: {
+        userId: user.id,
+        title: 'Login Berhasil',
+        message: 'Anda baru saja login ke akun Uni-LandFarm.',
+        type: 'system',
+        isRead: false
+      }
+    });
+
     const response = NextResponse.json({
       success: true,
       message: 'Login berhasil!',

@@ -38,31 +38,27 @@ const Hero = ({ setView, systemSettings }: HeroProps) => (
       >
         <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-brand-blue/10 text-brand-blue border border-brand-blue/20 mb-8 shadow-[0_0_25px_rgba(255,176,0,0.15)] backdrop-blur-md">
           <Sparkles className="w-4 h-4 text-brand-blue animate-pulse" />
-          <span className="text-[11px] font-black tracking-[0.25em] uppercase">AI-Powered Precision • {systemSettings?.platformName || 'Uni-LandFarm'}</span>
+          <span className="text-[11px] font-black tracking-[0.25em] uppercase">AI-Powered Precision • Uni-LandFarm</span>
         </div>
-        {systemSettings?.heroTitle ? (
-          <h1 className="text-[32px] sm:text-[46px] lg:text-[56px] xl:text-[66px] font-black text-slate-900 dark:text-white leading-[1.15] mb-8 tracking-tight transition-colors whitespace-pre-line">
-            {systemSettings.heroTitle}
-          </h1>
-        ) : (
-          <h1 className="text-[32px] sm:text-[46px] lg:text-[56px] xl:text-[66px] font-black text-slate-900 dark:text-white leading-[1.15] mb-8 tracking-tight transition-colors">
-            Bangun Situs Web <br />
-            <span className="text-brand-blue relative inline-block">
-              Bisnis Modern
-              <svg className="absolute -bottom-2 left-0 w-full h-3 text-brand-blue/30" viewBox="0 0 200 20" fill="none" preserveAspectRatio="none">
-                <path d="M0 15C50 5 150 5 200 15" stroke="currentColor" strokeWidth="8" strokeLinecap="round" />
-              </svg>
-            </span> <br />
-            dengan AI
-          </h1>
-        )}
-        <p className="text-[16px] sm:text-[19px] text-slate-600 dark:text-slate-400 mb-10 max-w-xl leading-relaxed font-medium transition-colors">
-          {systemSettings?.heroDescription || (
-            <>
-              Buat landing page profesional, toko online, dan konten bisnis secara instan bersama <span className="text-brand-blue font-bold">Uni-LandFarm</span>.
-            </>
-          )}
-        </p>
+        <h1 
+          className="text-[32px] sm:text-[46px] lg:text-[56px] xl:text-[66px] font-black text-slate-900 dark:text-white leading-[1.15] mb-8 tracking-tight transition-colors"
+          dangerouslySetInnerHTML={{ 
+            __html: `Bangun Situs Web <br />
+          <span class="text-brand-blue relative inline-block">
+            Bisnis Modern
+            <svg class="absolute -bottom-2 left-0 w-full h-3 text-brand-blue/30" viewBox="0 0 200 20" fill="none" preserveAspectRatio="none">
+              <path d="M0 15C50 5 150 5 200 15" stroke="currentColor" stroke-width="8" stroke-linecap="round" />
+            </svg>
+          </span> <br />
+          dengan AI` 
+          }}
+        />
+        <p 
+          className="text-[16px] sm:text-[19px] text-slate-600 dark:text-slate-400 mb-10 max-w-xl leading-relaxed font-medium transition-colors"
+          dangerouslySetInnerHTML={{
+            __html: `Buat landing page profesional, toko online, dan konten bisnis secara instan bersama <span class="text-brand-blue font-bold">Uni-LandFarm</span>.`
+          }}
+        />
         <div className="flex flex-col sm:flex-row gap-4">
           <motion.button 
             whileHover={{ y: -4, scale: 1.02 }}
@@ -71,7 +67,6 @@ const Hero = ({ setView, systemSettings }: HeroProps) => (
             className="px-8 py-4 text-[15px] font-black text-white bg-brand-blue rounded-2xl shadow-[0_20px_40px_-10px_rgba(255,176,0,0.5)] hover:shadow-[0_25px_50px_-12px_rgba(255,176,0,0.6)] transition-all flex items-center justify-center gap-4 group"
           >
             Buat Situs Gratis
-            <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
           </motion.button>
           <motion.button 
             whileHover={{ y: -4, scale: 1.02 }}

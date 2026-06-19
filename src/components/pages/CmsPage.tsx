@@ -69,6 +69,7 @@ const CmsPage = ({
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [newScheduleTitle, setNewScheduleTitle] = useState('');
   const [newScheduleDate, setNewScheduleDate] = useState('');
+  const [newScheduleSection, setNewScheduleSection] = useState('hero');
   const [newScheduleComponent, setNewScheduleComponent] = useState('Hero Title');
   const [newScheduleValue, setNewScheduleValue] = useState('');
   const [newScheduleStatus, setNewScheduleStatus] = useState('Scheduled');
@@ -256,9 +257,10 @@ const CmsPage = ({
             id: editingScheduleId,
             title: newScheduleTitle,
             landingPageId: Number(selectedProjectId),
+            sectionName: newScheduleSection,
             component: newScheduleComponent,
             newValue: newScheduleValue,
-            date: new Date(newScheduleDate).toISOString(),
+            scheduledAt: new Date(newScheduleDate).toISOString(),
             status: newScheduleStatus
           })
         });
@@ -269,6 +271,7 @@ const CmsPage = ({
           setEditingScheduleId(null);
           setNewScheduleTitle('');
           setNewScheduleDate('');
+          setNewScheduleSection('hero');
           setNewScheduleValue('');
           if (showNotification) showNotification('Jadwal berhasil diperbarui!', 'success');
         } else {
@@ -282,9 +285,10 @@ const CmsPage = ({
           body: JSON.stringify({
             title: newScheduleTitle,
             landingPageId: Number(selectedProjectId),
+            sectionName: newScheduleSection,
             component: newScheduleComponent,
             newValue: newScheduleValue,
-            date: new Date(newScheduleDate).toISOString(),
+            scheduledAt: new Date(newScheduleDate).toISOString(),
             status: newScheduleStatus
           })
         });
@@ -294,6 +298,7 @@ const CmsPage = ({
           setIsScheduleModalOpen(false);
           setNewScheduleTitle('');
           setNewScheduleDate('');
+          setNewScheduleSection('hero');
           setNewScheduleValue('');
           setGeneratedContent(null);
           setAiPrompt('');
@@ -308,74 +313,19 @@ const CmsPage = ({
     }
   };
 
-  const handleExecuteSchedule = async (id: number) => {
-    try {
-      if (showNotification) showNotification('Mengeksekusi jadwal...', 'info');
-      const res = await fetch(`/api/content-schedules?id=${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' }
-      });
-      const data = await res.json();
-      if (data.success) {
-        if (showNotification) showNotification('Jadwal berhasil dieksekusi!', 'success');
-        setCmsSchedules(prev => prev.map(s => s.id === id ? { ...s, status: 'Completed' } : s));
-      } else {
-        if (showNotification) showNotification(data.message || 'Gagal mengeksekusi jadwal.', 'info');
-      }
-    } catch (err) {
-      console.error(err);
-      if (showNotification) showNotification('Terjadi kesalahan koneksi.', 'info');
-    }
-  };
+  // handleExecuteSchedule dihapus karena ditangani secara otomatis oleh Cron Job.
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-700 pb-12">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800/80 pb-5">
         <div>
           <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-2 flex items-center gap-2">
-            AI Content & Scheduler
+            Kelola Proyek
           </h2>
           <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
-            Jadwalkan perubahan konten elemen landing page Anda secara otomatis dan generate teks copywriting menggunakan AI.
+            Kelola, edit, dan hapus situs landing page Anda dengan mudah.
           </p>
-        </div>
-
-        {/* Tab Switcher */}
-        <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/60 p-1.5 rounded-xl border border-slate-200/50 dark:border-slate-800 shrink-0">
-          <button
-            onClick={() => setSubTab('projects')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer ${
-              subTab === 'projects'
-                ? 'bg-white dark:bg-slate-900 text-brand-blue shadow-sm'
-                : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-            }`}
-          >
-            <Globe className="w-3.5 h-3.5" />
-            Kelola Proyek
-          </button>
-          <button
-            onClick={() => setSubTab('schedules')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer ${
-              subTab === 'schedules'
-                ? 'bg-white dark:bg-slate-900 text-brand-blue shadow-sm'
-                : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-            }`}
-          >
-            <Calendar className="w-3.5 h-3.5" />
-            Daftar Jadwal
-          </button>
-          <button
-            onClick={() => setSubTab('ai_scheduler')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer ${
-              subTab === 'ai_scheduler'
-                ? 'bg-white dark:bg-slate-900 text-brand-blue shadow-sm'
-                : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-            }`}
-          >
-            <Bot className="w-3.5 h-3.5 animate-pulse" />
-            AI Content Scheduler
-          </button>
         </div>
       </div>
 
@@ -473,7 +423,7 @@ const CmsPage = ({
                         </td>
                         <td className="px-6 py-4">
                           <span className="text-[9px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest">
-                            {new Date(sched.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                            {new Date(sched.scheduledAt || sched.date || Date.now()).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                           </span>
                         </td>
                         <td className="px-6 py-4">
@@ -491,23 +441,15 @@ const CmsPage = ({
                         </td>
                         <td className="px-6 py-4 text-right">
                           <div className="flex gap-1.5 justify-end">
-                            {(sched.status === 'Scheduled' || sched.status === 'Queued') && (
-                              <button
-                                className="p-1.5 text-slate-400 hover:text-emerald-500 bg-slate-50 dark:bg-slate-800 rounded-lg transition-all hover:scale-110 shadow-sm cursor-pointer border-none"
-                                onClick={() => handleExecuteSchedule(sched.id)}
-                                title="Jalankan Jadwal Sekarang"
-                              >
-                                <Play className="w-3.5 h-3.5" />
-                              </button>
-                            )}
                             <button
                               className="p-1.5 text-slate-400 hover:text-brand-blue bg-slate-50 dark:bg-slate-800 rounded-lg transition-all hover:scale-110 shadow-sm cursor-pointer border-none"
                               onClick={() => {
                                 setEditingScheduleId(sched.id);
                                 setNewScheduleTitle(sched.title);
+                                setNewScheduleSection(sched.sectionName || 'hero');
                                 setNewScheduleComponent(sched.component);
                                 setNewScheduleValue(sched.newValue);
-                                setNewScheduleDate(formatForDateTimeLocal(sched.date));
+                                setNewScheduleDate(formatForDateTimeLocal(sched.scheduledAt || sched.date));
                                 setNewScheduleStatus(sched.status);
                                 setSelectedProjectId(String(sched.landingPageId));
                                 setIsScheduleModalOpen(true);
@@ -616,14 +558,19 @@ const CmsPage = ({
                       onChange={(e) => setAiComponent(e.target.value)}
                       className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-3 text-xs font-bold text-slate-700 dark:text-white outline-none focus:border-brand-blue"
                     >
-                      <option>Hero Title</option>
-                      <option>Hero Subtitle</option>
-                      <option>Banner Promosi</option>
-                      <option>Card Produk</option>
-                      <option>Card Layanan</option>
+                      <option>Menu Navigasi</option>
+                      <option>Logo Website</option>
+                      <option>Hero Banner</option>
+                      <option>Tentang Usaha</option>
+                      <option>Produk & Layanan</option>
+                      <option>Keunggulan</option>
                       <option>Testimoni</option>
-                      <option>CTA Button</option>
+                      <option>Galeri Foto</option>
+                      <option>CTA Penawaran</option>
                       <option>Kontak</option>
+                      <option>Media Sosial</option>
+                      <option>Toko Online (Marketplace)</option>
+                      <option>Footer Halaman</option>
                     </select>
                   </div>
 
@@ -735,6 +682,22 @@ const CmsPage = ({
                 </div>
               )}
             </div>
+
+            <div className="space-y-4">
+              <div className="bg-slate-50/50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-800 p-4 rounded-xl space-y-2">
+                <span className="text-[8px] font-black uppercase tracking-widest text-brand-blue block">Analitik SEO AI</span>
+                <p className="text-[10px] font-bold text-slate-600 dark:text-slate-400 leading-relaxed">
+                  AI kami secara otomatis menganalisis kepadatan kata kunci, meta description, dan struktur heading agar artikel Anda mendapatkan skor di atas 90 saat dipublikasikan.
+                </p>
+              </div>
+
+              <div className="bg-slate-50/50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-800 p-4 rounded-xl space-y-2">
+                <span className="text-[8px] font-black uppercase tracking-widest text-emerald-500 block">Waktu Posting Terbaik</span>
+                <p className="text-[10px] font-bold text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Rekomendasi Waktu Rilis: Hari kerja (Selasa - Kamis) antara pukul 09:00 - 11:00 WIB untuk mendapatkan traffic retensi organik tertinggi.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       ) : (
@@ -763,7 +726,7 @@ const CmsPage = ({
                     <th className="px-6 py-4 text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest text-right">Aksi</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-50 dark:divide-slate-800/50 text-slate-700 dark:text-slate-300">
+                <tbody className="divide-y divide-slate-50 dark:divide-slate-800/50 text-slate-700 dark:text-slate-350">
                   {userProjects.length > 0 ? (
                     userProjects.map((project) => (
                       <tr key={project.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors group">
@@ -793,7 +756,7 @@ const CmsPage = ({
                               ? 'bg-emerald-50 text-emerald-500 dark:bg-emerald-500/10'
                               : project.status === 'Pending'
                               ? 'bg-amber-50 text-amber-500 dark:bg-amber-500/10'
-                              : 'bg-slate-100 text-slate-500 dark:bg-slate-800/50'
+                              : 'bg-slate-100 text-slate-550 dark:bg-slate-800/50'
                           }`}>
                             {project.status}
                           </span>
@@ -866,20 +829,42 @@ const CmsPage = ({
               </div>
 
               <div className="space-y-1">
+                <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Target Section</label>
+                <select
+                  value={newScheduleSection}
+                  onChange={(e) => setNewScheduleSection(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white outline-none"
+                >
+                  <option value="hero">Hero</option>
+                  <option value="about">About</option>
+                  <option value="products">Products</option>
+                  <option value="advantages">Advantages</option>
+                  <option value="testimonials">Testimonials</option>
+                  <option value="cta">CTA</option>
+                  <option value="contact">Contact</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
                 <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Target Komponen</label>
                 <select
                   value={newScheduleComponent}
                   onChange={(e) => setNewScheduleComponent(e.target.value)}
                   className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white outline-none"
                 >
-                  <option>Hero Title</option>
-                  <option>Hero Subtitle</option>
-                  <option>Banner Promosi</option>
-                  <option>Card Produk</option>
-                  <option>Card Layanan</option>
+                  <option>Menu Navigasi</option>
+                  <option>Logo Website</option>
+                  <option>Hero Banner</option>
+                  <option>Tentang Usaha</option>
+                  <option>Produk & Layanan</option>
+                  <option>Keunggulan</option>
                   <option>Testimoni</option>
-                  <option>CTA Button</option>
+                  <option>Galeri Foto</option>
+                  <option>CTA Penawaran</option>
                   <option>Kontak</option>
+                  <option>Media Sosial</option>
+                  <option>Toko Online (Marketplace)</option>
+                  <option>Footer Halaman</option>
                 </select>
               </div>
 
@@ -911,9 +896,9 @@ const CmsPage = ({
                   className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 outline-none"
                 >
                   <option value="Scheduled">Scheduled</option>
-                  <option value="Queued">Queued</option>
                   <option value="Completed">Completed</option>
                   <option value="Failed">Failed</option>
+                  <option value="Cancelled">Cancelled</option>
                 </select>
               </div>
             </div>

@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap');
-
 @import "tailwindcss";
 
 @theme {
@@ -75,6 +73,39 @@
   input[type="password"]::-ms-reveal,
   input[type="password"]::-ms-clear {
     display: none;
+  }
+
+  /* Dark mode overrides for Visual Editor form fields */
+  .dark .visual-editor-container input,
+  .dark .visual-editor-container textarea,
+  .dark .visual-editor-container select,
+  .dark .visual-editor-container option {
+    background-color: #0f172a !important; /* slate-900 */
+    color: #ffffff !important;
+    border-color: #1e293b !important; /* slate-800 */
+  }
+
+  .dark .visual-editor-container input::placeholder,
+  .dark .visual-editor-container textarea::placeholder {
+    color: #64748b !important; /* slate-500 */
+  }
+
+  /* Do not affect preview template site styling */
+  .dark .visual-editor-container .bg-white input,
+  .dark .visual-editor-container .bg-white textarea,
+  .dark .visual-editor-container .bg-white select,
+  .dark .visual-editor-container .bg-white option {
+    background-color: initial !important;
+    color: initial !important;
+    border-color: initial !important;
+  }
+
+  /* Global dark mode styles for select and option elements to ensure readability */
+  .dark select,
+  .dark select option,
+  .dark option {
+    background-color: #0f172a !important; /* slate-900 */
+    color: #ffffff !important;
   }
 }
 

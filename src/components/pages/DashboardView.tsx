@@ -46,6 +46,7 @@ import TemplatePage from './TemplatePage';
 import ProfilePage from './ProfilePage';
 import AdminPanelPage from './AdminPanelPage';
 import AllProjectsPage from './AllProjectsPage';
+import NotificationsView from './NotificationsView';
 import { Folder } from 'lucide-react';
 
 interface DashboardFooterProps {
@@ -164,7 +165,7 @@ export const DashboardView = ({
   const [isCmsEditorOpen, setIsCmsEditorOpen] = useState(false);
   const [selectedEditorSection, setSelectedEditorSection] = useState('Hero Section');
   const [cmsNavMode, setCmsNavMode] = useState('landing'); // 'landing', 'manual', 'ai', 'editor', 'preview', 'drafts', 'setup-progress'
-  const [savedDrafts, setSavedDrafts] = useState<any[]>([]);
+
   const [cmsSubTab, setCmsSubTab] = useState('manual');
   const [cmsSearchQuery, setCmsSearchQuery] = useState('');
   const [cmsCurrentPage, setCmsCurrentPage] = useState(1);
@@ -219,6 +220,13 @@ export const DashboardView = ({
 
   const profileImageInputRef = useRef<HTMLInputElement>(null);
 
+  const [notification, setNotification] = useState<{ message: string, type: 'success' | 'info' } | null>(null);
+
+  const showNotification = (message: string, type: 'success' | 'info' = 'success') => {
+    setNotification({ message, type });
+    setTimeout(() => setNotification(null), 3000);
+  };
+
   const fetchProjects = async () => {
     try {
       const res = await fetch('/api/landing-pages');
@@ -228,6 +236,28 @@ export const DashboardView = ({
       }
     } catch (err) {
       console.error("Gagal mengambil daftar proyek:", err);
+    }
+  };
+
+  const handleDeleteProject = async (id: string) => {
+    if (!window.confirm("Apakah Anda yakin ingin menghapus proyek ini? Tindakan ini tidak dapat dibatalkan.")) {
+      return;
+    }
+    try {
+      showNotification("Menghapus proyek...", "info");
+      const res = await fetch(`/api/landing-pages/${id}`, {
+        method: "DELETE"
+      });
+      const data = await res.json();
+      if (data.success) {
+        showNotification("Proyek berhasil dihapus!", "success");
+        fetchProjects();
+      } else {
+        showNotification(data.message || "Gagal menghapus proyek.", "info");
+      }
+    } catch (err) {
+      console.error(err);
+      showNotification("Terjadi kesalahan koneksi.", "info");
     }
   };
 
@@ -270,13 +300,12 @@ export const DashboardView = ({
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
     } catch (err) {
-      console.error(err);
+      // Silently fail network errors to prevent Next.js dev overlay
     }
     setUser(null);
     setView('home');
   };
-
-  const fetchSchedules = async () => {
+  const fetchSchedules = async () => {
     try {
       const res = await fetch('/api/content-schedules');
       const data = await res.json();
@@ -288,10 +317,54 @@ export const DashboardView = ({
     }
   };
 
+  const [notifications, setNotifications] = useState<any[]>([]);
+
+  const fetchNotifications = async () => {
+    try {
+      const res = await fetch('/api/notifications');
+      const data = await res.json();
+      if (data.success && Array.isArray(data.data)) {
+        setNotifications(data.data);
+      }
+    } catch (err) {
+      console.error("Gagal mengambil notifikasi:", err);
+    }
+  };
+
+  const handleMarkAllRead = async () => {
+    try {
+      const res = await fetch('/api/notifications', { method: 'PATCH' });
+      if (res.ok) {
+        fetchNotifications();
+      }
+    } catch (err) {}
+  };
+
+  const handleMarkRead = async (id: number) => {
+    try {
+      // Optimistically update the state
+      setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
+      await fetch('/api/notifications', { 
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      });
+    } catch (err) {}
+  };
+
+  const handleClearAllNotifications = async () => {
+    try {
+      const res = await fetch('/api/notifications', { method: 'DELETE' });
+      if (res.ok) {
+        setNotifications([]);
+      }
+    } catch (err) {}
+  };
   useEffect(() => {
-    fetchProjects();
     fetchTemplates();
     fetchSchedules();
+    fetchProjects();
+    fetchNotifications();
   }, []);
 
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -338,8 +411,7 @@ export const DashboardView = ({
         showNotification(data.message || 'Gagal memperbarui password.', 'info');
       }
     } catch (err) {
-      console.error(err);
-      showNotification('Terjadi kesalahan koneksi.', 'info');
+      showNotification("Gagal mengambil proyek, silakan coba lagi.", "info");
     }
   };
 
@@ -433,18 +505,17 @@ export const DashboardView = ({
   const [agenticStrategy, setAgenticStrategy] = useState<any>(null);
   const [generatedDraft, setGeneratedDraft] = useState<any>(null);
   const [selectedColor, setSelectedColor] = useState('#3B82F6');
-  const [notification, setNotification] = useState<{ message: string, type: 'success' | 'info' } | null>(null);
-
   useEffect(() => {
     setShowDomainManager(false);
   }, [subView]);
 
-  const showNotification = (message: string, type: 'success' | 'info' = 'success') => {
-    setNotification({ message, type });
-    setTimeout(() => setNotification(null), 3000);
-  };
-
   const handleAiBuild = async () => {
+    if (user?.tokens < 1500) {
+      showNotification('Token Anda tidak cukup (butuh 1500). Silakan beli token terlebih dahulu.', 'info');
+      setSubView('tokens');
+      return;
+    }
+
     const errors: Record<string, string> = {};
     if (!aiData.description.trim()) errors.description = 'Deskripsi bisnis wajib diisi';
     if (!aiData.target.trim()) errors.target = 'Target audiens wajib diisi';
@@ -479,22 +550,72 @@ export const DashboardView = ({
         aiData.description
       );
 
-      setGeneratedDraft({
+      const finalDraft = {
         ...draft,
         sections: ['Hero Section', 'Tentang Kami', 'Produk/Layanan', 'Galeri', 'CTA', 'Footer']
-      });
+      };
+      setGeneratedDraft(finalDraft);
       setSelectedColor(draft.themeColor);
+
+      try {
+        const res = await fetch('/api/landing-pages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            templateId: 1,
+            title: 'Situs Bisnis AI',
+            businessName: 'Situs Bisnis AI',
+            slug: 'situs-bisnis-ai-' + Math.floor(Math.random() * 1000),
+            contentJson: finalDraft,
+            tokenCost: 1500
+          })
+        });
+        const data = await res.json();
+        if (data.success && data.data) {
+          setActivePageId(data.data.id);
+          fetchProjects();
+        }
+      } catch (err) {
+        console.error('Failed saving generated AI draft to DB:', err);
+      }
+
+      setUser({ ...user, tokens: user.tokens - 1500 });
       setCmsNavMode('preview');
       showNotification('Website berhasil dibangun!', 'success');
-    } catch (error) {
-      setGeneratedDraft({
+    } catch (error) {      const defaultDraft = {
         headline: 'Selamat Datang di Bisnis Kami',
         subheadline: aiData.description,
         cta: 'Mulai Sekarang',
         url: 'uni-landfarm.ai/preview-site',
         sections: ['Hero Section', 'Tentang Kami', 'Produk/Layanan', 'Galeri', 'CTA', 'Footer'],
-        themeColor: '#3B82F6'
-      });
+        themeColor: '#3b82f6'
+      };
+      setGeneratedDraft(defaultDraft);
+      setSelectedColor('#3b82f6');
+
+      try {
+        const res = await fetch('/api/landing-pages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            templateId: 1,
+            title: 'Situs Bisnis AI',
+            businessName: 'Situs Bisnis AI',
+            slug: 'situs-bisnis-ai-' + Math.floor(Math.random() * 1000),
+            contentJson: defaultDraft,
+            tokenCost: 1500
+          })
+        });
+        const data = await res.json();
+        if (data.success && data.data) {
+          setActivePageId(data.data.id);
+          fetchProjects();
+        }
+      } catch (err) {
+        console.error('Failed saving default AI draft to DB:', err);
+      }
+
+      setUser({ ...user, tokens: user.tokens - 1500 });
       setCmsNavMode('preview');
       showNotification('Gagal menghubungi AI, menggunakan draf default.', 'info');
     } finally {
@@ -503,6 +624,12 @@ export const DashboardView = ({
   };
 
   const handleManualSetup = async () => {
+    if (user?.tokens < 500) {
+      showNotification('Token Anda tidak cukup (butuh 500). Silakan beli token terlebih dahulu.', 'info');
+      setSubView('tokens');
+      return;
+    }
+
     const errors: Record<string, string> = {};
     if (!manualData.name.trim()) errors.name = 'Nama website wajib diisi';
     if (!manualData.subdomain.trim()) errors.subdomain = 'Domain wajib diisi';
@@ -515,7 +642,6 @@ export const DashboardView = ({
 
     setFormErrors({});
     setIsGenerating(true);
-
     try {
       const selectedTplId = manualData.templateId || templates[0]?.id;
       const selectedTemplate = templates.find(t => t.id === selectedTplId);
@@ -609,65 +735,6 @@ export const DashboardView = ({
     }
   };
 
-  const handleCreateRancangan = async () => {
-    const errors: Record<string, string> = {};
-    if (!manualData.name.trim()) errors.name = 'Nama website wajib diisi';
-    if (!manualData.description.trim()) errors.description = 'Deskripsi bisnis wajib diisi';
-
-    if (Object.keys(errors).length > 0) {
-      setFormErrors(errors);
-      return;
-    }
-
-    setFormErrors({});
-    setIsGenerating(true);
-    setGenProgress(0);
-
-    try {
-      // Simulate saving
-      const newDraft = {
-        id: `DRAFT-${Math.random().toString(36).substring(2, 11).toUpperCase()}`,
-        name: manualData.name,
-        category: manualData.category,
-        description: manualData.description,
-        color: manualData.color,
-        createdAt: new Date().toLocaleDateString('id-ID'),
-        image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500&q=80'
-      };
-
-      await new Promise(r => setTimeout(r, 1500));
-      setSavedDrafts(prev => [newDraft, ...prev]);
-      setCmsNavMode('drafts');
-      showNotification('Rancangan draf berhasil disimpan!', 'success');
-    } catch (e) {
-      showNotification('Gagal menyimpan draf.', 'info');
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const handleDeleteProject = async (id: string) => {
-    if (!window.confirm("Apakah Anda yakin ingin menghapus proyek ini? Tindakan ini tidak dapat dibatalkan.")) {
-      return;
-    }
-    try {
-      showNotification("Menghapus proyek...", "info");
-      const res = await fetch(`/api/landing-pages/${id}`, {
-        method: "DELETE"
-      });
-      const data = await res.json();
-      if (data.success) {
-        showNotification("Proyek berhasil dihapus!", "success");
-        fetchProjects();
-      } else {
-        showNotification(data.message || "Gagal menghapus proyek.", "info");
-      }
-    } catch (err) {
-      console.error(err);
-      showNotification("Terjadi kesalahan koneksi.", "info");
-    }
-  };
-
   const handleDeleteSchedule = async (id: number) => {
     if (!window.confirm("Apakah Anda yakin ingin menghapus jadwal ini?")) {
       return;
@@ -704,6 +771,12 @@ export const DashboardView = ({
 
   const handleCreatePageFromTemplate = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (user?.tokens < 500) {
+      showNotification('Token Anda tidak cukup (butuh 500). Silakan beli token terlebih dahulu.', 'info');
+      setSubView('tokens');
+      return;
+    }
+    
     if (!creationWebsiteTitle.trim() || !creationBusinessName.trim() || !creationSlug.trim()) {
       setCreationError('Semua field wajib diisi.');
       return;
@@ -727,6 +800,7 @@ export const DashboardView = ({
 
       const data = await res.json();
       if (data.success && data.data) {
+        setUser({ ...user, tokens: user.tokens - 500 });
         showNotification('Situs baru berhasil dibuat dari template!', 'success');
         setTemplateForCreation(null);
         setCreationWebsiteTitle('');
@@ -738,7 +812,13 @@ export const DashboardView = ({
         setActivePageId(data.data.id);
         setIsCmsEditorOpen(true);
       } else {
-        setCreationError(data.message || 'Gagal membuat situs.');
+        if (data.status === 402 || data.message?.includes('Token')) {
+          setSubView('tokens');
+          setTemplateForCreation(null);
+          showNotification('Token Anda tidak cukup. Silakan beli token.', 'info');
+        } else {
+          setCreationError(data.message || 'Gagal membuat situs.');
+        }
       }
     } catch (err) {
       setCreationError('Terjadi kesalahan koneksi.');
@@ -764,23 +844,25 @@ export const DashboardView = ({
   const templateCategories = ['Semua', ...Array.from(new Set(templates.map(t => t.category)))];
 
   const handlePublish = async () => {
-    if (!generatedDraft || !generatedDraft.id) return;
+    const pageIdToPublish = activePageId || generatedDraft?.id;
+    if (!pageIdToPublish) return;
     setIsPublishing(true);
     try {
-      const res = await fetch(`/api/landing-pages/${generatedDraft.id}`, {
+      const slug = manualData.subdomain?.trim().toLowerCase().replace(/\s+/g, '-') || generatedDraft?.slug || 'site';
+      const res = await fetch(`/api/landing-pages/${pageIdToPublish}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           status: 'Published',
           publishedAt: new Date().toISOString(),
-          publicUrl: `/site/${manualData.subdomain.trim().toLowerCase().replace(/\s+/g, '-')}`
+          publicUrl: `/site/${slug}`
         })
       });
 
       const data = await res.json();
       if (data.success) {
         showNotification('Situs baru berhasil dipublikasikan!', 'success');
-        fetchProjects(); // Refresh project list
+        await fetchProjects(); // Refresh project list
         setSubView('overview');
         setCmsNavMode('landing');
       } else {
@@ -837,7 +919,13 @@ export const DashboardView = ({
       case 'panduan':
         return <ContentPlanPage guideSearchQuery={guideSearchQuery} systemSettings={systemSettings} />;
       case 'tokens':
-        return <RepositoryPage showNotification={showNotification} />;
+        return (
+          <RepositoryPage 
+            showNotification={showNotification} 
+            user={user}
+            onTokenUpdate={(newTokens) => setUser({ ...user, tokens: newTokens })}
+          />
+        );
       case 'overview':
         return (
           <DashboardPage
@@ -862,7 +950,14 @@ export const DashboardView = ({
             previewTemplate={previewTemplate}
             setPreviewTemplate={setPreviewTemplate}
             templateForCreation={templateForCreation}
-            setTemplateForCreation={setTemplateForCreation}
+            setTemplateForCreation={(tpl) => {
+              if (tpl && user?.tokens < 500) {
+                showNotification('Token Anda tidak cukup (butuh 500). Silakan beli token terlebih dahulu.', 'info');
+                setSubView('tokens');
+                return;
+              }
+              setTemplateForCreation(tpl);
+            }}
             creationWebsiteTitle={creationWebsiteTitle}
             setCreationWebsiteTitle={setCreationWebsiteTitle}
             creationBusinessName={creationBusinessName}
@@ -1011,13 +1106,13 @@ export const DashboardView = ({
       case 'buat_situs':
         return (
           <LandingPagePage
+            user={user}
+            showNotification={showNotification}
             cmsNavMode={cmsNavMode}
             setCmsNavMode={setCmsNavMode}
             genProgress={genProgress}
             isGenerating={isGenerating}
             generatedDraft={generatedDraft}
-            savedDrafts={savedDrafts}
-            setSavedDrafts={setSavedDrafts}
             manualData={manualData}
             setManualData={setManualData}
             aiData={aiData}
@@ -1025,7 +1120,6 @@ export const DashboardView = ({
             formErrors={formErrors}
             handleAiBuild={handleAiBuild}
             handleManualSetup={handleManualSetup}
-            handleCreateRancangan={handleCreateRancangan}
             handlePublish={handlePublish}
             setSubView={setSubView}
             setCmsSubTab={setCmsSubTab}
@@ -1033,7 +1127,23 @@ export const DashboardView = ({
             isPublishing={isPublishing}
           />
         );
-
+      case 'notifications':
+        return (
+          <NotificationsView 
+            user={user} 
+            notifications={notifications.map(n => ({
+              id: n.id,
+              type: n.type,
+              title: n.title,
+              desc: n.message,
+              time: new Date(n.createdAt).toLocaleDateString(),
+              read: n.isRead
+            }))}
+            onMarkAllRead={handleMarkAllRead}
+            onMarkRead={handleMarkRead}
+            onClearAll={handleClearAllNotifications}
+          />
+        );
       case 'cms':
         return (
           <CmsPage
@@ -1125,6 +1235,8 @@ export const DashboardView = ({
       onPublishSuccess={() => {
         fetchProjects();
       }}
+      theme={theme}
+      toggleTheme={toggleTheme}
     />
   ) : (
     <>
@@ -1307,9 +1419,14 @@ export const DashboardView = ({
                   {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
                 </button>
 
-                <button className="p-3 rounded-2xl text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-all relative group border border-transparent hover:border-slate-100 dark:hover:border-white/5">
+                <button 
+                  onClick={() => setSubView('notifications')}
+                  className="p-3 rounded-2xl text-slate-400 hover:text-brand-blue hover:bg-brand-blue/10 transition-all relative group"
+                >
                   <Bell className="w-5 h-5" />
-                  <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-[#020617]"></span>
+                  {notifications.filter(n => !n.isRead).length > 0 && (
+                    <span className="absolute top-3 right-3 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                  )}
                 </button>
               </div>
 

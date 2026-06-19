@@ -4,17 +4,18 @@ import {
   Mail, 
   Lock, 
   Eye, 
-  AlertCircle, 
-  ArrowRight 
+  AlertCircle 
 } from 'lucide-react';
 
 interface LoginPageProps {
   setView: (v: string) => void;
   setUser: (u: any) => void;
+  prefilledEmail?: string;
+  setPrefilledEmail?: (e: string) => void;
 }
 
-const LoginPage = ({ setView, setUser }: LoginPageProps) => {
-  const [email, setEmail] = useState('');
+const LoginPage = ({ setView, setUser, prefilledEmail = '', setPrefilledEmail }: LoginPageProps) => {
+  const [email, setEmail] = useState(prefilledEmail || '');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
@@ -125,7 +126,16 @@ const LoginPage = ({ setView, setUser }: LoginPageProps) => {
           <div className="space-y-1.5">
             <div className="flex justify-between items-center ml-0.5">
               <label className="text-xs font-black text-slate-600 dark:text-slate-300 uppercase tracking-wider">Password</label>
-              <button type="button" className="text-[10px] font-bold text-brand-blue hover:underline">Lupa password?</button>
+              <button 
+                type="button" 
+                onClick={() => {
+                  if (setPrefilledEmail) setPrefilledEmail(email);
+                  setView('forgot-password');
+                }} 
+                className="text-[10px] font-bold text-brand-blue hover:underline"
+              >
+                Lupa password?
+              </button>
             </div>
             <div className="relative">
               <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 dark:text-slate-500" />
@@ -175,7 +185,7 @@ const LoginPage = ({ setView, setUser }: LoginPageProps) => {
               Memproses...
             </>
           ) : (
-            <>Masuk ke Dashboard <ArrowRight className="w-4 h-4" /></>
+            <>Masuk</>
           )}
         </motion.button>
 
@@ -184,7 +194,10 @@ const LoginPage = ({ setView, setUser }: LoginPageProps) => {
             Belum punya akun?{' '}
             <button
               id="goto-signup-btn"
-              onClick={() => setView('signup')}
+              onClick={() => {
+                if (setPrefilledEmail) setPrefilledEmail(email);
+                setView('signup');
+              }}
               className="text-brand-blue font-black hover:underline"
             >
               Daftar sekarang

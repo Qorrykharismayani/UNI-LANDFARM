@@ -34,9 +34,9 @@ export const TemplatePreview = ({ setView }: TemplatePreviewProps) => (
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
         {[
-          { title: "Corporate Business Suite", seed: "business-office", type: "Korporat", url: "unibiz.com/template/corporate" },
-          { title: "Modern Retail Platform", seed: "retail-store", type: "Retail", url: "unibiz.com/template/retail" },
-          { title: "Tech Startup Landing", seed: "tech-startup", type: "Teknologi", url: "unibiz.com/template/tech" }
+          { title: 'AgriCorp Landing Page', seed: 'agriculture', type: 'Pertanian & Agribisnis', url: 'unibiz.com/template/agricorp', thumbnail: 'https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?w=500&q=80' },
+          { title: 'FreshMarket Store', seed: 'grocery', type: 'E-Commerce / Retail', url: 'unibiz.com/template/freshmarket', thumbnail: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=500&q=80' },
+          { title: 'SmartFarm Tech', seed: 'tech', type: 'Teknologi & IoT', url: 'unibiz.com/template/smartfarm', thumbnail: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=500&q=80' }
         ].map((t, i) => (
           <motion.div 
             key={i}
@@ -62,7 +62,7 @@ export const TemplatePreview = ({ setView }: TemplatePreviewProps) => (
             {/* Template Image with Overlay */}
             <div className="relative aspect-[4/3] overflow-hidden">
               <img 
-                src={`https://picsum.photos/seed/${t.seed}/800/600`} 
+                src={t.thumbnail} 
                 alt={t.title} 
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[2000ms]"
                 referrerPolicy="no-referrer"
@@ -188,7 +188,7 @@ export const TemplatesView = ({ setView }: TemplatesViewProps) => {
               {/* Template Image with Overlay */}
               <div className="relative aspect-[4/3] overflow-hidden">
                 <img 
-                  src={`https://picsum.photos/seed/${t.seed}/800/600`} 
+                  src={(t as any).thumbnail || `https://picsum.photos/seed/${t.seed}/800/600`} 
                   alt={t.title} 
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[2000ms]"
                   referrerPolicy="no-referrer"

@@ -1,8 +1,17 @@
 import { NextResponse } from 'next/server';
 import { generateWebsiteDraft } from '@/services/ai-server';
+import { getSessionFromCookies } from '@/lib/auth';
+import { prisma } from '@/lib/db';
 
 export async function POST(request: Request) {
   try {
+    const cookiesString = request.headers.get('cookie');
+    const session = getSessionFromCookies(cookiesString);
+
+    if (!session) {
+      return NextResponse.json({ success: false, message: 'Tidak diotorisasi. Silakan login.' }, { status: 401 });
+    }
+
     const body = await request.json();
     const { businessName, category, description, templateName } = body;
     
@@ -10,12 +19,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: 'Deskripsi wajib diisi.' }, { status: 400 });
     }
 
+    // Token check removed since it is handled by the landing page creation process
+
     const draft = await generateWebsiteDraft(
       businessName || 'Situs Bisnis AI',
       category || 'General',
       description,
       templateName
     );
+
+    // Token deduction removed since it is handled by the landing page creation process
 
     return NextResponse.json({ success: true, data: draft });
   } catch (error: any) {

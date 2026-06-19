@@ -38,7 +38,6 @@ const AllProjectsPage = ({
   });
 
 
-
   return (
     <div className="max-w-6xl mx-auto space-y-8 relative">
       {/* Background Glows for Dark Mode */}
@@ -69,7 +68,7 @@ const AllProjectsPage = ({
       {/* Filter and Search Bar */}
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
         <div className="relative w-full md:max-w-md">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-450 dark:text-slate-500" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" />
           <input
             type="text"
             placeholder="Cari berdasarkan nama atau kategori..."
@@ -105,7 +104,7 @@ const AllProjectsPage = ({
               className="group bg-gradient-to-br from-white to-slate-50/30 dark:from-slate-900/50 dark:to-slate-950/50 rounded-2xl p-4 border border-slate-200/60 dark:border-slate-800/85 hover:border-brand-blue/20 dark:hover:border-brand-blue/30 hover:shadow-md transition-all flex flex-col gap-4 cursor-pointer"
             >
               {/* Thumbnail */}
-              <div className="w-full aspect-[16/10] rounded-xl overflow-hidden shadow-sm relative bg-slate-250 dark:bg-slate-800 shrink-0">
+              <div className="w-full aspect-[16/10] rounded-xl overflow-hidden shadow-sm relative bg-slate-200 dark:bg-slate-800 shrink-0">
                 <img
                   src={project.image || "https://picsum.photos/seed/placeholder/800/600"}
                   alt={project.name}
@@ -116,7 +115,7 @@ const AllProjectsPage = ({
                     project.status === 'Published' ? 'bg-[#DCFCE7] text-[#15803D]' :
                     project.status === 'Pending' ? 'bg-amber-100 text-amber-600 border border-amber-200/50' :
                     project.status === 'Inactive' ? 'bg-red-50 text-red-500 border border-red-100/50' :
-                    'bg-slate-200 text-slate-600 dark:bg-slate-850 dark:text-slate-400'
+                    'bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
                   }`}>
                     {project.status === 'Published' && <span className="inline-block w-1.5 h-1.5 bg-[#22C55E] rounded-full animate-pulse" />}
                     {project.status}
@@ -194,7 +193,7 @@ const AllProjectsPage = ({
       ) : (
         <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-900/40 rounded-3xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm">
           <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
-            <Globe className="w-8 h-8 text-slate-300 dark:text-slate-650" />
+            <Globe className="w-8 h-8 text-slate-300 dark:text-slate-600" />
           </div>
           <h3 className="text-sm font-black text-slate-900 dark:text-white mb-1 tracking-tight">Tidak Ada Proyek Ditemukan</h3>
           <p className="text-slate-400 dark:text-slate-500 text-[10px] font-medium max-w-xs text-center mb-4">

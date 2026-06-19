@@ -1,6 +1,6 @@
-import React from 'react';
-import { Sparkles, Target, Rocket, CheckCircle2, Bot, Zap } from 'lucide-react';
-import { motion } from 'motion/react';
+import React, { useState } from 'react';
+import { Sparkles, Target, Rocket, CheckCircle2, Bot, Zap, ChevronDown, Wand2, Edit3, BrainCircuit, CalendarClock, Send, Smartphone } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 export const Testimonials = ({ systemSettings }: { systemSettings?: any }) => {
   const testimonials = (systemSettings?.testimonialsJson && systemSettings.testimonialsJson.length > 0)
@@ -76,14 +76,52 @@ export const Testimonials = ({ systemSettings }: { systemSettings?: any }) => {
 };
 
 export const FAQ = ({ systemSettings }: { systemSettings?: any }) => {
-  const faqs = (systemSettings?.faqsJson && systemSettings.faqsJson.length > 0)
-    ? systemSettings.faqsJson
-    : [
-        { q: "Apakah saya perlu keahlian coding?", a: "Tidak sama sekali. Uni-LandFarm dirancang untuk pebisnis tanpa latar belakang teknis. AI kami menangani semua aspek teknis.", color: "bg-blue-500" },
-        { q: "Berapa lama waktu yang dibutuhkan untuk membuat situs?", a: "Hanya butuh sekitar 30-60 detik untuk menghasilkan draf pertama yang profesional.", color: "bg-purple-500" },
-        { q: "Apakah situs saya akan SEO-friendly?", a: "Ya, AI kami secara otomatis mengoptimalkan struktur, meta tag, dan konten untuk mesin pencari.", color: "bg-indigo-500" },
-        { q: "Bisakah saya menggunakan domain sendiri?", a: "Tentu. Anda dapat menghubungkan domain kustom Anda dengan mudah di dashboard.", color: "bg-violet-500" }
-      ];
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  const faqs = (systemSettings?.faqsJson && systemSettings.faqsJson.length > 0) ? systemSettings.faqsJson : [
+    { 
+      q: "Apakah saya dapat membuat landing page tanpa kemampuan teknis?", 
+      a: "Ya. UNI-LandFarm menggunakan konsep low-code/no-code sehingga pengguna dapat membuat dan mengelola landing page tanpa perlu menulis kode program.", 
+      icon: Wand2,
+      color: "text-emerald-500",
+      bg: "bg-emerald-50 dark:bg-emerald-500/10"
+    },
+    { 
+      q: "Bagaimana cara mengubah konten landing page?", 
+      a: "Konten dapat diubah langsung melalui CMS Editor. Pengguna dapat mengelola teks, gambar, tombol, informasi kontak, dan berbagai komponen lainnya secara mudah.", 
+      icon: Edit3,
+      color: "text-yellow-500",
+      bg: "bg-yellow-50 dark:bg-yellow-500/10"
+    },
+    { 
+      q: "Apa fungsi AI Content Assistant?", 
+      a: "AI Content Assistant membantu memberikan rekomendasi headline, deskripsi, CTA, dan ide promosi yang sesuai dengan kebutuhan bisnis Anda.", 
+      icon: BrainCircuit,
+      color: "text-emerald-500",
+      bg: "bg-emerald-50 dark:bg-emerald-500/10"
+    },
+    { 
+      q: "Apakah perubahan konten dapat dijadwalkan otomatis?", 
+      a: "Ya. Pengguna dapat menjadwalkan perubahan konten pada tanggal dan waktu tertentu. Sistem akan memperbarui landing page secara otomatis tanpa perlu menjalankan proses secara manual.", 
+      icon: CalendarClock,
+      color: "text-yellow-500",
+      bg: "bg-yellow-50 dark:bg-yellow-500/10"
+    },
+    { 
+      q: "Bagaimana cara mempublikasikan landing page?", 
+      a: "Setelah landing page selesai dibuat, pengguna cukup menekan tombol Publish dan sistem akan langsung menghasilkan URL yang dapat dibagikan.", 
+      icon: Send,
+      color: "text-emerald-500",
+      bg: "bg-emerald-50 dark:bg-emerald-500/10"
+    },
+    { 
+      q: "Apakah landing page dapat diakses melalui perangkat mobile?", 
+      a: "Ya. Landing page yang dibuat menggunakan desain responsif sehingga dapat diakses dengan baik melalui desktop, tablet, maupun smartphone.", 
+      icon: Smartphone,
+      color: "text-yellow-500",
+      bg: "bg-yellow-50 dark:bg-yellow-500/10"
+    }
+  ];
 
   return (
     <section className="py-32 px-6 bg-white dark:bg-slate-950 relative overflow-hidden transition-colors duration-300">
@@ -91,47 +129,80 @@ export const FAQ = ({ systemSettings }: { systemSettings?: any }) => {
         <motion.div 
           animate={{ scale: [1, 1.1, 1], opacity: [0.1, 0.2, 0.1] }}
           transition={{ duration: 10, repeat: Infinity }}
-          className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-brand-blue/5 to-transparent blur-[80px]" 
+          className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-emerald-500/5 to-transparent blur-[80px]" 
         />
       </div>
       
       {/* Decorative Blobs */}
-      <div className="absolute top-1/4 left-0 w-64 h-64 bg-brand-blue/5 blur-[100px] rounded-full"></div>
-      <div className="absolute bottom-1/4 right-0 w-64 h-64 bg-pink-500/5 blur-[100px] rounded-full"></div>
+      <div className="absolute top-1/4 left-0 w-64 h-64 bg-emerald-500/5 blur-[100px] rounded-full"></div>
+      <div className="absolute bottom-1/4 right-0 w-64 h-64 bg-yellow-500/5 blur-[100px] rounded-full"></div>
 
-      <div className="max-w-3xl mx-auto relative z-10">
-        <div className="text-center mb-12">
+      <div className="max-w-4xl mx-auto relative z-10">
+        <div className="text-center mb-16">
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-brand-blue/10 border border-brand-blue/20 backdrop-blur-md text-brand-blue text-[11px] font-black uppercase tracking-[0.25em] mb-6 shadow-[0_0_25px_rgba(255,176,0,0.15)]"
+            className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 backdrop-blur-md text-emerald-600 dark:text-emerald-400 text-[11px] font-black uppercase tracking-[0.25em] mb-6 shadow-sm"
           >
-            <Sparkles className="w-4 h-4 text-brand-blue animate-pulse" />
-            SUPPORT
+            <Sparkles className="w-4 h-4 animate-pulse" />
+            Bantuan
           </motion.div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight transition-colors">
-            Pertanyaan <span className="text-brand-blue">Umum</span>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight transition-colors mb-6">
+            Pertanyaan yang <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-yellow-500">Sering Diajukan</span>
           </h2>
+          <p className="text-slate-600 dark:text-slate-400 font-medium max-w-2xl mx-auto text-base sm:text-lg leading-relaxed transition-colors">
+            Temukan jawaban mengenai pengelolaan landing page, CMS, Agentic AI, dan penjadwalan konten pada UNI-LandFarm.
+          </p>
         </div>
+
         <div className="space-y-4">
-          {faqs.map((faq, i) => (
+          {faqs.map((faq: any, i: number) => {
+            const isOpen = openIndex === i;
+            const Icon = faq.icon || Sparkles;
+            return (
             <motion.div 
               key={i}
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              className="p-6 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all group overflow-hidden relative"
+              transition={{ delay: i * 0.05 }}
+              className={`rounded-2xl border transition-all duration-300 overflow-hidden ${isOpen ? 'bg-white dark:bg-slate-900 border-emerald-500/30 shadow-[0_10px_40px_-10px_rgba(16,185,129,0.15)]' : 'bg-white dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 hover:border-emerald-200 dark:hover:border-emerald-500/30 hover:shadow-lg hover:shadow-emerald-500/5 cursor-pointer'}`}
             >
-              <div className={`absolute top-0 right-0 w-1 h-full ${faq.color} opacity-20 group-hover:opacity-100 transition-all`}></div>
-              <h4 className="font-black text-slate-900 dark:text-white mb-3 flex items-center gap-3 text-lg tracking-tight group-hover:text-brand-blue transition-colors">
-                <div className={`w-7 h-7 rounded-full ${faq.color}/10 text-brand-blue flex items-center justify-center text-[10px] font-black shadow-sm group-hover:scale-110 transition-transform`}>?</div>
-                {faq.q}
-              </h4>
-              <p className="text-slate-500 dark:text-slate-400 text-sm font-medium leading-relaxed ml-10">{faq.a}</p>
+              <button
+                onClick={() => setOpenIndex(isOpen ? null : i)}
+                className="w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none group"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500">
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <h4 className={`font-black text-sm sm:text-base tracking-tight transition-colors ${isOpen ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400'}`}>
+                    {faq.q}
+                  </h4>
+                </div>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-transform duration-300 ${isOpen ? 'bg-emerald-500 text-white rotate-180' : 'bg-slate-100 dark:bg-slate-800 text-slate-400 group-hover:bg-emerald-50 dark:group-hover:bg-emerald-500/20 group-hover:text-emerald-500'}`}>
+                  <ChevronDown className="w-4 h-4" />
+                </div>
+              </button>
+              <AnimatePresence>
+                {isOpen && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                  >
+                    <div className="px-6 pb-6 pt-2 pl-[72px]">
+                      <p className="text-slate-600 dark:text-slate-400 text-sm font-medium leading-relaxed">
+                        {faq.a}
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
-          ))}
+          )})}
         </div>
       </div>
     </section>

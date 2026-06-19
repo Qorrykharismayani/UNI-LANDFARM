@@ -44,11 +44,10 @@ const DashboardPage = ({
   const tokenPoint = user?.tokens ?? 0;
 
   // Build greeting with user's name
-  const userName = user?.name;
-  const greetingTitle = userName
-    ? `Selamat datang, ${userName}! 👋`
-    : `Selamat datang! 👋`;
-  const greetingSubtitle = "Pantau dan kelola seluruh landing page Anda dari satu dashboard.";
+  const userName = user?.name ? user.name.split(' ')[0] : '';
+  const welcomeTitle = systemSettings?.userPageJson?.welcomeTitle || "Halo, Pebisnis Modern!";
+  const greetingTitle = userName ? `${welcomeTitle} ${userName} 👋` : `${welcomeTitle} 👋`;
+  const greetingSubtitle = systemSettings?.userPageJson?.welcomeSubtitle || "Pantau dan kelola seluruh landing page Anda dari satu dashboard.";
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 relative">
@@ -112,7 +111,7 @@ const DashboardPage = ({
                 {userProjects.slice(0, 2).map((project) => (
                   <div
                     key={project.id}
-                    className="group bg-slate-50/50 dark:bg-slate-850/40 rounded-2xl p-4 border border-slate-100 dark:border-white/5 hover:border-brand-blue/20 hover:shadow-md transition-all flex flex-col gap-4 cursor-pointer"
+                    className="group bg-slate-50/50 dark:bg-slate-800/40 rounded-2xl p-4 border border-slate-100 dark:border-white/5 hover:border-brand-blue/20 hover:shadow-md transition-all flex flex-col gap-4 cursor-pointer"
                   >
                     {/* Compact Image aspect ratio */}
                     <div className="w-full aspect-[16/10] rounded-xl overflow-hidden shadow-sm relative bg-slate-200 dark:bg-slate-800 shrink-0">
@@ -126,7 +125,7 @@ const DashboardPage = ({
                           project.status === 'Published' ? 'bg-[#DCFCE7] text-[#15803D]' :
                           project.status === 'Pending Publish' || project.status === 'Pending' ? 'bg-amber-100 text-amber-600 border border-amber-200/50' :
                           project.status === 'Inactive' ? 'bg-red-50 text-red-500 border border-red-100/50' :
-                          'bg-slate-200 text-slate-600 dark:bg-slate-850 dark:text-slate-400'
+                          'bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
                         }`}>
                           {project.status === 'Published' && <span className="inline-block w-1.5 h-1.5 bg-[#22C55E] rounded-full animate-pulse" />}
                           {project.status === 'Pending Publish' || project.status === 'Pending' ? 'Pending' : project.status}
@@ -149,52 +148,45 @@ const DashboardPage = ({
                       {/* Action buttons */}
                       <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-white/5">
                         {project.status === 'Published' ? (
-                          <div className="space-y-2">
-                            <div className="grid grid-cols-2 gap-2">
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  window.open(`/site/${project.slug}`, '_blank');
-                                }}
-                                className="bg-[#22C55E] hover:bg-[#15803D] text-white py-2 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm transition-all flex items-center justify-center gap-1 cursor-pointer"
-                              >
-                                Buka Link
-                              </button>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  navigator.clipboard.writeText(`${window.location.origin}/site/${project.slug}`);
-                                  showNotification('Tautan berhasil disalin!', 'success');
-                                }}
-                                className="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-white py-2 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm transition-all flex items-center justify-center gap-1 cursor-pointer"
-                              >
-                                Salin Link
-                              </button>
-                            </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                window.open(`/site/${project.slug}`, '_blank');
+                              }}
+                              className="bg-[#22C55E] hover:bg-[#15803D] text-white py-2 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm transition-all flex items-center justify-center gap-1 cursor-pointer"
+                            >
+                              Buka Link
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigator.clipboard.writeText(`${window.location.origin}/site/${project.slug}`);
+                                showNotification('Tautan berhasil disalin!', 'success');
+                              }}
+                              className="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-white py-2 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm transition-all flex items-center justify-center gap-1 cursor-pointer"
+                            >
+                              Salin Link
+                            </button>
                           </div>
                         ) : project.status === 'Inactive' ? (
-                          <div className="space-y-2">
-                            <div className="w-full bg-red-500/10 text-red-500 border border-red-500/20 py-2 rounded-xl text-[8px] font-black uppercase tracking-widest text-center">
-                              Situs Dinonaktifkan Admin
-                            </div>
+                          <div className="w-full bg-red-500/10 text-red-500 border border-red-500/20 py-2 rounded-xl text-[8px] font-black uppercase tracking-widest text-center">
+                            Situs Dinonaktifkan Admin
                           </div>
                         ) : (
-                          // For Draft & other states, only display edit button
-                          <div className="space-y-2">
-                            <div className="grid grid-cols-2 gap-2 opacity-50 pointer-events-none">
-                              <button
-                                disabled
-                                className="bg-slate-200 dark:bg-slate-800 text-slate-400 py-2 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm flex items-center justify-center gap-1"
-                              >
-                                Buka Link
-                              </button>
-                              <button
-                                disabled
-                                className="bg-slate-200 dark:bg-slate-800 text-slate-400 py-2 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm flex items-center justify-center gap-1"
-                              >
-                                Salin Link
-                              </button>
-                            </div>
+                          <div className="grid grid-cols-2 gap-2 opacity-50 pointer-events-none">
+                            <button
+                              disabled
+                              className="bg-slate-200 dark:bg-slate-800 text-slate-400 py-2 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm flex items-center justify-center gap-1"
+                            >
+                              Buka Link
+                            </button>
+                            <button
+                              disabled
+                              className="bg-slate-200 dark:bg-slate-800 text-slate-400 py-2 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm flex items-center justify-center gap-1"
+                            >
+                              Salin Link
+                            </button>
                           </div>
                         )}
                       </div>
@@ -251,7 +243,7 @@ const DashboardPage = ({
               </p>
               <button
                 onClick={() => setSubView('panduan')}
-                className="w-full py-2.5 bg-slate-950 dark:bg-white text-white dark:text-slate-950 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-slate-900 dark:hover:bg-slate-55 transition-all shadow-sm flex items-center justify-center gap-2 group"
+                className="w-full py-2.5 bg-slate-950 dark:bg-white text-white dark:text-slate-950 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-slate-900 dark:hover:bg-slate-800 transition-all shadow-sm flex items-center justify-center gap-2 group"
               >
                 Buka Panduan <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
               </button>

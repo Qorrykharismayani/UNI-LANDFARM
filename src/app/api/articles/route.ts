@@ -11,4 +11,3 @@ export async function POST() {
 export async function DELETE() {
   return NextResponse.json({ success: false, message: 'Rute ini telah didepresiasi. Silakan gunakan /api/content-schedules.' }, { status: 410 });
 }
-

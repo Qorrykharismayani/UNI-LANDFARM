@@ -35,8 +35,13 @@ export async function GET() {
         faqsJson: [
           { q: "Apakah saya perlu keahlian coding?", a: "Tidak sama sekali. Uni-LandFarm dirancang untuk pebisnis tanpa latar belakang teknis. AI kami menangani semua aspek teknis.", color: "bg-blue-500" },
           { q: "Berapa lama waktu yang dibutuhkan untuk membuat situs?", a: "Hanya butuh sekitar 30-60 detik untuk menghasilkan draf pertama yang profesional.", color: "bg-purple-500" },
-          { q: "Apakah situs saya akan SEO-friendly?", a: "Ya, AI kami secara otomatis mengoptimalkan struktur, meta tag, dan konten untuk mesin pencari.", color: "bg-indigo-500" },
+          { q: "Bagaimana cara mengubah konten landing page?", a: "Anda dapat mengubah teks, gambar, tombol, dan informasi lainnya langsung melalui CMS Editor. Perubahan dapat disimpan atau dijadwalkan untuk diterapkan secara otomatis.", color: "bg-indigo-500" },
           { q: "Bisakah saya menggunakan domain sendiri?", a: "Tentu. Anda dapat menghubungkan domain kustom Anda dengan mudah di dashboard.", color: "bg-violet-500" }
+        ],
+        pricingJson: [
+          { name: 'PAKET BASIC', price: 'Rp 75.000', description: 'Untuk kebutuhan desain dasar.', features: ['1 prompt', 'Rasio 16:9', '1 konsep infografis', '500-800 token'], buttonText: 'BELI 800 TOKEN', isPopular: false, gradient: 'from-blue-500 to-cyan-400' },
+          { name: 'PAKET STANDARD', price: 'Rp 150.000', description: 'Untuk pebisnis profesional.', features: ['3 prompt', 'Bebas Rasio', '3 konsep infografis', '1500-2000 token', 'Revisi 1x'], buttonText: 'BELI 2000 TOKEN', isPopular: true, gradient: 'from-amber-400 to-orange-500' },
+          { name: 'PAKET PREMIUM', price: 'Rp 300.000', description: 'Solusi lengkap agensi digital.', features: ['Bebas prompt', 'Semua fitur AI', 'Unlimited konsep', '5000+ token', 'Revisi unlimited', 'Prioritas Support'], buttonText: 'BELI 5000+ TOKEN', isPopular: false, gradient: 'from-violet-500 to-purple-600' }
         ],
         userPageJson: {
           welcomeTitle: "Halo, Pebisnis Modern!",
@@ -170,8 +175,15 @@ export async function GET() {
         settings.faqsJson = [
           { q: "Apakah saya perlu keahlian coding?", a: "Tidak sama sekali. Uni-LandFarm dirancang untuk pebisnis tanpa latar belakang teknis. AI kami menangani semua aspek teknis.", color: "bg-blue-500" },
           { q: "Berapa lama waktu yang dibutuhkan untuk membuat situs?", a: "Hanya butuh sekitar 30-60 detik untuk menghasilkan draf pertama yang profesional.", color: "bg-purple-500" },
-          { q: "Apakah situs saya akan SEO-friendly?", a: "Ya, AI kami secara otomatis mengoptimalkan struktur, meta tag, dan konten untuk mesin pencari.", color: "bg-indigo-500" },
+          { q: "Bagaimana cara mengubah konten landing page?", a: "Anda dapat mengubah teks, gambar, tombol, dan informasi lainnya langsung melalui CMS Editor. Perubahan dapat disimpan atau dijadwalkan untuk diterapkan secara otomatis.", color: "bg-indigo-500" },
           { q: "Bisakah saya menggunakan domain sendiri?", a: "Tentu. Anda dapat menghubungkan domain kustom Anda dengan mudah di dashboard.", color: "bg-violet-500" }
+        ];
+      }
+      if (!settings.pricingJson) {
+        settings.pricingJson = [
+          { name: 'PAKET BASIC', price: 'Rp 75.000', description: 'Untuk kebutuhan desain dasar.', features: ['1 prompt', 'Rasio 16:9', '1 konsep infografis', '500-800 token'], buttonText: 'BELI 800 TOKEN', isPopular: false, gradient: 'from-blue-500 to-cyan-400' },
+          { name: 'PAKET STANDARD', price: 'Rp 150.000', description: 'Untuk pebisnis profesional.', features: ['3 prompt', 'Bebas Rasio', '3 konsep infografis', '1500-2000 token', 'Revisi 1x'], buttonText: 'BELI 2000 TOKEN', isPopular: true, gradient: 'from-amber-400 to-orange-500' },
+          { name: 'PAKET PREMIUM', price: 'Rp 300.000', description: 'Solusi lengkap agensi digital.', features: ['Bebas prompt', 'Semua fitur AI', 'Unlimited konsep', '5000+ token', 'Revisi unlimited', 'Prioritas Support'], buttonText: 'BELI 5000+ TOKEN', isPopular: false, gradient: 'from-violet-500 to-purple-600' }
         ];
       }
       if (!settings.userPageJson) {

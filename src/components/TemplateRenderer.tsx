@@ -21,7 +21,8 @@ import {
   Check,
   User,
   ArrowRight,
-  ChevronRight
+  ChevronRight,
+  Truck, Coffee, Briefcase, Camera, Globe, Headphones, Monitor, Smartphone, ShoppingBag, Award, CheckCircle, Smile, ThumbsUp, Gift, Anchor, Book, Compass, Crosshair, Feather, Flag, Key, Leaf, Lock, Music, Sun, Moon
 } from 'lucide-react';
 
 interface TemplateRendererProps {
@@ -57,15 +58,14 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
   const footer = getSectionContent('footer', c.footer || { logo: '', businessName: '', copyright: '' });
 
   // Helper for rendering icons dynamically
-  const renderIcon = (iconName: string) => {
-    switch (iconName) {
-      case 'Shield': return <Shield className="w-6 h-6 text-brand-blue" />;
-      case 'Zap': return <Zap className="w-6 h-6 text-amber-500" />;
-      case 'Heart': return <Heart className="w-6 h-6 text-red-500" />;
-      case 'Sparkles': return <Sparkles className="w-6 h-6 text-purple-500" />;
-      case 'Star': return <Star className="w-6 h-6 text-yellow-500 fill-current" />;
-      default: return <Sparkles className="w-6 h-6 text-brand-blue" />;
-    }
+  const renderIcon = (iconName: string, customColor?: string) => {
+    const iconMap: Record<string, any> = {
+      Shield, Zap, Heart, Sparkles, Star, Truck, Coffee, Briefcase, Camera, Globe, Headphones, 
+      Monitor, Smartphone, ShoppingBag, Award, CheckCircle, Smile, ThumbsUp, Gift, Anchor, 
+      Book, Compass, Crosshair, Feather, Flag, Key, Leaf, Lock, Music, Sun, Moon
+    };
+    const IconCmp = iconMap[iconName] || Sparkles;
+    return <IconCmp className="w-6 h-6" style={customColor ? { color: customColor } : {}} />;
   };
 
   // 1. UMKM Template Layout (Makanan & Retail)
@@ -106,8 +106,12 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
       return type !== 'navbar' && type !== 'footer' && type !== 'logo' && type !== 'contact' && type !== 'socialMedia' && active;
     });
 
+    const fontName = c.fontFamily || 'Inter';
+    const fontUrl = `https://fonts.googleapis.com/css2?family=${fontName.replace(/ /g, '+')}:wght@300;400;500;600;700;800;900&display=swap`;
+
     return (
-      <div className={`w-full bg-[#fcfbf7] text-[#332f21] font-sans antialiased selection:bg-amber-100 selection:text-amber-900 ${isMobile ? 'py-2 px-1' : ''} min-h-screen`}>
+      <div className={`w-full bg-[#fcfbf7] text-[#332f21] antialiased selection:bg-amber-100 selection:text-amber-900 ${isMobile ? 'py-2 px-1' : ''} min-h-screen`} style={{ fontFamily: `"${fontName}", sans-serif` }}>
+        <style dangerouslySetInnerHTML={{ __html: `@import url('${fontUrl}');` }} />
         {/* Navigation */}
         {isNavbarActive && (
           <nav className={`bg-white/80 backdrop-blur-md border-b border-amber-100/50 flex justify-between items-center sticky top-0 z-50 shadow-sm ${isMobile ? 'py-2 px-3 gap-2' : 'py-4 px-6 md:px-12'}`}>
@@ -141,7 +145,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
         )}
 
         {/* Dynamic Sections */}
-        {layoutSections.map((sec: any) => {
+        {layoutSections.map((sec: any, index: number) => {
           const secType = sec.type || sec.id;
           const secContent = sec.content || c[secType] || {};
           
@@ -157,7 +161,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
           switch (secType) {
             case 'hero':
               return (
-                <section id="home" key="hero" className={`max-w-6xl mx-auto grid gap-12 items-center ${isMobile ? 'py-8 px-4 grid-cols-1 gap-6' : 'py-16 md:py-24 px-6 md:px-12 grid-cols-1 md:grid-cols-2'}`}>
+                <section id="home" key={`hero-${index}`} className={`max-w-6xl mx-auto grid gap-12 items-center ${isMobile ? 'py-8 px-4 grid-cols-1 gap-6' : 'py-16 md:py-24 px-6 md:px-12 grid-cols-1 md:grid-cols-2'}`}>
                   <div className="space-y-6 text-left">
                     <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-amber-50 border border-amber-200/50 text-amber-700 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm">
                       <Sparkles className="w-4 h-4 text-amber-600 animate-pulse" /> 100% Produk Lokal Asli
@@ -193,7 +197,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
             case 'about':
               return (
-                <section id="about" key="about" className={`bg-amber-50/50 border-y border-amber-100/40 ${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'}`}>
+                <section id="about" key={`about-${index}`} className={`bg-amber-50/50 border-y border-amber-100/40 ${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'}`}>
                   <div className={`max-w-4xl mx-auto text-center ${isMobile ? 'space-y-6' : 'space-y-12'}`}>
                     <div className="space-y-3">
                       <h2 className={`font-black text-amber-950 uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Kisah Di Balik Produk Kami</h2>
@@ -219,7 +223,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
             case 'products':
               return (
-                <section id="products" key="products" className={`max-w-6xl mx-auto ${isMobile ? 'py-8 px-4 space-y-6' : 'py-20 px-6 md:px-12 space-y-16'}`}>
+                <section id="products" key={`products-${index}`} className={`max-w-6xl mx-auto ${isMobile ? 'py-8 px-4 space-y-6' : 'py-20 px-6 md:px-12 space-y-16'}`}>
                   <div className="text-center space-y-3">
                     <h2 className={`font-black text-amber-950 uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Produk Pilihan Terbaik</h2>
                     <p className={`text-amber-900/60 max-w-lg mx-auto font-bold uppercase tracking-widest ${isMobile ? 'text-[9px]' : 'text-[10px] md:text-xs'}`}>Segar, berkualitas, diproduksi langsung dari petani & pengrajin lokal</p>
@@ -262,12 +266,12 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
             case 'advantages':
               return (
-                <section key="advantages" className={`bg-amber-900 text-white ${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'}`} style={{ backgroundColor: '#451a03' }}>
+                <section key={`advantages-${index}`} className={`bg-amber-900 text-white ${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'}`} style={{ backgroundColor: '#451a03' }}>
                   <div className={`max-w-4xl mx-auto grid gap-8 ${isMobile ? 'grid-cols-1 gap-6' : 'grid-cols-1 md:grid-cols-3'}`}>
                     {advantages.map((adv, i) => (
                       <div key={i} className="text-center space-y-4">
                         <div className="w-14 h-14 bg-amber-800/50 rounded-2xl flex items-center justify-center mx-auto shadow-inner border border-amber-700/50">
-                          {renderIcon(adv.icon)}
+                          {renderIcon(adv.icon, primaryColor)}
                         </div>
                         <h4 className="font-black text-base uppercase tracking-tight">{adv.title}</h4>
                         <p className="text-xs text-amber-100/75 leading-relaxed">{adv.description}</p>
@@ -279,7 +283,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
             case 'gallery':
               return (
-                <section key="gallery" className={`max-w-6xl mx-auto ${isMobile ? 'py-8 px-4 space-y-6' : 'py-20 px-6 md:px-12 space-y-12'}`}>
+                <section key={`gallery-${index}`} className={`max-w-6xl mx-auto ${isMobile ? 'py-8 px-4 space-y-6' : 'py-20 px-6 md:px-12 space-y-12'}`}>
                   <div className="text-center space-y-3">
                     <h2 className={`font-black text-amber-950 uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Galeri Kegiatan Kami</h2>
                     <div className="w-16 h-1.5 mx-auto rounded-full" style={{ backgroundColor: primaryColor }} />
@@ -300,7 +304,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
             case 'testimonials':
               return (
-                <section id="testimonials" key="testimonials" className={`bg-amber-50/50 border-y border-amber-100/40 ${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'}`}>
+                <section id="testimonials" key={`testimonials-${index}`} className={`bg-amber-50/50 border-y border-amber-100/40 ${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'}`}>
                   <div className={`max-w-4xl mx-auto text-center ${isMobile ? 'space-y-6' : 'space-y-12'}`}>
                     <div className="space-y-3">
                       <h2 className={`font-black text-amber-950 uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Ulasan Pelanggan</h2>
@@ -326,7 +330,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
             case 'cta':
               return (
-                <section key="cta" className={`max-w-5xl mx-auto text-center relative overflow-hidden bg-amber-50 border border-amber-200/50 my-12 ${isMobile ? 'py-8 px-4 rounded-[24px] space-y-6 my-6' : 'py-16 md:py-24 px-6 md:px-12 rounded-[40px] space-y-8'}`}>
+                <section key={`cta-${index}`} className={`max-w-5xl mx-auto text-center relative overflow-hidden bg-amber-50 border border-amber-200/50 my-12 ${isMobile ? 'py-8 px-4 rounded-[24px] space-y-6 my-6' : 'py-16 md:py-24 px-6 md:px-12 rounded-[40px] space-y-8'}`}>
                   <div className="space-y-3">
                     <h2 className={`font-black text-amber-950 uppercase tracking-tight ${isMobile ? 'text-xl' : 'text-3xl md:text-4xl'}`}>{cta.title}</h2>
                     <p className={`text-amber-900/70 max-w-xl mx-auto font-medium ${isMobile ? 'text-xs' : 'text-xs md:text-sm'}`}>{cta.description}</p>
@@ -347,7 +351,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
             case 'marketplaces':
               return (
-                <section key="marketplaces" className={`border-t border-amber-100 bg-white text-center ${isMobile ? 'py-8 px-4' : 'py-12 px-6'}`}>
+                <section key={`marketplaces-${index}`} className={`border-t border-amber-100 bg-white text-center ${isMobile ? 'py-8 px-4' : 'py-12 px-6'}`}>
                   <div className="max-w-4xl mx-auto space-y-4">
                     <p className="text-[10px] font-black text-amber-900/60 uppercase tracking-widest">Tersedia Juga di Marketplace Resmi</p>
                     <div className="flex flex-wrap justify-center gap-6">
@@ -466,8 +470,12 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
     return type !== 'navbar' && type !== 'footer' && type !== 'logo' && type !== 'contact' && type !== 'socialMedia' && active;
   });
 
+  const fontName = c.fontFamily || 'Inter';
+  const fontUrl = `https://fonts.googleapis.com/css2?family=${fontName.replace(/ /g, '+')}:wght@300;400;500;600;700;800;900&display=swap`;
+
   return (
-    <div className={`w-full ${bgColor} ${textColor} font-sans antialiased ${isMobile ? 'py-2 px-1' : ''} min-h-screen`}>
+    <div className={`w-full ${bgColor} ${textColor} antialiased ${isMobile ? 'py-2 px-1' : ''} min-h-screen`} style={{ fontFamily: `"${fontName}", sans-serif` }}>
+      <style dangerouslySetInnerHTML={{ __html: `@import url('${fontUrl}');` }} />
       {/* Navigation */}
       {isNavbarActive && (
         <nav className={`flex justify-between items-center sticky top-0 z-50 shadow-sm backdrop-blur-md border-b ${isDarkTheme ? 'bg-[#0f172a]/95 border-slate-800/80' : 'bg-white/95 border-slate-100/80'} ${isMobile ? 'py-2 px-3 gap-2' : 'py-4 px-6 md:px-12'}`}>
@@ -501,7 +509,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
       )}
 
       {/* Dynamic Sections */}
-      {layoutSections.map((sec: any) => {
+      {layoutSections.map((sec: any, index: number) => {
         const secType = sec.type || sec.id;
         const secContent = sec.content || c[secType] || {};
         
@@ -517,7 +525,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
         switch (secType) {
           case 'hero':
             return (
-              <section id="home" key="hero" className={`max-w-6xl mx-auto grid gap-12 items-center ${isMobile ? 'py-8 px-4 grid-cols-1 gap-6' : 'py-16 md:py-24 px-6 md:px-12 grid-cols-1 md:grid-cols-2'}`}>
+              <section id="home" key={`hero-${index}`} className={`max-w-6xl mx-auto grid gap-12 items-center ${isMobile ? 'py-8 px-4 grid-cols-1 gap-6' : 'py-16 md:py-24 px-6 md:px-12 grid-cols-1 md:grid-cols-2'}`}>
                 <div className="space-y-6 text-left">
                   <div className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm ${isDarkTheme ? 'bg-purple-950/20 border-purple-800/30 text-purple-300' : 'bg-blue-50 border-blue-200/50 text-blue-700'}`}>
                     <Sparkles className="w-4 h-4 animate-pulse" /> Layanan Profesional & Terpercaya
@@ -553,7 +561,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
           case 'about':
             return (
-              <section id="about" key="about" className={`border-y ${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'} ${isDarkTheme ? 'bg-[#111827]/40 border-slate-900' : 'bg-slate-100/50 border-slate-200/50'}`}>
+              <section id="about" key={`about-${index}`} className={`border-y ${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'} ${isDarkTheme ? 'bg-[#111827]/40 border-slate-900' : 'bg-slate-100/50 border-slate-200/50'}`}>
                 <div className={`max-w-4xl mx-auto text-center ${isMobile ? 'space-y-6' : 'space-y-12'}`}>
                   <div className="space-y-3">
                     <h2 className={`font-black uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Mengenal Profil Kami</h2>
@@ -562,15 +570,15 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                   <div className={`grid gap-8 text-left ${isMobile ? 'grid-cols-1 gap-6' : 'grid-cols-1 md:grid-cols-3'}`}>
                     <div className={`p-6 rounded-2xl border shadow-sm space-y-3 ${cardColor}`}>
                       <h4 className="font-black uppercase text-xs tracking-wider" style={{ color: primaryColor }}>Tentang Kami</h4>
-                      <p className={`text-xs font-medium leading-relaxed ${isDarkTheme ? 'text-slate-450' : 'text-slate-650'}`}>{about.description || 'Penyedia solusi profesional dan terintegrasi.'}</p>
+                      <p className={`text-xs font-medium leading-relaxed ${isDarkTheme ? 'text-slate-400' : 'text-slate-600'}`}>{about.description || 'Penyedia solusi profesional dan terintegrasi.'}</p>
                     </div>
                     <div className={`p-6 rounded-2xl border shadow-sm space-y-3 ${cardColor}`}>
                       <h4 className="font-black uppercase text-xs tracking-wider" style={{ color: primaryColor }}>Profil Bisnis</h4>
-                      <p className={`text-xs font-medium leading-relaxed ${isDarkTheme ? 'text-slate-450' : 'text-slate-650'}`}>{about.profile || 'Kami berdedikasi memberikan hasil kerja bermutu tinggi.'}</p>
+                      <p className={`text-xs font-medium leading-relaxed ${isDarkTheme ? 'text-slate-400' : 'text-slate-600'}`}>{about.profile || 'Kami berdedikasi memberikan hasil kerja bermutu tinggi.'}</p>
                     </div>
                     <div className={`p-6 rounded-2xl border shadow-sm space-y-3 ${cardColor}`}>
                       <h4 className="font-black uppercase text-xs tracking-wider" style={{ color: primaryColor }}>Kisah Perjalanan</h4>
-                      <p className={`text-xs font-medium leading-relaxed ${isDarkTheme ? 'text-slate-450' : 'text-slate-650'}`}>{about.story || 'Mengawali langkah kecil demi mendigitalisasi jutaan bisnis lokal.'}</p>
+                      <p className={`text-xs font-medium leading-relaxed ${isDarkTheme ? 'text-slate-400' : 'text-slate-600'}`}>{about.story || 'Mengawali langkah kecil demi mendigitalisasi jutaan bisnis lokal.'}</p>
                     </div>
                   </div>
                 </div>
@@ -579,10 +587,10 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
           case 'products':
             return (
-              <section id="products" key="products" className={`max-w-6xl mx-auto ${isMobile ? 'py-8 px-4 space-y-6' : 'py-20 px-6 md:px-12 space-y-16'}`}>
+              <section id="products" key={`products-${index}`} className={`max-w-6xl mx-auto ${isMobile ? 'py-8 px-4 space-y-6' : 'py-20 px-6 md:px-12 space-y-16'}`}>
                 <div className="text-center space-y-3">
                   <h2 className={`font-black uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Layanan & Produk Unggulan</h2>
-                  <p className={`max-w-lg mx-auto font-bold uppercase tracking-widest ${isDarkTheme ? 'text-slate-450' : 'text-slate-500'} ${isMobile ? 'text-[9px]' : 'text-[10px] md:text-xs'}`}>Dukungan penuh untuk efisiensi ekosistem operasional Anda</p>
+                  <p className={`max-w-lg mx-auto font-bold uppercase tracking-widest ${isDarkTheme ? 'text-slate-400' : 'text-slate-500'} ${isMobile ? 'text-[9px]' : 'text-[10px] md:text-xs'}`}>Dukungan penuh untuk efisiensi ekosistem operasional Anda</p>
                   <div className="w-16 h-1.5 mx-auto rounded-full" style={{ backgroundColor: primaryColor }} />
                 </div>
                 <div className={`grid gap-8 ${isMobile ? 'grid-cols-1 gap-6' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'}`}>
@@ -623,12 +631,12 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
           case 'advantages':
             return (
-              <section key="advantages" className={`${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'} ${isDarkTheme ? 'bg-[#0f172a]' : 'bg-slate-900 text-white'}`}>
+              <section key={`advantages-${index}`} className={`${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'} ${isDarkTheme ? 'bg-[#0f172a]' : 'bg-slate-900 text-white'}`}>
                 <div className={`max-w-4xl mx-auto grid gap-8 ${isMobile ? 'grid-cols-1 gap-6' : 'grid-cols-1 md:grid-cols-3'}`}>
                   {advantages.map((adv, i) => (
                     <div key={i} className="text-center space-y-4">
                       <div className="w-14 h-14 bg-slate-800/80 rounded-2xl flex items-center justify-center mx-auto shadow-inner border border-slate-700/50">
-                        {renderIcon(adv.icon)}
+                        {renderIcon(adv.icon, primaryColor)}
                       </div>
                       <h4 className="font-black text-base uppercase tracking-tight">{adv.title}</h4>
                       <p className="text-xs text-slate-400 leading-relaxed">{adv.description}</p>
@@ -640,7 +648,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
           case 'gallery':
             return (
-              <section key="gallery" className={`max-w-6xl mx-auto ${isMobile ? 'py-8 px-4 space-y-6' : 'py-20 px-6 md:px-12 space-y-12'}`}>
+              <section key={`gallery-${index}`} className={`max-w-6xl mx-auto ${isMobile ? 'py-8 px-4 space-y-6' : 'py-20 px-6 md:px-12 space-y-12'}`}>
                 <div className="text-center space-y-3">
                   <h2 className={`font-black uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Dokumentasi Portofolio</h2>
                   <div className="w-16 h-1.5 mx-auto rounded-full" style={{ backgroundColor: primaryColor }} />
@@ -661,7 +669,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
           case 'testimonials':
             return (
-              <section id="testimonials" key="testimonials" className={`border-y ${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'} ${isDarkTheme ? 'bg-[#111827]/40 border-slate-900' : 'bg-slate-100/50 border-slate-200/50'}`}>
+              <section id="testimonials" key={`testimonials-${index}`} className={`border-y ${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'} ${isDarkTheme ? 'bg-[#111827]/40 border-slate-900' : 'bg-slate-100/50 border-slate-200/50'}`}>
                 <div className={`max-w-4xl mx-auto text-center ${isMobile ? 'space-y-6' : 'space-y-12'}`}>
                   <div className="space-y-3">
                     <h2 className={`font-black uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Apa Kata Klien Kami?</h2>
@@ -687,7 +695,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
           case 'cta':
             return (
-              <section key="cta" className={`max-w-5xl mx-auto text-center relative overflow-hidden border my-12 ${cardColor} ${isMobile ? 'py-8 px-4 rounded-[24px] space-y-6 my-6' : 'py-16 md:py-24 px-6 md:px-12 rounded-[40px] space-y-8'}`}>
+              <section key={`cta-${index}`} className={`max-w-5xl mx-auto text-center relative overflow-hidden border my-12 ${cardColor} ${isMobile ? 'py-8 px-4 rounded-[24px] space-y-6 my-6' : 'py-16 md:py-24 px-6 md:px-12 rounded-[40px] space-y-8'}`}>
                 <div className="space-y-3">
                   <h2 className={`font-black uppercase tracking-tight ${isMobile ? 'text-xl' : 'text-3xl md:text-4xl'}`}>{cta.title}</h2>
                   <p className="text-slate-500 text-xs md:text-sm max-w-xl mx-auto font-medium">{cta.description}</p>
@@ -708,7 +716,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
           case 'marketplaces':
             return (
-              <section key="marketplaces" className={`border-t text-center ${isMobile ? 'py-8 px-4' : 'py-12 px-6'} ${isDarkTheme ? 'bg-[#0f172a] border-slate-800' : 'bg-white border-slate-200'}`}>
+              <section key={`marketplaces-${index}`} className={`border-t text-center ${isMobile ? 'py-8 px-4' : 'py-12 px-6'} ${isDarkTheme ? 'bg-[#0f172a] border-slate-800' : 'bg-white border-slate-200'}`}>
                 <div className="max-w-4xl mx-auto space-y-4">
                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Tautan Terkait Marketplace</p>
                   <div className="flex flex-wrap justify-center gap-6">
@@ -753,7 +761,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
             {isSocialActive && (
               <div className="space-y-4 text-left">
                 <h4 className="text-xs font-black uppercase tracking-widest text-white">Media Sosial</h4>
-                <div className="flex gap-4 text-slate-450">
+                <div className="flex gap-4 text-slate-400">
                   {socialMedia.instagram && <a href={socialMedia.instagram} target="_blank" rel="noreferrer" className="hover:text-white"><Instagram className="w-5 h-5" /></a>}
                   {socialMedia.facebook && <a href={socialMedia.facebook} target="_blank" rel="noreferrer" className="hover:text-white"><Facebook className="w-5 h-5" /></a>}
                   {socialMedia.youtube && <a href={socialMedia.youtube} target="_blank" rel="noreferrer" className="hover:text-white"><Youtube className="w-5 h-5" /></a>}

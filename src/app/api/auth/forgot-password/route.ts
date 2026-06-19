@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import nodemailer from 'nodemailer';
 
 export async function POST(request: Request) {
   try {
@@ -26,10 +27,11 @@ export async function POST(request: Request) {
       }
     });
 
+    // Bypass SMTP email sending and directly return the token for simulation/development mode
     return NextResponse.json({
       success: true,
-      message: 'Token reset password berhasil digenerasikan!',
-      token: token // Returned directly so user can copy-paste to test easily in the UI
+      message: 'Token reset password berhasil digenerasikan (Mode Simulasi)!',
+      token: token
     });
   } catch (error: any) {
     return NextResponse.json({ success: false, message: error.message || 'Terjadi kesalahan sistem.' }, { status: 500 });
