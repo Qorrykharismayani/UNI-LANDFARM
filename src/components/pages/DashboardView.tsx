@@ -1386,7 +1386,7 @@ export const DashboardView = ({
                       className="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-left text-[10px] font-black uppercase tracking-wider text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors cursor-pointer"
                     >
                       <Lock className="w-3.5 h-3.5 text-slate-400" />
-                      <span>Ubah Password</span>
+                      <span>Change Password</span>
                     </button>
                     <div className="border-t border-slate-800 my-1" />
                     <button

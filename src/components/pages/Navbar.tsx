@@ -63,7 +63,7 @@ const Navbar = ({ setView, currentView, theme, toggleTheme }: NavbarProps) => {
               whileTap={{ scale: 0.95 }}
               className={`px-6 py-2.5 text-[15px] font-black transition-all rounded-full hover:bg-slate-100 dark:hover:bg-slate-900/60 cursor-pointer ${currentView === 'login' ? 'text-brand-blue' : 'text-slate-600 dark:text-slate-300 hover:text-brand-blue dark:hover:text-brand-blue'}`}
             >
-              Masuk
+              Login
             </motion.button>
             <motion.button 
               onClick={() => setView('signup')}
@@ -71,7 +71,7 @@ const Navbar = ({ setView, currentView, theme, toggleTheme }: NavbarProps) => {
               whileTap={{ scale: 0.95 }}
               className={`px-6 py-2.5 text-[15px] font-black transition-all rounded-full hover:bg-slate-100 dark:hover:bg-slate-900/60 cursor-pointer ${currentView === 'signup' ? 'text-brand-blue' : 'text-slate-600 dark:text-slate-300 hover:text-brand-blue dark:hover:text-brand-blue'}`}
             >
-              Daftar
+              Sign Up
             </motion.button>
           </div>
 
@@ -112,7 +112,7 @@ const Navbar = ({ setView, currentView, theme, toggleTheme }: NavbarProps) => {
                   whileTap={{ scale: 0.98 }}
                   className="py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-black text-sm cursor-pointer"
                 >
-                  Masuk
+                  Login
                 </motion.button>
                 <motion.button 
                   onClick={() => { setView('signup'); setIsMobileMenuOpen(false); }}
@@ -120,7 +120,7 @@ const Navbar = ({ setView, currentView, theme, toggleTheme }: NavbarProps) => {
                   whileTap={{ scale: 0.98 }}
                   className="py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-black text-sm cursor-pointer"
                 >
-                  Daftar
+                  Sign Up
                 </motion.button>
               </div>
             </div>
