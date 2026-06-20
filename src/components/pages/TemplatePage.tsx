@@ -45,8 +45,8 @@ const TemplatePage = ({
     <div className="max-w-6xl mx-auto space-y-10">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h2 className="text-lg font-black text-slate-900 dark:text-white tracking-tight mb-2">Pustaka Template</h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Pilih fondasi untuk situs web Anda.</p>
+          <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-2">Pustaka Template</h2>
+          <p className="text-base text-slate-500 dark:text-slate-400 font-medium">Pilih fondasi untuk situs web Anda.</p>
         </div>
         <div className="flex gap-4">
           <div className="relative">
@@ -64,7 +64,7 @@ const TemplatePage = ({
           <button
             key={cat}
             onClick={() => setActiveTemplateFilter(cat)}
-            className={`px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all ${activeTemplateFilter === cat ? 'bg-brand-blue text-white shadow-blue' : 'bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 border border-slate-100 dark:border-slate-800 hover:border-brand-blue/30'}`}
+            className={`px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest whitespace-nowrap transition-all ${activeTemplateFilter === cat ? 'bg-brand-blue text-white shadow-blue' : 'bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 border border-slate-100 dark:border-slate-800 hover:border-brand-blue/30'}`}
           >
             {cat}
           </button>
@@ -84,13 +84,13 @@ const TemplatePage = ({
                     setCreationBusinessName('');
                     setCreationSlug('');
                   }}
-                  className="w-full bg-white text-slate-900 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-brand-blue hover:text-white transition-all shadow-xl"
+                  className="w-full bg-white text-slate-900 py-3 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-brand-blue hover:text-white transition-all shadow-xl"
                 >
                   Gunakan Template
                 </button>
                 <button
                   onClick={() => setPreviewTemplate(tpl)}
-                  className="w-full bg-white/20 backdrop-blur-md text-white py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-white/40 transition-all border border-white/20"
+                  className="w-full bg-white/20 backdrop-blur-md text-white py-3 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-white/40 transition-all border border-white/20"
                 >
                   Pratinjau Langsung
                 </button>
@@ -98,14 +98,14 @@ const TemplatePage = ({
             </div>
             <div className="p-8">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[9px] font-black text-brand-blue uppercase tracking-[0.2em]">{tpl.category}</span>
+                <span className="text-[10px] font-black text-brand-blue uppercase tracking-[0.2em]">{tpl.category}</span>
                 <div className="flex gap-1">
                   <Monitor className="w-3 h-3 text-slate-300 dark:text-slate-600" />
                   <Smartphone className="w-3 h-3 text-slate-300 dark:text-slate-600" />
                 </div>
               </div>
-              <h4 className="text-base font-black text-slate-900 dark:text-white tracking-tight mb-2">{tpl.title}</h4>
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium line-clamp-2 leading-relaxed">{tpl.description}</p>
+              <h4 className="text-lg font-black text-slate-900 dark:text-white tracking-tight mb-2">{tpl.title}</h4>
+              <p className="text-sm text-slate-500 dark:text-slate-400 font-medium line-clamp-2 leading-relaxed">{tpl.description}</p>
             </div>
           </div>
         ))}

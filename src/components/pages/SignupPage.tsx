@@ -72,7 +72,7 @@ const SignupPage = ({ setView, setUser, prefilledEmail, setPrefilledEmail }: Sig
       >
         {/* Logo */}
         <div className="flex justify-center mb-6">
-          <img src="/logo.png?v=8" alt="Uni-LandFarm Logo" className="h-[90px] object-contain" />
+          <img src="/logo.png?v=8" alt="Uni-LandFarm Logo" className="h-[105px] object-contain" />
         </div>
 
         <div className="mb-8 text-center">

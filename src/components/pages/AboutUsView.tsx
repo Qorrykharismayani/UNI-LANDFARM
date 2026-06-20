@@ -341,7 +341,7 @@ export const AboutUsView = () => (
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.35 }}
-        className="relative bg-slate-950 border border-slate-800 rounded-[40px] p-12 lg:p-16 overflow-hidden text-white shadow-[0_40px_100px_rgba(0,0,0,0.4)]"
+        className="relative bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-[40px] p-12 lg:p-16 overflow-hidden text-slate-800 dark:text-white shadow-[0_20px_60px_rgba(0,0,0,0.08)] dark:shadow-[0_40px_100px_rgba(0,0,0,0.4)]"
       >
         {/* Ambient glows */}
         <div className="absolute top-0 right-0 w-[480px] h-[480px] bg-brand-blue/15 rounded-full blur-[130px] -mr-32 -mt-32 pointer-events-none" />
@@ -365,8 +365,8 @@ export const AboutUsView = () => (
               <Zap className="w-3 h-3" />
               Core Technology
             </div>
-            <h3 className="text-2xl lg:text-4xl font-black tracking-tight mb-4">Teknologi Inti Kami</h3>
-            <p className="text-slate-400 max-w-xl mx-auto text-sm lg:text-base">
+            <h3 className="text-2xl lg:text-4xl font-black tracking-tight mb-4 text-slate-900 dark:text-white">Teknologi Inti Kami</h3>
+            <p className="text-slate-500 dark:text-slate-400 max-w-xl mx-auto text-sm lg:text-base">
               Inovasi yang menggerakkan Uni-LandFarm ke masa depan.
             </p>
           </div>
@@ -374,7 +374,7 @@ export const AboutUsView = () => (
           <div className="grid md:grid-cols-2 gap-8">
 
             {/* AI Generator Agentic Card */}
-            <div className="group relative bg-white/[0.04] border border-white/[0.07] hover:border-brand-blue/40 hover:bg-white/[0.07] rounded-[24px] p-8 transition-all duration-400 hover:shadow-[0_0_40px_rgba(255,176,0,0.12)]">
+            <div className="group relative bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.07] hover:border-brand-blue/40 hover:bg-white dark:hover:bg-white/[0.07] rounded-[24px] p-8 transition-all duration-400 hover:shadow-[0_0_40px_rgba(255,176,0,0.12)]">
               <div className="absolute top-0 left-0 w-full h-px rounded-t-[24px] bg-gradient-to-r from-transparent via-brand-blue/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
               <div className="flex items-center gap-5 mb-6">
@@ -386,17 +386,17 @@ export const AboutUsView = () => (
                 </div>
                 <div>
                   <p className="text-[9px] font-black text-brand-blue/70 uppercase tracking-[0.2em] mb-0.5">AI Powered</p>
-                  <h4 className="text-lg font-black tracking-tight">AI Generator Agentic</h4>
+                  <h4 className="text-lg font-black tracking-tight text-slate-800 dark:text-white">AI Generator Agentic</h4>
                 </div>
               </div>
 
-              <p className="text-slate-400 leading-relaxed text-sm text-justify">
+              <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-sm text-justify">
                 Sistem AI Generator kami tidak hanya menyimpan data, tetapi bertindak sebagai asisten cerdas. AI Generator Agentic dapat memahami konteks bisnis Anda, menyarankan pembaruan konten, mengoptimalkan SEO secara otomatis, dan bahkan merespons interaksi pengguna secara real-time berdasarkan basis pengetahuan yang Anda berikan.
               </p>
             </div>
 
             {/* Generator Web Instan Card */}
-            <div className="group relative bg-white/[0.04] border border-white/[0.07] hover:border-brand-blue/40 hover:bg-white/[0.07] rounded-[24px] p-8 transition-all duration-400 hover:shadow-[0_0_40px_rgba(255,176,0,0.12)]">
+            <div className="group relative bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.07] hover:border-brand-blue/40 hover:bg-white dark:hover:bg-white/[0.07] rounded-[24px] p-8 transition-all duration-400 hover:shadow-[0_0_40px_rgba(255,176,0,0.12)]">
               <div className="absolute top-0 left-0 w-full h-px rounded-t-[24px] bg-gradient-to-r from-transparent via-brand-blue/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
               <div className="flex items-center gap-5 mb-6">
@@ -408,11 +408,11 @@ export const AboutUsView = () => (
                 </div>
                 <div>
                   <p className="text-[9px] font-black text-brand-blue/70 uppercase tracking-[0.2em] mb-0.5">Instant Build</p>
-                  <h4 className="text-lg font-black tracking-tight">Generator Web Instan</h4>
+                  <h4 className="text-lg font-black tracking-tight text-slate-800 dark:text-white">Generator Web Instan</h4>
                 </div>
               </div>
 
-              <p className="text-slate-400 leading-relaxed text-sm text-justify">
+              <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-sm text-justify">
                 Teknologi generator kami mengubah deskripsi singkat tentang bisnis Anda menjadi situs web fungsional yang indah dalam hitungan detik. Menggunakan model AI generatif canggih, sistem kami memilih tata letak yang optimal, menulis salinan yang menarik, dan menerapkan skema warna yang sesuai dengan identitas merek Anda secara otomatis.
               </p>
             </div>
