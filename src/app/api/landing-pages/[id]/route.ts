@@ -61,7 +61,11 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     }
 
 
-    const { title, businessName, slug, status, publicUrl, publishedAt, contentJson, customDomain } = await request.json();
+    const { title, businessName, slug, status, publicUrl, publishedAt, contentJson, customDomain, themeColor } = await request.json();
+
+    if (isNaN(Number(id))) {
+      return NextResponse.json({ success: false, message: 'ID halaman tidak valid.' }, { status: 400 });
+    }
 
     const updated = await prisma.landingPage.update({
       where: { id: Number(id) },
@@ -71,6 +75,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         slug: slug || undefined,
         status: status || undefined,
         publicUrl: publicUrl || undefined,
+        themeColor: themeColor || undefined,
         publishedAt: publishedAt ? new Date(publishedAt) : undefined,
         content: contentJson ? {
           upsert: {
@@ -90,13 +95,14 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
           update: { domainName: customDomain }
         });
       } else {
-        await prisma.domain.deleteMany({ where: { landingPageId: Number(id) } });
+        await prisma.domain.delete({ where: { landingPageId: Number(id) } }).catch(() => {});
       }
     }
 
-    return NextResponse.json({ success: true, message: 'Landing page berhasil diperbarui!', data: updated });
+    return NextResponse.json({ success: true, message: 'Landing page berhasil diperbarui.', data: updated });
   } catch (error: any) {
-    return NextResponse.json({ success: false, message: error.message || 'Terjadi kesalahan sistem.' }, { status: 500 });
+    console.error("UPDATE ERROR: ", error);
+    return NextResponse.json({ success: false, message: error.message || 'Terjadi kesalahan sistem saat memperbarui halaman.' }, { status: 500 });
   }
 }
 

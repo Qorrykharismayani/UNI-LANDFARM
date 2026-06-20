@@ -219,6 +219,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
   const [isPublishedSuccess, setIsPublishedSuccess] = useState(false);
 
   // Sections List State (Allows Reordering & Activation)
+  const [draggedSectionIndex, setDraggedSectionIndex] = useState<number | null>(null);
   const [sections, setSections] = useState<any[]>([
     { id: 'logo', type: 'logo', title: 'Logo Website', isActive: true, order: 1, content: '' },
     { id: 'navbar', type: 'navbar', title: 'Menu Navigasi', isActive: true, order: 2, content: { brand: 'Situs Baru', items: [{ id: 'home', label: 'Home' }, { id: 'about', label: 'Tentang' }, { id: 'products', label: 'Produk' }, { id: 'testimonials', label: 'Testimoni' }, { id: 'contact', label: 'Kontak' }] } },
@@ -757,7 +758,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
             </div>
 
             <div className="bg-[#F8FAFC] border border-[#E2E8F0] p-4 rounded-2xl space-y-2 text-left">
-              <span className="text-[9px] font-black uppercase tracking-widest text-amber-600 block">URL Landing Page</span>
+              <span className="text-xs font-bold uppercase tracking-widest text-amber-600 block">URL Landing Page</span>
               <div className="flex items-center justify-between gap-3 bg-white border border-[#E2E8F0] rounded-xl p-2.5">
                 <input 
                   type="text" 
@@ -771,7 +772,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                     navigator.clipboard.writeText(publicSiteUrl);
                     triggerToast('URL disalin ke clipboard!');
                   }}
-                  className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-[9px] font-black uppercase tracking-widest transition-colors cursor-pointer shrink-0"
+                  className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-bold uppercase tracking-widest transition-colors cursor-pointer shrink-0"
                 >
                   Salin URL
                 </button>
@@ -811,7 +812,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
             <h1 className="text-sm font-black uppercase tracking-widest text-[#0F172A] flex items-center gap-2">
               🚀 Publish Landing Page
             </h1>
-            <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${
+            <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider ${
               status === 'Published' ? 'bg-[#DCFCE7] text-[#15803D]' : 'bg-slate-100 text-slate-500'
             }`}>
               {status}
@@ -819,7 +820,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
           </div>
           <button
             onClick={() => setShowPublishConfirm(false)}
-            className="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 border border-[#E2E8F0] text-slate-600 hover:text-[#0F172A] rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer"
+            className="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 border border-[#E2E8F0] text-slate-600 hover:text-[#0F172A] rounded-xl text-xs font-bold uppercase tracking-widest transition-all cursor-pointer"
           >
             Kembali ke Editor
           </button>
@@ -837,7 +838,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
 
           {/* Section 2: Summary Card Grid */}
           <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6 shadow-sm space-y-4">
-            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Ringkasan Landing Page</h3>
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Ringkasan Landing Page</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               <div className="bg-[#F8FAFC] p-4 rounded-xl border border-[#E2E8F0]">
                 <span className="text-[8.5px] font-black text-slate-400 uppercase tracking-wider block mb-1">Nama Landing Page</span>
@@ -869,7 +870,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
             {/* Left Column: Checklist */}
             <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6 shadow-sm space-y-4">
-              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">✅ Checklist Publikasi</h3>
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">✅ Checklist Publikasi</h3>
               
               <div className="space-y-3">
                 {/* Check 1 */}
@@ -903,7 +904,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
 
             {/* Right Column: Preview URL */}
             <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6 shadow-sm space-y-4">
-              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">🌐 URL Landing Page</h3>
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">🌐 URL Landing Page</h3>
               
               <div className="space-y-4">
                 <div className="bg-[#F8FAFC] border border-[#E2E8F0] p-3.5 rounded-xl space-y-2">
@@ -927,14 +928,14 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                       navigator.clipboard.writeText(publicSiteUrl);
                       triggerToast('Link disalin ke clipboard!');
                     }}
-                    className="flex-1 py-2.5 bg-[#F8FAFC] hover:bg-slate-100 border border-[#E2E8F0] text-slate-700 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer text-center"
+                    className="flex-1 py-2.5 bg-[#F8FAFC] hover:bg-slate-100 border border-[#E2E8F0] text-slate-700 rounded-xl text-xs font-bold uppercase tracking-widest transition-all cursor-pointer text-center"
                   >
                     Salin URL
                   </button>
                   {status === 'Published' && (
                     <button
                       onClick={() => window.open(publicSiteUrl, '_blank')}
-                      className="flex-1 py-2.5 bg-[#0F172A] hover:bg-slate-800 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer text-center"
+                      className="flex-1 py-2.5 bg-[#0F172A] hover:bg-slate-800 text-white rounded-xl text-xs font-bold uppercase tracking-widest transition-all cursor-pointer text-center"
                     >
                       Buka Link
                     </button>
@@ -956,10 +957,16 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
               onClick={async () => {
                 setSaveStatus('Saving');
                 try {
+                  const updatedPages = sitePages.map(p => p.slug === currentPageSlug ? { ...p, content: contentJson } : p);
+                  if (!updatedPages.find(p => p.slug === currentPageSlug)) {
+                    updatedPages.push({ slug: currentPageSlug, name: currentPageSlug === '/' ? 'Beranda' : 'Halaman Baru', content: contentJson });
+                  }
+                  setSitePages(updatedPages);
+                  
                   const res = await fetch(`/api/landing-pages/${pageId}`, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contentJson })
+                    body: JSON.stringify({ contentJson: { pages: updatedPages } })
                   });
                   const data = await res.json();
                   if (data.success) {
@@ -1015,7 +1022,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                 {pageData?.status || 'Draft'}
               </span>
             </div>
-            <div className="flex items-center gap-2 text-sm font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mt-1.5">
+            <div className="flex items-center gap-2 text-[15px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mt-1.5">
               <span>Template: {pageData?.template?.name || pageData?.template}</span>
               <span>•</span>
               <span className={saveStatus === 'Saving' ? 'text-amber-500 animate-pulse' : saveStatus === 'Error' ? 'text-red-500' : 'text-emerald-500'}>
@@ -1035,7 +1042,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer ${activeTab === tab.id
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${activeTab === tab.id
                   ? 'bg-brand-blue text-white shadow-md'
                   : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
@@ -1052,10 +1059,15 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
             onClick={async () => {
               setSaveStatus('Saving');
               try {
+                const updatedPages = sitePages.map(p => p.slug === currentPageSlug ? { ...p, content: contentJson } : p);
+                if (!updatedPages.find(p => p.slug === currentPageSlug)) {
+                  updatedPages.push({ slug: currentPageSlug, name: currentPageSlug === '/' ? 'Beranda' : 'Halaman Baru', content: contentJson });
+                }
+                
                 const res = await fetch(`/api/landing-pages/${pageId}`, {
                   method: 'PATCH',
                   headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ contentJson })
+                  body: JSON.stringify({ contentJson: { pages: updatedPages } })
                 });
                 const data = await res.json();
                 if (data.success) {
@@ -1123,7 +1135,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                 {/* Dropdown Add Section */}
                 {showAddSectionDropdown && (
                   <div className="absolute top-[4.2rem] right-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-1.5 shadow-xl z-[60] space-y-0.5 max-h-[300px] w-56 overflow-y-auto custom-scrollbar animate-in slide-in-from-top-2 duration-150">
-                    <span className="text-[9px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 block px-2 py-1 select-none">Halaman:</span>
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 block px-2 py-1 select-none">Halaman:</span>
                     {sitePages.map(page => (
                       <button
                         key={page.slug}
@@ -1151,7 +1163,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                       <span className="font-bold text-[11px] tracking-tight">Tambah Halaman Baru</span>
                     </button>
                     <div className="h-px bg-slate-200 dark:bg-slate-800 my-1"></div>
-                    <span className="text-[9px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 block px-2 py-1 select-none">Pilih Section Baru:</span>
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 block px-2 py-1 select-none">Pilih Section Baru:</span>
                     {[
                       { type: 'hero', name: 'Hero Banner' },
                       { type: 'about', name: 'Tentang Usaha' },
@@ -1186,6 +1198,28 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                   return (
                     <div
                       key={sec.id}
+                      draggable
+                      onDragStart={(e) => {
+                        e.dataTransfer.effectAllowed = 'move';
+                        setDraggedSectionIndex(idx);
+                      }}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        e.dataTransfer.dropEffect = 'move';
+                      }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        if (draggedSectionIndex !== null && draggedSectionIndex !== idx) {
+                          const newSections = [...sections];
+                          const draggedItem = newSections[draggedSectionIndex];
+                          newSections.splice(draggedSectionIndex, 1);
+                          newSections.splice(idx, 0, draggedItem);
+                          updateSectionsState(newSections);
+                          triggerToast('Urutan section diperbarui!');
+                        }
+                        setDraggedSectionIndex(null);
+                      }}
+                      onDragEnd={() => setDraggedSectionIndex(null)}
                       onClick={() => setActiveAccordion(sec.id)}
                       className={`group w-full flex items-center justify-between p-2.5 rounded-xl border transition-all duration-200 cursor-pointer ${isActive
                           ? 'bg-gradient-to-r from-brand-blue/10 to-indigo-500/5 dark:from-brand-blue/20 dark:to-indigo-900/10 border-brand-blue/40 dark:border-brand-blue/50 text-brand-blue shadow-md shadow-brand-blue/5 scale-[1.01]'
@@ -1194,15 +1228,15 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                     >
                       <div className="flex items-center gap-2 min-w-0 flex-1 mr-1">
                         {/* Grip Icon for visual aesthetics */}
-                        <GripVertical className="w-3 h-3 text-slate-400 dark:text-slate-600 shrink-0 select-none" />
+                        <GripVertical className="w-3 h-3 text-slate-400 dark:text-slate-600 shrink-0 select-none cursor-grab active:cursor-grabbing" />
 
                         <div className="w-6 h-6 bg-slate-50 dark:bg-slate-900 rounded flex items-center justify-center shrink-0 border border-slate-100 dark:border-slate-800">
                           {getSectionIcon(sec.type || sec.id, isSectionAktif)}
                         </div>
 
                         <div className="truncate min-w-0 flex-1">
-                          <span className="text-sm font-bold block truncate text-slate-800 dark:text-slate-200">{sec.title || sec.name}</span>
-                          <span className={`text-[10px] font-black uppercase tracking-widest leading-none block mt-0.5 ${isSectionAktif ? 'text-brand-blue' : 'text-slate-400 dark:text-slate-550'}`}>
+                          <span className="text-[15px] font-bold block truncate text-slate-800 dark:text-slate-200">{sec.title || sec.name}</span>
+                          <span className={`text-xs font-bold uppercase tracking-widest leading-none block mt-0.5 ${isSectionAktif ? 'text-brand-blue' : 'text-slate-400 dark:text-slate-550'}`}>
                             {isSectionAktif ? 'Aktif' : 'Nonaktif'}
                           </span>
                         </div>
@@ -1215,30 +1249,30 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                             e.stopPropagation();
                             moveSection(idx, 'up');
                           }}
-                          className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-350"
+                          className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-350"
                           title="Pindahkan Ke Atas"
                         >
-                          <ChevronUp className="w-3 h-3" />
+                          <ChevronUp className="w-[18px] h-[18px]" />
                         </button>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             moveSection(idx, 'down');
                           }}
-                          className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-350"
+                          className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-350"
                           title="Pindahkan Ke Bawah"
                         >
-                          <ChevronDown className="w-3 h-3" />
+                          <ChevronDown className="w-[18px] h-[18px]" />
                         </button>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             toggleSectionActive(sec.id);
                           }}
-                          className={`p-1 rounded ${isSectionAktif ? 'text-slate-400 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800' : 'text-slate-300 dark:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                          className={`p-1.5 rounded ${isSectionAktif ? 'text-slate-400 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800' : 'text-slate-300 dark:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
                           title={isSectionAktif ? 'Nonaktifkan' : 'Aktifkan'}
                         >
-                          <Eye className="w-3 h-3" />
+                          <Eye className="w-[18px] h-[18px]" />
                         </button>
                         <button
                           onClick={(e) => {
@@ -1249,11 +1283,11 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                             }
                             setSectionToDelete(sec.id);
                           }}
-                          className={`p-1 rounded transition-colors ${sections.length <= 1 ? 'text-slate-350 dark:text-slate-700 cursor-not-allowed' : 'text-red-400 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-500'}`}
+                          className={`p-1.5 rounded transition-colors ${sections.length <= 1 ? 'text-slate-350 dark:text-slate-700 cursor-not-allowed' : 'text-red-400 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-500'}`}
                           title="Hapus Section"
                           disabled={sections.length <= 1}
                         >
-                          <Trash2 className="w-3 h-3" />
+                          <Trash2 className="w-[18px] h-[18px]" />
                         </button>
                       </div>
                     </div>
@@ -1267,7 +1301,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
               <div className="py-2.5 px-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 shrink-0">
                 <div>
                   <h2 className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 leading-none">Property Editor</h2>
-                  <span className="text-sm font-bold text-brand-blue uppercase tracking-wide block mt-1 font-black">
+                  <span className="text-[15px] font-bold text-brand-blue uppercase tracking-wide block mt-1 font-black">
                     Mengedit: {activeSection?.title || activeSection?.name || activeAccordion}
                   </span>
                 </div>
@@ -1277,7 +1311,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                     setActiveTab('ai_writer');
                     setAiCommand(`Tulis ${activeSection?.title || activeSection?.name || activeAccordion} untuk usaha ${pageData?.businessName || 'saya'}`);
                   }}
-                  className="px-2.5 py-1 bg-purple-500/10 hover:bg-purple-500/20 text-purple-650 dark:text-purple-400 rounded-lg transition-all border border-purple-500/20 flex items-center gap-1 text-[10px] font-black uppercase tracking-wider"
+                  className="px-2.5 py-1 bg-purple-500/10 hover:bg-purple-500/20 text-purple-650 dark:text-purple-400 rounded-lg transition-all border border-purple-500/20 flex items-center gap-1 text-xs font-bold uppercase tracking-wider"
                   title="Gunakan AI untuk menulis konten section ini"
                 >
                   <Sparkles className="w-3 h-3 animate-pulse" /> AI Write
@@ -1291,16 +1325,16 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                 {activeSectionType === 'navbar' && (
                   <div className="space-y-3">
                     <div className="space-y-1">
-                      <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-2">Nama Brand / Judul Navigasi</label>
+                      <label className="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-2">Nama Brand / Judul Navigasi</label>
                       <input
                         type="text"
                         value={activeSection?.content?.brand || ''}
                         onChange={(e) => updateActiveSectionContent(c => ({ ...c, brand: e.target.value }))}
-                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm"
+                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-[15px] font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-2">Menu Link Navigasi</label>
+                      <label className="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-2">Menu Link Navigasi</label>
                       {activeSection?.content?.items?.map((item: any, i: number) => (
                         <div key={item.id} className="flex gap-2 items-center">
                           <input
@@ -1312,7 +1346,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                               items[i] = { ...items[i], label: e.target.value };
                               return { ...c, items };
                             })}
-                            className="flex-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm"
+                            className="flex-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-[15px] font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm"
                           />
                           <button
                             onClick={() => updateActiveSectionContent(c => {
@@ -1333,7 +1367,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                           items.push({ id: newId, label: 'Menu Baru' });
                           return { ...c, items };
                         })}
-                        className="px-3 py-1.5 text-[10px] font-black uppercase text-brand-blue bg-brand-blue/5 hover:bg-brand-blue/10 border border-brand-blue/20 rounded-lg flex items-center gap-1 transition-all cursor-pointer"
+                        className="px-3 py-1.5 text-xs font-bold uppercase text-brand-blue bg-brand-blue/5 hover:bg-brand-blue/10 border border-brand-blue/20 rounded-lg flex items-center gap-1 transition-all cursor-pointer"
                       >
                         <Plus className="w-3 h-3" /> Tambah Menu
                       </button>
@@ -1345,7 +1379,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                 {activeSectionType === 'logo' && (
                   <div className="space-y-3">
                     <div className="space-y-1">
-                      <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-2">Logo URL / Unggah Gambar</label>
+                      <label className="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-2">Logo URL / Unggah Gambar</label>
                       <div className="flex gap-2 items-center">
                         <div className="w-8 h-8 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg flex items-center justify-center overflow-hidden shrink-0">
                           {activeSection?.content ? (
@@ -1359,11 +1393,11 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                           value={activeSection?.content || ''}
                           onChange={(e) => updateActiveSectionContent(c => e.target.value)}
                           placeholder="https://link-logo.png"
-                          className="flex-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm"
+                          className="flex-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-[15px] font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm"
                         />
                       </div>
                       <div className="pt-1">
-                        <label className="flex items-center justify-center gap-2 w-full py-3 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl cursor-pointer transition-all text-sm font-bold text-slate-700 shadow-sm">
+                        <label className="flex items-center justify-center gap-2 w-full py-3 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl cursor-pointer transition-all text-[15px] font-bold text-slate-700 shadow-sm">
                           <Upload className="w-3.5 h-3.5 text-brand-blue" /> Unggah File Logo
                           <input
                             type="file"
@@ -1381,31 +1415,31 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                 {activeSectionType === 'hero' && (
                   <div className="space-y-3">
                     <div className="space-y-1">
-                      <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-2">Headline Utama</label>
+                      <label className="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-2">Headline Utama</label>
                       <input
                         type="text"
                         value={activeSection?.content?.headline || ''}
                         onChange={(e) => updateActiveSectionContent(c => ({ ...c, headline: e.target.value }))}
-                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm"
+                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-[15px] font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-2">Sub-headline Copywriter</label>
+                      <label className="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-2">Sub-headline Copywriter</label>
                       <textarea
                         value={activeSection?.content?.subheadline || ''}
                         onChange={(e) => updateActiveSectionContent(c => ({ ...c, subheadline: e.target.value }))}
-                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 text-sm font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm resize-none"
+                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 text-[15px] font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm resize-none"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-2">Gambar Utama (Banner)</label>
+                      <label className="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-2">Gambar Utama (Banner)</label>
                       <div className="flex gap-2 items-center">
                         <input
                           type="text"
                           value={activeSection?.content?.banner || ''}
                           onChange={(e) => updateActiveSectionContent(c => ({ ...c, banner: e.target.value }))}
                           placeholder="https://link-gambar-banner.jpg"
-                          className="flex-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm"
+                          className="flex-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-[15px] font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm"
                         />
                         <label className="p-3.5 bg-slate-800 hover:bg-slate-700 rounded-xl cursor-pointer transition-colors border border-slate-700 flex items-center justify-center shrink-0 transition-all shadow-sm">
                           <Upload className="w-3.5 h-3.5 text-brand-blue" />
@@ -1419,12 +1453,12 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                       </div>
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-2">Teks Tombol Aksi (CTA)</label>
+                      <label className="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-2">Teks Tombol Aksi (CTA)</label>
                       <input
                         type="text"
                         value={activeSection?.content?.cta || ''}
                         onChange={(e) => updateActiveSectionContent(c => ({ ...c, cta: e.target.value }))}
-                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm"
+                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-[15px] font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm"
                       />
                     </div>
                   </div>
@@ -1434,27 +1468,27 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                 {activeSectionType === 'about' && (
                   <div className="space-y-3">
                     <div className="space-y-1">
-                      <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-2">Deskripsi Singkat</label>
+                      <label className="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-2">Deskripsi Singkat</label>
                       <textarea
                         value={activeSection?.content?.description || ''}
                         onChange={(e) => updateActiveSectionContent(c => ({ ...c, description: e.target.value }))}
-                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 text-sm font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm resize-none"
+                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 text-[15px] font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm resize-none"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-2">Profil Usaha</label>
+                      <label className="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-2">Profil Usaha</label>
                       <textarea
                         value={activeSection?.content?.profile || ''}
                         onChange={(e) => updateActiveSectionContent(c => ({ ...c, profile: e.target.value }))}
-                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 text-sm font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm resize-none"
+                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 text-[15px] font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm resize-none"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-2">Sejarah Singkat / Kisah</label>
+                      <label className="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-2">Sejarah Singkat / Kisah</label>
                       <textarea
                         value={activeSection?.content?.story || ''}
                         onChange={(e) => updateActiveSectionContent(c => ({ ...c, story: e.target.value }))}
-                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 text-sm font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm resize-none"
+                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 text-[15px] font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm resize-none"
                       />
                     </div>
                   </div>
@@ -1476,10 +1510,10 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
-                        <div className="text-[9px] font-black text-brand-blue uppercase tracking-widest leading-none mb-1">PRODUK #{i + 1}</div>
+                        <div className="text-xs font-bold text-brand-blue uppercase tracking-widest leading-none mb-1">PRODUK #{i + 1}</div>
 
                         <div className="space-y-1">
-                          <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-2">Nama Produk</label>
+                          <label className="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-2">Nama Produk</label>
                           <input
                             type="text"
                             value={prod.name || ''}
@@ -1488,11 +1522,11 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                               arr[i] = { ...arr[i], name: e.target.value };
                               return arr;
                             })}
-                            className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-md p-1.5 text-xs text-slate-800 dark:text-white outline-none"
+                            className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-[15px] font-bold text-slate-800 dark:text-white outline-none"
                           />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-2">Harga Produk</label>
+                          <label className="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-2">Harga Produk</label>
                           <input
                             type="text"
                             value={prod.price || ''}
@@ -1501,11 +1535,11 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                               arr[i] = { ...arr[i], price: e.target.value };
                               return arr;
                             })}
-                            className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-md p-1.5 text-xs text-slate-800 dark:text-white outline-none"
+                            className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-[15px] font-bold text-slate-800 dark:text-white outline-none"
                           />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-2">Deskripsi Singkat</label>
+                          <label className="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-2">Deskripsi Singkat</label>
                           <textarea
                             value={prod.description || ''}
                             onChange={(e) => updateActiveSectionContent(c => {
@@ -1513,11 +1547,11 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                               arr[i] = { ...arr[i], description: e.target.value };
                               return arr;
                             })}
-                            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 text-sm font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm resize-noneh-12 "
+                            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 text-[15px] font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm resize-none h-24 "
                           />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-2">Gambar Produk</label>
+                          <label className="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-2">Gambar Produk</label>
                           <div className="flex gap-2">
                             <input
                               type="text"
@@ -1528,7 +1562,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                                 arr[i] = { ...arr[i], image: e.target.value };
                                 return arr;
                               })}
-                              className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-md p-1.5 text-xs text-slate-800 dark:text-white outline-none"
+                              className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-[15px] font-bold text-slate-800 dark:text-white outline-none"
                             />
                             <label className="p-3.5 bg-slate-800 hover:bg-slate-700 rounded-xl cursor-pointer flex items-center justify-center shrink-0 border border-slate-700 transition-all shadow-sm">
                               <Upload className="w-3.5 h-3.5 text-brand-blue" />
@@ -1576,7 +1610,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                         <div className="space-y-1">
-                          <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-2">Icon Keunggulan</label>
+                          <label className="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-2">Icon Keunggulan</label>
                           <select
                             value={adv.icon || 'Shield'}
                             onChange={(e) => updateActiveSectionContent(c => {
@@ -1584,7 +1618,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                               arr[i] = { ...arr[i], icon: e.target.value };
                               return arr;
                             })}
-                            className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-md p-1.5 text-xs text-slate-800 dark:text-white outline-none"
+                            className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-[15px] font-bold text-slate-800 dark:text-white outline-none"
                           >
                             <option value="Shield" className="dark:bg-slate-900 dark:text-white">Keamanan (Shield)</option>
                             <option value="Zap" className="dark:bg-slate-900 dark:text-white">Kecepatan (Zap)</option>
@@ -1594,7 +1628,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                           </select>
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-2">Judul</label>
+                          <label className="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-2">Judul</label>
                           <input
                             type="text"
                             value={adv.title || ''}
@@ -1603,11 +1637,11 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                               arr[i] = { ...arr[i], title: e.target.value };
                               return arr;
                             })}
-                            className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-md p-1.5 text-xs text-slate-800 dark:text-white outline-none"
+                            className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-[15px] font-bold text-slate-800 dark:text-white outline-none"
                           />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-2">Deskripsi Singkat</label>
+                          <label className="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-2">Deskripsi Singkat</label>
                           <textarea
                             value={adv.description || ''}
                             onChange={(e) => updateActiveSectionContent(c => {
@@ -1615,7 +1649,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                               arr[i] = { ...arr[i], description: e.target.value };
                               return arr;
                             })}
-                            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 text-sm font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm resize-noneh-12 "
+                            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 text-[15px] font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm resize-none h-24 "
                           />
                         </div>
                       </div>
@@ -1642,7 +1676,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                           {img ? (
                             <img src={img} alt="Gallery" className="w-full h-full object-cover" />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center text-slate-400 text-[9px] font-black">[KOSONG]</div>
+                            <div className="w-full h-full flex items-center justify-center text-slate-400 text-xs font-bold">[KOSONG]</div>
                           )}
                           <button
                             onClick={() => updateActiveSectionContent(c => {
@@ -1658,7 +1692,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                       ))}
                     </div>
                     <div className="pt-1">
-                      <label className="flex items-center justify-center gap-2 w-full py-3 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl cursor-pointer transition-all text-sm font-bold text-slate-700 shadow-sm">
+                      <label className="flex items-center justify-center gap-2 w-full py-3 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl cursor-pointer transition-all text-[15px] font-bold text-slate-700 shadow-sm">
                         <Upload className="w-3.5 h-3.5 text-brand-blue" /> Tambah Foto Galeri
                         <input
                           type="file"
@@ -1691,7 +1725,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                         <div className="space-y-1">
-                          <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-2">Nama Klien</label>
+                          <label className="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-2">Nama Klien</label>
                           <input
                             type="text"
                             value={t.name || ''}
@@ -1700,11 +1734,11 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                               arr[i] = { ...arr[i], name: e.target.value };
                               return arr;
                             })}
-                            className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-md p-1.5 text-xs text-slate-800 dark:text-white outline-none"
+                            className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-[15px] font-bold text-slate-800 dark:text-white outline-none"
                           />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-2">Isi Testimoni</label>
+                          <label className="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-2">Isi Testimoni</label>
                           <textarea
                             value={t.content || ''}
                             onChange={(e) => updateActiveSectionContent(c => {
@@ -1712,11 +1746,11 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                               arr[i] = { ...arr[i], content: e.target.value };
                               return arr;
                             })}
-                            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 text-sm font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm resize-noneh-12 "
+                            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 text-[15px] font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm resize-none h-24 "
                           />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-2">Foto Klien (URL/Upload)</label>
+                          <label className="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-2">Foto Klien (URL/Upload)</label>
                           <div className="flex gap-2">
                             <input
                               type="text"
@@ -1727,7 +1761,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                                 arr[i] = { ...arr[i], photo: e.target.value };
                                 return arr;
                               })}
-                              className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-md p-1.5 text-xs text-slate-800 dark:text-white outline-none"
+                              className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-[15px] font-bold text-slate-800 dark:text-white outline-none"
                             />
                             <label className="p-3.5 bg-slate-800 hover:bg-slate-700 rounded-xl cursor-pointer flex items-center justify-center shrink-0 border border-slate-700 transition-all shadow-sm">
                               <Upload className="w-3.5 h-3.5 text-brand-blue" />
@@ -1763,29 +1797,29 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                 {activeSectionType === 'cta' && (
                   <div className="space-y-3">
                     <div className="space-y-1">
-                      <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-2">Judul Penawaran</label>
+                      <label className="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-2">Judul Penawaran</label>
                       <input
                         type="text"
                         value={activeSection?.content?.title || ''}
                         onChange={(e) => updateActiveSectionContent(c => ({ ...c, title: e.target.value }))}
-                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm"
+                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-[15px] font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-2">Deskripsi Penawaran</label>
+                      <label className="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-2">Deskripsi Penawaran</label>
                       <textarea
                         value={activeSection?.content?.description || ''}
                         onChange={(e) => updateActiveSectionContent(c => ({ ...c, description: e.target.value }))}
-                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 text-sm font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm resize-noneh-14 "
+                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 text-[15px] font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm resize-none h-24 "
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-2">Teks Tombol CTA</label>
+                      <label className="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-2">Teks Tombol CTA</label>
                       <input
                         type="text"
                         value={activeSection?.content?.buttonText || ''}
                         onChange={(e) => updateActiveSectionContent(c => ({ ...c, buttonText: e.target.value }))}
-                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm"
+                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-[15px] font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm"
                       />
                     </div>
                   </div>
@@ -1795,39 +1829,39 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                 {activeSectionType === 'contact' && (
                   <div className="space-y-3">
                     <div className="space-y-1">
-                      <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-2">Nomor WhatsApp (Format: 628xxxx)</label>
+                      <label className="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-2">Nomor WhatsApp (Format: 628xxxx)</label>
                       <input
                         type="text"
                         value={activeSection?.content?.whatsapp || ''}
                         onChange={(e) => updateActiveSectionContent(c => ({ ...c, whatsapp: e.target.value }))}
-                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm"
+                        className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-[15px] font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-2">Email Bisnis</label>
+                      <label className="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-2">Email Bisnis</label>
                       <input
                         type="email"
                         value={activeSection?.content?.email || ''}
                         onChange={(e) => updateActiveSectionContent(c => ({ ...c, email: e.target.value }))}
-                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm"
+                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-[15px] font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-2">Alamat Fisik</label>
+                      <label className="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-2">Alamat Fisik</label>
                       <textarea
                         value={activeSection?.content?.address || ''}
                         onChange={(e) => updateActiveSectionContent(c => ({ ...c, address: e.target.value }))}
-                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 text-sm font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm resize-noneh-14 "
+                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 text-[15px] font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm resize-none h-24 "
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-2">Jam Operasional</label>
+                      <label className="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-2">Jam Operasional</label>
                       <input
                         type="text"
                         value={activeSection?.content?.operatingHours || ''}
                         onChange={(e) => updateActiveSectionContent(c => ({ ...c, operatingHours: e.target.value }))}
                         placeholder="Senin - Jumat, 09:00 - 17:00 WIB"
-                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm"
+                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-[15px] font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm"
                       />
                     </div>
                   </div>
@@ -1838,13 +1872,13 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                   <div className="space-y-3">
                     {['instagram', 'tiktok', 'facebook', 'youtube'].map((sm) => (
                       <div key={sm} className="space-y-1">
-                        <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-2">{sm}</label>
+                        <label className="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-2">{sm}</label>
                         <input
                           type="text"
                           value={activeSection?.content?.[sm] || ''}
                           onChange={(e) => updateActiveSectionContent(c => ({ ...c, [sm]: e.target.value }))}
                           placeholder={`https://${sm}.com/username`}
-                          className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm"
+                          className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-[15px] font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm"
                         />
                       </div>
                     ))}
@@ -1856,13 +1890,13 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                   <div className="space-y-3">
                     {['shopee', 'tokopedia', 'lazada', 'externalWebsite'].map((mp) => (
                       <div key={mp} className="space-y-1">
-                        <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-2">{mp === 'externalWebsite' ? 'Website Eksternal' : mp}</label>
+                        <label className="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-2">{mp === 'externalWebsite' ? 'Website Eksternal' : mp}</label>
                         <input
                           type="text"
                           value={getMarketplaceValue(mp)}
                           onChange={(e) => updateMarketplaceValue(mp, e.target.value)}
                           placeholder="https://..."
-                          className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm"
+                          className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-[15px] font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm"
                         />
                       </div>
                     ))}
@@ -1873,13 +1907,13 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                 {activeSectionType === 'footer' && (
                   <div className="space-y-3">
                     <div className="space-y-1">
-                      <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-2">Logo Footer (URL)</label>
+                      <label className="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-2">Logo Footer (URL)</label>
                       <div className="flex gap-2">
                         <input
                           type="text"
                           value={activeSection?.content?.logo || ''}
                           onChange={(e) => updateActiveSectionContent(c => ({ ...c, logo: e.target.value }))}
-                          className="flex-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm"
+                          className="flex-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-[15px] font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm"
                         />
                         <label className="p-3.5 bg-slate-800 hover:bg-slate-700 rounded-xl cursor-pointer border border-slate-700 flex items-center justify-center shrink-0 transition-all shadow-sm">
                           <Upload className="w-3.5 h-3.5 text-brand-blue" />
@@ -1893,21 +1927,21 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                       </div>
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-2">Nama Bisnis Footer</label>
+                      <label className="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-2">Nama Bisnis Footer</label>
                       <input
                         type="text"
                         value={activeSection?.content?.businessName || ''}
                         onChange={(e) => updateActiveSectionContent(c => ({ ...c, businessName: e.target.value }))}
-                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm"
+                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-[15px] font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-2">Teks Copyright</label>
+                      <label className="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-2">Teks Copyright</label>
                       <input
                         type="text"
                         value={activeSection?.content?.copyright || ''}
                         onChange={(e) => updateActiveSectionContent(c => ({ ...c, copyright: e.target.value }))}
-                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm"
+                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-[15px] font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all shadow-sm"
                       />
                     </div>
                   </div>
@@ -1950,7 +1984,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
 
                 {/* 1. Target Section Dropdown */}
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Target Section</label>
+                  <label className="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Target Section</label>
                   <select
                     value={activeAccordion}
                     onChange={(e) => setActiveAccordion(e.target.value)}
@@ -1964,7 +1998,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
 
                 {/* 2. Preset AI Grid */}
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Preset AI</label>
+                  <label className="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Preset AI</label>
                   <div className="grid grid-cols-2 gap-2">
                     {[
                       {
@@ -2021,7 +2055,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
 
                 {/* 3. Prompt Custom */}
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Prompt Custom</label>
+                  <label className="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Prompt Custom</label>
                   <textarea
                     value={aiCommand}
                     onChange={(e) => {
@@ -2075,7 +2109,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                         setAiCommand('Buat headline yang meyakinkan untuk bisnis kami dengan gaya profesional.');
                         setSelectedPreset('headline');
                       }}
-                      className="px-5 py-2 bg-green-50 hover:bg-green-100 dark:bg-green-950/20 dark:hover:bg-green-950/30 text-green-600 dark:text-green-400 border border-green-200 dark:border-green-800/50 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer"
+                      className="px-5 py-2 bg-green-50 hover:bg-green-100 dark:bg-green-950/20 dark:hover:bg-green-950/30 text-green-600 dark:text-green-400 border border-green-200 dark:border-green-800/50 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
                     >
                       Generate Sekarang
                     </button>
@@ -2085,7 +2119,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                   <div className="flex-grow flex flex-col justify-between space-y-4 animate-in fade-in duration-300">
                     <div className="flex-1 p-4 bg-green-50/20 dark:bg-green-950/10 border border-green-500/20 dark:border-green-800/50 rounded-xl space-y-4 text-xs">
                       <div className="flex items-center justify-between border-b border-green-500/10 dark:border-green-800/20 pb-2">
-                        <span className="text-[10px] font-black text-green-600 dark:text-green-400 uppercase tracking-widest">Konten Rekomendasi AI</span>
+                        <span className="text-xs font-bold text-green-600 dark:text-green-400 uppercase tracking-widest">Konten Rekomendasi AI</span>
                         <span className="text-[9px] text-slate-500 dark:text-slate-400 font-bold uppercase">
                           Target: {sections.find(s => s.id === activeAccordion)?.title || sections.find(s => s.id === activeAccordion)?.name}
                         </span>
@@ -2094,19 +2128,19 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                       <div className="space-y-3">
                         {aiSuggestions.suggestedData?.headline && (
                           <div className="bg-white dark:bg-slate-950 p-3 rounded-lg border border-slate-100 dark:border-slate-800 shadow-sm space-y-1">
-                            <span className="text-[9px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest block">Headline / Title</span>
+                            <span className="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest block">Headline / Title</span>
                             <p className="font-extrabold text-slate-800 dark:text-slate-100 text-xs leading-snug">{aiSuggestions.suggestedData.headline}</p>
                           </div>
                         )}
                         {aiSuggestions.suggestedData?.subheadline && (
                           <div className="bg-white dark:bg-slate-950 p-3 rounded-lg border border-slate-100 dark:border-slate-800 shadow-sm space-y-1">
-                            <span className="text-[9px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest block">Subheadline / Deskripsi</span>
+                            <span className="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest block">Subheadline / Deskripsi</span>
                             <p className="text-slate-600 dark:text-slate-300 text-xs font-semibold leading-relaxed">{aiSuggestions.suggestedData.subheadline}</p>
                           </div>
                         )}
                         {aiSuggestions.suggestedData?.cta && (
                           <div className="bg-white dark:bg-slate-950 p-3 rounded-lg border border-slate-100 dark:border-slate-800 shadow-sm space-y-1">
-                            <span className="text-[9px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest block">CTA Button</span>
+                            <span className="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest block">CTA Button</span>
                             <p className="font-extrabold text-green-600 dark:text-green-400 text-xs uppercase tracking-wider">{aiSuggestions.suggestedData.cta}</p>
                           </div>
                         )}
@@ -2143,7 +2177,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                 </div>
                 <button
                   onClick={() => setIsSchedulerModalOpen(true)}
-                  className="px-3.5 py-1.5 bg-green-50 hover:bg-green-100 dark:bg-green-950/20 dark:hover:bg-green-950/30 text-green-600 dark:text-green-400 border border-green-200 dark:border-green-800/50 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-1 transition-all cursor-pointer"
+                  className="px-3.5 py-1.5 bg-green-50 hover:bg-green-100 dark:bg-green-950/20 dark:hover:bg-green-950/30 text-green-600 dark:text-green-400 border border-green-200 dark:border-green-800/50 rounded-xl text-xs font-bold uppercase tracking-widest flex items-center gap-1 transition-all cursor-pointer"
                 >
                   <Plus className="w-3 h-3" /> Jadwalkan Konten
                 </button>
@@ -2210,7 +2244,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                   <button
                     key={dev.id}
                     onClick={() => setPreviewMode(dev.id as any)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer ${previewMode === dev.id
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${previewMode === dev.id
                         ? 'bg-brand-blue text-white shadow-md'
                         : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
                       }`}
@@ -2223,22 +2257,22 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
 
               {/* Center: Zoom Controls */}
               <div className="flex items-center bg-slate-50 dark:bg-slate-900 px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 gap-2">
-                <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 tracking-widest">Skala: {Math.round(zoomScale * 100)}%</span>
+                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 tracking-widest">Skala: {Math.round(zoomScale * 100)}%</span>
                 <button
                   onClick={() => setZoomScale(Math.max(0.5, zoomScale - 0.1))}
-                  className="px-2 py-0.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-[10px] font-black text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors cursor-pointer"
+                  className="px-2 py-0.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors cursor-pointer"
                 >
                   -
                 </button>
                 <button
                   onClick={() => setZoomScale(1)}
-                  className="px-2.5 py-0.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-[10px] font-black text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors cursor-pointer"
+                  className="px-2.5 py-0.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors cursor-pointer"
                 >
                   Fit
                 </button>
                 <button
                   onClick={() => setZoomScale(Math.min(1.5, zoomScale + 0.1))}
-                  className="px-2 py-0.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-[10px] font-black text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors cursor-pointer"
+                  className="px-2 py-0.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors cursor-pointer"
                 >
                   +
                 </button>
@@ -2319,7 +2353,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
             
             <div className="space-y-3">
               <div className="space-y-1">
-                <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Judul Konten</label>
+                <label className="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Judul Konten</label>
                 <input
                   type="text"
                   value={newScheduleTitle}
@@ -2331,7 +2365,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
 
 
               <div className="space-y-1">
-                <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Waktu Publikasi</label>
+                <label className="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Waktu Publikasi</label>
                 <input
                   type="text"
                   value={newScheduleDate}
@@ -2342,7 +2376,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Status</label>
+                <label className="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Status</label>
                 <select
                   value={newScheduleStatus}
                   onChange={(e) => setNewScheduleStatus(e.target.value)}
@@ -2358,13 +2392,13 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
             <div className="flex gap-3 pt-2">
               <button
                 onClick={() => setIsSchedulerModalOpen(false)}
-                className="flex-1 py-2.5 text-[10px] font-black uppercase tracking-wider border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all cursor-pointer text-slate-500 dark:text-slate-400"
+                className="flex-1 py-2.5 text-xs font-bold uppercase tracking-wider border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all cursor-pointer text-slate-500 dark:text-slate-400"
               >
                 Batal
               </button>
               <button
                 onClick={handleAddSchedule}
-                className="flex-1 py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider shadow-sm transition-all cursor-pointer"
+                className="flex-1 py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-sm transition-all cursor-pointer"
               >
                 Jadwalkan
               </button>
@@ -2381,7 +2415,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
             <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest mb-4">Tambah Halaman Baru</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Nama Halaman</label>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Nama Halaman</label>
                 <input 
                   type="text" 
                   value={newPageName}
@@ -2396,7 +2430,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">URL Slug</label>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">URL Slug</label>
                 <input 
                   type="text" 
                   value={newPageSlug}
@@ -2450,7 +2484,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
             <div className="flex gap-3">
               <button
                 onClick={() => setSectionToDelete(null)}
-                className="flex-1 py-2 text-[10px] font-black uppercase tracking-wider border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all cursor-pointer text-slate-605 dark:text-slate-350"
+                className="flex-1 py-2 text-xs font-bold uppercase tracking-wider border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all cursor-pointer text-slate-605 dark:text-slate-350"
               >
                 Batal
               </button>
@@ -2459,7 +2493,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                   handleDeleteSection(sectionToDelete);
                   setSectionToDelete(null);
                 }}
-                className="flex-1 py-2 bg-red-500 hover:bg-red-600 dark:hover:bg-red-700 text-white rounded-xl text-[10px] font-black uppercase tracking-wider shadow-sm transition-all cursor-pointer"
+                className="flex-1 py-2 bg-red-500 hover:bg-red-600 dark:hover:bg-red-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-sm transition-all cursor-pointer"
               >
                 Hapus
               </button>

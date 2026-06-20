@@ -152,14 +152,14 @@ const LandingPagePage = ({
         <div className="flex items-center justify-between">
           <button
             onClick={() => setCmsNavMode('landing')}
-            className="flex items-center gap-2 text-[10px] font-black text-slate-400 hover:text-brand-blue uppercase tracking-widest transition-colors"
+            className="flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-brand-blue uppercase tracking-wider transition-colors"
           >
             <ArrowLeft className="w-3 h-3" /> Kembali
           </button>
           <div className="flex gap-4">
             <button
               onClick={() => { setSubView('cms'); setCmsSubTab('editor'); }}
-              className="px-6 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all flex items-center gap-2"
+              className="px-6 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-slate-200 transition-all flex items-center gap-2"
             >
               <Edit3 className="w-3 h-3" /> Edit Struktur Konten
             </button>
@@ -167,7 +167,7 @@ const LandingPagePage = ({
 
               onClick={handlePublish}
               disabled={isPublishing}
-              className={`px-6 py-2.5 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-blue hover:shadow-blue-lg transition-all flex items-center gap-2 ${
+              className={`px-6 py-2.5 text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-blue hover:shadow-blue-lg transition-all flex items-center gap-2 ${
                 isPublishing ? 'bg-brand-blue/70 cursor-not-allowed' : 'bg-brand-blue'
               }`}
 
@@ -177,7 +177,17 @@ const LandingPagePage = ({
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 rounded-[32px] border border-slate-100 dark:border-slate-800 shadow-premium overflow-hidden">
+        <div className="bg-white dark:bg-slate-900 rounded-[32px] border border-slate-100 dark:border-slate-800 shadow-premium overflow-hidden preview-theme-override">
+          <style>{`
+            .preview-theme-override .bg-brand-blue { background-color: ${manualData.color || '#3b82f6'} !important; }
+            .preview-theme-override .text-brand-blue { color: ${manualData.color || '#3b82f6'} !important; }
+            .preview-theme-override .border-brand-blue { border-color: ${manualData.color || '#3b82f6'} !important; }
+            .preview-theme-override .bg-brand-blue\\/10 { background-color: ${manualData.color || '#3b82f6'}1A !important; }
+            .preview-theme-override .bg-brand-blue\\/20 { background-color: ${manualData.color || '#3b82f6'}33 !important; }
+            .preview-theme-override .bg-brand-blue\\/70 { background-color: ${manualData.color || '#3b82f6'}B3 !important; }
+            .preview-theme-override .shadow-blue { box-shadow: 0 4px 14px 0 ${manualData.color || '#3b82f6'}33 !important; }
+            .preview-theme-override .shadow-blue-lg { box-shadow: 0 10px 25px -3px ${manualData.color || '#3b82f6'}4D !important; }
+          `}</style>
           {/* Header Preview */}
           <div className="bg-slate-50 dark:bg-slate-800/50 p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
             <div className="flex gap-1.5">
@@ -345,37 +355,37 @@ const LandingPagePage = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
             <div className="space-y-6">
               <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Nama Website</label>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Nama Website</label>
                 <input
                   type="text"
                   value={manualData.name}
                   onChange={(e) => setManualData({ ...manualData, name: e.target.value })}
                   placeholder="Masukkan nama brand, bisnis, atau perusahaan Anda"
-                  className={`w-full bg-slate-50 dark:bg-slate-800/50 border ${formErrors.name ? 'border-red-500' : 'border-slate-100 dark:border-slate-800'} rounded-xl px-4 py-3 text-xs font-bold dark:text-white outline-none focus:border-brand-blue/50 transition-colors`}
+                  className={`w-full bg-slate-50 dark:bg-slate-800/50 border ${formErrors.name ? 'border-red-500' : 'border-slate-100 dark:border-slate-800'} rounded-xl px-4 py-3 text-sm font-bold dark:text-white outline-none focus:border-brand-blue/50 transition-colors`}
                 />
                 {formErrors.name && <p className="text-[8px] font-black text-red-500 mt-1 uppercase">{formErrors.name}</p>}
               </div>
               <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Domain Website</label>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Domain Website</label>
                 <div className="flex">
                   <input
                     type="text"
                     value={manualData.subdomain}
                     onChange={(e) => setManualData({ ...manualData, subdomain: e.target.value })}
                     placeholder="contohbrand"
-                    className={`flex-1 bg-slate-50 dark:bg-slate-800/50 border ${formErrors.subdomain ? 'border-red-500' : 'border-slate-100 dark:border-slate-800'} rounded-l-xl px-4 py-3 text-xs font-bold dark:text-white outline-none focus:border-brand-blue/50 transition-colors`}
+                    className={`flex-1 bg-slate-50 dark:bg-slate-800/50 border ${formErrors.subdomain ? 'border-red-500' : 'border-slate-100 dark:border-slate-800'} rounded-l-xl px-4 py-3 text-sm font-bold dark:text-white outline-none focus:border-brand-blue/50 transition-colors`}
                   />
-                  <span className="bg-slate-100 dark:bg-slate-800 px-4 py-3 border border-l-0 border-slate-100 dark:border-slate-800 rounded-r-xl text-xs font-black text-slate-400">.uniland.ai</span>
+                  <span className="bg-slate-100 dark:bg-slate-800 px-4 py-3 border border-l-0 border-slate-100 dark:border-slate-800 rounded-r-xl text-sm font-bold text-slate-400">.uniland.ai</span>
                 </div>
                 <p className="text-[9px] text-slate-400 mt-1.5 font-medium italic">Masukkan nama domain/subdomain: contohbrand.uniland.ai</p>
                 {formErrors.subdomain && <p className="text-[8px] font-black text-red-500 mt-1 uppercase">{formErrors.subdomain}</p>}
               </div>
               <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Kategori Bisnis</label>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Kategori Bisnis</label>
                 <select
                   value={manualData.category}
                   onChange={(e) => setManualData({ ...manualData, category: e.target.value })}
-                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-3 text-xs font-bold dark:text-white outline-none appearance-none text-slate-500 font-black"
+                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold dark:text-white outline-none appearance-none text-slate-500"
                 >
                   <option>E-Commerce / Toko Online</option>
                   <option>Portfolio</option>
@@ -386,11 +396,11 @@ const LandingPagePage = ({
                 </select>
               </div>
               <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Template Website</label>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Template Website</label>
                 <select
                   value={manualData.template}
                   onChange={(e) => setManualData({ ...manualData, template: e.target.value })}
-                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-3 text-xs font-bold dark:text-white outline-none appearance-none text-slate-500 font-black"
+                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold dark:text-white outline-none appearance-none text-slate-500"
                 >
                   <option>Modern Dark Pro (Recommended)</option>
                   <option>Clean Light Agency</option>
@@ -402,7 +412,7 @@ const LandingPagePage = ({
 
             <div className="space-y-6">
               <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Warna Brand Utama</label>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Warna Brand Utama</label>
                 <div className="flex gap-2">
                   <input
                     type="color"
@@ -414,12 +424,12 @@ const LandingPagePage = ({
                     type="text"
                     value={manualData.color}
                     onChange={(e) => setManualData({ ...manualData, color: e.target.value })}
-                    className="flex-1 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-3 text-xs font-mono font-bold dark:text-white uppercase"
+                    className="flex-1 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-mono font-bold dark:text-white uppercase"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Upload Logo Utama</label>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Upload Logo Utama</label>
                 <div 
                   className="border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl p-6 text-center hover:border-brand-blue/30 transition-all cursor-pointer group relative overflow-hidden"
                 >
@@ -453,24 +463,24 @@ const LandingPagePage = ({
                   {manualData.logo ? (
                     <div className="flex flex-col items-center">
                        <img src={manualData.logo} alt="Logo preview" className="h-12 object-contain mb-2" />
-                       <p className="text-[10px] font-black text-slate-400 uppercase">Ganti logo bisnis Anda</p>
+                       <p className="text-xs font-bold text-slate-400 uppercase">Ganti logo bisnis Anda</p>
                     </div>
                   ) : (
                     <>
                       <Upload className="w-6 h-6 text-slate-300 mx-auto mb-2 group-hover:text-brand-blue transition-colors" />
-                      <p className="text-[10px] font-black text-slate-400 uppercase">Upload logo bisnis Anda</p>
+                      <p className="text-xs font-bold text-slate-400 uppercase">Upload logo bisnis Anda</p>
                       <p className="text-[8px] text-slate-400 uppercase mt-1">Format: PNG, JPG, SVG</p>
                     </>
                   )}
                 </div>
               </div>
               <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Deskripsi Singkat Bisnis</label>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Deskripsi Singkat Bisnis</label>
                 <textarea
                   value={manualData.description}
                   onChange={(e) => setManualData({ ...manualData, description: e.target.value })}
                   placeholder="Contoh: Kami menyediakan layanan digital marketing dan pembuatan website profesional untuk UMKM dan bisnis modern."
-                  className={`w-full bg-slate-50 dark:bg-slate-800/50 border ${formErrors.description ? 'border-red-500' : 'border-slate-100 dark:border-slate-800'} rounded-xl p-4 text-xs font-bold dark:text-white outline-none resize-none h-24 focus:border-brand-blue/50 transition-colors`}
+                  className={`w-full bg-slate-50 dark:bg-slate-800/50 border ${formErrors.description ? 'border-red-500' : 'border-slate-100 dark:border-slate-800'} rounded-xl p-4 text-sm font-bold dark:text-white outline-none resize-none h-24 focus:border-brand-blue/50 transition-colors`}
                 />
                 {formErrors.description && <p className="text-[8px] font-black text-red-500 mt-1 uppercase">{formErrors.description}</p>}
               </div>
@@ -480,13 +490,13 @@ const LandingPagePage = ({
           <div className="flex flex-col sm:flex-row gap-4">
             <button
               onClick={() => setCmsNavMode('landing')}
-              className="px-8 py-4 bg-slate-100 dark:bg-slate-800 rounded-xl text-[10px] font-black uppercase text-slate-500 whitespace-nowrap border border-transparent hover:border-slate-300 dark:hover:border-slate-700 transition-all"
+              className="px-8 py-4 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-bold uppercase text-slate-500 whitespace-nowrap border border-transparent hover:border-slate-300 dark:hover:border-slate-700 transition-all"
             >
               Kembali
             </button>
             <button
               onClick={handleManualSetup}
-              className="flex-1 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-[11px] font-black uppercase tracking-widest shadow-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+              className="flex-1 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-xs font-bold uppercase tracking-widest shadow-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-2"
             >
               Mulai Setup Website
               <ArrowRight className="w-3.5 h-3.5" />
