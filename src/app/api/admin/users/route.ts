@@ -25,6 +25,7 @@ export async function GET(request: Request) {
       role: u.role,
       status: u.status,
       joinedDate: u.createdAt.toISOString().split('T')[0],
+      createdAt: u.createdAt.toISOString(),
       landingPageCount: u.landingPages.length
     }));
 

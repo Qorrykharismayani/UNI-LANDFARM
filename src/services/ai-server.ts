@@ -57,8 +57,9 @@ export const generateWebsiteDraft = async (
 export interface EditorCopyResult {
   reply: string;
   suggestedData?: {
-    section: string;
-    fields: Record<string, string>;
+    headline: string;
+    subheadline: string;
+    cta: string;
   };
 }
 
@@ -66,31 +67,29 @@ export const generateEditorCopy = async (
   command: string, 
   currentData: { headline: string; subheadline: string; cta: string }
 ): Promise<EditorCopyResult> => {
-  const prompt = `You are an AI Copilot for a micro-landing page CMS. The user has a landing page with the current hero content:
+  const prompt = `You are an AI Copilot for a micro-landing page CMS. The user has a landing page with the current content context:
   Headline: "${currentData.headline}"
   Subheadline: "${currentData.subheadline}"
   CTA Button: "${currentData.cta}"
 
   The user gives the command/instruction: "${command}"
 
-  Your job is to process this instruction. If the user wants to generate, write, rewrite, or update copy for any section of their landing page (e.g. Hero Section, About Section, Products/Services, Keunggulan, or CTA):
-  1. Determine the target section: "hero", "about", "products", or "cta".
-  2. Generate the appropriate fields for that section:
-     - For "hero": headline, subheadline, cta
-     - For "about": description, profile, story
-     - For "products": name, description, price
-     - For "cta": title, description, buttonText
-  3. Provide a friendly, helpful reply explaining what you generated and how it benefits them. Keep the reply in Indonesian.
+  Your job is to generate highly engaging, creative, and relevant copywriting for their landing page based on this command.
+  
+  ALWAYS output your generated content in these three fields:
+  1. "headline": A short, catchy title, product name, or main hook.
+  2. "subheadline": The main descriptive text, promo copy, or explanatory paragraph. Ensure it directly answers the user's prompt!
+  3. "cta": A short call-to-action button text (max 3 words).
+
+  Make the tone match their request if specified. Provide a friendly reply in Indonesian explaining what you generated.
 
   Return a JSON object matching this schema:
   {
-    "reply": "Friendly explanation of changes in Indonesian",
+    "reply": "Penjelasan singkat dalam bahasa Indonesia",
     "suggestedData": {
-      "section": "hero | about | products | cta",
-      "fields": {
-         "fieldName1": "value1",
-         "fieldName2": "value2"
-      }
+      "headline": "Judul Menarik",
+      "subheadline": "Teks promo atau deskripsi yang relevan dengan instruksi...",
+      "cta": "Beli Sekarang"
     }
   }`;
 
@@ -106,16 +105,14 @@ export const generateEditorCopy = async (
           suggestedData: {
             type: Type.OBJECT,
             properties: {
-              section: { type: Type.STRING },
-              fields: {
-                type: Type.OBJECT,
-                additionalProperties: { type: Type.STRING }
-              }
+              headline: { type: Type.STRING },
+              subheadline: { type: Type.STRING },
+              cta: { type: Type.STRING }
             },
-            required: ["section", "fields"]
+            required: ["headline", "subheadline", "cta"]
           }
         },
-        required: ["reply"]
+        required: ["reply", "suggestedData"]
       }
     }
   });

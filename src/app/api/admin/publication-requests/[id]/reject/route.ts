@@ -18,35 +18,23 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       return NextResponse.json({ success: false, message: 'Harap sertakan alasan penolakan publikasi.' }, { status: 400 });
     }
 
-    const pubRequest = await prisma.publishRequest.findUnique({
-      where: { id: Number(id) },
-      include: { landingPage: true }
+    const landingPage = await prisma.landingPage.findUnique({
+      where: { id: Number(id) }
     });
 
-    if (!pubRequest) {
-      return NextResponse.json({ success: false, message: 'Permintaan publikasi tidak ditemukan.' }, { status: 404 });
+    if (!landingPage || landingPage.status !== 'Pending Publish') {
+      return NextResponse.json({ success: false, message: 'Permintaan publikasi tidak ditemukan atau tidak valid.' }, { status: 404 });
     }
 
     // Set page status to 'Rejected'
     await prisma.landingPage.update({
-      where: { id: pubRequest.landingPageId },
+      where: { id: landingPage.id },
       data: { status: 'Rejected' }
-    });
-
-    // Update request log
-    await prisma.publishRequest.update({
-      where: { id: Number(id) },
-      data: {
-        status: 'Rejected',
-        rejectionReason: reason,
-        reviewedBy: session.userId,
-        reviewedAt: new Date()
-      }
     });
 
     return NextResponse.json({
       success: true,
-      message: `Halaman ${pubRequest.landingPage.businessName} ditolak publikasinya dengan alasan: ${reason}`
+      message: `Halaman ${landingPage.businessName} ditolak publikasinya dengan alasan: ${reason}`
     });
   } catch (error: any) {
     return NextResponse.json({ success: false, message: error.message || 'Terjadi kesalahan sistem.' }, { status: 550 });

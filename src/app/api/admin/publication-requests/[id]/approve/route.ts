@@ -12,38 +12,27 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       return NextResponse.json({ success: false, message: 'Tidak diotorisasi. Khusus admin.' }, { status: 403 });
     }
 
-    const pubRequest = await prisma.publishRequest.findUnique({
-      where: { id: Number(id) },
-      include: { landingPage: true }
+    const landingPage = await prisma.landingPage.findUnique({
+      where: { id: Number(id) }
     });
 
-    if (!pubRequest) {
-      return NextResponse.json({ success: false, message: 'Permintaan publikasi tidak ditemukan.' }, { status: 404 });
+    if (!landingPage || landingPage.status !== 'Pending Publish') {
+      return NextResponse.json({ success: false, message: 'Permintaan publikasi tidak ditemukan atau tidak valid.' }, { status: 404 });
     }
 
     // Set dynamic URL and status to 'Approved'
-    const generatedUrl = `/site/${pubRequest.landingPage.slug}`;
+    const generatedUrl = `/site/${landingPage.slug}`;
     await prisma.landingPage.update({
-      where: { id: pubRequest.landingPageId },
+      where: { id: landingPage.id },
       data: {
         status: 'Approved',
         publicUrl: generatedUrl
       }
     });
 
-    // Update request log
-    await prisma.publishRequest.update({
-      where: { id: Number(id) },
-      data: {
-        status: 'Approved',
-        reviewedBy: session.userId,
-        reviewedAt: new Date()
-      }
-    });
-
     return NextResponse.json({
       success: true,
-      message: `Halaman ${pubRequest.landingPage.businessName} berhasil disetujui dan dipublikasikan di ${generatedUrl}!`,
+      message: `Halaman ${landingPage.businessName} berhasil disetujui dan dipublikasikan di ${generatedUrl}!`,
       data: { url: generatedUrl }
     });
   } catch (error: any) {

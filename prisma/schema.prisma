@@ -30,6 +30,7 @@ model User {
   reviewedRequests PublishRequest[] @relation("ReviewedByAdmin")
   articles         Article[]
   transactions     Transaction[]
+  contentSchedules ContentSchedule[]
 
   @@map("users")
 }
@@ -69,6 +70,7 @@ model LandingPage {
   mediaFiles      MediaFile[]
   publishRequests PublishRequest[]
   content         TemplateSection?
+  contentSchedules ContentSchedule[]
 
   @@index([templateId], map: "landing_pages_templateId_fkey")
   @@index([userId], map: "landing_pages_userId_fkey")
@@ -193,4 +195,26 @@ model Transaction {
 
   @@index([userId], map: "transactions_userId_fkey")
   @@map("transactions")
+}
+
+model ContentSchedule {
+  id             Int          @id @default(autoincrement())
+  userId         Int
+  landingPageId  Int
+  title          String       // Nama Jadwal
+  sectionName    String       @default("hero") // Nama section (misal: hero, about, cta)
+  component      String       // Komponen yang akan diubah (e.g. Hero Title)
+  oldValue       String?      @db.Text // Nilai lama
+  newValue       String       @db.Text // Nilai Baru
+  scheduledAt    DateTime     @default(now()) // Waktu Eksekusi
+  status         String       @default("Scheduled") // Scheduled, Completed, Failed, Cancelled
+  executedAt     DateTime?    // Waktu berhasil dieksekusi
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @default(now()) @updatedAt
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  landingPage    LandingPage  @relation(fields: [landingPageId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "content_schedules_userId_fkey")
+  @@index([landingPageId], map: "content_schedules_landingPageId_fkey")
+  @@map("content_schedules")
 }

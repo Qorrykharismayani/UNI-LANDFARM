@@ -1,13 +1,21 @@
 import React from 'react';
-import { Sparkles, Rocket, CheckCircle2 } from 'lucide-react';
+import { Sparkles, Rocket, Zap, CheckCircle2, ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
 
 interface PricingProps {
   setView: (v: string) => void;
+  systemSettings?: any;
 }
 
-export const PricingView = ({ setView }: PricingProps) => (
-  <section className="py-32 px-6 bg-slate-50/50 dark:bg-slate-900 relative overflow-hidden transition-colors duration-300">
+export const PricingView = ({ setView, systemSettings }: PricingProps) => {
+  const plans = systemSettings?.pricingJson?.length > 0 ? systemSettings.pricingJson : [
+    { name: 'PAKET BASIC', price: 'Rp 75.000', description: 'Untuk kebutuhan desain dasar.', features: ['1 prompt', 'Rasio 16:9', '1 konsep infografis', '500-800 token'], buttonText: 'BELI 800 TOKEN', isPopular: false, gradient: 'from-blue-500 to-cyan-400' },
+    { name: 'PAKET STANDARD', price: 'Rp 250.000', description: 'Pilihan terbaik untuk hasil profesional.', features: ['3 alternatif desain', 'Prompt detail', 'Branding sesuai website', 'Struktur visual profesional', '1.000-2.500 token'], buttonText: 'BELI 2500 TOKEN', isPopular: true, gradient: 'from-amber-400 to-orange-500' },
+    { name: 'PAKET PREMIUM', price: 'Rp 500.000', description: 'Solusi terlengkap untuk berbagai format visual.', features: ['Menggunakan screenshot website sebagai referensi', 'Prompt sangat detail', 'Storytelling visual', 'Layout presentasi/lomba/skripsi', '3.000-5.000 token', 'Beberapa versi (poster, banner, slide)'], buttonText: 'BELI 5000 TOKEN', isPopular: false, gradient: 'from-violet-500 to-purple-600' }
+  ];
+
+  return (
+  <section className="py-32 px-6 bg-slate-50/50 dark:bg-slate-900 relative overflow-hidden transition-colors duration-300" id="pricing">
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       <motion.div 
         animate={{ y: ['-10%', '10%', '-10%'] }}
@@ -26,9 +34,9 @@ export const PricingView = ({ setView }: PricingProps) => (
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-brand-blue/10 border border-brand-blue/20 backdrop-blur-md text-brand-blue text-[11px] font-black uppercase tracking-[0.25em] mb-6 shadow-[0_0_25px_rgba(255,176,0,0.15)]"
+          className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20 backdrop-blur-md text-amber-500 text-[11px] font-black uppercase tracking-[0.25em] mb-6 shadow-[0_0_25px_rgba(255,176,0,0.15)]"
         >
-          <Sparkles className="w-4 h-4 text-brand-blue animate-pulse" />
+          <Sparkles className="w-4 h-4 text-amber-500 animate-pulse" />
           PAKET TOKEN
         </motion.div>
         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white mb-6 tracking-tight leading-tight transition-colors">Pilih Paket Token Anda</h2>
@@ -37,101 +45,115 @@ export const PricingView = ({ setView }: PricingProps) => (
         </p>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-8">
-        {[
-          { title: "Paket Pemula", price: "Rp 25.000", desc: "Cocok untuk mencoba fitur dasar AI.", features: ["10 Token / Generate Web", "2 Token / Revisi AI", "Akses Template Dasar", "Dukungan Komunitas"], color: "blue" },
-          { title: "Paket Pertumbuhan", price: "Rp 100.000", desc: "Untuk bisnis yang aktif berkembang.", features: ["10 Token / Generate Web", "2 Token / Revisi AI", "Akses Semua Template", "Dukungan Prioritas"], popular: true, color: "indigo" },
-          { title: "Paket Pro", price: "Rp 350.000", desc: "Solusi skala besar untuk agensi.", features: ["10 Token / Generate Web", "2 Token / Revisi AI", "Pengaturan Domain Kustom", "Agen AI Khusus"], color: "sky" }
-        ].map((plan, i) => (
-          <motion.div 
-            key={i}
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
-            className={`bg-white dark:bg-slate-800 p-8 rounded-[32px] shadow-premium border-2 transition-all relative overflow-hidden group ${plan.popular ? 'border-brand-blue scale-105 z-10 ring-4 ring-brand-blue/10' : 'border-slate-100 dark:border-slate-700 hover:border-slate-200 dark:hover:border-slate-600'}`}
-          >
-            {plan.popular && (
-              <div className="absolute top-0 right-0 bg-gradient-to-l from-brand-blue to-blue-600 text-white px-6 py-1.5 rounded-bl-2xl text-[10px] font-black uppercase tracking-widest shadow-lg">
-                Paling Populer
-              </div>
-            )}
-            
-            <div className={`w-12 h-12 rounded-xl mb-6 flex items-center justify-center transition-colors ${plan.color === 'blue' ? 'bg-blue-50 text-blue-500' : plan.color === 'indigo' ? 'bg-indigo-50 text-indigo-500' : 'bg-sky-50 text-sky-500'}`}>
-               <Rocket className="w-6 h-6" />
-            </div>
-
-            <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2 tracking-tight">{plan.title}</h3>
-            <div className="flex items-baseline gap-1 mb-6">
-              <span className={`text-4xl font-black ${plan.popular ? 'text-brand-blue' : 'text-slate-900 dark:text-white'}`}>{plan.price}</span>
-            </div>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mb-8 font-medium leading-relaxed">{plan.desc}</p>
-            <ul className="space-y-4 mb-10">
-              {plan.features.map((f, j) => (
-                <li key={j} className="flex items-center gap-3 text-sm font-medium text-slate-600 dark:text-slate-300">
-                  <CheckCircle2 className={`w-5 h-5 ${plan.popular ? 'text-brand-blue' : 'text-blue-500'}`} />
-                  {f}
-                </li>
-              ))}
-            </ul>
-            <button 
-              onClick={() => setView('login')}
-              className={`w-full py-4 rounded-2xl font-black transition-all transform active:scale-95 ${plan.popular ? 'bg-gradient-to-r from-brand-blue to-blue-600 text-white shadow-blue hover:shadow-blue-lg hover:-translate-y-1' : 'bg-slate-50 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-600'}`}
+      <div className="grid gap-6 md:grid-cols-3 items-stretch mt-8">
+        {plans.map((plan: any, i: number) => {
+          return (
+            <motion.div 
+              key={i}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+              className="group relative flex flex-col justify-between p-6 md:p-8 rounded-[32px] border transition-all duration-300 shadow-sm bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 hover:shadow-2xl hover:scale-100 md:hover:scale-105 hover:z-10 hover:border-amber-400 dark:hover:border-amber-500/50 h-full space-y-8 cursor-pointer"
             >
-              Beli Token
-            </button>
-          </motion.div>
-        ))}
+              <div className="space-y-6 text-center pt-2">
+                <div className={`w-16 h-16 mx-auto rounded-[20px] flex items-center justify-center text-white shadow-lg transition-all duration-300 bg-gradient-to-br ${plan.gradient || ['from-blue-500 to-cyan-400', 'from-amber-400 to-orange-500', 'from-violet-500 to-purple-600'][i % 3]}`}>
+                  <Zap className="w-7 h-7" />
+                </div>
+                
+                <div className="space-y-2">
+                  <h3 className="font-black text-slate-800 dark:text-slate-200 uppercase tracking-tight text-sm md:text-base group-hover:text-amber-500 transition-colors duration-300">{plan.name}</h3>
+                  <div className="font-black text-slate-900 dark:text-white text-3xl md:text-4xl">{plan.price}</div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium px-4">{plan.description}</p>
+                </div>
+                
+                <div className="w-full h-px bg-slate-100 dark:bg-slate-800/80 group-hover:bg-amber-100 dark:group-hover:bg-amber-900/30 transition-colors duration-300" />
+                
+                <ul className="space-y-4 text-left px-2">
+                  {(plan.features || []).map((feat: string, j: number) => (
+                    <li key={j} className="flex items-start gap-3">
+                      <div className="mt-0.5 shrink-0 w-4.5 h-4.5 rounded-full flex items-center justify-center border transition-colors duration-300 border-emerald-500 group-hover:border-amber-500">
+                        <CheckCircle2 className="w-3 h-3 transition-colors duration-300 text-emerald-500 stroke-[3] group-hover:text-amber-500" />
+                      </div>
+                      <span className="text-xs text-slate-600 dark:text-slate-300 font-semibold leading-snug">{feat}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              
+              <div className="pt-4">
+                <button 
+                  onClick={() => setView('login')}
+                  className="w-full py-4 rounded-xl font-black uppercase tracking-widest text-xs transition-all duration-300 flex items-center justify-center gap-2 border-2 bg-transparent border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 group-hover:border-amber-500 group-hover:text-amber-500 hover:!bg-amber-50 dark:hover:!bg-slate-800"
+                >
+                  <Zap className="w-4 h-4" /> {plan.buttonText || 'BELI TOKEN SEKARANG'}
+                </button>
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
     </div>
   </section>
-);
+  );
+};
 
 export const FinalCTA = ({ setView }: PricingProps) => (
-  <section className="py-40 px-6 bg-slate-950 relative overflow-hidden">
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      <motion.div 
-        animate={{ rotate: [0, 360] }}
-        transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-        className="absolute -top-1/2 -right-1/2 w-full h-full bg-brand-blue/5 blur-[120px]" 
-      />
-    </div>
-    <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,rgba(255,176,0,0.25)_0%,transparent_70%)]"></div>
+  <section className="py-36 px-6 bg-[#020617] relative overflow-hidden transition-all duration-300">
+    {/* Dot Grid Pattern overlay */}
+    <div 
+      className="absolute inset-0 pointer-events-none opacity-[0.03]" 
+      style={{ 
+        backgroundImage: 'radial-gradient(circle, #3a86ff 1.5px, transparent 1.5px)', 
+        backgroundSize: '36px 36px' 
+      }} 
+    />
     
-    {/* Animated background blobs */}
-    <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-brand-blue/20 blur-[150px] -z-10 rounded-full animate-blob"></div>
-    <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-600/20 blur-[120px] -z-10 rounded-full animate-blob animation-delay-2000"></div>
-
-    <div className="max-w-4xl mx-auto text-center relative z-10">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        whileInView={{ opacity: 1, scale: 1 }}
-        viewport={{ once: true }}
-        className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-md text-white text-[11px] font-black uppercase tracking-[0.25em] mb-6 shadow-[0_0_25px_rgba(255,255,255,0.05)]"
-      >
-        <Sparkles className="w-4 h-4 text-white animate-pulse" />
-        GET STARTED
-      </motion.div>
-      <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white mb-6 tracking-tight leading-tight transition-colors">
-        Siap Memulai Transformasi <br />
-        <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-blue via-indigo-400 to-blue-400">Digital Bisnis</span> Anda?
-      </h2>
-      <p className="text-slate-300 dark:text-slate-300 max-w-2xl mx-auto text-base sm:text-lg font-medium leading-relaxed mb-10 transition-colors">
-        Dapatkan akses instan ke platform Agentic AI tercanggih dan bangun masa depan bisnis Anda hari ini.
-      </p>
-
-      <div className="flex flex-col sm:flex-row gap-6 justify-center">
-        <button 
-          onClick={() => setView('signup')}
-          className="px-12 py-6 bg-brand-blue text-white rounded-2xl font-black shadow-[0_20px_50px_-10px_rgba(255,176,0,0.4)] hover:scale-105 transition-all transform active:scale-95 text-lg"
+    {/* Giant mesh glows */}
+    <div className="absolute -top-[30%] -left-[20%] w-[80%] aspect-square bg-brand-blue/10 rounded-full blur-[150px] pointer-events-none" />
+    <div className="absolute -bottom-[30%] -right-[20%] w-[80%] aspect-square bg-emerald-600/10 rounded-full blur-[150px] pointer-events-none" />
+    
+    <div className="max-w-4xl mx-auto relative z-10">
+      <div className="relative text-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          className="inline-flex items-center gap-2 px-4.5 py-2.5 rounded-full bg-white/[0.07] border border-white/10 backdrop-blur-md text-[10px] font-black uppercase tracking-[0.3em] text-slate-300 mb-8 shadow-inner"
         >
-          Daftar Gratis Sekarang
-        </button>
-        <button 
-          onClick={() => setView('features')}
-          className="px-12 py-6 bg-transparent border-2 border-white/20 text-white rounded-2xl font-black hover:bg-white/10 hover:border-white transition-all text-lg"
-        >
-          Pelajari Lebih Lanjut
-        </button>
+          <Sparkles className="w-3.5 h-3.5 text-brand-blue animate-pulse" />
+          GET STARTED
+        </motion.div>
+        
+        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white mb-6 tracking-tight leading-tight transition-colors">
+          Siap Memulai <br className="hidden sm:block" />
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-blue via-yellow-400 to-emerald-400">Transformasi Digital</span> Bisnis Anda?
+        </h2>
+        
+        <p className="text-slate-400 max-w-2xl mx-auto text-base sm:text-lg font-medium leading-relaxed mb-12 transition-colors">
+          Dapatkan akses instan ke platform Agentic AI tercanggih dan bangun masa depan bisnis Anda hari ini.
+        </p>
+
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center relative z-10">
+          <motion.button 
+            onClick={() => setView('signup')}
+            whileHover={{ scale: 1.03, y: -2 }}
+            whileTap={{ scale: 0.98 }}
+            className="group/btn w-full sm:w-auto px-10 py-5 bg-gradient-to-r from-brand-blue to-emerald-500 hover:brightness-110 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-[0_15px_35px_rgba(255,176,0,0.3)] transition-all cursor-pointer flex items-center justify-center gap-2.5 border-none"
+          >
+            Daftar Gratis Sekarang 
+            <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+          </motion.button>
+          
+          <motion.button 
+            onClick={() => setView('features')}
+            whileHover={{ scale: 1.03, y: -2 }}
+            whileTap={{ scale: 0.98 }}
+            className="w-full sm:w-auto px-10 py-5 bg-white/[0.04] border border-white/10 hover:bg-white/[0.08] hover:border-white/20 text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all cursor-pointer border-none"
+          >
+            Pelajari Lebih Lanjut
+          </motion.button>
+        </div>
       </div>
     </div>
   </section>

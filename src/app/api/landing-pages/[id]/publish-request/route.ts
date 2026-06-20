@@ -27,19 +27,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       data: { status: 'Pending Publish' }
     });
 
-    // Log request inside PublishRequest table
-    const requestLog = await prisma.publishRequest.create({
-      data: {
-        landingPageId: Number(id),
-        requestedBy: session.userId,
-        status: 'Pending'
-      }
-    });
-
     return NextResponse.json({
       success: true,
       message: 'Permintaan publikasi berhasil diajukan!',
-      data: requestLog
+      data: { status: 'Pending' }
     });
   } catch (error: any) {
     return NextResponse.json({ success: false, message: error.message || 'Terjadi kesalahan sistem.' }, { status: 500 });

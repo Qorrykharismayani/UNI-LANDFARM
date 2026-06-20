@@ -376,15 +376,6 @@ async function main() {
     }
   });
 
-  // Create request trail for Page 3 (Festival Kopi 2026)
-  await prisma.publishRequest.create({
-    data: {
-      landingPageId: page3.id,
-      requestedBy: user3.id,
-      status: 'Pending'
-    }
-  });
-
   console.log('Landing pages seeded successfully!');
 }
 

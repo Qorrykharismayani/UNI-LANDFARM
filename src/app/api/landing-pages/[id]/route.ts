@@ -17,10 +17,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       include: {
         content: true,
         template: true,
-        publishRequests: {
-          orderBy: { requestedAt: 'desc' },
-          take: 1
-        }
+        domain: true
       }
     });
 
@@ -32,7 +29,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       return NextResponse.json({ success: false, message: 'Akses ditolak.' }, { status: 403 });
     }
 
-    const adminNote = page.publishRequests?.[0]?.rejectionReason || null;
+    const adminNote = null;
     const responseData = {
       ...page,
       adminNote
@@ -64,7 +61,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     }
 
 
-    const { title, businessName, slug, status, publicUrl, publishedAt, contentJson } = await request.json();
+    const { title, businessName, slug, status, publicUrl, publishedAt, contentJson, customDomain } = await request.json();
 
     const updated = await prisma.landingPage.update({
       where: { id: Number(id) },
@@ -82,8 +79,20 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
           }
         } : undefined
       },
-      include: { content: true }
+      include: { content: true, domain: true }
     });
+
+    if (customDomain !== undefined) {
+      if (customDomain) {
+        await prisma.domain.upsert({
+          where: { landingPageId: Number(id) },
+          create: { landingPageId: Number(id), domainName: customDomain },
+          update: { domainName: customDomain }
+        });
+      } else {
+        await prisma.domain.deleteMany({ where: { landingPageId: Number(id) } });
+      }
+    }
 
     return NextResponse.json({ success: true, message: 'Landing page berhasil diperbarui!', data: updated });
   } catch (error: any) {
