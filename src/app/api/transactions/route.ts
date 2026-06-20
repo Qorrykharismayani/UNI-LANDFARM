@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { packageName, packageTokens, amount, method } = body;
+    const { packageName, packageTokens, amount, method, paymentCode } = body;
 
     if (!packageName || !packageTokens || !amount || !method) {
       return NextResponse.json({ success: false, message: 'Data tidak lengkap.' }, { status: 400 });
@@ -48,6 +48,7 @@ export async function POST(request: Request) {
           packageTokens,
           amount,
           method,
+          paymentCode,
           refId,
           status: 'berhasil',
         },

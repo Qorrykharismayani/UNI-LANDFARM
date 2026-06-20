@@ -84,7 +84,7 @@ const DashboardPage = ({
             </div>
             <div>
               <p className="text-[9.5px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5 leading-none">{stat.title}</p>
-              <h4 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-none">{stat.value}</h4>
+              <h4 className="text-2xl lg:text-[28px] font-black text-slate-900 dark:text-white tracking-tight leading-none">{stat.value}</h4>
             </div>
           </div>
         ))}

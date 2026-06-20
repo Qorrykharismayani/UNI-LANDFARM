@@ -56,23 +56,23 @@ interface DashboardFooterProps {
 }
 
 export const DashboardFooter = ({ setView, setSubView, systemSettings }: DashboardFooterProps) => (
-  <footer className="py-12 px-6 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 relative overflow-hidden">
-    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-slate-200 dark:via-slate-700 to-transparent"></div>
+  <footer className="py-12 px-6 print:py-4 border-t border-slate-100 dark:border-slate-800 print:border-none bg-white dark:bg-slate-950 print:bg-transparent relative overflow-hidden">
+    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-slate-200 dark:via-slate-700 to-transparent print:hidden"></div>
 
-    <div className="max-w-6xl mx-auto relative z-10">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 mb-8 w-full">
-        <div className="col-span-1 md:col-span-1">
-          <div className="h-[96px] flex items-center cursor-pointer group w-fit" onClick={() => setView('home')}>
+    <div className="max-w-6xl mx-auto relative z-10 print:flex print:flex-col print:items-center print:-mt-24">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 mb-8 w-full print:block print:mb-2 print:text-center">
+        <div className="col-span-1 md:col-span-1 print:flex print:justify-center">
+          <div className="h-[96px] flex items-center cursor-pointer group w-fit print:h-20" onClick={() => setView('home')}>
             {systemSettings?.logo && (systemSettings.logo.startsWith('http') || systemSettings.logo.startsWith('/')) ? (
-              <img src={systemSettings.logo.startsWith('/') ? `${systemSettings.logo}?v=8` : systemSettings.logo} alt="Logo" className="h-[96px] object-contain" />
+              <img src={systemSettings.logo.startsWith('/') ? `${systemSettings.logo}?v=8` : systemSettings.logo} alt="Logo" className="h-[96px] print:h-20 object-contain" />
             ) : (
-              <img src="/logo.png?v=8" alt="Uni-LandFarm Logo" className="h-[96px] object-contain" />
+              <img src="/logo.png?v=8" alt="Uni-LandFarm Logo" className="h-[96px] print:h-20 object-contain" />
             )}
           </div>
-          <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-8 font-medium max-w-xs">
+          <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-8 font-medium max-w-xs print:hidden">
             Platform revolusioner untuk membangun dan mengelola ekosistem digital bisnis modern dengan kekuatan Agentic AI.
           </p>
-          <div className="flex gap-4">
+          <div className="flex gap-4 print:hidden">
             {[Twitter, Github, Linkedin, Instagram].map((Icon, i) => (
               <motion.a
                 key={i}
@@ -86,7 +86,7 @@ export const DashboardFooter = ({ setView, setSubView, systemSettings }: Dashboa
           </div>
         </div>
 
-        <div>
+        <div className="print:hidden">
           <h4 className="font-black text-slate-900 dark:text-white mb-6 uppercase text-xs tracking-[0.2em]">Platform</h4>
           <ul className="space-y-3 text-sm text-slate-500 dark:text-slate-400 font-medium">
             <li><button onClick={() => setView('features')} className="hover:text-brand-blue transition-colors flex items-center gap-2 group text-left cursor-pointer">Fitur Utama <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" /></button></li>
@@ -96,7 +96,7 @@ export const DashboardFooter = ({ setView, setSubView, systemSettings }: Dashboa
           </ul>
         </div>
 
-        <div>
+        <div className="print:hidden">
           <h4 className="font-black text-slate-900 dark:text-white mb-6 uppercase text-xs tracking-[0.2em]">Sumber Daya</h4>
           <ul className="space-y-3 text-sm text-slate-500 dark:text-slate-400 font-medium">
             <li><button onClick={() => setSubView('buat_situs')} className="hover:text-brand-blue transition-colors flex items-center gap-2 group text-left cursor-pointer">Tentang Kami <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" /></button></li>
@@ -106,7 +106,7 @@ export const DashboardFooter = ({ setView, setSubView, systemSettings }: Dashboa
           </ul>
         </div>
 
-        <div>
+        <div className="print:hidden">
           <h4 className="font-black text-slate-900 dark:text-white mb-6 uppercase text-xs tracking-[0.2em]">Legal</h4>
           <ul className="space-y-3 text-sm text-slate-500 dark:text-slate-400 font-medium">
             <li><a href="#" className="hover:text-brand-blue transition-colors flex items-center gap-2 group text-left cursor-pointer">Kebijakan Privasi <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" /></a></li>
@@ -116,11 +116,11 @@ export const DashboardFooter = ({ setView, setSubView, systemSettings }: Dashboa
         </div>
       </div>
 
-      <div className="pt-10 border-t border-slate-100 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-6">
-        <p className="text-slate-400 dark:text-slate-500 text-xs font-medium">
+      <div className="pt-10 print:pt-0 border-t border-slate-100 dark:border-slate-800 print:border-none flex flex-col md:flex-row justify-between print:justify-center items-center gap-6 print:gap-1">
+        <p className="text-slate-400 dark:text-slate-500 text-xs font-medium print:text-center print:text-xs">
           {systemSettings?.footerText || "© 2026 Platform Uni-LandFarm. Hak cipta dilindungi undang-undang."}
         </p>
-        <div className="flex gap-8 text-[10px] text-slate-400 dark:text-slate-500 font-black uppercase tracking-widest">
+        <div className="flex gap-8 text-[10px] text-slate-400 dark:text-slate-500 font-black uppercase tracking-widest print:hidden">
           <a href="#" className="hover:text-brand-blue transition-colors">Kebijakan Privasi</a>
           <a href="#" className="hover:text-brand-blue transition-colors">Ketentuan Layanan</a>
         </div>
@@ -684,6 +684,9 @@ export const DashboardView = ({
             title: manualData.name,
             businessName: manualData.name,
             slug: manualData.subdomain,
+            category: manualData.category,
+            description: manualData.description,
+            themeColor: manualData.color,
             contentJson: finalDraft,
             tokenCost: 500
           })
@@ -724,6 +727,9 @@ export const DashboardView = ({
             title: manualData.name,
             businessName: manualData.name,
             slug: manualData.subdomain,
+            category: manualData.category,
+            description: manualData.description,
+            themeColor: manualData.color,
             contentJson: defaultDraft,
             tokenCost: 500
           })
@@ -1463,8 +1469,8 @@ export const DashboardView = ({
           <div className="fixed -bottom-48 left-1/2 -translate-x-1/2 w-full max-w-[1200px] h-96 bg-brand-blue/15 blur-[120px] pointer-events-none opacity-40 dark:opacity-20 z-0"></div>
 
           {/* SECTION 1: PERSISTENT HEADER BAR */}
-          <header className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-[#020617] h-[72px] flex items-center justify-between px-8 shadow-sm dark:shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all duration-500">
-            <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-brand-blue/30 to-transparent opacity-0 dark:opacity-100"></div>
+          <header className="print:static print:shadow-none print:border-none print:bg-transparent fixed top-0 left-0 right-0 z-50 bg-white dark:bg-[#020617] h-[72px] flex items-center justify-between px-8 shadow-sm dark:shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all duration-500">
+            <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-brand-blue/30 to-transparent opacity-0 dark:opacity-100 print:hidden"></div>
             <div className="flex items-center gap-4">
               <div
                 className="cursor-pointer hover:scale-110 active:scale-95 transition-all"
@@ -1481,7 +1487,7 @@ export const DashboardView = ({
             <div className="flex-1" />
 
             <div className="flex items-center gap-6">
-              <div className="hidden md:flex items-center gap-3 pr-6">
+              <div className="hidden md:flex items-center gap-3 pr-6 print:hidden">
                 <button
                   onClick={toggleTheme}
                   className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-900/50 text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-brand-blue transition-all border border-slate-50 dark:border-white/5"

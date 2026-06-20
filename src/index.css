@@ -179,3 +179,10 @@
     transform: translateZ(100px);
   }
 }
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 15mm;
+  }
+}

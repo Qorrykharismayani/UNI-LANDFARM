@@ -39,8 +39,11 @@ model Template {
   id             Int           @id @default(autoincrement())
   name           String        @unique @map("nama_template")
   category       String        @map("kategori")
+  type           String?       @map("tipe")
   description    String        @map("deskripsi")
   thumbnail      String
+  previewUrl     String?       @map("preview_url")
+  seed           String?
   structureJson  Json          @map("struktur_section")
   defaultContent Json?         @map("default_content")
   status         String        @default("Aktif") @map("status_template")
@@ -61,6 +64,9 @@ model LandingPage {
   status          String           @default("Draft")
   views           Int              @default(0)
   publicUrl       String?
+  category        String?
+  description     String?          @db.Text
+  themeColor      String?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
   publishedAt     DateTime?
@@ -171,6 +177,8 @@ model Article {
   title       String
   status      String   @default("Draft")
   author      String
+  content     String?  @db.Text
+  excerpt     String?  @db.Text
   scoreBefore Int      @default(0)
   scoreAfter  Int      @default(0)
   date        DateTime @default(now())
@@ -188,6 +196,7 @@ model Transaction {
   packageTokens Int
   amount        Int
   method        String
+  paymentCode   String?
   refId         String   @unique
   status        String   @default("berhasil")
   createdAt     DateTime @default(now())

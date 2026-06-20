@@ -69,7 +69,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: 'Tidak diotorisasi.' }, { status: 401 });
     }
 
-    const { templateId, title, businessName, slug, contentJson, tokenCost = 500 } = await request.json();
+    const { templateId, title, businessName, slug, category, description, themeColor, contentJson, tokenCost = 500 } = await request.json();
 
     if (!templateId || !title || !businessName || !slug) {
       return NextResponse.json({ success: false, message: 'Form data pembuatan draf tidak lengkap.' }, { status: 400 });
@@ -108,6 +108,9 @@ export async function POST(request: Request) {
           title,
           businessName,
           slug,
+          category: category || null,
+          description: description || null,
+          themeColor: themeColor || null,
           status: 'Draft',
           views: 0,
           content: {
