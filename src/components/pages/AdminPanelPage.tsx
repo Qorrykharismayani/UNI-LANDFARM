@@ -711,7 +711,6 @@ const AdminPanelPage = ({
             <div className="bg-gradient-to-r from-blue-700/80 to-indigo-950/80 p-8 rounded-[24px] text-white shadow-md relative overflow-hidden border border-blue-500/20">
               <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-brand-blue/10 blur-[80px] rounded-full translate-x-1/2 -translate-y-1/2" />
               <div className="relative z-10 max-w-xl space-y-2.5">
-                <span className="px-3 py-1 bg-white/10 rounded-full text-[8.5px] font-black uppercase tracking-widest">Selamat Datang</span>
                 <h1 className="text-xl md:text-2xl font-black tracking-tight leading-none uppercase">Selamat Datang, Admin Uni-LandFarm</h1>
                 <p className="text-white/80 text-[11px] leading-relaxed font-medium">
                   Kelola sistem AI CMS, pantau landing page yang dipublikasikan, kelola data template, serta monitor aktivitas pengguna dari panel kendali terpusat.

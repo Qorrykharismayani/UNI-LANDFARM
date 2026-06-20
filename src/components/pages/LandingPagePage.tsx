@@ -26,6 +26,7 @@ interface LandingPagePageProps {
   setCmsSubTab: (tab: string) => void;
   templates: any[];
   isPublishing?: boolean;
+  setActivePageId?: (id: string) => void;
 }
 
 const LandingPagePage = ({
@@ -48,6 +49,7 @@ const LandingPagePage = ({
   setCmsSubTab,
   templates = [],
   isPublishing = false,
+  setActivePageId,
 }: LandingPagePageProps) => {
   const logoInputRef = React.useRef<HTMLInputElement>(null);
   const [logoUploading, setLogoUploading] = React.useState(false);
@@ -191,19 +193,24 @@ const LandingPagePage = ({
           </button>
           <div className="flex gap-4">
             <button
-              onClick={() => { setSubView('cms'); setCmsSubTab('editor'); }}
+              onClick={() => { 
+                if (generatedDraft?.id && setActivePageId) setActivePageId(generatedDraft.id);
+                setSubView('cms'); 
+                setCmsSubTab('editor'); 
+              }}
               className="px-6 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all flex items-center gap-2"
             >
               <Edit3 className="w-3 h-3" /> Edit Struktur Konten
             </button>
             <button
-              onClick={handlePublish}
-              disabled={isPublishing}
-              className={`px-6 py-2.5 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-blue hover:shadow-blue-lg transition-all flex items-center gap-2 ${
-                isPublishing ? 'bg-brand-blue/70 cursor-not-allowed' : 'bg-brand-blue'
-              }`}
+              onClick={() => {
+                if (generatedDraft?.id && setActivePageId) setActivePageId(generatedDraft.id);
+                setSubView('cms');
+                setCmsSubTab('publish');
+              }}
+              className="px-6 py-2.5 bg-brand-blue text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-blue hover:shadow-blue-lg transition-all flex items-center gap-2"
             >
-              <Send className={`w-3 h-3 ${isPublishing ? 'animate-pulse' : ''}`} /> {isPublishing ? 'Publishing...' : 'Publish Website'}
+              <Send className="w-3 h-3" /> Publish Website
             </button>
           </div>
         </div>
@@ -369,7 +376,7 @@ const LandingPagePage = ({
                 <select
                   value={manualData.category}
                   onChange={(e) => setManualData({ ...manualData, category: e.target.value })}
-                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-3 text-xs font-bold dark:text-white outline-none appearance-none text-slate-500 font-black"
+                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-3 text-xs font-bold text-slate-900 dark:text-white outline-none appearance-none font-black"
                 >
                   <option>E-Commerce / Toko Online</option>
                   <option>Portfolio</option>
@@ -384,7 +391,7 @@ const LandingPagePage = ({
                 <select
                   value={manualData.templateId || (templates[0]?.id || '')}
                   onChange={(e) => setManualData({ ...manualData, templateId: Number(e.target.value) })}
-                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-3 text-xs font-bold dark:text-white outline-none appearance-none text-slate-500 font-black"
+                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-3 text-xs font-bold text-slate-900 dark:text-white outline-none appearance-none font-black"
                 >
                   {templates.map((t) => (
                     <option key={t.id} value={t.id}>
@@ -480,7 +487,7 @@ const LandingPagePage = ({
 
   // Default landing view
   return (
-    <div className="max-w-5xl mx-auto py-16 relative">
+    <div className="max-w-5xl mx-auto py-16 relative outline-none border-none ring-0">
       {/* Premium Background Decorations */}
       <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden">
         {/* Subtle Grid Pattern */}

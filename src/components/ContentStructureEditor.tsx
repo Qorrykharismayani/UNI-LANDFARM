@@ -122,6 +122,7 @@ interface ContentStructureEditorProps {
   onPublishSuccess: () => void;
   theme?: string;
   toggleTheme?: () => void;
+  defaultShowPublish?: boolean;
 }
 
 export default function ContentStructureEditor({ 
@@ -129,7 +130,8 @@ export default function ContentStructureEditor({
   onBack, 
   onPublishSuccess,
   theme = 'light',
-  toggleTheme = () => {}
+  toggleTheme = () => {},
+  defaultShowPublish = false
 }: ContentStructureEditorProps) {
   const [loading, setLoading] = useState(true);
   const [pageData, setPageData] = useState<any>(null);
@@ -211,7 +213,7 @@ export default function ContentStructureEditor({
 
   const [saveStatus, setSaveStatus] = useState<'Saved' | 'Saving' | 'Error'>('Saved');
   const [editorToast, setEditorToast] = useState<string | null>(null);
-  const [showPublishConfirm, setShowPublishConfirm] = useState(false);
+  const [showPublishConfirm, setShowPublishConfirm] = useState(defaultShowPublish);
   const [isSubmittingPublish, setIsSubmittingPublish] = useState(false);
 
   // Active Main Tab state
@@ -2143,6 +2145,43 @@ export default function ContentStructureEditor({
                   </div>
                 )}
 
+                {/* SIMPAN SECTION BUTTON */}
+                <div className="pt-6 mt-8 border-t border-slate-200 dark:border-slate-800">
+                  <button
+                    onClick={async () => {
+                      setSaveStatus('Saving');
+                      try {
+                        const res = await fetch(`/api/landing-pages/${pageId}`, {
+                          method: 'PATCH',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ contentJson })
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                          setSaveStatus('Saved');
+                          triggerToast('Perubahan berhasil disimpan!');
+                        } else {
+                          setSaveStatus('Error');
+                          triggerToast('Gagal menyimpan section.');
+                        }
+                      } catch (e) {
+                        setSaveStatus('Error');
+                        triggerToast('Koneksi terputus.');
+                      }
+                    }}
+                    className="w-full py-3.5 bg-[#FDE047] dark:bg-[#EAB308] hover:bg-[#FACC15] dark:hover:bg-[#CA8A04] active:bg-[#EAB308] dark:active:bg-[#A16207] text-[#422006] dark:text-[#FEFCE8] border-2 border-[#FACC15] dark:border-[#CA8A04] rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-sm hover:shadow-md active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    {saveStatus === 'Saving' ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin" /> Menyimpan...
+                      </>
+                    ) : (
+                      <>
+                        Simpan Perubahan
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             </main>
           </div>

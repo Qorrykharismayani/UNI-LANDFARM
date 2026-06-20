@@ -865,6 +865,7 @@ export const DashboardView = ({
         await fetchProjects(); // Refresh project list
         setSubView('overview');
         setCmsNavMode('landing');
+        window.open(`/site/${slug}`, '_blank');
       } else {
         showNotification(data.message || 'Gagal mempublikasikan situs.', 'info');
       }
@@ -1125,6 +1126,7 @@ export const DashboardView = ({
             setCmsSubTab={setCmsSubTab}
             templates={templates}
             isPublishing={isPublishing}
+            setActivePageId={setActivePageId}
           />
         );
       case 'notifications':
@@ -1220,7 +1222,7 @@ export const DashboardView = ({
     }
   };
 
-  const isEditorActive = isCmsEditorOpen || (subView === 'cms' && cmsSubTab === 'editor');
+  const isEditorActive = isCmsEditorOpen || (subView === 'cms' && (cmsSubTab === 'editor' || cmsSubTab === 'publish'));
   const isAdminPanelActive = subView === 'admin_panel';
 
   return isEditorActive ? (
@@ -1228,7 +1230,7 @@ export const DashboardView = ({
       pageId={activePageId || userProjects[0]?.id || ''}
       onBack={() => {
         setIsCmsEditorOpen(false);
-        if (cmsSubTab === 'editor') {
+        if (cmsSubTab === 'editor' || cmsSubTab === 'publish') {
           setCmsSubTab('manual');
         }
       }}
@@ -1237,6 +1239,7 @@ export const DashboardView = ({
       }}
       theme={theme}
       toggleTheme={toggleTheme}
+      defaultShowPublish={cmsSubTab === 'publish'}
     />
   ) : (
     <>
