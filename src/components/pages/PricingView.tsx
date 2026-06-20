@@ -127,7 +127,7 @@ export const FinalCTA = ({ setView }: PricingProps) => (
         
         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white mb-6 tracking-tight leading-tight transition-colors">
           Siap Memulai <br className="hidden sm:block" />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-blue via-yellow-400 to-emerald-400">Transformasi Digital</span> Bisnis Anda?
+          <span className="text-amber-400">Transformasi</span> <span className="text-emerald-400">Digital</span> Bisnis Anda?
         </h2>
         
         <p className="text-slate-400 max-w-2xl mx-auto text-base sm:text-lg font-medium leading-relaxed mb-12 transition-colors">

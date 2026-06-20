@@ -1297,6 +1297,10 @@ export const DashboardView = ({
       onPublishSuccess={() => {
         fetchProjects();
       }}
+      onCreateNewPage={() => {
+        setIsCmsEditorOpen(false);
+        setSubView('buat_situs');
+      }}
     />
   ) : (
     <>

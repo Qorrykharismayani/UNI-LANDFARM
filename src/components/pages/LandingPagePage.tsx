@@ -418,10 +418,48 @@ const LandingPagePage = ({
               </div>
               <div>
                 <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Upload Logo Utama</label>
-                <div className="border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl p-6 text-center hover:border-brand-blue/30 transition-all cursor-pointer group">
-                  <Upload className="w-6 h-6 text-slate-300 mx-auto mb-2 group-hover:text-brand-blue transition-colors" />
-                  <p className="text-[10px] font-black text-slate-400 uppercase">Upload logo bisnis Anda</p>
-                  <p className="text-[8px] text-slate-400 uppercase mt-1">Format: PNG, JPG, SVG</p>
+                <div 
+                  className="border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl p-6 text-center hover:border-brand-blue/30 transition-all cursor-pointer group relative overflow-hidden"
+                >
+                  <input 
+                    type="file" 
+                    accept="image/png, image/jpeg, image/svg+xml"
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const formData = new FormData();
+                      formData.append('file', file);
+                      try {
+                        if (showNotification) showNotification('Mengunggah logo...', 'info');
+                        const res = await fetch('/api/media/upload', {
+                          method: 'POST',
+                          body: formData
+                        });
+                        const data = await res.json();
+                        if (data.success && data.data?.fileUrl) {
+                          setManualData({ ...manualData, logo: data.data.fileUrl });
+                          if (showNotification) showNotification('Logo berhasil diunggah!', 'success');
+                        } else {
+                          if (showNotification) showNotification(data.message || 'Gagal mengunggah logo.', 'error');
+                        }
+                      } catch (err) {
+                        if (showNotification) showNotification('Koneksi upload bermasalah.', 'error');
+                      }
+                    }}
+                  />
+                  {manualData.logo ? (
+                    <div className="flex flex-col items-center">
+                       <img src={manualData.logo} alt="Logo preview" className="h-12 object-contain mb-2" />
+                       <p className="text-[10px] font-black text-slate-400 uppercase">Ganti logo bisnis Anda</p>
+                    </div>
+                  ) : (
+                    <>
+                      <Upload className="w-6 h-6 text-slate-300 mx-auto mb-2 group-hover:text-brand-blue transition-colors" />
+                      <p className="text-[10px] font-black text-slate-400 uppercase">Upload logo bisnis Anda</p>
+                      <p className="text-[8px] text-slate-400 uppercase mt-1">Format: PNG, JPG, SVG</p>
+                    </>
+                  )}
                 </div>
               </div>
               <div>

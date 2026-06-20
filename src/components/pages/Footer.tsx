@@ -40,8 +40,8 @@ export const Footer = ({ setView, systemSettings }: FooterProps) => (
         </div>
 
         <div>
-          <h4 className="font-black text-slate-900 dark:text-white mb-8 uppercase text-[10px] tracking-[0.3em]">Platform</h4>
-          <ul className="space-y-4 text-sm text-slate-500 dark:text-slate-400 font-medium">
+          <h4 className="font-black text-slate-900 dark:text-white mb-8 uppercase text-xs tracking-[0.3em]">Platform</h4>
+          <ul className="space-y-4 text-base text-slate-500 dark:text-slate-400 font-medium">
             <li><button onClick={() => setView('features')} className="hover:text-brand-blue transition-colors flex items-center gap-2 group">Fitur Utama <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" /></button></li>
             <li><button onClick={() => setView('templates')} className="hover:text-brand-blue transition-colors flex items-center gap-2 group">Pustaka Template <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" /></button></li>
             <li><button onClick={() => setView('cms')} className="hover:text-brand-blue transition-colors flex items-center gap-2 group">AI Generator <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" /></button></li>
@@ -50,8 +50,8 @@ export const Footer = ({ setView, systemSettings }: FooterProps) => (
         </div>
 
         <div>
-          <h4 className="font-black text-slate-900 dark:text-white mb-8 uppercase text-[10px] tracking-[0.3em]">Sumber Daya</h4>
-          <ul className="space-y-4 text-sm text-slate-500 dark:text-slate-400 font-medium">
+          <h4 className="font-black text-slate-900 dark:text-white mb-8 uppercase text-xs tracking-[0.3em]">Sumber Daya</h4>
+          <ul className="space-y-4 text-base text-slate-500 dark:text-slate-400 font-medium">
             <li><button onClick={() => setView('about')} className="hover:text-brand-blue transition-colors flex items-center gap-2 group">Tentang Kami <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" /></button></li>
             <li><button onClick={() => setView('about')} className="hover:text-brand-blue transition-colors flex items-center gap-2 group">Blog Bisnis <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" /></button></li>
             <li><button onClick={() => setView('about')} className="hover:text-brand-blue transition-colors flex items-center gap-2 group">Pusat Bantuan <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" /></button></li>
@@ -60,8 +60,8 @@ export const Footer = ({ setView, systemSettings }: FooterProps) => (
         </div>
 
         <div>
-          <h4 className="font-black text-slate-900 dark:text-white mb-8 uppercase text-[10px] tracking-[0.3em]">Legal</h4>
-          <ul className="space-y-4 text-sm text-slate-500 dark:text-slate-400 font-medium">
+          <h4 className="font-black text-slate-900 dark:text-white mb-8 uppercase text-xs tracking-[0.3em]">Legal</h4>
+          <ul className="space-y-4 text-base text-slate-500 dark:text-slate-400 font-medium">
             <li><a href="#" className="hover:text-brand-blue transition-colors flex items-center gap-2 group">Kebijakan Privasi <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" /></a></li>
             <li><a href="#" className="hover:text-brand-blue transition-colors flex items-center gap-2 group">Ketentuan Layanan <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" /></a></li>
             <li><a href="#" className="hover:text-brand-blue transition-colors flex items-center gap-2 group">Kebijakan Cookie <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" /></a></li>
@@ -70,10 +70,10 @@ export const Footer = ({ setView, systemSettings }: FooterProps) => (
       </div>
 
       <div className="pt-10 border-t border-slate-100 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-6">
-        <p className="text-slate-400 dark:text-slate-500 text-xs font-medium">
+        <p className="text-slate-400 dark:text-slate-500 text-sm font-medium">
           {systemSettings?.footerText || '© 2026 Platform Uni-LandFarm. Hak cipta dilindungi undang-undang.'}
         </p>
-        <div className="flex gap-8 text-[10px] text-slate-400 dark:text-slate-500 font-black uppercase tracking-widest">
+        <div className="flex gap-8 text-xs text-slate-400 dark:text-slate-500 font-black uppercase tracking-widest">
           <a href="#" className="hover:text-brand-blue transition-colors">Kebijakan Privasi</a>
           <a href="#" className="hover:text-brand-blue transition-colors">Ketentuan Layanan</a>
         </div>

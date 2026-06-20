@@ -8,8 +8,8 @@ export async function GET() {
       message: 'Offline / Database belum terhubung. Menggunakan data default.',
       data: {
         id: 1,
-        platformName: 'Uni-LanFaram',
-        logo: 'Uni-LanFaram',
+        platformName: 'UNI-LandFarm',
+        logo: 'UNI-LandFarm',
         heroTitle: 'Platform Landing Page Mikro Berbasis AI CMS',
         heroDescription: 'Bantu kembangkan bisnis agrikultur, UMKM, dan produk lokal Anda dengan landing page super cepat yang dikelola kecerdasan buatan.',
         contactEmail: 'hello@unilanfarm.com',
@@ -19,7 +19,7 @@ export async function GET() {
           facebook: 'https://facebook.com/unilanfarm',
           linkedin: 'https://linkedin.com/company/unilanfarm'
         },
-        footerText: '© 2026 Uni-LanFaram. Dipersembahkan oleh Uni-Inside.',
+        footerText: '© 2026 UNI-LandFarm. Dipersembahkan oleh Uni-Inside.',
         featuresJson: [
           { title: "Pembuatan Instan", desc: "Buat landing page profesional hanya dalam hitungan menit dengan sistem otomatis berbasis AI.", icon: "Zap", num: "01" },
           { title: "Pustaka Template", desc: "Tersedia berbagai template modern dan premium yang siap digunakan untuk semua kebutuhan bisnis.", icon: "Folder", num: "02" },
