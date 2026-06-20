@@ -557,6 +557,7 @@ export const DashboardView = ({
 
       const finalDraft = {
         ...draft,
+        isAiGenerated: true,
         sections: ['Hero Section', 'Tentang Kami', 'Produk/Layanan', 'Galeri', 'CTA', 'Footer']
       };
       setGeneratedDraft(finalDraft);
@@ -593,7 +594,8 @@ export const DashboardView = ({
         cta: 'Mulai Sekarang',
         url: 'uni-landfarm.ai/preview-site',
         sections: ['Hero Section', 'Tentang Kami', 'Produk/Layanan', 'Galeri', 'CTA', 'Footer'],
-        themeColor: '#3b82f6'
+        themeColor: '#3b82f6',
+        isAiGenerated: true
       };
       setGeneratedDraft(defaultDraft);
       setSelectedColor('#3b82f6');
@@ -670,6 +672,7 @@ export const DashboardView = ({
 
       const finalDraft = {
         ...draft,
+        isAiGenerated: true,
         sections: ['Hero Section', 'Tentang Kami', 'Produk/Layanan', 'Galeri', 'CTA', 'Footer']
       };
       setGeneratedDraft(finalDraft);
@@ -713,7 +716,8 @@ export const DashboardView = ({
         cta: 'Mulai Sekarang',
         url: manualData.subdomain + '.unilandfarm.ai',
         sections: ['Hero Section', 'Tentang Kami', 'Produk/Layanan', 'Galeri', 'CTA', 'Footer'],
-        themeColor: manualData.color
+        themeColor: manualData.color,
+        isAiGenerated: true
       };
       setGeneratedDraft(defaultDraft);
       setSelectedColor(manualData.color);

@@ -29,9 +29,10 @@ interface TemplateRendererProps {
   contentJson: any;
   isMobile?: boolean;
   siteConfig?: { slug: string, title: string, pages: any[] };
+  themeColor?: string | null;
 }
 
-export default function TemplateRenderer({ templateId, contentJson, isMobile = false, siteConfig }: TemplateRendererProps) {
+export default function TemplateRenderer({ templateId, contentJson, isMobile = false, siteConfig, themeColor }: TemplateRendererProps) {
   const tid = String(templateId);
   // Normalize content JSON to avoid crashes
   const c = contentJson || {};
@@ -431,6 +432,12 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
     primaryColorHover = '#ca8a04';
   }
 
+  // Override with user's selected theme color if available
+  if (themeColor) {
+    primaryColor = themeColor;
+    primaryColorHover = themeColor;
+  }
+
   const defaultSectionsList = [
     { id: 'logo', status: 'Aktif' },
     { id: 'navbar', status: 'Aktif' },
@@ -559,24 +566,24 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
           case 'about':
             return (
-              <section id="about" key="about" className={`border-y ${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'} ${isDarkTheme ? 'bg-[#111827]/40 border-slate-900' : 'bg-slate-100/50 border-slate-200/50'}`}>
+              <section id="about" key="about" className={`border-y ${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'}`} style={{ backgroundColor: primaryColor, color: '#ffffff' }}>
                 <div className={`max-w-4xl mx-auto text-center ${isMobile ? 'space-y-6' : 'space-y-12'}`}>
                   <div className="space-y-3">
-                    <h2 className={`font-black uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Mengenal Profil Kami</h2>
-                    <div className="w-16 h-1.5 mx-auto rounded-full" style={{ backgroundColor: primaryColor }} />
+                    <h2 className={`font-black uppercase tracking-tight text-white ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Mengenal Profil Kami</h2>
+                    <div className="w-16 h-1.5 mx-auto rounded-full bg-white/30" />
                   </div>
                   <div className={`grid gap-8 text-left ${isMobile ? 'grid-cols-1 gap-6' : 'grid-cols-1 md:grid-cols-3'}`}>
-                    <div className={`p-6 rounded-2xl border shadow-sm space-y-3 ${cardColor}`}>
-                      <h4 className="font-black uppercase text-xs tracking-wider" style={{ color: primaryColor }}>Tentang Kami</h4>
-                      <p className={`text-xs font-medium leading-relaxed ${isDarkTheme ? 'text-slate-400' : 'text-slate-600'}`}>{about.description || 'Penyedia solusi profesional dan terintegrasi.'}</p>
+                    <div className="p-6 rounded-2xl border border-white/20 shadow-sm space-y-3 bg-white/10 backdrop-blur-sm">
+                      <h4 className="font-black uppercase text-xs tracking-wider text-white">Tentang Kami</h4>
+                      <p className="text-xs font-medium leading-relaxed text-white/80">{about.description || 'Penyedia solusi profesional dan terintegrasi.'}</p>
                     </div>
-                    <div className={`p-6 rounded-2xl border shadow-sm space-y-3 ${cardColor}`}>
-                      <h4 className="font-black uppercase text-xs tracking-wider" style={{ color: primaryColor }}>Profil Bisnis</h4>
-                      <p className={`text-xs font-medium leading-relaxed ${isDarkTheme ? 'text-slate-400' : 'text-slate-600'}`}>{about.profile || 'Kami berdedikasi memberikan hasil kerja bermutu tinggi.'}</p>
+                    <div className="p-6 rounded-2xl border border-white/20 shadow-sm space-y-3 bg-white/10 backdrop-blur-sm">
+                      <h4 className="font-black uppercase text-xs tracking-wider text-white">Profil Bisnis</h4>
+                      <p className="text-xs font-medium leading-relaxed text-white/80">{about.profile || 'Kami berdedikasi memberikan hasil kerja bermutu tinggi.'}</p>
                     </div>
-                    <div className={`p-6 rounded-2xl border shadow-sm space-y-3 ${cardColor}`}>
-                      <h4 className="font-black uppercase text-xs tracking-wider" style={{ color: primaryColor }}>Kisah Perjalanan</h4>
-                      <p className={`text-xs font-medium leading-relaxed ${isDarkTheme ? 'text-slate-400' : 'text-slate-600'}`}>{about.story || 'Mengawali langkah kecil demi mendigitalisasi jutaan bisnis lokal.'}</p>
+                    <div className="p-6 rounded-2xl border border-white/20 shadow-sm space-y-3 bg-white/10 backdrop-blur-sm">
+                      <h4 className="font-black uppercase text-xs tracking-wider text-white">Kisah Perjalanan</h4>
+                      <p className="text-xs font-medium leading-relaxed text-white/80">{about.story || 'Mengawali langkah kecil demi mendigitalisasi jutaan bisnis lokal.'}</p>
                     </div>
                   </div>
                 </div>
@@ -629,15 +636,15 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
           case 'advantages':
             return (
-              <section key="advantages" className={`${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'} ${isDarkTheme ? 'bg-[#0f172a]' : 'bg-slate-900 text-white'}`}>
+              <section key="advantages" className={`${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'}`} style={{ backgroundColor: primaryColor, color: '#ffffff' }}>
                 <div className={`max-w-4xl mx-auto grid gap-8 ${isMobile ? 'grid-cols-1 gap-6' : 'grid-cols-1 md:grid-cols-3'}`}>
                   {advantages.map((adv, i) => (
                     <div key={i} className="text-center space-y-4">
-                      <div className="w-14 h-14 bg-slate-800/80 rounded-2xl flex items-center justify-center mx-auto shadow-inner border border-slate-700/50">
+                      <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center mx-auto shadow-inner border border-white/30 backdrop-blur-sm">
                         {renderIcon(adv.icon)}
                       </div>
-                      <h4 className="font-black text-base uppercase tracking-tight">{adv.title}</h4>
-                      <p className="text-xs text-slate-400 leading-relaxed">{adv.description}</p>
+                      <h4 className="font-black text-base uppercase tracking-tight text-white">{adv.title}</h4>
+                      <p className="text-xs text-white/90 leading-relaxed">{adv.description}</p>
                     </div>
                   ))}
                 </div>
@@ -667,22 +674,22 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
           case 'testimonials':
             return (
-              <section id="testimonials" key="testimonials" className={`border-y ${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'} ${isDarkTheme ? 'bg-[#111827]/40 border-slate-900' : 'bg-slate-100/50 border-slate-200/50'}`}>
+              <section id="testimonials" key="testimonials" className={`border-y ${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'}`} style={{ backgroundColor: primaryColor, color: '#ffffff' }}>
                 <div className={`max-w-4xl mx-auto text-center ${isMobile ? 'space-y-6' : 'space-y-12'}`}>
                   <div className="space-y-3">
-                    <h2 className={`font-black uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Apa Kata Klien Kami?</h2>
-                    <div className="w-16 h-1.5 mx-auto rounded-full" style={{ backgroundColor: primaryColor }} />
+                    <h2 className={`font-black uppercase tracking-tight text-white ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Apa Kata Klien Kami?</h2>
+                    <div className="w-16 h-1.5 mx-auto rounded-full bg-white/30" />
                   </div>
                   <div className={`grid gap-8 text-left ${isMobile ? 'grid-cols-1 gap-6' : 'grid-cols-1 md:grid-cols-2'}`}>
                     {testimonials.map((t, i) => (
-                      <div key={i} className={`p-8 rounded-3xl border shadow-sm space-y-4 ${cardColor}`}>
+                      <div key={i} className="p-8 rounded-3xl border border-white/20 shadow-sm space-y-4 bg-white/10 backdrop-blur-sm">
                         <div className="flex gap-1">
-                          {[1, 2, 3, 4, 5].map(n => <Star key={n} className="w-4 h-4 text-yellow-500 fill-current" />)}
+                          {[1, 2, 3, 4, 5].map(n => <Star key={n} className="w-4 h-4 text-yellow-400 fill-current" />)}
                         </div>
-                        <p className="text-xs text-slate-500 italic font-medium leading-relaxed">"{t.content}"</p>
-                        <div className="flex items-center gap-3 border-t border-slate-100 dark:border-slate-800 pt-4">
-                          <img src={t.photo || `https://i.pravatar.cc/100?img=${i}`} alt={t.name} className="w-10 h-10 rounded-full object-cover" />
-                          <h5 className="text-xs font-black uppercase tracking-wider">{t.name}</h5>
+                        <p className="text-xs text-white/90 italic font-medium leading-relaxed">"{t.content}"</p>
+                        <div className="flex items-center gap-3 border-t border-white/20 pt-4">
+                          <img src={t.photo || `https://i.pravatar.cc/100?img=${i}`} alt={t.name} className="w-10 h-10 rounded-full object-cover border-2 border-white/30" />
+                          <h5 className="text-xs font-black uppercase tracking-wider text-white">{t.name}</h5>
                         </div>
                       </div>
                     ))}

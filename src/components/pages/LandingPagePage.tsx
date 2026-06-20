@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   ArrowLeft, ArrowRight, ArrowUpRight, FileText, Zap, Sparkles,
-  Send, Edit3, Upload
+  Send, Edit3, Upload, ChevronDown, Bot
 } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -46,6 +46,23 @@ const LandingPagePage = ({
   setCmsSubTab,
   isPublishing,
 }: LandingPagePageProps) => {
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const categoryRef = useRef<HTMLDivElement>(null);
+  const templateRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (categoryRef.current && !categoryRef.current.contains(event.target as Node)) {
+        if (openDropdown === 'category') setOpenDropdown(null);
+      }
+      if (templateRef.current && !templateRef.current.contains(event.target as Node)) {
+        if (openDropdown === 'template') setOpenDropdown(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [openDropdown]);
+
   if (cmsNavMode === 'setup-progress') {
     return (
       <div className="max-w-4xl mx-auto h-[70vh] flex flex-col items-center justify-center text-center space-y-10 animate-in fade-in duration-700">
@@ -84,9 +101,24 @@ const LandingPagePage = ({
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <div className="bg-brand-blue/10 w-20 h-20 rounded-3xl flex items-center justify-center mb-1">
-                <Zap className="w-10 h-10 text-brand-blue animate-bounce" />
-              </div>
+              <motion.div 
+                animate={{ y: [0, -8, 0] }} 
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                className="bg-brand-blue/10 w-20 h-20 rounded-3xl flex items-center justify-center mb-1 relative"
+              >
+                <Bot className="w-10 h-10 text-brand-blue" />
+                {/* Thinking indicator dots */}
+                <motion.div 
+                  animate={{ opacity: [0, 1, 0], scale: [0.8, 1.2, 0.8] }}
+                  transition={{ duration: 1.5, repeat: Infinity, delay: 0 }}
+                  className="absolute top-2 right-2 w-2 h-2 bg-amber-400 rounded-full shadow-[0_0_5px_#fbbf24]"
+                />
+                <motion.div 
+                  animate={{ opacity: [0, 1, 0], scale: [0.8, 1.2, 0.8] }}
+                  transition={{ duration: 1.5, repeat: Infinity, delay: 0.5 }}
+                  className="absolute top-0 right-0 w-1.5 h-1.5 bg-brand-blue rounded-full shadow-[0_0_5px_blue]"
+                />
+              </motion.div>
               <span className="text-xl font-black text-slate-900 dark:text-white">{genProgress}%</span>
             </div>
           </div>
@@ -123,10 +155,26 @@ const LandingPagePage = ({
     return (
       <div className="max-w-4xl mx-auto h-[60vh] flex flex-col items-center justify-center text-center space-y-8 animate-in fade-in duration-500">
         <div className="relative">
-          <div className="w-24 h-24 border-4 border-slate-100 dark:border-slate-800 rounded-full"></div>
-          <div className="absolute top-0 left-0 w-24 h-24 border-4 border-brand-blue rounded-full border-t-transparent animate-spin"></div>
+          <div className="w-36 h-36 border-[5px] border-slate-100 dark:border-slate-800 rounded-full"></div>
+          <div className="absolute top-0 left-0 w-36 h-36 border-[5px] border-brand-blue rounded-full border-t-transparent animate-spin"></div>
           <div className="absolute inset-0 flex items-center justify-center">
-            <Zap className="w-8 h-8 text-brand-blue animate-pulse" />
+            <motion.div 
+              animate={{ y: [0, -6, 0] }} 
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              className="relative flex items-center justify-center"
+            >
+              <Bot className="w-16 h-16 text-amber-500" />
+              <motion.div 
+                animate={{ opacity: [0, 1, 0], scale: [0.8, 1.2, 0.8] }}
+                transition={{ duration: 1.5, repeat: Infinity, delay: 0 }}
+                className="absolute top-0 -right-2 w-3 h-3 bg-amber-400 rounded-full shadow-[0_0_8px_#fbbf24]"
+              />
+              <motion.div 
+                animate={{ opacity: [0, 1, 0], scale: [0.8, 1.2, 0.8] }}
+                transition={{ duration: 1.5, repeat: Infinity, delay: 0.5 }}
+                className="absolute -top-2 right-2 w-2 h-2 bg-orange-500 rounded-full shadow-[0_0_8px_orange]"
+              />
+            </motion.div>
           </div>
         </div>
         <div>
@@ -202,10 +250,11 @@ const LandingPagePage = ({
           </div>
 
           {/* Actual Website Content Preview */}
-          <div className="h-[70vh] overflow-y-auto bg-slate-50 dark:bg-slate-950 p-8 custom-scrollbar">
-            <div className="max-w-4xl mx-auto space-y-24 py-12">
-              {/* Hero Section */}
-              <section className="text-center space-y-8 py-12">
+          <div className="h-[70vh] overflow-y-auto bg-slate-50 dark:bg-slate-950 custom-scrollbar pb-12">
+            
+            {/* Hero Section */}
+            <div className="px-8">
+              <section className="max-w-4xl mx-auto text-center space-y-8 py-20">
                 <div className="inline-block px-4 py-1.5 bg-brand-blue/10 text-brand-blue rounded-full text-[10px] font-black uppercase tracking-[0.2em] animate-bounce">
                   🚀 Launching Soon
                 </div>
@@ -215,34 +264,45 @@ const LandingPagePage = ({
                 <p className="text-lg text-slate-500 dark:text-slate-400 font-medium max-w-2xl mx-auto leading-relaxed">
                   {generatedDraft.subheadline}
                 </p>
-                <button className="px-10 py-5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl text-[12px] font-black uppercase tracking-[0.2em] shadow-2xl">
+                <button className="px-10 py-5 bg-brand-blue text-white rounded-2xl text-[12px] font-black uppercase tracking-[0.2em] shadow-blue-lg hover:-translate-y-1 transition-transform">
                   {generatedDraft.cta}
                 </button>
               </section>
+            </div>
 
-              {/* Features/About Section */}
-              <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {['Premium Quality', 'Agentic Workflow', 'High Efficiency'].map((feat, i) => (
-                  <div key={i} className="bg-white dark:bg-slate-900 p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm text-center group hover:-translate-y-2 transition-all">
-                    <div className="w-12 h-12 bg-brand-blue/10 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
-                      <Sparkles className="w-6 h-6 text-brand-blue" />
+            {/* Features Section (Alternating - Theme Color Background) */}
+            <section className="bg-brand-blue py-20 px-8">
+              <div className="max-w-4xl mx-auto text-center space-y-12">
+                <div className="space-y-3">
+                  <h2 className="text-3xl font-black text-white uppercase tracking-tight">Keunggulan Layanan</h2>
+                  <div className="w-16 h-1.5 mx-auto rounded-full bg-white/30" />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  {['Premium Quality', 'Agentic Workflow', 'High Efficiency'].map((feat, i) => (
+                    <div key={i} className="bg-white/10 backdrop-blur-sm p-8 rounded-3xl border border-white/20 shadow-sm text-center group hover:-translate-y-2 transition-all">
+                      <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                        <Sparkles className="w-6 h-6 text-white" />
+                      </div>
+                      <h4 className="text-sm font-black text-white uppercase mb-3">{feat}</h4>
+                      <p className="text-[11px] text-white/80 leading-relaxed">Optimal dalam setiap detail untuk mendukung pertumbuhan bisnis Anda secara organik.</p>
                     </div>
-                    <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase mb-3">{feat}</h4>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">Optimal dalam setiap detail untuk mendukung pertumbuhan bisnis Anda secara organik.</p>
-                  </div>
-                ))}
-              </section>
+                  ))}
+                </div>
+              </div>
+            </section>
 
-              {/* Standard sections */}
+            {/* Standard sections (Alternating back to White) */}
+            <div className="px-8">
               {['Tentang Kami', 'Produk/Layanan', 'Galeri'].map((section, i) => (
-                <section key={i} className="py-12 border-t border-slate-100 dark:border-slate-800 text-center">
-                  <h2 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight uppercase mb-4">{section}</h2>
-                  <div className="w-20 h-1 bg-brand-blue mx-auto rounded-full mb-8" />
-                  <div className="bg-slate-100 dark:bg-slate-900 rounded-3xl aspect-video flex items-center justify-center border border-slate-200 dark:border-slate-800">
+                <section key={i} className={`py-20 ${i > 0 ? 'border-t border-slate-100 dark:border-slate-800' : ''} text-center max-w-4xl mx-auto`}>
+                  <h2 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight mb-4">{section}</h2>
+                  <div className="w-20 h-1.5 bg-brand-blue mx-auto rounded-full mb-12" />
+                  <div className="bg-slate-100 dark:bg-slate-900 rounded-3xl aspect-video flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-sm">
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">[ Placeholder Content for {section} ]</p>
                   </div>
                 </section>
               ))}
+            </div>
 
               <footer className="py-12 border-t border-slate-100 dark:border-slate-800 text-center">
                 <p className="text-[10px] font-black text-slate-400 tracking-widest mb-4">© 2026 {manualData.name || 'Situs Bisnis AI'}. Dipersembahkan oleh UNI-LandFarm.</p>
@@ -255,7 +315,6 @@ const LandingPagePage = ({
             </div>
           </div>
         </div>
-      </div>
     );
   }
 
@@ -380,33 +439,55 @@ const LandingPagePage = ({
                 <p className="text-[9px] text-slate-400 mt-1.5 font-medium italic">Masukkan nama domain/subdomain: contohbrand.uniland.ai</p>
                 {formErrors.subdomain && <p className="text-[8px] font-black text-red-500 mt-1 uppercase">{formErrors.subdomain}</p>}
               </div>
-              <div>
+              <div className="relative" ref={categoryRef}>
                 <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Kategori Bisnis</label>
-                <select
-                  value={manualData.category}
-                  onChange={(e) => setManualData({ ...manualData, category: e.target.value })}
-                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold dark:text-white outline-none appearance-none text-slate-500"
+                <div
+                  onClick={() => setOpenDropdown(openDropdown === 'category' ? null : 'category')}
+                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold dark:text-white cursor-pointer flex justify-between items-center hover:border-brand-blue/50 transition-colors"
                 >
-                  <option>E-Commerce / Toko Online</option>
-                  <option>Portfolio</option>
-                  <option>Company Profile</option>
-                  <option>Jasa Profesional</option>
-                  <option>Kuliner & Cafe</option>
-                  <option>Teknologi & Startup</option>
-                </select>
+                  <span className={manualData.category ? "text-slate-800 dark:text-white" : "text-slate-400"}>
+                    {manualData.category || "Pilih kategori"}
+                  </span>
+                  <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${openDropdown === 'category' ? 'rotate-180' : ''}`} />
+                </div>
+                {openDropdown === 'category' && (
+                  <div className="absolute z-50 w-full mt-2 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl shadow-xl overflow-hidden py-1 animate-in fade-in slide-in-from-top-2">
+                    {['E-Commerce / Toko Online', 'Portfolio', 'Company Profile', 'Jasa Profesional', 'Kuliner & Cafe', 'Teknologi & Startup'].map((cat) => (
+                      <div
+                        key={cat}
+                        onClick={() => { setManualData({ ...manualData, category: cat }); setOpenDropdown(null); }}
+                        className={`px-4 py-2.5 text-sm font-bold cursor-pointer transition-colors ${manualData.category === cat ? 'bg-brand-blue/10 text-brand-blue' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+                      >
+                        {cat}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-              <div>
+              <div className="relative" ref={templateRef}>
                 <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Template Website</label>
-                <select
-                  value={manualData.template}
-                  onChange={(e) => setManualData({ ...manualData, template: e.target.value })}
-                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold dark:text-white outline-none appearance-none text-slate-500"
+                <div
+                  onClick={() => setOpenDropdown(openDropdown === 'template' ? null : 'template')}
+                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold dark:text-white cursor-pointer flex justify-between items-center hover:border-brand-blue/50 transition-colors"
                 >
-                  <option>Modern Dark Pro (Recommended)</option>
-                  <option>Clean Light Agency</option>
-                  <option>Minimalist Portfolio</option>
-                  <option>Bold Storefront</option>
-                </select>
+                  <span className={manualData.template ? "text-slate-800 dark:text-white" : "text-slate-400"}>
+                    {manualData.template || "Pilih template"}
+                  </span>
+                  <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${openDropdown === 'template' ? 'rotate-180' : ''}`} />
+                </div>
+                {openDropdown === 'template' && (
+                  <div className="absolute z-50 w-full mt-2 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-xl shadow-xl overflow-hidden py-1 animate-in fade-in slide-in-from-top-2">
+                    {['Modern Dark Pro (Recommended)', 'Clean Light Agency', 'Minimalist Portfolio', 'Bold Storefront'].map((tpl) => (
+                      <div
+                        key={tpl}
+                        onClick={() => { setManualData({ ...manualData, template: tpl }); setOpenDropdown(null); }}
+                        className={`px-4 py-2.5 text-sm font-bold cursor-pointer transition-colors ${manualData.template === tpl ? 'bg-brand-blue/10 text-brand-blue' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+                      >
+                        {tpl}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -490,13 +571,13 @@ const LandingPagePage = ({
           <div className="flex flex-col sm:flex-row gap-4">
             <button
               onClick={() => setCmsNavMode('landing')}
-              className="px-8 py-4 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-bold uppercase text-slate-500 whitespace-nowrap border border-transparent hover:border-slate-300 dark:hover:border-slate-700 transition-all"
+              className="px-8 py-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl text-xs font-bold uppercase text-slate-500 whitespace-nowrap border border-slate-200 dark:border-slate-700 hover:bg-amber-50 dark:hover:bg-amber-900/30 hover:text-amber-600 dark:hover:text-amber-400 hover:border-amber-200 dark:hover:border-amber-700 transition-all"
             >
               Kembali
             </button>
             <button
               onClick={handleManualSetup}
-              className="flex-1 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-xs font-bold uppercase tracking-widest shadow-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+              className="flex-1 py-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-amber-500/20 hover:shadow-xl hover:shadow-amber-500/40 hover:-translate-y-0.5 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
             >
               Mulai Setup Website
               <ArrowRight className="w-3.5 h-3.5" />

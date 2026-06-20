@@ -53,7 +53,7 @@ export default async function PublicSitePage({ params }: { params: Promise<{ slu
     }
   }
 
-  const rawContentJson = page.content?.contentJson || page.template?.defaultContent || {};
+  const rawContentJson = (page.content?.contentJson || page.template?.defaultContent || {}) as any;
   let finalContentJson = rawContentJson;
   let pageTitle = page.title;
 
@@ -91,6 +91,7 @@ export default async function PublicSitePage({ params }: { params: Promise<{ slu
         title: pageTitle,
         pages: rawContentJson.pages || [{ slug: '/', name: 'Beranda' }]
       }}
+      themeColor={page.themeColor}
     />
   );
 }

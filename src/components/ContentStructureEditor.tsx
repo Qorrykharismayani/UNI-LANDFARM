@@ -67,6 +67,7 @@ const getSectionIcon = (type: string, active: boolean) => {
 };
 
 const getSectionDefaultTitle = (type: string) => {
+  if (!type) return '';
   switch (type) {
     case 'logo': return 'Logo Website';
     case 'navbar': return 'Menu Navigasi';
@@ -122,6 +123,7 @@ interface ContentStructureEditorProps {
 export default function ContentStructureEditor({ pageId, onBack, onPublishSuccess, onCreateNewPage }: ContentStructureEditorProps) {
   const [loading, setLoading] = useState(true);
   const [pageData, setPageData] = useState<any>(null);
+  const [isAiPage, setIsAiPage] = useState<boolean>(false);
   const [contentJson, setRawContentJson] = useState<any>(null);
   const [sitePages, setSitePages] = useState<any[]>([]);
   const [currentPageSlug, setCurrentPageSlug] = useState<string>('/');
@@ -167,10 +169,16 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
     if (typeof newContent === 'function') {
       setRawContentJson((prev: any) => {
         const updated = newContent(prev);
+        if (updated && (isAiPage || updated.isAiGenerated)) {
+          updated.isAiGenerated = true;
+        }
         syncContentAndSections(updated);
         return updated;
       });
     } else {
+      if (newContent && (isAiPage || newContent.isAiGenerated)) {
+        newContent.isAiGenerated = true;
+      }
       setRawContentJson(newContent);
       syncContentAndSections(newContent);
     }
@@ -183,6 +191,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
   const [editorToast, setEditorToast] = useState<string | null>(null);
   const [showPublishConfirm, setShowPublishConfirm] = useState(false);
   const [isSubmittingPublish, setIsSubmittingPublish] = useState(false);
+  const [isUrlCopied, setIsUrlCopied] = useState(false);
 
   // Active Main Tab state
   const [activeTab, setActiveTab] = useState<'sections' | 'ai_writer' | 'preview'>('sections');
@@ -246,7 +255,6 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
     setTimeout(() => setEditorToast(null), 3000);
   };
 
-  // Fetch page data on mount
   useEffect(() => {
     const fetchPage = async () => {
       try {
@@ -267,6 +275,17 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
             setCurrentPageSlug('/');
             initialContent = fetchedContent;
           }
+
+          const isAi = !!(
+            fetchedContent.isAiGenerated || 
+            initialContent?.isAiGenerated || 
+            fetchedContent.themeColor || 
+            initialContent?.themeColor ||
+            page.themeColor ||
+            (fetchedContent.pages && fetchedContent.pages.some((p: any) => p.content?.isAiGenerated || p.content?.themeColor))
+          );
+          setIsAiPage(isAi);
+
           const defaultSectionsList = [
             { id: 'logo', type: 'logo', title: 'Logo Website', isActive: true, order: 1 },
             { id: 'navbar', type: 'navbar', title: 'Menu Navigasi', isActive: true, order: 2 },
@@ -283,25 +302,68 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
             { id: 'footer', type: 'footer', title: 'Footer Halaman', isActive: true, order: 13 }
           ];
 
-          const loadedSections = initialContent.sections || defaultSectionsList;
-          const mappedSections = loadedSections.map((s: any, idx: number) => {
-            const secType = s.type || s.id;
-            const secTitle = s.title || s.name || getSectionDefaultTitle(secType);
-            const secActive = s.isActive !== undefined ? s.isActive : (s.status === 'Aktif');
-            const secContent = s.content || initialContent[s.id] || getSectionDefaultContent(secType, page.businessName, page.title);
+          const mappedSections = defaultSectionsList.map((defaultSec) => {
+            let aiSec = null;
+            let isStr = false;
+
+            if (Array.isArray(initialContent.sections)) {
+              aiSec = initialContent.sections.find((s: any) => {
+                if (typeof s === 'string') return s === defaultSec.id || s === defaultSec.type;
+                return s.id === defaultSec.id || s.type === defaultSec.type;
+              });
+              if (aiSec) isStr = typeof aiSec === 'string';
+            }
+
+            const secType = defaultSec.type;
+            const secTitle = defaultSec.title;
+            
+            let secActive = defaultSec.isActive;
+            if (aiSec && !isStr && aiSec.isActive !== undefined) {
+              secActive = aiSec.isActive;
+            } else if (aiSec && !isStr && aiSec.status !== undefined) {
+              secActive = (aiSec.status === 'Aktif' || aiSec.status === true);
+            }
+
+            const secContent = initialContent[defaultSec.id] || 
+              (aiSec && !isStr && aiSec.content ? aiSec.content : null) || 
+              getSectionDefaultContent(secType, page.businessName, page.title);
+
             return {
-              id: s.id,
+              id: defaultSec.id,
               type: secType,
               title: secTitle,
               isActive: secActive,
-              order: s.order || (idx + 1),
+              order: defaultSec.order,
               content: secContent
             };
           });
+
+          // Append any custom sections from AI that weren't in the default list
+          if (Array.isArray(initialContent.sections)) {
+            initialContent.sections.forEach((aiSec: any) => {
+              const secType = typeof aiSec === 'string' ? aiSec : (aiSec.type || aiSec.id);
+              if (!secType) return;
+              
+              const exists = mappedSections.find(s => s.type === secType || s.id === secType);
+              if (!exists) {
+                const isStr = typeof aiSec === 'string';
+                mappedSections.push({
+                  id: isStr ? aiSec : (aiSec.id || secType),
+                  type: secType,
+                  title: isStr ? getSectionDefaultTitle(secType) : (aiSec.title || aiSec.name || getSectionDefaultTitle(secType)),
+                  isActive: isStr ? true : (aiSec.isActive !== undefined ? aiSec.isActive : (aiSec.status === 'Aktif' || aiSec.status === true || aiSec.status === undefined)),
+                  order: mappedSections.length + 1,
+                  content: isStr ? (initialContent[aiSec] || getSectionDefaultContent(secType, page.businessName, page.title)) : (aiSec.content || initialContent[aiSec.id] || getSectionDefaultContent(secType, page.businessName, page.title))
+                });
+              }
+            });
+          }
           setSections(mappedSections);
 
           // Ensure standard structure is populated
           const normalized = {
+            isAiGenerated: isAi,
+            themeColor: initialContent.themeColor || fetchedContent.themeColor || page.themeColor || null,
             sections: mappedSections.map(s => ({
               id: s.id,
               type: s.type,
@@ -770,11 +832,17 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(publicSiteUrl);
+                    setIsUrlCopied(true);
                     triggerToast('URL disalin ke clipboard!');
+                    setTimeout(() => setIsUrlCopied(false), 2000);
                   }}
-                  className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-bold uppercase tracking-widest transition-colors cursor-pointer shrink-0"
+                  className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all cursor-pointer shrink-0 ${isUrlCopied ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-500/20' : 'bg-slate-900 hover:bg-slate-800 text-white'}`}
                 >
-                  Salin URL
+                  {isUrlCopied ? (
+                    <span className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5" /> Tersalin!</span>
+                  ) : (
+                    'Salin URL'
+                  )}
                 </button>
               </div>
             </div>
@@ -850,7 +918,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
               </div>
               <div className="bg-[#F8FAFC] p-4 rounded-xl border border-[#E2E8F0]">
                 <span className="text-[8.5px] font-black text-slate-400 uppercase tracking-wider block mb-1">Template</span>
-                <span className="font-extrabold text-slate-800 truncate block uppercase leading-snug">{pageData?.template?.name || pageData?.template || '-'}</span>
+                <span className="font-extrabold text-slate-800 truncate block uppercase leading-snug">{isAiPage ? 'Generate AI' : (pageData?.template?.name || pageData?.template || '-')}</span>
               </div>
               <div className="bg-[#F8FAFC] p-4 rounded-xl border border-[#E2E8F0]">
                 <span className="text-[8.5px] font-black text-slate-400 uppercase tracking-wider block mb-1">URL Slug</span>
@@ -926,11 +994,17 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                   <button
                     onClick={() => {
                       navigator.clipboard.writeText(publicSiteUrl);
+                      setIsUrlCopied(true);
                       triggerToast('Link disalin ke clipboard!');
+                      setTimeout(() => setIsUrlCopied(false), 2000);
                     }}
-                    className="flex-1 py-2.5 bg-[#F8FAFC] hover:bg-slate-100 border border-[#E2E8F0] text-slate-700 rounded-xl text-xs font-bold uppercase tracking-widest transition-all cursor-pointer text-center"
+                    className={`flex-1 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all cursor-pointer text-center flex items-center justify-center ${isUrlCopied ? 'bg-green-50 hover:bg-green-100 border border-green-200 text-green-700' : 'bg-[#F8FAFC] hover:bg-slate-100 border border-[#E2E8F0] text-slate-700'}`}
                   >
-                    Salin URL
+                    {isUrlCopied ? (
+                      <span className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5" /> Tersalin</span>
+                    ) : (
+                      'Salin URL'
+                    )}
                   </button>
                   {status === 'Published' && (
                     <button
@@ -1023,7 +1097,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
               </span>
             </div>
             <div className="flex items-center gap-2 text-[15px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mt-1.5">
-              <span>Template: {pageData?.template?.name || pageData?.template}</span>
+              <span>{isAiPage ? 'Generate AI' : `Template: ${pageData?.template?.name || pageData?.template || 'Software SaaS'}`}</span>
               <span>•</span>
               <span className={saveStatus === 'Saving' ? 'text-amber-500 animate-pulse' : saveStatus === 'Error' ? 'text-red-500' : 'text-emerald-500'}>
                 {saveStatus === 'Saving' ? 'Menyimpan...' : saveStatus === 'Error' ? 'Gagal menyimpan' : 'Draft Tersimpan'}
@@ -1197,7 +1271,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
 
                   return (
                     <div
-                      key={sec.id}
+                      key={sec.id || `section-${idx}`}
                       draggable
                       onDragStart={(e) => {
                         e.dataTransfer.effectAllowed = 'move';
@@ -1990,8 +2064,8 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                     onChange={(e) => setActiveAccordion(e.target.value)}
                     className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-extrabold text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all"
                   >
-                    {sections.map(s => (
-                      <option key={s.id} value={s.id}>{s.title || s.name}</option>
+                    {sections.map((s, idx) => (
+                      <option key={s.id || `opt-${idx}`} value={s.id}>{s.title || s.name}</option>
                     ))}
                   </select>
                 </div>
@@ -2330,6 +2404,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                     templateId={pageData?.template?.id || pageData?.template?.name}
                     contentJson={contentJson}
                     isMobile={previewMode === 'mobile'}
+                    themeColor={pageData?.themeColor}
                   />
                 </div>
               </div>
