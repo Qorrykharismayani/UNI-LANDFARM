@@ -925,6 +925,13 @@ export default function ContentStructureEditor({
         {/* Header (Vercel/Notion Style) */}
         <div className="h-[64px] px-6 border-b border-[#E2E8F0] dark:border-white/5 flex items-center justify-between bg-white dark:bg-[#0F172A] shrink-0 shadow-sm z-30 transition-colors duration-300">
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowPublishConfirm(false)}
+              className="w-8 h-8 flex items-center justify-center bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-[#E2E8F0] dark:border-slate-700 rounded-lg transition-all cursor-pointer"
+              title="Kembali ke Editor"
+            >
+              <ArrowLeft className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+            </button>
             <h1 className="text-sm font-black uppercase tracking-widest text-[#0F172A] dark:text-white flex items-center gap-2">
               🚀 Publish Landing Page
             </h1>
@@ -935,12 +942,6 @@ export default function ContentStructureEditor({
             </span>
           </div>
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => setShowPublishConfirm(false)}
-              className="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-[#E2E8F0] dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-[#0F172A] dark:hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer"
-            >
-              Kembali ke Editor
-            </button>
             <button
               onClick={toggleTheme}
               className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-brand-blue dark:hover:text-brand-blue transition-all cursor-pointer flex items-center justify-center"
