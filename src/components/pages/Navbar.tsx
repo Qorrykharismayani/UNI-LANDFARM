@@ -58,6 +58,7 @@ const Navbar = ({ setView, currentView, theme, toggleTheme, user }: NavbarProps)
           </motion.button>
           
           <div className="hidden lg:flex items-center gap-2">
+<<<<<<< HEAD
             {user ? (
               <motion.button 
                 onClick={() => setView('dashboard')}
@@ -93,6 +94,40 @@ const Navbar = ({ setView, currentView, theme, toggleTheme, user }: NavbarProps)
                 </motion.button>
               </>
             )}
+=======
+            <motion.button 
+              onClick={() => setView('login')}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={`px-6 py-2.5 text-[15px] font-black transition-all rounded-full hover:bg-slate-100 dark:hover:bg-slate-900/60 cursor-pointer ${currentView === 'login' ? 'text-brand-blue' : 'text-slate-600 dark:text-slate-300 hover:text-brand-blue dark:hover:text-brand-blue'}`}
+            >
+<<<<<<< HEAD
+<<<<<<< HEAD
+              Login
+=======
+              Masuk
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+              Login
+>>>>>>> orry
+            </motion.button>
+            <motion.button 
+              onClick={() => setView('signup')}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={`px-6 py-2.5 text-[15px] font-black transition-all rounded-full hover:bg-slate-100 dark:hover:bg-slate-900/60 cursor-pointer ${currentView === 'signup' ? 'text-brand-blue' : 'text-slate-600 dark:text-slate-300 hover:text-brand-blue dark:hover:text-brand-blue'}`}
+            >
+<<<<<<< HEAD
+<<<<<<< HEAD
+              Sign Up
+=======
+              Daftar
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+              Sign Up
+>>>>>>> orry
+            </motion.button>
+>>>>>>> 3737b9fd17a468cded17027aa16d1f630a9caf49
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -126,6 +161,7 @@ const Navbar = ({ setView, currentView, theme, toggleTheme, user }: NavbarProps)
               ))}
               <div className="h-px bg-slate-100 dark:bg-slate-800 my-2"></div>
               <div className="grid grid-cols-2 gap-4 pt-2">
+<<<<<<< HEAD
                 {user ? (
                   <motion.button 
                     onClick={() => { setView('dashboard'); setIsMobileMenuOpen(false); }}
@@ -155,6 +191,40 @@ const Navbar = ({ setView, currentView, theme, toggleTheme, user }: NavbarProps)
                     </motion.button>
                   </>
                 )}
+=======
+                <motion.button 
+                  onClick={() => { setView('login'); setIsMobileMenuOpen(false); }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-black text-sm cursor-pointer"
+                >
+<<<<<<< HEAD
+<<<<<<< HEAD
+                  Login
+=======
+                  Masuk
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+                  Login
+>>>>>>> orry
+                </motion.button>
+                <motion.button 
+                  onClick={() => { setView('signup'); setIsMobileMenuOpen(false); }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-black text-sm cursor-pointer"
+                >
+<<<<<<< HEAD
+<<<<<<< HEAD
+                  Sign Up
+=======
+                  Daftar
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+                  Sign Up
+>>>>>>> orry
+                </motion.button>
+>>>>>>> 3737b9fd17a468cded17027aa16d1f630a9caf49
               </div>
             </div>
           </motion.div>

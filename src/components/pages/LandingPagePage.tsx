@@ -23,7 +23,17 @@ interface LandingPagePageProps {
   handlePublish: () => void;
   setSubView: (v: string) => void;
   setCmsSubTab: (tab: string) => void;
+<<<<<<< HEAD
+<<<<<<< HEAD
   isPublishing?: boolean;
+=======
+  templates: any[];
+  isPublishing?: boolean;
+  setActivePageId?: (id: string) => void;
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+  isPublishing?: boolean;
+>>>>>>> orry
 }
 
 const LandingPagePage = ({
@@ -44,7 +54,17 @@ const LandingPagePage = ({
   handlePublish,
   setSubView,
   setCmsSubTab,
+<<<<<<< HEAD
+<<<<<<< HEAD
   isPublishing,
+=======
+  templates = [],
+  isPublishing = false,
+  setActivePageId,
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+  isPublishing,
+>>>>>>> orry
 }: LandingPagePageProps) => {
   if (cmsNavMode === 'setup-progress') {
     return (
@@ -117,7 +137,14 @@ const LandingPagePage = ({
     );
   }
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 
+=======
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+
+>>>>>>> orry
 
   if (isGenerating) {
     return (
@@ -164,11 +191,26 @@ const LandingPagePage = ({
               <Edit3 className="w-3 h-3" /> Edit Struktur Konten
             </button>
             <button
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> orry
               onClick={handlePublish}
               disabled={isPublishing}
               className={`px-6 py-2.5 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-blue hover:shadow-blue-lg transition-all flex items-center gap-2 ${
                 isPublishing ? 'bg-brand-blue/70 cursor-not-allowed' : 'bg-brand-blue'
               }`}
+<<<<<<< HEAD
+=======
+              onClick={() => {
+                if (generatedDraft?.id && setActivePageId) setActivePageId(generatedDraft.id);
+                setSubView('cms');
+                setCmsSubTab('publish');
+              }}
+              className="px-6 py-2.5 bg-brand-blue text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-blue hover:shadow-blue-lg transition-all flex items-center gap-2"
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+>>>>>>> orry
             >
               <Send className={`w-3 h-3 ${isPublishing ? 'animate-pulse' : ''}`} /> {isPublishing ? 'Publishing...' : 'Publish Website'}
             </button>

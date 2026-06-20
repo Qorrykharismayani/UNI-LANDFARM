@@ -36,6 +36,13 @@ const DashboardPage = ({
   setShowAdminNoteModal,
   fetchProjects,
 }: DashboardPageProps) => {
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+>>>>>>> orry
   // Calculate dynamic stats from real data
   const totalWeb = userProjects.length;
   const publishedCount = userProjects.filter(p => p.status === 'Published').length;

@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
+<<<<<<< HEAD
+<<<<<<< HEAD
 import { Globe, Eye, Plus, Search, Clipboard, ExternalLink } from 'lucide-react';
+=======
+import { Globe, Eye, Plus, Search, ArrowLeft, Clipboard, ExternalLink } from 'lucide-react';
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+import { Globe, Eye, Plus, Search, Clipboard, ExternalLink } from 'lucide-react';
+>>>>>>> orry
 
 interface AllProjectsPageProps {
   userProjects: any[];
@@ -37,6 +45,13 @@ const AllProjectsPage = ({
     return matchesSearch && matchesStatus;
   });
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+>>>>>>> orry
   return (
     <div className="max-w-6xl mx-auto space-y-8 relative">
       {/* Background Glows for Dark Mode */}
@@ -137,6 +152,10 @@ const AllProjectsPage = ({
                 {/* Actions */}
                 <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-white/5">
                   {project.status === 'Published' ? (
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> orry
                     <div className="grid grid-cols-2 gap-2">
                       <button
                         onClick={(e) => {
@@ -176,6 +195,56 @@ const AllProjectsPage = ({
                       >
                         Salin Link
                       </button>
+<<<<<<< HEAD
+=======
+                    <div className="space-y-2">
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(`/site/${project.slug}`, '_blank');
+                          }}
+                          className="bg-[#22C55E] hover:bg-[#15803D] text-white py-2 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm transition-all flex items-center justify-center gap-1 cursor-pointer"
+                        >
+                          <ExternalLink className="w-2.5 h-2.5" /> Buka Link
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigator.clipboard.writeText(`${window.location.origin}/site/${project.slug}`);
+                            showNotification('Tautan berhasil disalin!', 'success');
+                          }}
+                          className="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-white py-2 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm transition-all flex items-center justify-center gap-1 cursor-pointer"
+                        >
+                          <Clipboard className="w-2.5 h-2.5" /> Salin Link
+                        </button>
+                      </div>
+                    </div>
+                  ) : project.status === 'Inactive' ? (
+                    <div className="space-y-2">
+                      <div className="w-full bg-red-550/10 text-red-500 border border-red-500/20 py-2.5 rounded-xl text-[8px] font-black uppercase tracking-widest text-center">
+                        Situs Dinonaktifkan Admin
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="grid grid-cols-2 gap-2 opacity-50 pointer-events-none">
+                        <button
+                          disabled
+                          className="bg-slate-200 dark:bg-slate-800 text-slate-400 py-2 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm flex items-center justify-center gap-1"
+                        >
+                          Buka Link
+                        </button>
+                        <button
+                          disabled
+                          className="bg-slate-200 dark:bg-slate-800 text-slate-400 py-2 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm flex items-center justify-center gap-1"
+                        >
+                          Salin Link
+                        </button>
+                      </div>
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+>>>>>>> orry
                     </div>
                   )}
                 </div>

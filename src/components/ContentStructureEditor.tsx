@@ -784,12 +784,30 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
               {status}
             </span>
           </div>
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> orry
           <button
             onClick={() => setShowPublishConfirm(false)}
             className="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 border border-[#E2E8F0] text-slate-600 hover:text-[#0F172A] rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer"
           >
             Kembali ke Editor
           </button>
+<<<<<<< HEAD
+=======
+          <div className="flex items-center gap-3">
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-brand-blue dark:hover:text-brand-blue transition-all cursor-pointer flex items-center justify-center"
+              title="Ganti Tema"
+            >
+              {theme === 'dark' ? <Sun className="w-3.5 h-3.5 text-amber-500" /> : <Moon className="w-3.5 h-3.5 text-indigo-500" />}
+            </button>
+          </div>
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+>>>>>>> orry
         </div>
 
         {/* Main Workspace */}
@@ -1982,7 +2000,15 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                       setAiCommand(e.target.value);
                       setSelectedPreset(null);
                     }}
+<<<<<<< HEAD
+<<<<<<< HEAD
                     placeholder="Tuliskan instruksi untuk AI. Contoh: Buat headline yang meyakinkan untuk jasa kebersihan rumah dengan gaya profesional dan terpercaya."
+=======
+                    placeholder="Tuliskan instruksi untuk AI. Contoh: Buat headline diskon 30% menyambut grand opening toko kopi."
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+                    placeholder="Tuliskan instruksi untuk AI. Contoh: Buat headline yang meyakinkan untuk jasa kebersihan rumah dengan gaya profesional dan terpercaya."
+>>>>>>> orry
                     className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 text-xs text-slate-800 dark:text-slate-200 outline-none resize-none h-24 focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all leading-relaxed placeholder:text-slate-400"
                   />
                 </div>
@@ -2047,12 +2073,26 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
 
                       <div className="space-y-3">
                         {aiSuggestions.suggestedData?.headline && (
+<<<<<<< HEAD
+<<<<<<< HEAD
                           <div className="bg-white dark:bg-slate-950 p-3 rounded-lg border border-slate-100 dark:border-slate-800 shadow-sm space-y-1">
                             <span className="text-[9px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest block">Headline / Title</span>
+=======
+                          <div className="bg-white dark:bg-slate-955 p-3 rounded-lg border border-slate-100 dark:border-slate-800 shadow-sm space-y-1">
+                            <span className="text-[9px] font-black text-slate-400 dark:text-slate-455 uppercase tracking-widest block">Headline / Title</span>
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+                          <div className="bg-white dark:bg-slate-950 p-3 rounded-lg border border-slate-100 dark:border-slate-800 shadow-sm space-y-1">
+                            <span className="text-[9px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest block">Headline / Title</span>
+>>>>>>> orry
                             <p className="font-extrabold text-slate-800 dark:text-slate-100 text-xs leading-snug">{aiSuggestions.suggestedData.headline}</p>
                           </div>
                         )}
                         {aiSuggestions.suggestedData?.subheadline && (
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> orry
                           <div className="bg-white dark:bg-slate-950 p-3 rounded-lg border border-slate-100 dark:border-slate-800 shadow-sm space-y-1">
                             <span className="text-[9px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest block">Subheadline / Deskripsi</span>
                             <p className="text-slate-600 dark:text-slate-300 text-xs font-semibold leading-relaxed">{aiSuggestions.suggestedData.subheadline}</p>
@@ -2061,6 +2101,19 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                         {aiSuggestions.suggestedData?.cta && (
                           <div className="bg-white dark:bg-slate-950 p-3 rounded-lg border border-slate-100 dark:border-slate-800 shadow-sm space-y-1">
                             <span className="text-[9px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest block">CTA Button</span>
+<<<<<<< HEAD
+=======
+                          <div className="bg-white dark:bg-slate-955 p-3 rounded-lg border border-slate-100 dark:border-slate-800 shadow-sm space-y-1">
+                            <span className="text-[9px] font-black text-slate-400 dark:text-slate-455 uppercase tracking-widest block">Subheadline / Deskripsi</span>
+                            <p className="text-slate-600 dark:text-slate-350 text-xs font-semibold leading-relaxed">{aiSuggestions.suggestedData.subheadline}</p>
+                          </div>
+                        )}
+                        {aiSuggestions.suggestedData?.cta && (
+                          <div className="bg-white dark:bg-slate-955 p-3 rounded-lg border border-slate-100 dark:border-slate-800 shadow-sm space-y-1">
+                            <span className="text-[9px] font-black text-slate-400 dark:text-slate-455 uppercase tracking-widest block">CTA Button</span>
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+>>>>>>> orry
                             <p className="font-extrabold text-green-600 dark:text-green-400 text-xs uppercase tracking-wider">{aiSuggestions.suggestedData.cta}</p>
                           </div>
                         )}
@@ -2265,15 +2318,33 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
           <div className="absolute inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm" onClick={() => setIsSchedulerModalOpen(false)} />
           <div className="relative w-full max-w-sm bg-white dark:bg-slate-900 rounded-[20px] p-6 space-y-4 shadow-2xl border border-slate-200 dark:border-slate-800 z-10 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
+<<<<<<< HEAD
+<<<<<<< HEAD
               <h3 className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200 flex items-center gap-1.5">📅 Jadwalkan Konten Baru</h3>
               <button onClick={() => setIsSchedulerModalOpen(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+=======
+              <h3 className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200 flex items-center gap-1.5">📅 {editingScheduleId ? 'Edit Jadwal Konten' : 'Jadwalkan Perubahan Konten'}</h3>
+              <button onClick={() => { setIsSchedulerModalOpen(false); setEditingScheduleId(null); }} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 border-none bg-transparent cursor-pointer">
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+              <h3 className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200 flex items-center gap-1.5">📅 Jadwalkan Konten Baru</h3>
+              <button onClick={() => setIsSchedulerModalOpen(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+>>>>>>> orry
                 <X className="w-4 h-4" />
               </button>
             </div>
             
             <div className="space-y-3">
               <div className="space-y-1">
+<<<<<<< HEAD
+<<<<<<< HEAD
                 <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Judul Konten</label>
+=======
+                <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Nama Jadwal</label>
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+                <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Judul Konten</label>
+>>>>>>> orry
                 <input
                   type="text"
                   value={newScheduleTitle}
@@ -2285,12 +2356,37 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
 
 
               <div className="space-y-1">
+<<<<<<< HEAD
+<<<<<<< HEAD
                 <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Waktu Publikasi</label>
+=======
+                <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Nilai Baru (Konten)</label>
+                <textarea
+                  value={newScheduleValue}
+                  onChange={(e) => setNewScheduleValue(e.target.value)}
+                  placeholder="Masukkan nilai baru..."
+                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 outline-none resize-none h-16 focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Waktu Eksekusi</label>
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+                <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Waktu Publikasi</label>
+>>>>>>> orry
                 <input
                   type="text"
                   value={newScheduleDate}
                   onChange={(e) => setNewScheduleDate(e.target.value)}
+<<<<<<< HEAD
+<<<<<<< HEAD
                   placeholder="Contoh: Besok 09:00, atau Jumat 15:30"
+=======
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+                  placeholder="Contoh: Besok 09:00, atau Jumat 15:30"
+>>>>>>> orry
                   className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
                 />
               </div>
