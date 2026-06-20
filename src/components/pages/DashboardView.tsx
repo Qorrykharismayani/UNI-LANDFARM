@@ -137,6 +137,7 @@ interface DashboardViewProps {
   setUser: (u: any) => void;
   systemSettings: any;
   setSystemSettings: (s: any) => void;
+  initialTab?: string;
 }
 
 export const DashboardView = ({ 
@@ -146,9 +147,10 @@ export const DashboardView = ({
   user, 
   setUser, 
   systemSettings, 
-  setSystemSettings 
+  setSystemSettings,
+  initialTab
 }: DashboardViewProps) => {
-  const [subView, setSubView] = useState(() => user?.role === 'ADMIN' ? 'admin_panel' : 'overview');
+  const [subView, setSubView] = useState(() => initialTab || (user?.role === 'ADMIN' ? 'admin_panel' : 'overview'));
   const [adminView, setAdminView] = useState<'dashboard' | 'users' | 'landing_pages' | 'templates' | 'content' | 'profile' | 'analytics'>('dashboard');
   const [isAdminDropdownOpen, setIsAdminDropdownOpen] = useState(false);
 

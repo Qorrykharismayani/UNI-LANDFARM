@@ -233,7 +233,7 @@ const LandingPagePage = ({
               ))}
 
               <footer className="py-12 border-t border-slate-100 dark:border-slate-800 text-center">
-                <p className="text-[10px] font-black text-slate-400 tracking-widest mb-4">© 2024 {manualData.name || 'Situs Bisnis AI'}. Dipersembahkan oleh Uni-LandFarm.</p>
+                <p className="text-[10px] font-black text-slate-400 tracking-widest mb-4">© 2026 {manualData.name || 'Situs Bisnis AI'}. Dipersembahkan oleh UNI-LandFarm.</p>
                 <div className="flex justify-center gap-6">
                   {['Instagram', 'WhatsApp', 'LinkedIn'].map(link => (
                     <span key={link} className="text-[9px] font-black text-brand-blue uppercase cursor-pointer hover:underline">{link}</span>
@@ -441,10 +441,10 @@ const LandingPagePage = ({
                           setManualData({ ...manualData, logo: data.data.fileUrl });
                           if (showNotification) showNotification('Logo berhasil diunggah!', 'success');
                         } else {
-                          if (showNotification) showNotification(data.message || 'Gagal mengunggah logo.', 'error');
+                          if (showNotification) showNotification(data.message || 'Gagal mengunggah logo.', 'info');
                         }
                       } catch (err) {
-                        if (showNotification) showNotification('Koneksi upload bermasalah.', 'error');
+                        if (showNotification) showNotification('Koneksi upload bermasalah.', 'info');
                       }
                     }}
                   />

@@ -7,9 +7,10 @@ interface NavbarProps {
   currentView: string;
   theme: string;
   toggleTheme: () => void;
+  user?: any;
 }
 
-const Navbar = ({ setView, currentView, theme, toggleTheme }: NavbarProps) => {
+const Navbar = ({ setView, currentView, theme, toggleTheme, user }: NavbarProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const menuItems = [
@@ -57,22 +58,41 @@ const Navbar = ({ setView, currentView, theme, toggleTheme }: NavbarProps) => {
           </motion.button>
           
           <div className="hidden lg:flex items-center gap-2">
-            <motion.button 
-              onClick={() => setView('login')}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className={`px-6 py-2.5 text-[15px] font-black transition-all rounded-full hover:bg-slate-100 dark:hover:bg-slate-900/60 cursor-pointer ${currentView === 'login' ? 'text-brand-blue' : 'text-slate-600 dark:text-slate-300 hover:text-brand-blue dark:hover:text-brand-blue'}`}
-            >
-              Login
-            </motion.button>
-            <motion.button 
-              onClick={() => setView('signup')}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className={`px-6 py-2.5 text-[15px] font-black transition-all rounded-full hover:bg-slate-100 dark:hover:bg-slate-900/60 cursor-pointer ${currentView === 'signup' ? 'text-brand-blue' : 'text-slate-600 dark:text-slate-300 hover:text-brand-blue dark:hover:text-brand-blue'}`}
-            >
-              Sign Up
-            </motion.button>
+            {user ? (
+              <motion.button 
+                onClick={() => setView('dashboard')}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center gap-3 pl-2.5 pr-5 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 transition-all cursor-pointer"
+              >
+                <div className="w-8 h-8 rounded-full bg-brand-blue flex items-center justify-center text-white font-black text-xs shadow-md">
+                  {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                </div>
+                <div className="flex flex-col items-start">
+                  <span className="text-[12px] font-black text-slate-900 dark:text-white leading-none mb-0.5 tracking-tight">Dashboard</span>
+                  <span className="text-[10px] text-slate-500 font-bold leading-none">{user.name || 'User Profile'}</span>
+                </div>
+              </motion.button>
+            ) : (
+              <>
+                <motion.button 
+                  onClick={() => setView('login')}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`px-6 py-2.5 text-[15px] font-black transition-all rounded-full hover:bg-slate-100 dark:hover:bg-slate-900/60 cursor-pointer ${currentView === 'login' ? 'text-brand-blue' : 'text-slate-600 dark:text-slate-300 hover:text-brand-blue dark:hover:text-brand-blue'}`}
+                >
+                  Login
+                </motion.button>
+                <motion.button 
+                  onClick={() => setView('signup')}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`px-6 py-2.5 text-[15px] font-black transition-all rounded-full hover:bg-slate-100 dark:hover:bg-slate-900/60 cursor-pointer ${currentView === 'signup' ? 'text-brand-blue' : 'text-slate-600 dark:text-slate-300 hover:text-brand-blue dark:hover:text-brand-blue'}`}
+                >
+                  Sign Up
+                </motion.button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -106,22 +126,35 @@ const Navbar = ({ setView, currentView, theme, toggleTheme }: NavbarProps) => {
               ))}
               <div className="h-px bg-slate-100 dark:bg-slate-800 my-2"></div>
               <div className="grid grid-cols-2 gap-4 pt-2">
-                <motion.button 
-                  onClick={() => { setView('login'); setIsMobileMenuOpen(false); }}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-black text-sm cursor-pointer"
-                >
-                  Login
-                </motion.button>
-                <motion.button 
-                  onClick={() => { setView('signup'); setIsMobileMenuOpen(false); }}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-black text-sm cursor-pointer"
-                >
-                  Sign Up
-                </motion.button>
+                {user ? (
+                  <motion.button 
+                    onClick={() => { setView('dashboard'); setIsMobileMenuOpen(false); }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="col-span-2 py-4 rounded-2xl bg-brand-blue text-white font-black text-sm cursor-pointer flex items-center justify-center gap-3 shadow-lg shadow-blue-500/20"
+                  >
+                    Buka Dashboard
+                  </motion.button>
+                ) : (
+                  <>
+                    <motion.button 
+                      onClick={() => { setView('login'); setIsMobileMenuOpen(false); }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-black text-sm cursor-pointer"
+                    >
+                      Login
+                    </motion.button>
+                    <motion.button 
+                      onClick={() => { setView('signup'); setIsMobileMenuOpen(false); }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-black text-sm cursor-pointer"
+                    >
+                      Sign Up
+                    </motion.button>
+                  </>
+                )}
               </div>
             </div>
           </motion.div>

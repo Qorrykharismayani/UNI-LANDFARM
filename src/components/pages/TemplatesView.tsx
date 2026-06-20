@@ -4,9 +4,10 @@ import { Sparkles, Globe } from 'lucide-react';
 
 interface TemplatePreviewProps {
   setView: (v: string) => void;
+  user?: any;
 }
 
-export const TemplatePreview = ({ setView }: TemplatePreviewProps) => (
+export const TemplatePreview = ({ setView, user }: TemplatePreviewProps) => (
   <section className="py-32 px-6 overflow-hidden bg-white dark:bg-slate-950 relative transition-colors duration-300">
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       <motion.div 
@@ -82,7 +83,7 @@ export const TemplatePreview = ({ setView }: TemplatePreviewProps) => (
                   <button 
                     onClick={() => {
                         window.scrollTo({ top: 0, behavior: 'smooth' });
-                        setView('signup');
+                        setView('templates');
                     }}
                     className="flex-1 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-white bg-brand-blue rounded-lg shadow-blue"
                   >
@@ -100,9 +101,10 @@ export const TemplatePreview = ({ setView }: TemplatePreviewProps) => (
 
 interface TemplatesViewProps {
   setView: (v: string) => void;
+  user?: any;
 }
 
-export const TemplatesView = ({ setView }: TemplatesViewProps) => {
+export const TemplatesView = ({ setView, user }: TemplatesViewProps) => {
   const [activeFilter, setActiveFilter] = useState("Semua");
 
   const allTemplates = [
@@ -211,7 +213,7 @@ export const TemplatesView = ({ setView }: TemplatesViewProps) => {
                     <button 
                       onClick={() => {
                           window.scrollTo({ top: 0, behavior: 'smooth' });
-                          setView('signup');
+                          setView(user ? 'dashboard:templates' : 'signup');
                       }}
                       className="flex-1 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-white bg-brand-blue rounded-lg shadow-blue"
                     >

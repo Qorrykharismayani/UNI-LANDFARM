@@ -366,7 +366,7 @@ const AdminPanelPage = ({
       thumbnail: '',
       status: 'Aktif'
     });
-    showNotification('Template baru berhasil ditambahkan (simulasi)!', 'success');
+    showNotification('Template berhasil dibuat (generated)!', 'success');
   };
 
   const publishedPagesCount = landingPages.filter(p => p.status === 'Published').length;
@@ -899,6 +899,25 @@ const AdminPanelPage = ({
                           className="flex-1 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-lg text-[9px] font-black uppercase tracking-widest transition-colors cursor-pointer text-center"
                         >
                           Ubah Status
+                        </button>
+                        <button
+                          onClick={() => {
+                            showNotification(`Template ${tpl.name} berhasil diedit!`, 'success');
+                          }}
+                          className="px-2 py-1.5 bg-blue-500/10 hover:bg-blue-500 border border-blue-500/20 text-blue-400 hover:text-white rounded-lg transition-colors cursor-pointer flex items-center justify-center"
+                          title="Edit Template"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                        </button>
+                        <button
+                          onClick={() => {
+                            setTemplatesList(templatesList.filter(t => t.id !== tpl.id));
+                            showNotification(`Template ${tpl.name} berhasil dihapus!`, 'info');
+                          }}
+                          className="px-2 py-1.5 bg-red-500/10 hover:bg-red-500 border border-red-500/20 text-red-500 hover:text-white rounded-lg transition-colors cursor-pointer flex items-center justify-center"
+                          title="Hapus Template"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     </div>

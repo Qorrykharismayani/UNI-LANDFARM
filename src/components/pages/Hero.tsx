@@ -5,9 +5,10 @@ import { Sparkles, ArrowRight, Globe, Zap, ShoppingBag } from 'lucide-react';
 interface HeroProps {
   setView: (v: string) => void;
   systemSettings?: any;
+  user?: any;
 }
 
-const Hero = ({ setView, systemSettings }: HeroProps) => (
+const Hero = ({ setView, systemSettings, user }: HeroProps) => (
   <section className="pt-32 pb-48 px-6 overflow-visible relative min-h-[800px] flex items-center transition-colors duration-500 bg-white dark:bg-[#020617]">
     {/* Premium Background & Lighting */}
     <div className="absolute inset-0 bg-gradient-to-br from-white via-slate-50 to-slate-100 dark:from-[#020617] dark:via-[#030712] dark:to-[#010816] pointer-events-none transition-colors duration-500"></div>
@@ -63,7 +64,7 @@ const Hero = ({ setView, systemSettings }: HeroProps) => (
           <motion.button 
             whileHover={{ y: -4, scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={() => setView?.('signup')}
+            onClick={() => setView?.(user ? 'dashboard:buat_situs' : 'signup')}
             className="px-8 py-4 text-[15px] font-black text-white bg-brand-blue rounded-2xl shadow-[0_20px_40px_-10px_rgba(255,176,0,0.5)] hover:shadow-[0_25px_50px_-12px_rgba(255,176,0,0.6)] transition-all flex items-center justify-center gap-4 group"
           >
             Buat Situs Gratis

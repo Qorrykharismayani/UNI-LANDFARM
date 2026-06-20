@@ -22,9 +22,10 @@ import { motion } from 'motion/react';
 
 interface CMSProps {
   setView: (v: string) => void;
+  user?: any;
 }
 
-export const CMSLandingView = ({ setView }: CMSProps) => {
+export const CMSLandingView = ({ setView, user }: CMSProps) => {
   const features = [
     { num: "01", title: "AI Content Assistant", desc: "Membantu membuat, memperbarui, dan mengoptimalkan konten landing page sesuai kebutuhan bisnis Anda.", icon: <Sparkles className="w-5 h-5" /> },
     { num: "02", title: "Knowledge Base Bisnis", desc: "Menyimpan informasi bisnis sebagai referensi AI untuk menghasilkan rekomendasi dan konten yang lebih relevan.", icon: <Database className="w-5 h-5" /> },
@@ -88,7 +89,7 @@ export const CMSLandingView = ({ setView }: CMSProps) => {
             className="pt-2"
           >
             <button 
-              onClick={() => setView('signup')}
+              onClick={() => setView(user ? 'dashboard:cms' : 'signup')}
               className="px-8 py-3.5 bg-brand-blue text-white rounded-xl font-black text-[12px] uppercase tracking-widest transition-all hover:brightness-110 active:scale-95 shadow-[0_15px_30px_-10px_rgba(255,176,0,0.4)]"
             >
               Mulai Kelola Sekarang
@@ -286,7 +287,7 @@ export const CMSLandingView = ({ setView }: CMSProps) => {
   );
 };
 
-export const CMSPreview = ({ setView }: CMSProps) => (
+export const CMSPreview = ({ setView, user }: CMSProps) => (
   <section className="py-20 px-6 bg-slate-50 dark:bg-[#0f172a] text-slate-900 dark:text-white relative overflow-hidden transition-colors duration-300">
     <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 items-center relative z-10">
       <motion.div 

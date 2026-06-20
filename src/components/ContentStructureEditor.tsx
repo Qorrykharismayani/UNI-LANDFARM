@@ -712,7 +712,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
       return (
         <div className="fixed inset-0 bg-[#F8FAFC] text-slate-800 flex flex-col font-sans z-[200] overflow-y-auto items-center justify-center p-6">
           <div className="max-w-md w-full bg-white border border-[#E2E8F0] p-8 rounded-3xl shadow-xl text-center space-y-6 animate-in zoom-in-95 duration-200">
-            <div className="w-20 h-20 bg-[#DCFCE7] text-[#22C55E] rounded-full flex items-center justify-center mx-auto text-4xl shadow-inner animate-bounce">
+            <div className="w-20 h-20 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center mx-auto text-4xl shadow-inner animate-bounce border border-amber-200">
               🎉
             </div>
             
@@ -724,15 +724,21 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
             </div>
 
             <div className="bg-[#F8FAFC] border border-[#E2E8F0] p-4 rounded-2xl space-y-2 text-left">
-              <span className="text-[9px] font-black uppercase tracking-widest text-[#15803D] block">URL Landing Page</span>
+              <span className="text-[9px] font-black uppercase tracking-widest text-amber-600 block">URL Landing Page</span>
               <div className="flex items-center justify-between gap-3 bg-white border border-[#E2E8F0] rounded-xl p-2.5">
-                <span className="text-xs font-mono font-bold text-slate-800 truncate select-all">{publicSiteUrl}</span>
+                <input 
+                  type="text" 
+                  readOnly 
+                  value={publicSiteUrl}
+                  className="text-xs font-mono font-bold text-slate-800 bg-transparent outline-none w-full"
+                  onClick={(e) => (e.target as HTMLInputElement).select()}
+                />
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(publicSiteUrl);
                     triggerToast('URL disalin ke clipboard!');
                   }}
-                  className="px-2.5 py-1 bg-[#0F172A] hover:bg-slate-800 text-white rounded-lg text-[9px] font-black uppercase tracking-widest transition-colors cursor-pointer shrink-0"
+                  className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-[9px] font-black uppercase tracking-widest transition-colors cursor-pointer shrink-0"
                 >
                   Salin URL
                 </button>
@@ -742,18 +748,19 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
             <div className="flex flex-col gap-2 pt-2">
               <button
                 onClick={() => window.open(publicSiteUrl, '_blank')}
-                className="w-full py-3 bg-[#22C55E] hover:bg-[#15803D] text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer font-black"
+                className="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-amber-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer font-black"
               >
                 <Globe className="w-4 h-4" /> Buka Landing Page
               </button>
               
               <button
                 onClick={() => {
+                  setSaveStatus('Saved');
                   setIsPublishedSuccess(false);
                   setShowPublishConfirm(false);
-                  onBack();
+                  if (onBack) onBack();
                 }}
-                className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-[#E2E8F0] rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer font-black"
+                className="w-full py-3 border border-slate-200 hover:bg-slate-50 text-slate-600 rounded-xl text-xs font-black uppercase tracking-widest transition-all cursor-pointer font-black"
               >
                 Kembali ke Dashboard
               </button>
@@ -867,9 +874,13 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
               
               <div className="space-y-4">
                 <div className="bg-[#F8FAFC] border border-[#E2E8F0] p-3.5 rounded-xl space-y-2">
-                  <div className="text-xs font-mono font-bold text-slate-800 break-all select-all">
-                    {publicSiteUrl}
-                  </div>
+                  <input
+                    type="text"
+                    readOnly
+                    value={publicSiteUrl}
+                    className="text-xs font-mono font-bold text-slate-800 w-full bg-transparent outline-none cursor-text"
+                    onClick={(e) => (e.target as HTMLInputElement).select()}
+                  />
                   {status !== 'Published' && (
                     <p className="text-[9.5px] text-slate-400 font-bold uppercase tracking-wide leading-none">
                       URL akan aktif setelah landing page dipublikasikan.
@@ -935,7 +946,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
               disabled={isSubmittingPublish || !isReadyToPublish}
               className={`w-full sm:w-auto px-8 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer ${
                 isReadyToPublish
-                  ? 'bg-[#22C55E] hover:bg-[#15803D] text-white hover:shadow-lg hover:scale-[1.01]'
+                  ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white hover:shadow-lg hover:shadow-amber-500/30 hover:scale-[1.01]'
                   : 'bg-slate-200 text-slate-400 cursor-not-allowed'
               }`}
             >
@@ -2225,14 +2236,16 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
 
                 {/* Mobile Notch Mock */}
                 {previewMode === 'mobile' && (
-                  <div className="absolute top-2 left-1/2 -translate-x-1/2 w-28 h-5 bg-[#0f172a] rounded-full z-30 flex items-center justify-center border border-slate-200">
-                    <div className="w-2.5 h-2.5 rounded-full bg-slate-100 mr-8" />
-                    <div className="w-8 h-1 bg-slate-800 rounded-full" />
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-36 h-7 bg-[#0f172a] rounded-b-[20px] z-30 flex items-center justify-center">
+                    <div className="w-2.5 h-2.5 rounded-full bg-slate-800/80 mr-8 relative border border-slate-700/50">
+                      <div className="absolute top-[2px] right-[2px] w-1 h-1 bg-blue-400/30 rounded-full" />
+                    </div>
+                    <div className="w-12 h-1.5 bg-slate-800/80 rounded-full border border-slate-700/50" />
                   </div>
                 )}
 
                 {/* Embed template renderer */}
-                <div className="w-full h-full overflow-y-auto bg-white text-slate-900 custom-scrollbar pt-1">
+                <div className={`w-full h-full overflow-y-auto bg-white text-slate-900 custom-scrollbar ${previewMode === 'mobile' ? 'pt-8' : 'pt-0'}`}>
                   <TemplateRenderer
                     templateId={pageData?.template?.id || pageData?.template?.name}
                     contentJson={contentJson}

@@ -5,9 +5,10 @@ import { motion } from 'motion/react';
 interface PricingProps {
   setView: (v: string) => void;
   systemSettings?: any;
+  user?: any;
 }
 
-export const PricingView = ({ setView, systemSettings }: PricingProps) => {
+export const PricingView = ({ setView, systemSettings, user }: PricingProps) => {
   const plans = systemSettings?.pricingJson?.length > 0 ? systemSettings.pricingJson : [
     { name: 'PAKET BASIC', price: 'Rp 75.000', description: 'Untuk kebutuhan desain dasar.', features: ['1 prompt', 'Rasio 16:9', '1 konsep infografis', '500-800 token'], buttonText: 'BELI 800 TOKEN', isPopular: false, gradient: 'from-blue-500 to-cyan-400' },
     { name: 'PAKET STANDARD', price: 'Rp 250.000', description: 'Pilihan terbaik untuk hasil profesional.', features: ['3 alternatif desain', 'Prompt detail', 'Branding sesuai website', 'Struktur visual profesional', '1.000-2.500 token'], buttonText: 'BELI 2500 TOKEN', isPopular: true, gradient: 'from-amber-400 to-orange-500' },
@@ -83,7 +84,7 @@ export const PricingView = ({ setView, systemSettings }: PricingProps) => {
               
               <div className="pt-4">
                 <button 
-                  onClick={() => setView('login')}
+                  onClick={() => setView(user ? 'dashboard' : 'login')}
                   className="w-full py-4 rounded-xl font-black uppercase tracking-widest text-xs transition-all duration-300 flex items-center justify-center gap-2 border-2 bg-transparent border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 group-hover:border-amber-500 group-hover:text-amber-500 hover:!bg-amber-50 dark:hover:!bg-slate-800"
                 >
                   <Zap className="w-4 h-4" /> {plan.buttonText || 'BELI TOKEN SEKARANG'}
@@ -98,7 +99,7 @@ export const PricingView = ({ setView, systemSettings }: PricingProps) => {
   );
 };
 
-export const FinalCTA = ({ setView }: PricingProps) => (
+export const FinalCTA = ({ setView, user }: PricingProps) => (
   <section className="py-36 px-6 bg-[#020617] relative overflow-hidden transition-all duration-300">
     {/* Dot Grid Pattern overlay */}
     <div 
@@ -136,7 +137,7 @@ export const FinalCTA = ({ setView }: PricingProps) => (
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center relative z-10">
           <motion.button 
-            onClick={() => setView('signup')}
+            onClick={() => setView(user ? 'dashboard:tokens' : 'signup')}
             whileHover={{ scale: 1.03, y: -2 }}
             whileTap={{ scale: 0.98 }}
             className="group/btn w-full sm:w-auto px-10 py-5 bg-gradient-to-r from-brand-blue to-emerald-500 hover:brightness-110 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-[0_15px_35px_rgba(255,176,0,0.3)] transition-all cursor-pointer flex items-center justify-center gap-2.5 border-none"
