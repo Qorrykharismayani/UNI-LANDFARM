@@ -23,6 +23,7 @@ export async function PATCH(request: Request) {
       featuresJson,
       testimonialsJson,
       faqsJson,
+      pricingJson,
       userPageJson
     } = await request.json();
 
@@ -43,6 +44,7 @@ export async function PATCH(request: Request) {
           featuresJson: featuresJson !== undefined ? featuresJson : undefined,
           testimonialsJson: testimonialsJson !== undefined ? testimonialsJson : undefined,
           faqsJson: faqsJson !== undefined ? faqsJson : undefined,
+          pricingJson: pricingJson !== undefined ? pricingJson : undefined,
           userPageJson: userPageJson !== undefined ? userPageJson : undefined
         }
       });
@@ -64,6 +66,7 @@ export async function PATCH(request: Request) {
           featuresJson: featuresJson || [],
           testimonialsJson: testimonialsJson || [],
           faqsJson: faqsJson || [],
+          pricingJson: pricingJson || [],
           userPageJson: userPageJson || {}
         }
       });

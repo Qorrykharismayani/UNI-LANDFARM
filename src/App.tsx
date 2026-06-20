@@ -80,22 +80,22 @@ export default function App() {
       case 'home':
         return (
           <>
-            <Hero setView={setView} />
-            <Features setView={setView} />
+            <Hero setView={setView} systemSettings={systemSettings} />
+            <Features setView={setView} systemSettings={systemSettings} />
             <TemplatePreview setView={setView} />
             <CMSLandingView setView={setView} />
-            <Testimonials />
-            <PricingView setView={setView} />
-            <FAQ />
+            <Testimonials systemSettings={systemSettings} />
+
+            <FAQ systemSettings={systemSettings} />
             <FinalCTA setView={setView} />
           </>
         );
       case 'features':
-        return <Features setView={setView} />;
+        return <Features setView={setView} systemSettings={systemSettings} />;
       case 'templates':
         return <TemplatesView setView={setView} />;
       case 'pricing':
-        return <PricingView setView={setView} />;
+        return <PricingView setView={setView} systemSettings={systemSettings} />;
       case 'cms':
         return <CMSLandingView setView={setView} />;
       case 'about':
@@ -109,13 +109,14 @@ export default function App() {
       case 'dashboard':
         return <DashboardView setView={setView} theme={theme} toggleTheme={toggleTheme} user={user} setUser={setUser} systemSettings={systemSettings} setSystemSettings={setSystemSettings} />;
       default:
-        return <Hero setView={setView} />;
+        return <Hero setView={setView} systemSettings={systemSettings} />;
     }
   };
 
   return (
     <div className={`min-h-screen ${theme === 'dark' ? 'dark' : ''} bg-white dark:bg-slate-950 transition-colors duration-500`}>
-      {view !== 'dashboard' && <Navbar setView={setView} currentView={view} theme={theme} toggleTheme={toggleTheme} />}
+      {view !== 'dashboard' && <Navbar setView={setView} currentView={view} theme={theme} toggleTheme={toggleTheme} systemSettings={systemSettings} />}
+
       <main className={view !== 'dashboard' ? 'pt-20' : ''}>
         <AnimatePresence mode="wait">
           <motion.div

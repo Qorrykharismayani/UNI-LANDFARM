@@ -3,62 +3,84 @@ import { Zap, Database, Layout, Rocket, CheckCircle2 } from 'lucide-react';
 
 interface ContentPlanPageProps {
   guideSearchQuery: string;
+  systemSettings?: any;
 }
 
-const ContentPlanPage = ({ guideSearchQuery }: ContentPlanPageProps) => {
-  const guidesData = [
-    {
-      title: "Panduan Memulai Uni-LandFarm",
-      desc: "Pelajari langkah awal membuat landing page menggunakan template yang tersedia.",
-      time: "Membaca 3 Menit",
-      icon: <Zap className="w-4 h-4 text-brand-blue" />,
-      bg: "bg-blue-500/5 dark:bg-blue-600/10",
-      steps: [
-        "Pilih template landing page",
-        "Isi data usaha",
-        "Simpan landing page sebagai draft"
-      ]
-    },
-    {
-      title: "Panduan Pengelolaan CMS",
-      desc: "Kelola konten landing page seperti teks, gambar, kontak, tautan, dan informasi promosi melalui CMS.",
-      time: "Membaca 4 Menit",
-      icon: <Database className="w-4 h-4 text-purple-500" />,
-      bg: "bg-purple-500/5 dark:bg-purple-600/10",
-      steps: [
-        "Edit teks dan gambar",
-        "Kelola navigasi dan section",
-        "Simpan perubahan konten"
-      ]
-    },
-    {
-      title: "Panduan Template Landing Page",
-      desc: "Pahami cara memilih dan menyesuaikan template landing page sesuai kebutuhan bisnis.",
-      time: "Membaca 3 Menit",
-      icon: <Layout className="w-4 h-4 text-emerald-500" />,
-      bg: "bg-emerald-500/5 dark:bg-emerald-600/10",
-      steps: [
-        "Pilih template yang sesuai",
-        "Sesuaikan konten dan tampilan",
-        "Lihat hasil melalui preview"
-      ]
-    },
-    {
-      title: "Panduan Publikasi Landing Page",
-      desc: "Pelajari proses publikasi instan hingga landing page langsung aktif dapat diakses oleh publik.",
-      time: "Membaca 2 Menit",
-      icon: <Rocket className="w-4 h-4 text-amber-500" />,
-      bg: "bg-amber-500/5 dark:bg-amber-600/10",
-      steps: [
-        "Periksa preview landing page",
-        "Klik Publish Landing Page",
-        "Situs langsung aktif secara online"
-      ]
+const ContentPlanPage = ({ guideSearchQuery, systemSettings }: ContentPlanPageProps) => {
+  const getIcon = (iconName: string) => {
+    switch (iconName) {
+      case 'Zap': return <Zap className="w-4 h-4 text-brand-blue" />;
+      case 'Database': return <Database className="w-4 h-4 text-purple-500" />;
+      case 'Layout': return <Layout className="w-4 h-4 text-emerald-500" />;
+      case 'Rocket': return <Rocket className="w-4 h-4 text-amber-500" />;
+      default: return <Zap className="w-4 h-4 text-brand-blue" />;
     }
-  ];
+  };
+
+  const rawGuides = systemSettings?.userPageJson?.guides || [];
+
+  const guidesData = rawGuides.length > 0
+    ? rawGuides.map((g: any) => ({
+        title: g.title,
+        desc: g.desc,
+        time: g.time,
+        icon: getIcon(g.icon),
+        bg: g.bg || "bg-blue-500/5 dark:bg-blue-600/10",
+        steps: g.steps || []
+      }))
+    : [
+        {
+          title: "Panduan Memulai Uni-LandFarm",
+          desc: "Pelajari langkah awal membuat landing page menggunakan template yang tersedia.",
+          time: "Membaca 3 Menit",
+          icon: <Zap className="w-4 h-4 text-brand-blue" />,
+          bg: "bg-blue-500/5 dark:bg-blue-600/10",
+          steps: [
+            "Pilih template landing page",
+            "Isi data usaha",
+            "Simpan landing page sebagai draft"
+          ]
+        },
+        {
+          title: "Panduan Pengelolaan CMS",
+          desc: "Kelola konten landing page seperti teks, gambar, kontak, tautan, dan informasi promosi melalui CMS.",
+          time: "Membaca 4 Menit",
+          icon: <Database className="w-4 h-4 text-purple-500" />,
+          bg: "bg-purple-500/5 dark:bg-purple-600/10",
+          steps: [
+            "Edit teks dan gambar",
+            "Kelola navigasi dan section",
+            "Simpan perubahan konten"
+          ]
+        },
+        {
+          title: "Panduan Template Landing Page",
+          desc: "Pahami cara memilih dan menyesuaikan template landing page sesuai kebutuhan bisnis.",
+          time: "Membaca 3 Menit",
+          icon: <Layout className="w-4 h-4 text-emerald-500" />,
+          bg: "bg-emerald-500/5 dark:bg-emerald-600/10",
+          steps: [
+            "Pilih template yang sesuai",
+            "Sesuaikan konten dan tampilan",
+            "Lihat hasil melalui preview"
+          ]
+        },
+        {
+          title: "Panduan Publikasi Landing Page",
+          desc: "Pelajari proses publikasi instan hingga landing page langsung aktif dapat diakses oleh publik.",
+          time: "Membaca 2 Menit",
+          icon: <Rocket className="w-4 h-4 text-amber-500" />,
+          bg: "bg-amber-500/5 dark:bg-amber-600/10",
+          steps: [
+            "Periksa preview landing page",
+            "Klik Publish Landing Page",
+            "Situs langsung aktif secara online"
+          ]
+        }
+      ];
 
   const filteredGuides = guidesData.filter(
-    g =>
+    (g: any) =>
       g.title.toLowerCase().includes(guideSearchQuery.toLowerCase()) ||
       g.desc.toLowerCase().includes(guideSearchQuery.toLowerCase())
   );

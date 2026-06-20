@@ -105,6 +105,31 @@ export async function GET(request: Request) {
           provider: 'google'
         }
       });
+
+      // Auto-create/save default landing page to DB for new users if they have none
+      const defaultTemplate = await prisma.template.findFirst({
+        where: { status: 'Aktif' }
+      });
+      if (defaultTemplate) {
+        await prisma.landingPage.create({
+          data: {
+            userId: user.id,
+            templateId: defaultTemplate.id,
+            title: 'Situs Pertanian Uni-LandFarm',
+            businessName: user.name || 'Madu Klanceng Alami',
+            slug: `situs-baru-${String(user.id).substring(0, 5).toLowerCase()}`,
+            status: 'Draft',
+            views: 0,
+            content: {
+              create: {
+                contentJson: defaultTemplate.defaultContent || {
+                  hero: { headline: 'Situs Pertanian Uni-LandFarm', subheadline: 'Madu Klanceng Alami', cta: 'Hubungi Kami' }
+                }
+              }
+            }
+          }
+        });
+      }
     }
 
     // Migrate seeded data from mock users to this logged-in Google user, then delete the mock users
@@ -146,16 +171,6 @@ export async function GET(request: Request) {
         },
         data: {
           userId: user.id
-        }
-      });
-
-      // Update publish requests requestedBy field
-      await prisma.publishRequest.updateMany({
-        where: {
-          requestedBy: { in: mockUserIds }
-        },
-        data: {
-          requestedBy: user.id
         }
       });
 

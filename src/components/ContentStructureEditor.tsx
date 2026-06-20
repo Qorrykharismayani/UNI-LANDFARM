@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
+  Pencil,
   ArrowLeft,
   Monitor,
   Tablet,
   Smartphone,
   Bot,
+  Calendar,
   ChevronRight,
   Image as ImageIcon,
   Upload,
@@ -39,7 +41,10 @@ import {
   Send,
   Globe,
   FileText,
-  Rocket
+  Rocket,
+  Moon,
+  Sun,
+  Palette
 } from 'lucide-react';
 import TemplateRenderer from './TemplateRenderer';
 import { generateEditorCopy } from '../services/ai';
@@ -115,12 +120,24 @@ interface ContentStructureEditorProps {
   pageId: string;
   onBack: () => void;
   onPublishSuccess: () => void;
+  theme?: string;
+  toggleTheme?: () => void;
+  defaultShowPublish?: boolean;
 }
 
-export default function ContentStructureEditor({ pageId, onBack, onPublishSuccess }: ContentStructureEditorProps) {
+export default function ContentStructureEditor({ 
+  pageId, 
+  onBack, 
+  onPublishSuccess,
+  theme = 'light',
+  toggleTheme = () => {},
+  defaultShowPublish = false
+}: ContentStructureEditorProps) {
   const [loading, setLoading] = useState(true);
   const [pageData, setPageData] = useState<any>(null);
   const [contentJson, setRawContentJson] = useState<any>(null);
+  const [domainMode, setDomainMode] = useState<'free' | 'custom'>('free');
+  const [customDomain, setCustomDomain] = useState('');
 
   const syncContentAndSections = (newContent: any) => {
     if (!newContent) return;
@@ -171,14 +188,36 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
 
   const [activeAccordion, setActiveAccordion] = useState<string>('hero');
   const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile'>('desktop');
-  const [zoomScale, setZoomScale] = useState<number>(1);
+  const [zoomScale, setZoomScale] = useState(1);
+
+  // Background Auto-Cron Runner for Localhost
+  useEffect(() => {
+    // Run the cron endpoint automatically every 30 seconds
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch('/api/cron/process-schedules');
+        const data = await res.json();
+        if (data.success && data.executedCount > 0) {
+          triggerToast(`✅ ${data.executedCount} jadwal otomatis tereksekusi! Memperbarui konten...`);
+          fetchPageSchedules(); // refresh UI timeline
+          fetchPageData(); // refresh content fields without refreshing the page
+        }
+      } catch (err) {
+        // fail silently for background task
+      }
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const [saveStatus, setSaveStatus] = useState<'Saved' | 'Saving' | 'Error'>('Saved');
   const [editorToast, setEditorToast] = useState<string | null>(null);
-  const [showPublishConfirm, setShowPublishConfirm] = useState(false);
+  const [showPublishConfirm, setShowPublishConfirm] = useState(defaultShowPublish);
   const [isSubmittingPublish, setIsSubmittingPublish] = useState(false);
 
   // Active Main Tab state
-  const [activeTab, setActiveTab] = useState<'sections' | 'ai_writer' | 'preview'>('sections');
+  const [activeTab, setActiveTab] = useState<'sections' | 'ai_writer' | 'preview' | 'design'>('sections');
 
   // AI Modal States
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
@@ -199,17 +238,34 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
   const [aiSuggestions, setAiSuggestions] = useState<any>(null);
   
   // Custom Scheduler Timeline States
-  const [schedules, setSchedules] = useState<any[]>([
-    { title: "Promo Ramadhan Kopi Nusantara", date: "Besok 09:00", status: "Scheduled" },
-    { title: "Tips Memilih Biji Kopi Robusta", date: "Besok 10:00", status: "Queued" },
-    { title: "Promo Akhir Pekan", date: "Jumat 08:00", status: "Published" }
-  ]);
+  const [schedules, setSchedules] = useState<any[]>([]);
   const [isSchedulerModalOpen, setIsSchedulerModalOpen] = useState(false);
+  const [editingScheduleId, setEditingScheduleId] = useState<number | null>(null);
   const [newScheduleTitle, setNewScheduleTitle] = useState('');
   const [newScheduleDate, setNewScheduleDate] = useState('');
   const [newScheduleStatus, setNewScheduleStatus] = useState('Scheduled');
+  const [newScheduleComponent, setNewScheduleComponent] = useState('Hero Title');
+  const [newScheduleValue, setNewScheduleValue] = useState('');
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
   const [isPublishedSuccess, setIsPublishedSuccess] = useState(false);
+
+  const fetchPageSchedules = async () => {
+    try {
+      const res = await fetch(`/api/content-schedules?landingPageId=${pageId}`);
+      const data = await res.json();
+      if (data.success && Array.isArray(data.data)) {
+        setSchedules(data.data);
+      }
+    } catch (err) {
+      console.warn("Gagal memuat jadwal halaman:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (pageId) {
+      fetchPageSchedules();
+    }
+  }, [pageId]);
 
   // Sections List State (Allows Reordering & Activation)
   const [sections, setSections] = useState<any[]>([
@@ -238,14 +294,19 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
     setTimeout(() => setEditorToast(null), 3000);
   };
 
-  // Fetch page data on mount
-  useEffect(() => {
-    const fetchPage = async () => {
+  const fetchPageData = useCallback(async () => {
       try {
         const res = await fetch(`/api/landing-pages/${pageId}`);
         const data = await res.json();
         if (data.success && data.data) {
           setPageData(data.data);
+          if (data.data.domain && data.data.domain.domainName) {
+            setDomainMode('custom');
+            setCustomDomain(data.data.domain.domainName);
+          } else {
+            setDomainMode('free');
+            setCustomDomain('');
+          }
           const page = data.data;
           const initialContent = page.content?.contentJson || page.template?.defaultContent || {};
           const defaultSectionsList = [
@@ -321,9 +382,12 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
       } finally {
         setLoading(false);
       }
-    };
-    fetchPage();
   }, [pageId]);
+
+  // Fetch page data on mount
+  useEffect(() => {
+    fetchPageData();
+  }, [fetchPageData]);
 
   // Debounced auto-save hook
   const prevContentJson = useRef<any>(null);
@@ -403,7 +467,11 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
           contentJson,
           status: 'Published',
           publishedAt: new Date().toISOString(),
-          publicUrl: `/site/${pageData?.slug}`
+          publicUrl: domainMode === 'custom' && customDomain ? `http://${customDomain}` : `/site/${pageData?.slug}`,
+          title: pageData?.title,
+          businessName: pageData?.businessName,
+          slug: pageData?.slug,
+          customDomain: domainMode === 'custom' ? customDomain : null
         })
       });
       const saveData = await saveRes.json();
@@ -614,17 +682,9 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
 
       const result = await generateEditorCopy(aiCommand, heroData);
       setAiSuggestions(result);
-    } catch (err) {
-      console.warn("AI generation failed, applying mock response:", err);
-      // Fallback premium copywriting suggestions matching brand
-      setAiSuggestions({
-        reply: `Saya merekomendasikan salinan persuasif berdasarkan brand Anda:`,
-        suggestedData: {
-          headline: `Solusi Pertanian Uni-LandFarm Madu Klanceng Alami`,
-          subheadline: `Dapatkan madu klanceng murni berkualitas premium langsung dari peternak lokal. Kaya khasiat dan terjaga kemurniannya untuk kesehatan keluarga Anda.`,
-          cta: `Pesan Madu Murni`
-        }
-      });
+    } catch (err: any) {
+      console.warn("AI generation failed:", err);
+      triggerToast('Gagal menghasilkan teks AI. Pastikan API Key valid dan server telah direstart.');
     } finally {
       setIsGeneratingCopy(false);
     }
@@ -639,28 +699,119 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
       updateActiveSectionContent(c => ({ ...c, headline, subheadline, cta: ctaText }));
     } else if (activeSectionType === 'cta') {
       updateActiveSectionContent(c => ({ ...c, title: headline, description: subheadline, buttonText: ctaText }));
+    } else if (activeSectionType === 'about') {
+      updateActiveSectionContent(c => ({ ...c, title: headline, description: subheadline }));
+    } else if (activeSectionType === 'products') {
+      updateActiveSectionContent(c => {
+        const arr = Array.isArray(c) ? [...c] : [];
+        if (arr.length > 0) {
+          arr[0] = { ...arr[0], name: headline, description: subheadline };
+        } else {
+          arr.push({ name: headline, description: subheadline, price: 'Rp 10.000', image: '' });
+        }
+        return arr;
+      });
+    } else if (activeSectionType === 'advantages') {
+      updateActiveSectionContent(c => {
+        const arr = Array.isArray(c) ? [...c] : [];
+        if (arr.length > 0) {
+          arr[0] = { ...arr[0], title: headline, description: subheadline };
+        } else {
+          arr.push({ icon: 'Sparkles', title: headline, description: subheadline });
+        }
+        return arr;
+      });
+    } else if (activeSectionType === 'testimonials') {
+      updateActiveSectionContent(c => {
+        const arr = Array.isArray(c) ? [...c] : [];
+        if (arr.length > 0) {
+          arr[0] = { ...arr[0], content: subheadline };
+        } else {
+          arr.push({ name: 'Pelanggan Baru', content: subheadline, photo: '' });
+        }
+        return arr;
+      });
     }
+
     setIsAiModalOpen(false);
     setAiSuggestions(null);
     setAiCommand('');
-    triggerToast('Konten AI berhasil diterapkan ke form!');
+    triggerToast(`Konten AI berhasil diterapkan ke form ${activeSectionType}!`);
   };
 
-  // Add item to schedule list
-  const handleAddSchedule = () => {
-    if (!newScheduleTitle.trim() || !newScheduleDate.trim()) {
-      triggerToast('Judul dan waktu publikasi harus diisi!');
+  // Add or update item to schedule list
+  const handleAddSchedule = async () => {
+    if (!newScheduleTitle.trim() || !newScheduleDate.trim() || !newScheduleValue.trim()) {
+      triggerToast('Semua kolom jadwal (Nama, Nilai Baru, dan Waktu) wajib diisi!');
       return;
     }
-    setSchedules(prev => [
-      ...prev,
-      { title: newScheduleTitle, date: newScheduleDate, status: newScheduleStatus }
-    ]);
-    setNewScheduleTitle('');
-    setNewScheduleDate('');
-    setNewScheduleStatus('Scheduled');
-    setIsSchedulerModalOpen(false);
-    triggerToast('Konten baru berhasil dijadwalkan!');
+
+    const scheduledTime = new Date(newScheduleDate).getTime();
+    if (scheduledTime <= Date.now()) {
+      triggerToast('Waktu eksekusi tidak boleh di masa lalu. Silakan pilih waktu di masa depan!');
+      return;
+    }
+
+    try {
+      const url = '/api/content-schedules';
+      const method = editingScheduleId ? 'PUT' : 'POST';
+      
+      const bodyParams: any = {
+        title: newScheduleTitle,
+        landingPageId: Number(pageId),
+        sectionName: activeAccordion,
+        component: newScheduleComponent,
+        newValue: newScheduleValue,
+        scheduledAt: new Date(newScheduleDate).toISOString(),
+        status: newScheduleStatus
+      };
+      
+      if (editingScheduleId) {
+        bodyParams.id = editingScheduleId;
+      }
+      
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bodyParams)
+      });
+      const data = await res.json();
+      if (data.success && data.data) {
+        if (editingScheduleId) {
+          setSchedules(prev => prev.map(s => s.id === editingScheduleId ? data.data : s));
+          triggerToast('Jadwal konten berhasil diperbarui!');
+        } else {
+          setSchedules(prev => [data.data, ...prev]);
+          triggerToast('Jadwal perubahan konten berhasil disimpan!');
+        }
+        setNewScheduleTitle('');
+        setNewScheduleDate('');
+        setNewScheduleValue('');
+        setNewScheduleStatus('Scheduled');
+        setEditingScheduleId(null);
+        setIsSchedulerModalOpen(false);
+      } else {
+        triggerToast(data.message || 'Gagal menyimpan jadwal.');
+      }
+    } catch (err) {
+      console.error(err);
+      triggerToast('Terjadi kesalahan koneksi saat menyimpan jadwal.');
+    }
+  };
+
+  const handleDeleteSchedule = async (id: number) => {
+    try {
+      const res = await fetch(`/api/content-schedules?id=${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        setSchedules(prev => prev.filter(s => s.id !== id));
+        triggerToast('Jadwal berhasil dihapus!');
+      } else {
+        triggerToast(data.message || 'Gagal menghapus jadwal.');
+      }
+    } catch (err) {
+      triggerToast('Gagal terhubung ke server.');
+    }
   };
 
   if (loading) {
@@ -700,7 +851,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
     }) + ' WIB' : '-';
 
     const hostOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://unilandfarm.com';
-    const publicSiteUrl = `${hostOrigin}/site/${pageData?.slug}`;
+    const publicSiteUrl = domainMode === 'custom' && customDomain ? `http://${customDomain}` : `${hostOrigin}/site/${pageData?.slug}`;
 
     // Validations
     const isContentComplete = !!pageData?.title?.trim() && !!pageData?.businessName?.trim() && sections.filter(s => s.isActive).length > 0;
@@ -709,29 +860,29 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
     if (isPublishedSuccess) {
       /* SUCCESS SCREEN */
       return (
-        <div className="fixed inset-0 bg-[#F8FAFC] text-slate-800 flex flex-col font-sans z-[200] overflow-y-auto items-center justify-center p-6">
-          <div className="max-w-md w-full bg-white border border-[#E2E8F0] p-8 rounded-3xl shadow-xl text-center space-y-6 animate-in zoom-in-95 duration-200">
-            <div className="w-20 h-20 bg-[#DCFCE7] text-[#22C55E] rounded-full flex items-center justify-center mx-auto text-4xl shadow-inner animate-bounce">
+        <div className="fixed inset-0 bg-[#F8FAFC] dark:bg-[#070b19] text-slate-800 dark:text-slate-200 flex flex-col font-sans z-[200] overflow-y-auto items-center justify-center p-6 transition-colors duration-300">
+          <div className="max-w-md w-full bg-white dark:bg-[#0f172a] border border-[#E2E8F0] dark:border-slate-800 p-8 rounded-3xl shadow-xl text-center space-y-6 animate-in zoom-in-95 duration-200 transition-colors duration-300">
+            <div className="w-20 h-20 bg-[#DCFCE7] dark:bg-emerald-950/30 text-[#22C55E] dark:text-emerald-450 rounded-full flex items-center justify-center mx-auto text-4xl shadow-inner animate-bounce">
               🎉
             </div>
             
             <div className="space-y-2">
-              <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">Landing Page Berhasil Dipublikasikan</h2>
-              <p className="text-xs text-slate-500 font-medium leading-relaxed">
+              <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Landing Page Berhasil Dipublikasikan</h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
                 Landing page Anda sudah aktif dan dapat diakses secara online oleh publik.
               </p>
             </div>
 
-            <div className="bg-[#F8FAFC] border border-[#E2E8F0] p-4 rounded-2xl space-y-2 text-left">
-              <span className="text-[9px] font-black uppercase tracking-widest text-[#15803D] block">URL Landing Page</span>
-              <div className="flex items-center justify-between gap-3 bg-white border border-[#E2E8F0] rounded-xl p-2.5">
-                <span className="text-xs font-mono font-bold text-slate-800 truncate select-all">{publicSiteUrl}</span>
+            <div className="bg-[#F8FAFC] dark:bg-slate-900/50 border border-[#E2E8F0] dark:border-slate-800/80 p-4 rounded-2xl space-y-2 text-left transition-colors duration-300">
+              <span className="text-[9px] font-black uppercase tracking-widest text-[#15803D] dark:text-emerald-400 block">URL Landing Page</span>
+              <div className="flex items-center justify-between gap-3 bg-white dark:bg-slate-950 border border-[#E2E8F0] dark:border-slate-800 rounded-xl p-2.5 transition-colors duration-300">
+                <span className="text-xs font-mono font-bold text-slate-800 dark:text-slate-200 truncate select-all">{publicSiteUrl}</span>
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(publicSiteUrl);
                     triggerToast('URL disalin ke clipboard!');
                   }}
-                  className="px-2.5 py-1 bg-[#0F172A] hover:bg-slate-800 text-white rounded-lg text-[9px] font-black uppercase tracking-widest transition-colors cursor-pointer shrink-0"
+                  className="px-2.5 py-1 bg-[#0F172A] dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white rounded-lg text-[9px] font-black uppercase tracking-widest transition-colors cursor-pointer shrink-0"
                 >
                   Salin URL
                 </button>
@@ -741,7 +892,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
             <div className="flex flex-col gap-2 pt-2">
               <button
                 onClick={() => window.open(publicSiteUrl, '_blank')}
-                className="w-full py-3 bg-[#22C55E] hover:bg-[#15803D] text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer font-black"
+                className="w-full py-3 bg-[#22C55E] dark:bg-[#10b981] hover:bg-[#15803D] dark:hover:bg-[#059669] text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer font-black"
               >
                 <Globe className="w-4 h-4" /> Buka Landing Page
               </button>
@@ -752,125 +903,270 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                   setShowPublishConfirm(false);
                   onBack();
                 }}
-                className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-[#E2E8F0] rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer font-black"
+                className="w-full py-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-350 border border-[#E2E8F0] dark:border-slate-700 rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer font-black"
               >
                 Kembali ke Dashboard
               </button>
             </div>
           </div>
+          {/* Floating Toast Notification */}
+          {editorToast && (
+            <div className="fixed bottom-6 right-6 bg-white dark:bg-slate-900 border border-brand-blue/30 dark:border-brand-blue/50 text-slate-800 dark:text-slate-100 px-5 py-3 rounded-2xl shadow-2xl z-[200] animate-in slide-in-from-bottom-8 duration-300 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-brand-blue animate-pulse" />
+              <span className="text-base font-black uppercase tracking-wider">{editorToast}</span>
+            </div>
+          )}
         </div>
       );
     }
 
     return (
-      <div className="fixed inset-0 bg-[#F8FAFC] text-slate-800 flex flex-col font-sans z-[200] overflow-hidden">
+      <div className="fixed inset-0 bg-[#F8FAFC] dark:bg-[#070b19] text-slate-800 dark:text-slate-200 flex flex-col font-sans z-[200] overflow-hidden transition-colors duration-300">
         {/* Header (Vercel/Notion Style) */}
-        <div className="h-[64px] px-6 border-b border-[#E2E8F0] flex items-center justify-between bg-white shrink-0 shadow-sm z-30">
+        <div className="h-[64px] px-6 border-b border-[#E2E8F0] dark:border-white/5 flex items-center justify-between bg-white dark:bg-[#0F172A] shrink-0 shadow-sm z-30 transition-colors duration-300">
           <div className="flex items-center gap-3">
-            <h1 className="text-sm font-black uppercase tracking-widest text-[#0F172A] flex items-center gap-2">
+            <button
+              onClick={() => setShowPublishConfirm(false)}
+              className="w-8 h-8 flex items-center justify-center bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-[#E2E8F0] dark:border-slate-700 rounded-lg transition-all cursor-pointer"
+              title="Kembali ke Editor"
+            >
+              <ArrowLeft className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+            </button>
+            <h1 className="text-sm font-black uppercase tracking-widest text-[#0F172A] dark:text-white flex items-center gap-2">
               🚀 Publish Landing Page
             </h1>
             <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${
-              status === 'Published' ? 'bg-[#DCFCE7] text-[#15803D]' : 'bg-slate-100 text-slate-500'
+              status === 'Published' ? 'bg-[#DCFCE7] dark:bg-emerald-950/30 text-[#15803D] dark:text-emerald-450' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
             }`}>
               {status}
             </span>
           </div>
+<<<<<<< HEAD
           <button
             onClick={() => setShowPublishConfirm(false)}
             className="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 border border-[#E2E8F0] text-slate-600 hover:text-[#0F172A] rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer"
           >
             Kembali ke Editor
           </button>
+=======
+          <div className="flex items-center gap-3">
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-[#E2E8F0] dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-brand-blue dark:hover:text-brand-blue transition-all cursor-pointer flex items-center justify-center"
+              title="Ganti Tema"
+            >
+              {theme === 'dark' ? <Sun className="w-3.5 h-3.5 text-amber-500" /> : <Moon className="w-3.5 h-3.5 text-indigo-500" />}
+            </button>
+          </div>
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
         </div>
 
         {/* Main Workspace */}
-        <div className="flex-1 overflow-y-auto p-6 md:p-8 max-w-5xl mx-auto w-full space-y-6 custom-scrollbar pb-24">
+        <div className="flex-1 overflow-y-auto w-full custom-scrollbar">
+          <div className="p-6 md:p-8 max-w-5xl mx-auto w-full space-y-6 pb-24">
           
           {/* Section 1: Subtitle / Explainer */}
           <div>
-            <p className="text-xs text-slate-500 font-medium leading-relaxed">
+            <p className="text-xs text-slate-500 dark:text-slate-300 font-medium leading-relaxed">
               Landing page Anda siap dipublikasikan dan diakses secara online.
             </p>
           </div>
 
-          {/* Section 2: Summary Card Grid */}
-          <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6 shadow-sm space-y-4">
-            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Ringkasan Landing Page</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              <div className="bg-[#F8FAFC] p-4 rounded-xl border border-[#E2E8F0]">
-                <span className="text-[8.5px] font-black text-slate-400 uppercase tracking-wider block mb-1">Nama Landing Page</span>
-                <span className="font-extrabold text-slate-800 truncate block uppercase leading-snug">{pageData?.title || '-'}</span>
+          {/* Section 2: Split Summary (Editable vs Read-Only) */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+            {/* Left: Editable Settings */}
+            <div className="bg-gradient-to-br from-blue-50/80 to-white dark:from-blue-900/10 dark:to-[#0f172a] border border-blue-200/60 dark:border-blue-800/40 rounded-[20px] p-6 shadow-sm hover:shadow-[0_8px_30px_rgba(59,130,246,0.12)] hover:border-blue-300 dark:hover:border-blue-700 hover:-translate-y-0.5 transition-all duration-300 flex flex-col space-y-5 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-blue-400/5 dark:bg-blue-400/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none transition-opacity duration-500 group-hover:opacity-100 opacity-50"></div>
+              
+              <div className="flex items-center justify-between border-b border-blue-100 dark:border-blue-800/30 pb-3 relative z-10">
+                <h3 className="text-[11px] font-black text-blue-900 dark:text-blue-400 uppercase tracking-widest flex items-center gap-2.5">
+                  <div className="p-1.5 rounded-lg bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 shadow-sm border border-blue-200 dark:border-blue-800/50">
+                    <Pencil className="w-3.5 h-3.5" />
+                  </div>
+                  Pengaturan Dasar
+                </h3>
+                <span className="text-[9px] font-bold text-blue-600 bg-white dark:bg-blue-950 px-2.5 py-1 rounded-md flex items-center gap-1.5 shadow-sm border border-blue-100 dark:border-blue-800/50">Bisa Diedit</span>
               </div>
-              <div className="bg-[#F8FAFC] p-4 rounded-xl border border-[#E2E8F0]">
-                <span className="text-[8.5px] font-black text-slate-400 uppercase tracking-wider block mb-1">Nama Bisnis</span>
-                <span className="font-extrabold text-slate-800 truncate block uppercase leading-snug">{pageData?.businessName || '-'}</span>
+              
+              <div className="space-y-4 flex-1 flex flex-col justify-between">
+                {/* Nama Landing Page */}
+                <div className="space-y-1.5 group">
+                  <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Nama Landing Page</label>
+                  <input 
+                    type="text" 
+                    value={pageData?.title || ''} 
+                    onChange={(e) => setPageData((prev: any) => ({ ...prev, title: e.target.value }))}
+                    className="w-full bg-slate-50 dark:bg-[#0B1120] border border-slate-200 dark:border-slate-700/60 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#3b82f6]/50 focus:border-[#3b82f6] transition-all"
+                    placeholder="Contoh: Promo Ramadhan"
+                  />
+                </div>
+                {/* Nama Bisnis */}
+                <div className="space-y-1.5 group">
+                  <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Nama Bisnis</label>
+                  <input 
+                    type="text" 
+                    value={pageData?.businessName || ''} 
+                    onChange={(e) => setPageData((prev: any) => ({ ...prev, businessName: e.target.value }))}
+                    className="w-full bg-slate-50 dark:bg-[#0B1120] border border-slate-200 dark:border-slate-700/60 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#3b82f6]/50 focus:border-[#3b82f6] transition-all"
+                    placeholder="Contoh: Kedai Kopi"
+                  />
+                </div>
+                {/* URL Slug */}
+                <div className="space-y-2 group">
+                  <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Format URL</label>
+                  
+                  {/* Pilihan Domain */}
+                  <div className="flex items-center gap-4 mb-2">
+                    <label className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-200 cursor-pointer">
+                      <input 
+                        type="radio" 
+                        name="domainMode" 
+                        checked={domainMode === 'free'} 
+                        onChange={() => setDomainMode('free')}
+                        className="accent-[#3b82f6]"
+                      />
+                      URL Gratis (site/)
+                    </label>
+                    <label className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-200 cursor-pointer">
+                      <input 
+                        type="radio" 
+                        name="domainMode" 
+                        checked={domainMode === 'custom'} 
+                        onChange={() => setDomainMode('custom')}
+                        className="accent-[#3b82f6]"
+                      />
+                      Custom Domain
+                    </label>
+                  </div>
+
+                  {domainMode === 'free' ? (
+                    <div className="flex items-center w-full bg-slate-50 dark:bg-[#0B1120] border border-slate-200 dark:border-slate-700/60 rounded-xl px-4 py-3 text-sm font-bold text-[#3b82f6] dark:text-blue-400 focus-within:ring-2 focus-within:ring-[#3b82f6]/50 focus-within:border-[#3b82f6] transition-all">
+                      <span className="opacity-50 select-none mr-1">site/</span>
+                      <input 
+                        type="text" 
+                        value={pageData?.slug || ''} 
+                        onChange={(e) => setPageData((prev: any) => ({ ...prev, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-') }))}
+                        className="flex-1 bg-transparent border-none p-0 text-sm font-bold text-[#3b82f6] dark:text-blue-400 focus:outline-none focus:ring-0"
+                        placeholder="nama-url-unik"
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex items-center w-full bg-slate-50 dark:bg-[#0B1120] border border-slate-200 dark:border-slate-700/60 rounded-xl px-4 py-3 text-sm font-bold text-emerald-600 dark:text-emerald-400 focus-within:ring-2 focus-within:ring-emerald-500/50 focus-within:border-emerald-500 transition-all">
+                      <span className="opacity-50 select-none mr-1">https://</span>
+                      <input 
+                        type="text" 
+                        value={customDomain} 
+                        onChange={(e) => setCustomDomain(e.target.value.toLowerCase().replace(/[^a-z0-9.-]/g, ''))}
+                        className="flex-1 bg-transparent border-none p-0 text-sm font-bold text-emerald-600 dark:text-emerald-400 focus:outline-none focus:ring-0"
+                        placeholder="www.nama-bisnis.com"
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="bg-[#F8FAFC] p-4 rounded-xl border border-[#E2E8F0]">
-                <span className="text-[8.5px] font-black text-slate-400 uppercase tracking-wider block mb-1">Template</span>
-                <span className="font-extrabold text-slate-800 truncate block uppercase leading-snug">{pageData?.template?.name || pageData?.template || '-'}</span>
+            </div>
+
+            {/* Right: Read Only Info */}
+            <div className="bg-gradient-to-br from-purple-50/80 to-white dark:from-purple-900/10 dark:to-[#0f172a] border border-purple-200/60 dark:border-purple-800/40 rounded-[20px] p-6 shadow-sm hover:shadow-[0_8px_30px_rgba(168,85,247,0.12)] hover:border-purple-300 dark:hover:border-purple-700 hover:-translate-y-0.5 transition-all duration-300 flex flex-col space-y-5 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-purple-400/5 dark:bg-purple-400/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none transition-opacity duration-500 group-hover:opacity-100 opacity-50"></div>
+
+              <div className="flex items-center justify-between border-b border-purple-100 dark:border-purple-800/30 pb-3 relative z-10">
+                <h3 className="text-[11px] font-black text-purple-900 dark:text-purple-400 uppercase tracking-widest flex items-center gap-2.5">
+                  <div className="p-1.5 rounded-lg bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 shadow-sm border border-purple-200 dark:border-purple-800/50">
+                    <FileText className="w-3.5 h-3.5" />
+                  </div>
+                  Informasi Sistem
+                </h3>
+                <span className="text-[9px] font-bold text-purple-600 bg-white dark:bg-purple-950 px-2.5 py-1 rounded-md flex items-center gap-1.5 shadow-sm border border-purple-100 dark:border-purple-800/50">Read Only</span>
               </div>
-              <div className="bg-[#F8FAFC] p-4 rounded-xl border border-[#E2E8F0]">
-                <span className="text-[8.5px] font-black text-slate-400 uppercase tracking-wider block mb-1">URL Slug</span>
-                <span className="font-extrabold text-[#3a86ff] truncate block select-all leading-snug">{pageData?.slug || '-'}</span>
-              </div>
-              <div className="bg-[#F8FAFC] p-4 rounded-xl border border-[#E2E8F0]">
-                <span className="text-[8.5px] font-black text-slate-400 uppercase tracking-wider block mb-1">Status</span>
-                <span className={`font-extrabold block uppercase leading-snug ${status === 'Published' ? 'text-[#22C55E]' : 'text-slate-500'}`}>{status}</span>
-              </div>
-              <div className="bg-[#F8FAFC] p-4 rounded-xl border border-[#E2E8F0]">
-                <span className="text-[8.5px] font-black text-slate-400 uppercase tracking-wider block mb-1">Terakhir Update</span>
-                <span className="font-extrabold text-slate-700 block leading-snug">{formattedLastUpdate}</span>
+
+              <div className="space-y-4 flex-1 flex flex-col justify-between">
+                {/* Template */}
+                <div className="bg-white dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50 rounded-xl p-3.5">
+                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Template Terpilih</label>
+                  <span className="text-sm font-bold text-slate-700 dark:text-slate-300 block truncate">{pageData?.template?.name || pageData?.template || '-'}</span>
+                </div>
+                {/* Status */}
+                <div className="bg-white dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50 rounded-xl p-3.5">
+                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Status Publikasi</label>
+                  <div className="flex items-center gap-2">
+                    <div className={`w-2 h-2 rounded-full ${status === 'Published' ? 'bg-[#22C55E]' : 'bg-slate-400'}`} />
+                    <span className={`text-sm font-bold ${status === 'Published' ? 'text-[#22C55E]' : 'text-slate-600 dark:text-slate-400'}`}>{status}</span>
+                  </div>
+                </div>
+                {/* Last Update */}
+                <div className="bg-white dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50 rounded-xl p-3.5">
+                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Terakhir Diperbarui</label>
+                  <span className="text-sm font-bold text-slate-700 dark:text-slate-300 block">{formattedLastUpdate}</span>
+                </div>
               </div>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
             {/* Left Column: Checklist */}
-            <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6 shadow-sm space-y-4">
-              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">✅ Checklist Publikasi</h3>
+            <div className="bg-gradient-to-br from-emerald-50/80 to-white dark:from-emerald-900/10 dark:to-[#0f172a] border border-emerald-200/60 dark:border-emerald-800/40 rounded-[20px] p-6 shadow-sm hover:shadow-[0_8px_30px_rgba(16,185,129,0.12)] hover:border-emerald-300 dark:hover:border-emerald-700 hover:-translate-y-0.5 transition-all duration-300 space-y-5 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-400/5 dark:bg-emerald-400/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none transition-opacity duration-500 group-hover:opacity-100 opacity-50"></div>
+              
+              <div className="border-b border-emerald-100 dark:border-emerald-800/30 pb-3 relative z-10">
+                <h3 className="text-[11px] font-black text-emerald-900 dark:text-emerald-400 uppercase tracking-widest flex items-center gap-2.5">
+                  <div className="p-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center shadow-sm border border-emerald-200 dark:border-emerald-800/50">
+                    <span className="text-xs leading-none">✅</span>
+                  </div>
+                  Checklist Publikasi
+                </h3>
+              </div>
               
               <div className="space-y-3">
                 {/* Check 1 */}
-                <div className="flex gap-3 items-start p-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl">
+                <div className="flex gap-3 items-start p-3 bg-[#F8FAFC] dark:bg-slate-900/50 border border-[#E2E8F0] dark:border-slate-800/80 rounded-xl transition-colors duration-300">
                   <span className="text-base leading-none select-none">{isContentComplete ? '✅' : '❌'}</span>
                   <div>
-                    <h4 className="text-xs font-black uppercase text-slate-800 leading-none mb-1">Konten Lengkap</h4>
-                    <p className="text-[9.5px] text-slate-500 font-medium leading-relaxed">Nama landing page, nama bisnis, dan minimal 1 section aktif harus terisi.</p>
+                    <h4 className="text-xs font-black uppercase text-slate-800 dark:text-slate-200 leading-none mb-1">Konten Lengkap</h4>
+                    <p className="text-[9.5px] text-slate-500 dark:text-slate-400 font-medium leading-relaxed">Nama landing page, nama bisnis, dan minimal 1 section aktif harus terisi.</p>
                   </div>
                 </div>
 
                 {/* Check 2 */}
-                <div className="flex gap-3 items-start p-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl">
+                <div className="flex gap-3 items-start p-3 bg-[#F8FAFC] dark:bg-slate-900/50 border border-[#E2E8F0] dark:border-slate-800/80 rounded-xl transition-colors duration-300">
                   <span className="text-base leading-none select-none">{isSlugValid ? '✅' : '❌'}</span>
                   <div>
-                    <h4 className="text-xs font-black uppercase text-slate-800 leading-none mb-1">URL Valid</h4>
-                    <p className="text-[9.5px] text-slate-500 font-medium leading-relaxed">Subdomain/slug terisi dan menggunakan format penulisan yang benar.</p>
+                    <h4 className="text-xs font-black uppercase text-slate-800 dark:text-slate-200 leading-none mb-1">URL Valid</h4>
+                    <p className="text-[9.5px] text-slate-500 dark:text-slate-400 font-medium leading-relaxed">Subdomain/slug terisi dan menggunakan format penulisan yang benar.</p>
                   </div>
                 </div>
 
                 {/* Check 3 */}
-                <div className="flex gap-3 items-start p-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl">
+                <div className="flex gap-3 items-start p-3 bg-[#F8FAFC] dark:bg-slate-900/50 border border-[#E2E8F0] dark:border-slate-800/80 rounded-xl transition-colors duration-300">
                   <span className="text-base leading-none select-none">{isReadyToPublish ? '✅' : '❌'}</span>
                   <div>
-                    <h4 className="text-xs font-black uppercase text-slate-800 leading-none mb-1">Landing Page Siap Dipublikasikan</h4>
-                    <p className="text-[9.5px] text-slate-500 font-medium leading-relaxed">Semua parameter wajib telah terpenuhi dan draf siap diluncurkan.</p>
+                    <h4 className="text-xs font-black uppercase text-slate-800 dark:text-slate-200 leading-none mb-1">Landing Page Siap Dipublikasikan</h4>
+                    <p className="text-[9.5px] text-slate-500 dark:text-slate-400 font-medium leading-relaxed">Semua parameter wajib telah terpenuhi dan draf siap diluncurkan.</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Right Column: Preview URL */}
-            <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6 shadow-sm space-y-4">
-              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">🌐 URL Landing Page</h3>
+            <div className="bg-gradient-to-br from-amber-50/80 to-white dark:from-amber-900/10 dark:to-[#0f172a] border border-amber-200/60 dark:border-amber-800/40 rounded-[20px] p-6 shadow-sm hover:shadow-[0_8px_30px_rgba(245,158,11,0.12)] hover:border-amber-300 dark:hover:border-amber-700 hover:-translate-y-0.5 transition-all duration-300 space-y-5 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-amber-400/5 dark:bg-amber-400/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none transition-opacity duration-500 group-hover:opacity-100 opacity-50"></div>
+
+              <div className="border-b border-amber-100 dark:border-amber-800/30 pb-3 relative z-10">
+                <h3 className="text-[11px] font-black text-amber-900 dark:text-amber-400 uppercase tracking-widest flex items-center gap-2.5">
+                  <div className="p-1.5 rounded-lg bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 shadow-sm border border-amber-200 dark:border-amber-800/50">
+                    <Globe className="w-3.5 h-3.5" />
+                  </div>
+                  URL Landing Page
+                </h3>
+              </div>
               
               <div className="space-y-4">
-                <div className="bg-[#F8FAFC] border border-[#E2E8F0] p-3.5 rounded-xl space-y-2">
-                  <div className="text-xs font-mono font-bold text-slate-800 break-all select-all">
+                <div className="bg-[#F8FAFC] dark:bg-slate-900/50 border border-[#E2E8F0] dark:border-slate-800/80 p-3.5 rounded-xl space-y-2 transition-colors duration-300">
+                  <div className="text-xs font-mono font-bold text-slate-800 dark:text-slate-200 break-all select-all">
                     {publicSiteUrl}
                   </div>
                   {status !== 'Published' && (
-                    <p className="text-[9.5px] text-slate-400 font-bold uppercase tracking-wide leading-none">
+                    <p className="text-[9.5px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wide leading-none">
                       URL akan aktif setelah landing page dipublikasikan.
                     </p>
                   )}
@@ -882,14 +1178,14 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                       navigator.clipboard.writeText(publicSiteUrl);
                       triggerToast('Link disalin ke clipboard!');
                     }}
-                    className="flex-1 py-2.5 bg-[#F8FAFC] hover:bg-slate-100 border border-[#E2E8F0] text-slate-700 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer text-center"
+                    className="flex-1 py-2.5 bg-[#F8FAFC] hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 border border-[#E2E8F0] dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer text-center animate-all"
                   >
                     Salin URL
                   </button>
                   {status === 'Published' && (
                     <button
                       onClick={() => window.open(publicSiteUrl, '_blank')}
-                      className="flex-1 py-2.5 bg-[#0F172A] hover:bg-slate-800 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer text-center"
+                      className="flex-1 py-2.5 bg-[#0F172A] dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer text-center"
                     >
                       Buka Link
                     </button>
@@ -898,15 +1194,8 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
               </div>
             </div>
           </div>
-
           {/* Action Footer */}
-          <div className="pt-6 border-t border-[#E2E8F0] flex flex-col sm:flex-row items-center justify-end gap-3">
-            <button
-              onClick={() => setShowPublishConfirm(false)}
-              className="w-full sm:w-auto px-6 py-3 border border-[#E2E8F0] text-slate-600 hover:bg-[#F8FAFC] rounded-xl text-xs font-black uppercase tracking-widest transition-all cursor-pointer text-center"
-            >
-              Kembali ke Editor
-            </button>
+          <div className="pt-6 border-t border-[#E2E8F0] dark:border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3">
             <button
               onClick={async () => {
                 setSaveStatus('Saving');
@@ -914,7 +1203,13 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                   const res = await fetch(`/api/landing-pages/${pageId}`, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contentJson })
+                    body: JSON.stringify({ 
+                      contentJson,
+                      title: pageData?.title,
+                      businessName: pageData?.businessName,
+                      slug: pageData?.slug,
+                      customDomain: domainMode === 'custom' ? customDomain : null
+                    })
                   });
                   const data = await res.json();
                   if (data.success) {
@@ -925,24 +1220,32 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                   setSaveStatus('Error');
                 }
               }}
-              className="w-full sm:w-auto px-6 py-3 bg-[#0F172A] hover:bg-slate-800 text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all cursor-pointer text-center"
+              className="w-full sm:w-auto px-8 py-3.5 bg-[#FDE047] dark:bg-[#EAB308] hover:bg-[#FACC15] dark:hover:bg-[#CA8A04] active:bg-[#EAB308] dark:active:bg-[#A16207] text-[#422006] dark:text-[#FEFCE8] border-2 border-[#FACC15] dark:border-[#CA8A04] rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-sm hover:shadow-md active:shadow-inner active:scale-[0.98] hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 cursor-pointer"
             >
-              Simpan Draft
+              {saveStatus === 'Saving' ? 'Menyimpan...' : 'Simpan Draft'}
             </button>
             <button
               onClick={handlePublishSubmit}
               disabled={isSubmittingPublish || !isReadyToPublish}
               className={`w-full sm:w-auto px-8 py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer ${
                 isReadyToPublish
-                  ? 'bg-[#22C55E] hover:bg-[#15803D] text-white hover:shadow-lg hover:scale-[1.01]'
-                  : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                  ? 'bg-[#22C55E] hover:bg-[#15803D] dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white hover:shadow-lg hover:scale-[1.01]'
+                  : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed'
               }`}
             >
               {isSubmittingPublish ? 'Memproses...' : 'Publish Landing Page'}
             </button>
           </div>
 
+          </div>
         </div>
+        {/* Floating Toast Notification */}
+        {editorToast && (
+          <div className="fixed bottom-6 right-6 bg-white dark:bg-slate-900 border border-brand-blue/30 dark:border-brand-blue/50 text-slate-800 dark:text-slate-100 px-5 py-3 rounded-2xl shadow-2xl z-[300] animate-in slide-in-from-bottom-8 duration-300 flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-brand-blue animate-pulse" />
+            <span className="text-base font-black uppercase tracking-wider">{editorToast}</span>
+          </div>
+        )}
       </div>
     );
   }
@@ -984,7 +1287,8 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
         <div className="flex items-center bg-slate-50 dark:bg-slate-950 p-0.5 rounded-xl border border-slate-200 dark:border-slate-800 gap-0.5">
           {[
             { id: 'sections', label: 'Daftar Section', icon: <Layers className="w-3 h-3" /> },
-            { id: 'ai_writer', label: 'Tulis dengan AI & Jadwal', icon: <Bot className="w-3 h-3" /> },
+            { id: 'design', label: 'Desain & Tampilan', icon: <Palette className="w-3 h-3" /> },
+            { id: 'ai_writer', label: 'AI Content Scheduler', icon: <Bot className="w-3 h-3" /> },
             { id: 'preview', label: 'Preview Situs', icon: <Eye className="w-3 h-3" /> }
           ].map(tab => (
             <button
@@ -1001,8 +1305,15 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
           ))}
         </div>
 
-        {/* Right: Publish Button */}
+        {/* Right: Publish Button & Theme Toggle */}
         <div className="flex items-center gap-3">
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-brand-blue dark:hover:text-brand-blue transition-all cursor-pointer flex items-center justify-center"
+            title="Ganti Tema"
+          >
+            {theme === 'dark' ? <Sun className="w-3.5 h-3.5 text-amber-500" /> : <Moon className="w-3.5 h-3.5 text-indigo-500" />}
+          </button>
           {pageData?.status !== 'Published' && pageData?.status !== 'Inactive' && (
             <button
               onClick={() => setShowPublishConfirm(true)}
@@ -1363,6 +1674,8 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                   </div>
                 )}
 
+
+
                 {/* properties for: products */}
                 {activeSectionType === 'products' && (
                   <div className="space-y-4">
@@ -1453,7 +1766,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                     <button
                       onClick={() => updateActiveSectionContent(c => {
                         const arr = [...(c || [])];
-                        arr.push({ name: 'Produk Baru', description: 'Deskripsi produk', price: 'Rp 10.000', image: '' });
+                        arr.push({ name: 'Produk Baru', description: 'Deskripsi produk', image: '' });
                         return arr;
                       })}
                       className="w-full text-center py-2 border border-dashed border-slate-350 hover:border-brand-blue hover:text-brand-blue rounded-xl text-[10px] font-black uppercase tracking-wider transition-all"
@@ -1494,6 +1807,32 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                             <option value="Heart" className="dark:bg-slate-900 dark:text-white">Kepuasan (Heart)</option>
                             <option value="Sparkles" className="dark:bg-slate-900 dark:text-white">Premium (Sparkles)</option>
                             <option value="Star" className="dark:bg-slate-900 dark:text-white">Rating (Star)</option>
+                            <option value="Truck" className="dark:bg-slate-900 dark:text-white">Pengiriman (Truck)</option>
+                            <option value="Coffee" className="dark:bg-slate-900 dark:text-white">Kopi (Coffee)</option>
+                            <option value="Briefcase" className="dark:bg-slate-900 dark:text-white">Profesional (Briefcase)</option>
+                            <option value="Camera" className="dark:bg-slate-900 dark:text-white">Fotografi (Camera)</option>
+                            <option value="Globe" className="dark:bg-slate-900 dark:text-white">Global (Globe)</option>
+                            <option value="Headphones" className="dark:bg-slate-900 dark:text-white">Dukungan (Headphones)</option>
+                            <option value="Monitor" className="dark:bg-slate-900 dark:text-white">Teknologi (Monitor)</option>
+                            <option value="Smartphone" className="dark:bg-slate-900 dark:text-white">Mobile (Smartphone)</option>
+                            <option value="ShoppingBag" className="dark:bg-slate-900 dark:text-white">Belanja (ShoppingBag)</option>
+                            <option value="Award" className="dark:bg-slate-900 dark:text-white">Penghargaan (Award)</option>
+                            <option value="CheckCircle" className="dark:bg-slate-900 dark:text-white">Terverifikasi (CheckCircle)</option>
+                            <option value="Smile" className="dark:bg-slate-900 dark:text-white">Ramah (Smile)</option>
+                            <option value="ThumbsUp" className="dark:bg-slate-900 dark:text-white">Bagus (ThumbsUp)</option>
+                            <option value="Gift" className="dark:bg-slate-900 dark:text-white">Hadiah (Gift)</option>
+                            <option value="Anchor" className="dark:bg-slate-900 dark:text-white">Kuat (Anchor)</option>
+                            <option value="Book" className="dark:bg-slate-900 dark:text-white">Edukasi (Book)</option>
+                            <option value="Compass" className="dark:bg-slate-900 dark:text-white">Panduan (Compass)</option>
+                            <option value="Crosshair" className="dark:bg-slate-900 dark:text-white">Akurat (Crosshair)</option>
+                            <option value="Feather" className="dark:bg-slate-900 dark:text-white">Ringan (Feather)</option>
+                            <option value="Flag" className="dark:bg-slate-900 dark:text-white">Tujuan (Flag)</option>
+                            <option value="Key" className="dark:bg-slate-900 dark:text-white">Kunci (Key)</option>
+                            <option value="Leaf" className="dark:bg-slate-900 dark:text-white">Organik/Alami (Leaf)</option>
+                            <option value="Lock" className="dark:bg-slate-900 dark:text-white">Privasi (Lock)</option>
+                            <option value="Music" className="dark:bg-slate-900 dark:text-white">Musik (Music)</option>
+                            <option value="Sun" className="dark:bg-slate-900 dark:text-white">Cerah (Sun)</option>
+                            <option value="Moon" className="dark:bg-slate-900 dark:text-white">Malam (Moon)</option>
                           </select>
                         </div>
                         <div className="space-y-1">
@@ -1816,12 +2155,96 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                   </div>
                 )}
 
+                {/* SIMPAN SECTION BUTTON */}
+                <div className="pt-6 mt-8 border-t border-slate-200 dark:border-slate-800">
+                  <button
+                    onClick={async () => {
+                      setSaveStatus('Saving');
+                      try {
+                        const res = await fetch(`/api/landing-pages/${pageId}`, {
+                          method: 'PATCH',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ contentJson })
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                          setSaveStatus('Saved');
+                          triggerToast('Perubahan berhasil disimpan!');
+                        } else {
+                          setSaveStatus('Error');
+                          triggerToast('Gagal menyimpan section.');
+                        }
+                      } catch (e) {
+                        setSaveStatus('Error');
+                        triggerToast('Koneksi terputus.');
+                      }
+                    }}
+                    className="w-full py-3.5 bg-[#FDE047] dark:bg-[#EAB308] hover:bg-[#FACC15] dark:hover:bg-[#CA8A04] active:bg-[#EAB308] dark:active:bg-[#A16207] text-[#422006] dark:text-[#FEFCE8] border-2 border-[#FACC15] dark:border-[#CA8A04] rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-sm hover:shadow-md active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    {saveStatus === 'Saving' ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin" /> Menyimpan...
+                      </>
+                    ) : (
+                      <>
+                        Simpan Perubahan
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             </main>
           </div>
         )}
 
-        {/* TAB 2: TULIS DENGAN AI & JADWAL */}
+        {/* TAB DESIGN & TAMPILAN */}
+        {activeTab === 'design' && (
+          <div className="flex-grow overflow-y-auto p-4 md:p-8 max-w-4xl mx-auto w-full space-y-8 custom-scrollbar pb-16">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 md:p-8 shadow-sm space-y-6">
+              <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-4">
+                <Palette className="w-5 h-5 text-brand-blue" />
+                <h2 className="text-sm font-black uppercase tracking-widest text-slate-800 dark:text-slate-200">Pengaturan Desain & Tampilan</h2>
+              </div>
+              
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Warna Utama (Theme Color)</label>
+                  <div className="flex items-center gap-4">
+                    <input 
+                      type="color" 
+                      value={contentJson?.themeColor || '#d97706'}
+                      onChange={(e) => setContentJson((prev: any) => ({ ...prev, themeColor: e.target.value }))}
+                      className="w-14 h-14 p-1 rounded-xl cursor-pointer border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950"
+                    />
+                    <div className="text-xs font-bold text-slate-600 dark:text-slate-400">
+                      Pilih warna yang sesuai dengan brand Anda. Warna ini akan diterapkan pada tombol, aksen, dan ikon.
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Jenis Font Teks</label>
+                  <select 
+                    value={contentJson?.fontFamily || 'Inter'}
+                    onChange={(e) => setContentJson((prev: any) => ({ ...prev, fontFamily: e.target.value }))}
+                    className="w-full max-w-md bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-extrabold text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-brand-blue/20 focus:border-brand-blue transition-all"
+                  >
+                    <option value="Inter">Inter (Modern & Bersih)</option>
+                    <option value="Roboto">Roboto (Klasik & Mudah Dibaca)</option>
+                    <option value="Poppins">Poppins (Geometris & Ramah)</option>
+                    <option value="Montserrat">Montserrat (Tegas & Elegan)</option>
+                    <option value="Playfair Display">Playfair Display (Klasik Serif)</option>
+                    <option value="Merriweather">Merriweather (Nyaman Dibaca)</option>
+                    <option value="Outfit">Outfit (Trendi & Bulat)</option>
+                    <option value="Space Grotesk">Space Grotesk (Futuristik)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 2: AI CONTENT SCHEDULER */}
         {activeTab === 'ai_writer' && (
           <div className="flex-grow overflow-y-auto p-4 md:p-5 max-w-5xl mx-auto w-full space-y-5 custom-scrollbar pb-16">
             {/* Redesigned AI Header with Gradient and premium layout */}
@@ -1834,10 +2257,10 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                 </div>
                 <div>
                   <h2 className="text-lg font-black tracking-wide flex items-center gap-1.5 leading-none">
-                    🤖 AI Copywriting & Scheduling Assistant
+                    🤖 AI Content Scheduler
                   </h2>
                   <p className="text-xs text-white/90 font-medium mt-1 max-w-xl leading-relaxed">
-                    Buat konten landing page yang persuasif dan jadwalkan publikasi secara otomatis dengan bantuan AI.
+                    Buat konten menggunakan AI dan jadwalkan perubahan elemen landing page otomatis.
                   </p>
                 </div>
               </div>
@@ -1872,27 +2295,27 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                     {[
                       {
                         id: 'headline',
-                        title: '✨ Headline Hero',
-                        desc: 'Buat headline yang menarik perhatian',
-                        prompt: 'Buat headline yang menarik perhatian untuk target section Hero Banner'
+                        title: 'Headline Hero',
+                        desc: 'Generate headline persuasif',
+                        prompt: 'Buat headline utama yang sangat menarik dan persuasif untuk bisnis kami'
                       },
                       {
                         id: 'cta',
-                        title: '✨ CTA WhatsApp',
-                        desc: 'Buat ajakan tindakan yang meningkatkan konversi',
-                        prompt: 'Buat ajakan tindakan WhatsApp yang meyakinkan untuk meningkatkan penjualan'
+                        title: 'CTA Promosi',
+                        desc: 'Generate ajakan tindakan',
+                        prompt: 'Buat ajakan tindakan / CTA Button yang meyakinkan untuk memicu penjualan langsung'
                       },
                       {
                         id: 'product',
-                        title: '✨ Deskripsi Produk',
-                        desc: 'Buat deskripsi yang persuasif',
-                        prompt: 'Buat deskripsi produk yang persuasif, informatif, dan menonjolkan keunggulan produk'
+                        title: 'Deskripsi Produk',
+                        desc: 'Generate spesifikasi visual',
+                        prompt: 'Buat deskripsi produk yang informatif, menarik, dan menonjolkan fitur unik'
                       },
                       {
                         id: 'advantage',
-                        title: '✨ Keunggulan Bisnis',
-                        desc: 'Tonjolkan nilai unik usaha',
-                        prompt: 'Buat daftar keunggulan bisnis yang unik, kredibel, dan membujuk pembaca'
+                        title: 'Keunggulan Bisnis',
+                        desc: 'Generate poin keunggulan',
+                        prompt: 'Buat poin-poin keunggulan bisnis utama yang kredibel dan menonjolkan value proposition'
                       }
                     ].map((preset) => {
                       const isActive = selectedPreset === preset.id;
@@ -1931,7 +2354,11 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                       setAiCommand(e.target.value);
                       setSelectedPreset(null);
                     }}
+<<<<<<< HEAD
                     placeholder="Tuliskan instruksi untuk AI. Contoh: Buat headline yang meyakinkan untuk jasa kebersihan rumah dengan gaya profesional dan terpercaya."
+=======
+                    placeholder="Tuliskan instruksi untuk AI. Contoh: Buat headline diskon 30% menyambut grand opening toko kopi."
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
                     className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 text-xs text-slate-800 dark:text-slate-200 outline-none resize-none h-24 focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all leading-relaxed placeholder:text-slate-400"
                   />
                 </div>
@@ -1944,7 +2371,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                 >
                   {isGeneratingCopy ? (
                     <>
-                      <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Menulis salinan copywriting...
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Menganalisis konten...
                     </>
                   ) : (
                     <>
@@ -1973,18 +2400,9 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                         Pilih preset atau tulis instruksi, lalu klik Generate Konten AI untuk menghasilkan copywriting secara instan.
                       </p>
                     </div>
-                    <button
-                      onClick={() => {
-                        setAiCommand('Buat headline yang meyakinkan untuk bisnis kami dengan gaya profesional.');
-                        setSelectedPreset('headline');
-                      }}
-                      className="px-5 py-2 bg-green-50 hover:bg-green-100 dark:bg-green-950/20 dark:hover:bg-green-950/30 text-green-600 dark:text-green-400 border border-green-200 dark:border-green-800/50 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer"
-                    >
-                      Generate Sekarang
-                    </button>
                   </div>
                 ) : (
-                  /* Results Available (Card with light green border) */
+                  /* Results Available */
                   <div className="flex-grow flex flex-col justify-between space-y-4 animate-in fade-in duration-300">
                     <div className="flex-1 p-4 bg-green-50/20 dark:bg-green-950/10 border border-green-500/20 dark:border-green-800/50 rounded-xl space-y-4 text-xs">
                       <div className="flex items-center justify-between border-b border-green-500/10 dark:border-green-800/20 pb-2">
@@ -1996,12 +2414,18 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
 
                       <div className="space-y-3">
                         {aiSuggestions.suggestedData?.headline && (
+<<<<<<< HEAD
                           <div className="bg-white dark:bg-slate-950 p-3 rounded-lg border border-slate-100 dark:border-slate-800 shadow-sm space-y-1">
                             <span className="text-[9px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest block">Headline / Title</span>
+=======
+                          <div className="bg-white dark:bg-slate-955 p-3 rounded-lg border border-slate-100 dark:border-slate-800 shadow-sm space-y-1">
+                            <span className="text-[9px] font-black text-slate-400 dark:text-slate-455 uppercase tracking-widest block">Headline / Title</span>
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
                             <p className="font-extrabold text-slate-800 dark:text-slate-100 text-xs leading-snug">{aiSuggestions.suggestedData.headline}</p>
                           </div>
                         )}
                         {aiSuggestions.suggestedData?.subheadline && (
+<<<<<<< HEAD
                           <div className="bg-white dark:bg-slate-950 p-3 rounded-lg border border-slate-100 dark:border-slate-800 shadow-sm space-y-1">
                             <span className="text-[9px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest block">Subheadline / Deskripsi</span>
                             <p className="text-slate-600 dark:text-slate-300 text-xs font-semibold leading-relaxed">{aiSuggestions.suggestedData.subheadline}</p>
@@ -2010,24 +2434,53 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                         {aiSuggestions.suggestedData?.cta && (
                           <div className="bg-white dark:bg-slate-950 p-3 rounded-lg border border-slate-100 dark:border-slate-800 shadow-sm space-y-1">
                             <span className="text-[9px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest block">CTA Button</span>
+=======
+                          <div className="bg-white dark:bg-slate-955 p-3 rounded-lg border border-slate-100 dark:border-slate-800 shadow-sm space-y-1">
+                            <span className="text-[9px] font-black text-slate-400 dark:text-slate-455 uppercase tracking-widest block">Subheadline / Deskripsi</span>
+                            <p className="text-slate-600 dark:text-slate-350 text-xs font-semibold leading-relaxed">{aiSuggestions.suggestedData.subheadline}</p>
+                          </div>
+                        )}
+                        {aiSuggestions.suggestedData?.cta && (
+                          <div className="bg-white dark:bg-slate-955 p-3 rounded-lg border border-slate-100 dark:border-slate-800 shadow-sm space-y-1">
+                            <span className="text-[9px] font-black text-slate-400 dark:text-slate-455 uppercase tracking-widest block">CTA Button</span>
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
                             <p className="font-extrabold text-green-600 dark:text-green-400 text-xs uppercase tracking-wider">{aiSuggestions.suggestedData.cta}</p>
                           </div>
                         )}
                       </div>
                     </div>
 
-                    <div className="flex gap-3 pt-2 shrink-0">
+                    <div className="flex gap-2 pt-2 shrink-0">
                       <button
                         onClick={applyAiCopy}
-                        className="flex-1 py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-1.5 cursor-pointer shadow-md transition-all active:scale-95"
+                        className="flex-1 py-2 bg-green-500 hover:bg-green-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 border-none"
                       >
-                        <Check className="w-3.5 h-3.5" /> Gunakan Konten
+                        <Check className="w-3.5 h-3.5" /> Gunakan
+                      </button>
+                      <button
+                        onClick={() => {
+                          setEditingScheduleId(null);
+                          const finalVal = (aiSuggestions.suggestedData?.headline || '') + (aiSuggestions.suggestedData?.subheadline ? ` - ${aiSuggestions.suggestedData.subheadline}` : '');
+                          setNewScheduleValue(finalVal);
+                          setNewScheduleComponent(
+                            activeAccordion === 'hero' ? 'Hero Title' :
+                            activeAccordion === 'cta' ? 'CTA Button' :
+                            activeAccordion === 'products' ? 'Card Produk' :
+                            activeAccordion === 'advantages' ? 'Card Layanan' :
+                            activeAccordion === 'testimonials' ? 'Testimoni' : 'Hero Title'
+                          );
+                          setNewScheduleTitle(`Ubah ${activeAccordion} via AI`);
+                          setIsSchedulerModalOpen(true);
+                        }}
+                        className="flex-1 py-2 bg-brand-blue hover:bg-brand-blue/90 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 border-none"
+                      >
+                        <Calendar className="w-3.5 h-3.5" /> Jadwalkan
                       </button>
                       <button
                         onClick={handleAiGenerateSubmit}
-                        className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-1.5 cursor-pointer transition-all active:scale-95 border border-slate-200/50 dark:border-slate-700"
+                        className="px-3 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 border border-slate-200 dark:border-slate-700"
                       >
-                        <RefreshCw className="w-3.5 h-3.5" /> Generate Ulang
+                        <RefreshCw className="w-3.5 h-3.5" /> Ulang
                       </button>
                     </div>
                   </div>
@@ -2035,21 +2488,30 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
               </div>
             </div>
 
-            {/* Redesigned Jadwal Publikasi AI (Timeline) */}
+            {/* Redesigned Content Schedule (Timeline) */}
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-4 shadow-md hover:shadow-lg transition-all duration-300">
               <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-4 bg-amber-500 rounded-full"></div>
                   <h3 className="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-widest flex items-center gap-1">
-                    📅 Jadwal Publikasi AI
+                    📅 Content Schedule
                   </h3>
                 </div>
-                <button
-                  onClick={() => setIsSchedulerModalOpen(true)}
-                  className="px-3.5 py-1.5 bg-green-50 hover:bg-green-100 dark:bg-green-950/20 dark:hover:bg-green-950/30 text-green-600 dark:text-green-400 border border-green-200 dark:border-green-800/50 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-1 transition-all cursor-pointer"
-                >
-                  <Plus className="w-3 h-3" /> Jadwalkan Konten
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      setEditingScheduleId(null);
+                      setNewScheduleTitle('');
+                      setNewScheduleDate('');
+                      setNewScheduleValue('');
+                      setNewScheduleStatus('Scheduled');
+                      setIsSchedulerModalOpen(true);
+                    }}
+                    className="px-3.5 py-1.5 bg-green-50 hover:bg-green-100 dark:bg-green-950/20 dark:hover:bg-green-950/30 text-green-600 dark:text-green-400 border border-green-200 dark:border-green-800/50 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-1 transition-all cursor-pointer border-none"
+                  >
+                    <Plus className="w-3 h-3" /> Jadwalkan Konten
+                  </button>
+                </div>
               </div>
 
               {/* Vertical Timeline Layout */}
@@ -2061,12 +2523,15 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                   if (q.status === 'Scheduled' || q.status === 'AI Scheduled') {
                     statusBg = 'bg-amber-100/60 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-900/50';
                     dotBg = 'bg-amber-500';
-                  } else if (q.status === 'Published') {
+                  } else if (q.status === 'Completed' || q.status === 'Published') {
                     statusBg = 'bg-green-100/60 dark:bg-green-950/20 text-green-600 dark:text-green-400 border-green-200 dark:border-green-900/50';
                     dotBg = 'bg-green-500';
                   } else if (q.status === 'Queued') {
-                    statusBg = 'bg-blue-100/60 dark:bg-blue-950/20 text-blue-600 dark:text-blue-450 border-blue-200 dark:border-blue-900/50';
+                    statusBg = 'bg-blue-100/60 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-900/50';
                     dotBg = 'bg-blue-500';
+                  } else if (q.status === 'Failed') {
+                    statusBg = 'bg-red-100/60 dark:bg-red-950/20 text-red-600 dark:text-red-400 border-red-200 dark:border-red-900/50';
+                    dotBg = 'bg-red-500';
                   }
 
                   return (
@@ -2076,21 +2541,53 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                       
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200/50 dark:border-slate-800/50 flex items-center justify-center text-slate-500 dark:text-slate-400 group-hover:bg-green-50/50 dark:group-hover:bg-green-950/20 group-hover:text-green-500 transition-colors">
-                          <Activity className="w-3.5 h-3.5" />
+                          <Calendar className="w-3.5 h-3.5" />
                         </div>
                         <div>
                           <h6 className="text-xs font-black text-slate-800 dark:text-slate-200 uppercase leading-none mb-1 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
                             {q.title}
                           </h6>
-                          <p className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
-                            {q.date}
-                          </p>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[8px] font-black uppercase text-brand-blue tracking-widest bg-brand-blue/10 px-1 py-0.2 rounded leading-none">
+                              {q.component || 'Hero Title'}
+                            </span>
+                            <span className="w-1.5 h-1.5 rounded-full bg-slate-200 dark:bg-slate-800"></span>
+                            <p className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none">
+                              {new Date(q.scheduledAt || q.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                            </p>
+                          </div>
                         </div>
                       </div>
 
-                      <span className={`text-[8px] font-black border px-2 py-0.5 rounded-full uppercase tracking-widest shadow-sm ${statusBg}`}>
-                        {q.status}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-[8px] font-black border px-2 py-0.5 rounded-full uppercase tracking-widest shadow-sm ${statusBg}`}>
+                          {q.status}
+                        </span>
+                        <button 
+                          onClick={() => {
+                            setEditingScheduleId(q.id);
+                            setNewScheduleTitle(q.title);
+                            const dateObj = new Date(q.scheduledAt || q.date);
+                            dateObj.setMinutes(dateObj.getMinutes() - dateObj.getTimezoneOffset());
+                            setNewScheduleDate(dateObj.toISOString().slice(0, 16));
+                            setNewScheduleStatus(q.status);
+                            setNewScheduleComponent(q.component);
+                            setNewScheduleValue(q.newValue);
+                            setIsSchedulerModalOpen(true);
+                          }}
+                          className="p-1 rounded-full text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-all cursor-pointer"
+                          title="Edit Jadwal"
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteSchedule(q.id)}
+                          className="p-1 rounded-full text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all cursor-pointer"
+                          title="Hapus Jadwal"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
                   );
                 })}
@@ -2194,7 +2691,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                 {/* Embed template renderer */}
                 <div className="w-full h-full overflow-y-auto bg-white text-slate-900 custom-scrollbar pt-1">
                   <TemplateRenderer
-                    templateId={pageData?.template?.id || pageData?.template?.name}
+                    templateId={pageData?.template?.id || pageData?.template?.name || ''}
                     contentJson={contentJson}
                     isMobile={previewMode === 'mobile'}
                   />
@@ -2203,24 +2700,31 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
             </div>
           </div>
         )}
-
       </div>
-
-      {/* Scheduler Modal */}
+             {/* Scheduler Modal */}
       {isSchedulerModalOpen && (
         <div className="fixed inset-0 z-[250] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm" onClick={() => setIsSchedulerModalOpen(false)} />
+          <div className="absolute inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm" onClick={() => { setIsSchedulerModalOpen(false); setEditingScheduleId(null); }} />
           <div className="relative w-full max-w-sm bg-white dark:bg-slate-900 rounded-[20px] p-6 space-y-4 shadow-2xl border border-slate-200 dark:border-slate-800 z-10 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
+<<<<<<< HEAD
               <h3 className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200 flex items-center gap-1.5">📅 Jadwalkan Konten Baru</h3>
               <button onClick={() => setIsSchedulerModalOpen(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+=======
+              <h3 className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200 flex items-center gap-1.5">📅 {editingScheduleId ? 'Edit Jadwal Konten' : 'Jadwalkan Perubahan Konten'}</h3>
+              <button onClick={() => { setIsSchedulerModalOpen(false); setEditingScheduleId(null); }} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 border-none bg-transparent cursor-pointer">
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
                 <X className="w-4 h-4" />
               </button>
             </div>
             
             <div className="space-y-3">
               <div className="space-y-1">
+<<<<<<< HEAD
                 <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Judul Konten</label>
+=======
+                <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Nama Jadwal</label>
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
                 <input
                   type="text"
                   value={newScheduleTitle}
@@ -2230,14 +2734,53 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                 />
               </div>
 
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Target Komponen</label>
+                <select
+                  value={newScheduleComponent}
+                  onChange={(e) => setNewScheduleComponent(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
+                >
+                  <option>Menu Navigasi</option>
+                  <option>Logo Website</option>
+                  <option>Hero Banner</option>
+                  <option>Tentang Usaha</option>
+                  <option>Produk & Layanan</option>
+                  <option>Keunggulan</option>
+                  <option>Testimoni</option>
+                  <option>Galeri Foto</option>
+                  <option>CTA Penawaran</option>
+                  <option>Kontak</option>
+                  <option>Media Sosial</option>
+                  <option>Toko Online (Marketplace)</option>
+                  <option>Footer Halaman</option>
+                </select>
+              </div>
 
               <div className="space-y-1">
+<<<<<<< HEAD
                 <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Waktu Publikasi</label>
+=======
+                <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Nilai Baru (Konten)</label>
+                <textarea
+                  value={newScheduleValue}
+                  onChange={(e) => setNewScheduleValue(e.target.value)}
+                  placeholder="Masukkan nilai baru..."
+                  className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 outline-none resize-none h-16 focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-wider block">Waktu Eksekusi</label>
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
                 <input
-                  type="text"
+                  type="datetime-local"
                   value={newScheduleDate}
                   onChange={(e) => setNewScheduleDate(e.target.value)}
+<<<<<<< HEAD
                   placeholder="Contoh: Besok 09:00, atau Jumat 15:30"
+=======
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
                   className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500"
                 />
               </div>
@@ -2251,23 +2794,24 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                 >
                   <option value="Scheduled">Scheduled</option>
                   <option value="Queued">Queued</option>
-                  <option value="Published">Published</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Failed">Failed</option>
                 </select>
               </div>
             </div>
 
             <div className="flex gap-3 pt-2">
               <button
-                onClick={() => setIsSchedulerModalOpen(false)}
-                className="flex-1 py-2.5 text-[10px] font-black uppercase tracking-wider border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all cursor-pointer text-slate-500 dark:text-slate-400"
+                onClick={() => { setIsSchedulerModalOpen(false); setEditingScheduleId(null); }}
+                className="flex-1 py-2.5 text-[10px] font-black uppercase tracking-wider border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all cursor-pointer text-slate-500 dark:text-slate-400 bg-transparent"
               >
                 Batal
               </button>
               <button
                 onClick={handleAddSchedule}
-                className="flex-1 py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider shadow-sm transition-all cursor-pointer"
+                className="flex-1 py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider shadow-sm transition-all cursor-pointer border-none"
               >
-                Jadwalkan
+                {editingScheduleId ? 'Simpan' : 'Jadwalkan'}
               </button>
             </div>
           </div>

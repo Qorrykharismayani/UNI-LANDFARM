@@ -35,12 +35,67 @@ export async function GET() {
         faqsJson: [
           { q: "Apakah saya perlu keahlian coding?", a: "Tidak sama sekali. Uni-LandFarm dirancang untuk pebisnis tanpa latar belakang teknis. AI kami menangani semua aspek teknis.", color: "bg-blue-500" },
           { q: "Berapa lama waktu yang dibutuhkan untuk membuat situs?", a: "Hanya butuh sekitar 30-60 detik untuk menghasilkan draf pertama yang profesional.", color: "bg-purple-500" },
-          { q: "Apakah situs saya akan SEO-friendly?", a: "Ya, AI kami secara otomatis mengoptimalkan struktur, meta tag, dan konten untuk mesin pencari.", color: "bg-indigo-500" },
+          { q: "Bagaimana cara mengubah konten landing page?", a: "Anda dapat mengubah teks, gambar, tombol, dan informasi lainnya langsung melalui CMS Editor. Perubahan dapat disimpan atau dijadwalkan untuk diterapkan secara otomatis.", color: "bg-indigo-500" },
           { q: "Bisakah saya menggunakan domain sendiri?", a: "Tentu. Anda dapat menghubungkan domain kustom Anda dengan mudah di dashboard.", color: "bg-violet-500" }
+        ],
+        pricingJson: [
+          { name: 'PAKET BASIC', price: 'Rp 75.000', description: 'Untuk kebutuhan desain dasar.', features: ['1 prompt', 'Rasio 16:9', '1 konsep infografis', '500-800 token'], buttonText: 'BELI 800 TOKEN', isPopular: false, gradient: 'from-blue-500 to-cyan-400' },
+          { name: 'PAKET STANDARD', price: 'Rp 150.000', description: 'Untuk pebisnis profesional.', features: ['3 prompt', 'Bebas Rasio', '3 konsep infografis', '1500-2000 token', 'Revisi 1x'], buttonText: 'BELI 2000 TOKEN', isPopular: true, gradient: 'from-amber-400 to-orange-500' },
+          { name: 'PAKET PREMIUM', price: 'Rp 300.000', description: 'Solusi lengkap agensi digital.', features: ['Bebas prompt', 'Semua fitur AI', 'Unlimited konsep', '5000+ token', 'Revisi unlimited', 'Prioritas Support'], buttonText: 'BELI 5000+ TOKEN', isPopular: false, gradient: 'from-violet-500 to-purple-600' }
         ],
         userPageJson: {
           welcomeTitle: "Halo, Pebisnis Modern!",
-          welcomeSubtitle: "Siap untuk mengotomatisasi ekosistem digital Anda hari ini?"
+          welcomeSubtitle: "Siap untuk mengotomatisasi ekosistem digital Anda hari ini?",
+          guides: [
+            {
+              title: "Panduan Memulai Uni-LandFarm",
+              desc: "Pelajari langkah awal membuat landing page menggunakan template yang tersedia.",
+              time: "Membaca 3 Menit",
+              icon: "Zap",
+              bg: "bg-blue-500/5 dark:bg-blue-600/10",
+              steps: [
+                "Pilih template landing page",
+                "Isi data usaha",
+                "Simpan landing page sebagai draft"
+              ]
+            },
+            {
+              title: "Panduan Pengelolaan CMS",
+              desc: "Kelola konten landing page seperti teks, gambar, kontak, tautan, dan informasi promosi melalui CMS.",
+              time: "Membaca 4 Menit",
+              icon: "Database",
+              bg: "bg-purple-500/5 dark:bg-purple-600/10",
+              steps: [
+                "Edit teks dan gambar",
+                "Kelola navigasi dan section",
+                "Simpan perubahan konten"
+              ]
+            },
+            {
+              title: "Panduan Template Landing Page",
+              desc: "Pahami cara memilih dan menyesuaikan template landing page sesuai kebutuhan bisnis.",
+              time: "Membaca 3 Menit",
+              icon: "Layout",
+              bg: "bg-emerald-500/5 dark:bg-emerald-600/10",
+              steps: [
+                "Pilih template yang sesuai",
+                "Sesuaikan konten dan tampilan",
+                "Lihat hasil melalui preview"
+              ]
+            },
+            {
+              title: "Panduan Publikasi Landing Page",
+              desc: "Pelajari proses publikasi instan hingga landing page langsung aktif dapat diakses oleh publik.",
+              time: "Membaca 2 Menit",
+              icon: "Rocket",
+              bg: "bg-amber-500/5 dark:bg-amber-600/10",
+              steps: [
+                "Periksa preview landing page",
+                "Klik Publish Landing Page",
+                "Situs langsung aktif secara online"
+              ]
+            }
+          ]
         }
       }
     });
@@ -48,6 +103,57 @@ export async function GET() {
 
   try {
     const settings = await prisma.systemSetting.findFirst();
+    const defaultGuides = [
+      {
+        title: "Panduan Memulai Uni-LandFarm",
+        desc: "Pelajari langkah awal membuat landing page menggunakan template yang tersedia.",
+        time: "Membaca 3 Menit",
+        icon: "Zap",
+        bg: "bg-blue-500/5 dark:bg-blue-600/10",
+        steps: [
+          "Pilih template landing page",
+          "Isi data usaha",
+          "Simpan landing page sebagai draft"
+        ]
+      },
+      {
+        title: "Panduan Pengelolaan CMS",
+        desc: "Kelola konten landing page seperti teks, gambar, kontak, tautan, dan informasi promosi melalui CMS.",
+        time: "Membaca 4 Menit",
+        icon: "Database",
+        bg: "bg-purple-500/5 dark:bg-purple-600/10",
+        steps: [
+          "Edit teks dan gambar",
+          "Kelola navigasi dan section",
+          "Simpan perubahan konten"
+        ]
+      },
+      {
+        title: "Panduan Template Landing Page",
+        desc: "Pahami cara memilih dan menyesuaikan template landing page sesuai kebutuhan bisnis.",
+        time: "Membaca 3 Menit",
+        icon: "Layout",
+        bg: "bg-emerald-500/5 dark:bg-emerald-600/10",
+        steps: [
+          "Pilih template yang sesuai",
+          "Sesuaikan konten dan tampilan",
+          "Lihat hasil melalui preview"
+        ]
+      },
+      {
+        title: "Panduan Publikasi Landing Page",
+        desc: "Pelajari proses publikasi instan hingga landing page langsung aktif dapat diakses oleh publik.",
+        time: "Membaca 2 Menit",
+        icon: "Rocket",
+        bg: "bg-amber-500/5 dark:bg-amber-600/10",
+        steps: [
+          "Periksa preview landing page",
+          "Klik Publish Landing Page",
+          "Situs langsung aktif secara online"
+        ]
+      }
+    ];
+
     if (settings) {
       if (!settings.featuresJson) {
         settings.featuresJson = [
@@ -69,15 +175,29 @@ export async function GET() {
         settings.faqsJson = [
           { q: "Apakah saya perlu keahlian coding?", a: "Tidak sama sekali. Uni-LandFarm dirancang untuk pebisnis tanpa latar belakang teknis. AI kami menangani semua aspek teknis.", color: "bg-blue-500" },
           { q: "Berapa lama waktu yang dibutuhkan untuk membuat situs?", a: "Hanya butuh sekitar 30-60 detik untuk menghasilkan draf pertama yang profesional.", color: "bg-purple-500" },
-          { q: "Apakah situs saya akan SEO-friendly?", a: "Ya, AI kami secara otomatis mengoptimalkan struktur, meta tag, dan konten untuk mesin pencari.", color: "bg-indigo-500" },
+          { q: "Bagaimana cara mengubah konten landing page?", a: "Anda dapat mengubah teks, gambar, tombol, dan informasi lainnya langsung melalui CMS Editor. Perubahan dapat disimpan atau dijadwalkan untuk diterapkan secara otomatis.", color: "bg-indigo-500" },
           { q: "Bisakah saya menggunakan domain sendiri?", a: "Tentu. Anda dapat menghubungkan domain kustom Anda dengan mudah di dashboard.", color: "bg-violet-500" }
+        ];
+      }
+      if (!settings.pricingJson) {
+        settings.pricingJson = [
+          { name: 'PAKET BASIC', price: 'Rp 75.000', description: 'Untuk kebutuhan desain dasar.', features: ['1 prompt', 'Rasio 16:9', '1 konsep infografis', '500-800 token'], buttonText: 'BELI 800 TOKEN', isPopular: false, gradient: 'from-blue-500 to-cyan-400' },
+          { name: 'PAKET STANDARD', price: 'Rp 150.000', description: 'Untuk pebisnis profesional.', features: ['3 prompt', 'Bebas Rasio', '3 konsep infografis', '1500-2000 token', 'Revisi 1x'], buttonText: 'BELI 2000 TOKEN', isPopular: true, gradient: 'from-amber-400 to-orange-500' },
+          { name: 'PAKET PREMIUM', price: 'Rp 300.000', description: 'Solusi lengkap agensi digital.', features: ['Bebas prompt', 'Semua fitur AI', 'Unlimited konsep', '5000+ token', 'Revisi unlimited', 'Prioritas Support'], buttonText: 'BELI 5000+ TOKEN', isPopular: false, gradient: 'from-violet-500 to-purple-600' }
         ];
       }
       if (!settings.userPageJson) {
         settings.userPageJson = {
           welcomeTitle: "Halo, Pebisnis Modern!",
-          welcomeSubtitle: "Siap untuk mengotomatisasi ekosistem digital Anda hari ini?"
+          welcomeSubtitle: "Siap untuk mengotomatisasi ekosistem digital Anda hari ini?",
+          guides: defaultGuides
         };
+      } else {
+        const userPage = settings.userPageJson as any;
+        if (!userPage.guides) {
+          userPage.guides = defaultGuides;
+          settings.userPageJson = userPage;
+        }
       }
     }
     return NextResponse.json({ success: true, message: 'Berhasil', data: settings });

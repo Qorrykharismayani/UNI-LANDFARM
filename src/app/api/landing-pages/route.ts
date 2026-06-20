@@ -16,11 +16,7 @@ export async function GET(request: Request) {
       pages = await prisma.landingPage.findMany({
         include: {
           user: { select: { name: true, email: true } },
-          template: { select: { name: true, category: true, thumbnail: true } },
-          publishRequests: {
-            orderBy: { requestedAt: 'desc' },
-            take: 1
-          }
+          template: { select: { name: true, category: true, thumbnail: true } }
         },
         orderBy: { createdAt: 'desc' }
       });
@@ -28,19 +24,18 @@ export async function GET(request: Request) {
       pages = await prisma.landingPage.findMany({
         where: { userId: session.userId },
         include: {
-          template: { select: { name: true, category: true, thumbnail: true } },
-          publishRequests: {
-            orderBy: { requestedAt: 'desc' },
-            take: 1
-          }
+          user: { select: { name: true, email: true } },
+          template: { select: { name: true, category: true, thumbnail: true } }
         },
         orderBy: { createdAt: 'desc' }
       });
+<<<<<<< HEAD
 
+=======
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
     }
 
-    // Map fields so frontend receives formatted outputs matching expected state variables
-    const formattedPages = pages.map(p => ({
+    const formattedPages = pages.map((p) => ({
       id: p.id,
       userId: p.userId,
       // Nested objects for admin monitoring panel
@@ -52,13 +47,15 @@ export async function GET(request: Request) {
       businessName: p.businessName,
       title: p.title,
       createdDate: p.createdAt.toISOString().split('T')[0],
+      createdAt: p.createdAt.toISOString(),
+      publishedAt: p.publishedAt ? p.publishedAt.toISOString() : null,
       status: p.status,
       views: p.views,
       type: p.template.category,
       image: p.template.thumbnail,
       slug: p.slug,
       url: p.publicUrl,
-      adminNote: (p as any).publishRequests?.[0]?.rejectionReason || null
+      adminNote: null
     }));
 
     return NextResponse.json({ success: true, message: 'Berhasil', data: formattedPages });

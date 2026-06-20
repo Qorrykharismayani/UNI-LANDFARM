@@ -4,6 +4,7 @@ import {
   Send, Edit3, Upload
 } from 'lucide-react';
 import { motion } from 'motion/react';
+import TemplateRenderer from '../TemplateRenderer';
 
 interface LandingPagePageProps {
   user?: any;
@@ -23,7 +24,13 @@ interface LandingPagePageProps {
   handlePublish: () => void;
   setSubView: (v: string) => void;
   setCmsSubTab: (tab: string) => void;
+<<<<<<< HEAD
   isPublishing?: boolean;
+=======
+  templates: any[];
+  isPublishing?: boolean;
+  setActivePageId?: (id: string) => void;
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
 }
 
 const LandingPagePage = ({
@@ -44,8 +51,45 @@ const LandingPagePage = ({
   handlePublish,
   setSubView,
   setCmsSubTab,
+<<<<<<< HEAD
   isPublishing,
+=======
+  templates = [],
+  isPublishing = false,
+  setActivePageId,
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
 }: LandingPagePageProps) => {
+  const logoInputRef = React.useRef<HTMLInputElement>(null);
+  const [logoUploading, setLogoUploading] = React.useState(false);
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    setLogoUploading(true);
+    try {
+      const uploadRes = await fetch('/api/media/upload', {
+        method: 'POST',
+        body: formData
+      });
+      const uploadData = await uploadRes.json();
+      if (uploadData.success && uploadData.data) {
+        setManualData((prev: any) => ({ ...prev, logo: uploadData.data.fileUrl }));
+      } else {
+        alert(uploadData.message || 'Gagal mengunggah logo.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Terjadi kesalahan koneksi saat mengunggah logo.');
+    } finally {
+      setLogoUploading(false);
+      e.target.value = '';
+    }
+  };
+
   if (cmsNavMode === 'setup-progress') {
     return (
       <div className="max-w-4xl mx-auto h-[70vh] flex flex-col items-center justify-center text-center space-y-10 animate-in fade-in duration-700">
@@ -117,7 +161,10 @@ const LandingPagePage = ({
     );
   }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
 
   if (isGenerating) {
     return (
@@ -158,17 +205,30 @@ const LandingPagePage = ({
           </button>
           <div className="flex gap-4">
             <button
-              onClick={() => { setSubView('cms'); setCmsSubTab('editor'); }}
+              onClick={() => { 
+                if (generatedDraft?.id && setActivePageId) setActivePageId(generatedDraft.id);
+                setSubView('cms'); 
+                setCmsSubTab('editor'); 
+              }}
               className="px-6 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all flex items-center gap-2"
             >
               <Edit3 className="w-3 h-3" /> Edit Struktur Konten
             </button>
             <button
+<<<<<<< HEAD
               onClick={handlePublish}
               disabled={isPublishing}
               className={`px-6 py-2.5 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-blue hover:shadow-blue-lg transition-all flex items-center gap-2 ${
                 isPublishing ? 'bg-brand-blue/70 cursor-not-allowed' : 'bg-brand-blue'
               }`}
+=======
+              onClick={() => {
+                if (generatedDraft?.id && setActivePageId) setActivePageId(generatedDraft.id);
+                setSubView('cms');
+                setCmsSubTab('publish');
+              }}
+              className="px-6 py-2.5 bg-brand-blue text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-blue hover:shadow-blue-lg transition-all flex items-center gap-2"
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
             >
               <Send className={`w-3 h-3 ${isPublishing ? 'animate-pulse' : ''}`} /> {isPublishing ? 'Publishing...' : 'Publish Website'}
             </button>
@@ -190,57 +250,20 @@ const LandingPagePage = ({
           </div>
 
           {/* Actual Website Content Preview */}
-          <div className="h-[70vh] overflow-y-auto bg-slate-50 dark:bg-slate-950 p-8 custom-scrollbar">
-            <div className="max-w-4xl mx-auto space-y-24 py-12">
-              {/* Hero Section */}
-              <section className="text-center space-y-8 py-12">
-                <div className="inline-block px-4 py-1.5 bg-brand-blue/10 text-brand-blue rounded-full text-[10px] font-black uppercase tracking-[0.2em] animate-bounce">
-                  🚀 Launching Soon
-                </div>
-                <h1 className="text-6xl font-black text-slate-900 dark:text-white leading-[1.1] tracking-tighter">
-                  {generatedDraft.headline}
-                </h1>
-                <p className="text-lg text-slate-500 dark:text-slate-400 font-medium max-w-2xl mx-auto leading-relaxed">
-                  {generatedDraft.subheadline}
-                </p>
-                <button className="px-10 py-5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl text-[12px] font-black uppercase tracking-[0.2em] shadow-2xl">
-                  {generatedDraft.cta}
-                </button>
-              </section>
-
-              {/* Features/About Section */}
-              <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {['Premium Quality', 'Agentic Workflow', 'High Efficiency'].map((feat, i) => (
-                  <div key={i} className="bg-white dark:bg-slate-900 p-8 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm text-center group hover:-translate-y-2 transition-all">
-                    <div className="w-12 h-12 bg-brand-blue/10 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
-                      <Sparkles className="w-6 h-6 text-brand-blue" />
-                    </div>
-                    <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase mb-3">{feat}</h4>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">Optimal dalam setiap detail untuk mendukung pertumbuhan bisnis Anda secara organik.</p>
-                  </div>
-                ))}
-              </section>
-
-              {/* Standard sections */}
-              {['Tentang Kami', 'Produk/Layanan', 'Galeri'].map((section, i) => (
-                <section key={i} className="py-12 border-t border-slate-100 dark:border-slate-800 text-center">
-                  <h2 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight uppercase mb-4">{section}</h2>
-                  <div className="w-20 h-1 bg-brand-blue mx-auto rounded-full mb-8" />
-                  <div className="bg-slate-100 dark:bg-slate-900 rounded-3xl aspect-video flex items-center justify-center border border-slate-200 dark:border-slate-800">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">[ Placeholder Content for {section} ]</p>
-                  </div>
-                </section>
-              ))}
-
-              <footer className="py-12 border-t border-slate-100 dark:border-slate-800 text-center">
-                <p className="text-[10px] font-black text-slate-400 tracking-widest mb-4">© 2024 {manualData.name || 'Situs Bisnis AI'}. Dipersembahkan oleh Uni-LandFarm.</p>
-                <div className="flex justify-center gap-6">
-                  {['Instagram', 'WhatsApp', 'LinkedIn'].map(link => (
-                    <span key={link} className="text-[9px] font-black text-brand-blue uppercase cursor-pointer hover:underline">{link}</span>
-                  ))}
-                </div>
-              </footer>
-            </div>
+          <div className="h-[70vh] overflow-y-auto bg-white text-slate-900 custom-scrollbar">
+            <TemplateRenderer 
+              templateId={generatedDraft.templateId || templates[0]?.id || 'tpl-umkm'} 
+              contentJson={generatedDraft.contentJson || {
+                hero: {
+                  headline: generatedDraft.headline,
+                  subheadline: generatedDraft.subheadline,
+                  cta: generatedDraft.cta,
+                },
+                footer: {
+                  copyright: `© 2026 ${manualData.name || 'Situs Bisnis AI'}. Dipersembahkan oleh Uni-LandFarm.`
+                }
+              }} 
+            />
           </div>
         </div>
       </div>
@@ -373,7 +396,7 @@ const LandingPagePage = ({
                 <select
                   value={manualData.category}
                   onChange={(e) => setManualData({ ...manualData, category: e.target.value })}
-                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-3 text-xs font-bold dark:text-white outline-none appearance-none text-slate-500 font-black"
+                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-3 text-xs font-bold text-slate-900 dark:text-white outline-none appearance-none font-black"
                 >
                   <option>E-Commerce / Toko Online</option>
                   <option>Portfolio</option>
@@ -386,14 +409,15 @@ const LandingPagePage = ({
               <div>
                 <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Template Website</label>
                 <select
-                  value={manualData.template}
-                  onChange={(e) => setManualData({ ...manualData, template: e.target.value })}
-                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-3 text-xs font-bold dark:text-white outline-none appearance-none text-slate-500 font-black"
+                  value={manualData.templateId || (templates[0]?.id || '')}
+                  onChange={(e) => setManualData({ ...manualData, templateId: Number(e.target.value) })}
+                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-3 text-xs font-bold text-slate-900 dark:text-white outline-none appearance-none font-black"
                 >
-                  <option>Modern Dark Pro (Recommended)</option>
-                  <option>Clean Light Agency</option>
-                  <option>Minimalist Portfolio</option>
-                  <option>Bold Storefront</option>
+                  {templates.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.name} ({t.category})
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -418,10 +442,34 @@ const LandingPagePage = ({
               </div>
               <div>
                 <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Upload Logo Utama</label>
-                <div className="border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl p-6 text-center hover:border-brand-blue/30 transition-all cursor-pointer group">
-                  <Upload className="w-6 h-6 text-slate-300 mx-auto mb-2 group-hover:text-brand-blue transition-colors" />
-                  <p className="text-[10px] font-black text-slate-400 uppercase">Upload logo bisnis Anda</p>
-                  <p className="text-[8px] text-slate-400 uppercase mt-1">Format: PNG, JPG, SVG</p>
+                <input 
+                  type="file" 
+                  ref={logoInputRef} 
+                  onChange={handleLogoUpload} 
+                  accept="image/*" 
+                  className="hidden" 
+                />
+                <div 
+                  onClick={() => logoInputRef.current?.click()}
+                  className="border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl p-6 text-center hover:border-brand-blue/30 transition-all cursor-pointer group flex flex-col items-center justify-center min-h-[120px]"
+                >
+                  {logoUploading ? (
+                    <div className="space-y-2">
+                      <div className="w-5 h-5 border-2 border-brand-blue border-t-transparent rounded-full animate-spin mx-auto"></div>
+                      <p className="text-[10px] font-black text-slate-400 uppercase">Mengunggah...</p>
+                    </div>
+                  ) : manualData.logo ? (
+                    <div className="space-y-2 w-full">
+                      <img src={manualData.logo} alt="Logo Preview" className="max-h-16 mx-auto object-contain rounded-lg shadow-sm" />
+                      <p className="text-[8px] font-black text-brand-blue uppercase tracking-wider">Ganti Logo</p>
+                    </div>
+                  ) : (
+                    <>
+                      <Upload className="w-6 h-6 text-slate-300 mx-auto mb-2 group-hover:text-brand-blue transition-colors" />
+                      <p className="text-[10px] font-black text-slate-400 uppercase">Upload logo bisnis Anda</p>
+                      <p className="text-[8px] text-slate-400 uppercase mt-1">Format: PNG, JPG, SVG</p>
+                    </>
+                  )}
                 </div>
               </div>
               <div>
@@ -446,7 +494,7 @@ const LandingPagePage = ({
             </button>
             <button
               onClick={handleManualSetup}
-              className="flex-1 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-[11px] font-black uppercase tracking-widest shadow-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+              className="flex-grow py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-[11px] font-black uppercase tracking-widest shadow-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-2"
             >
               Mulai Setup Website
               <ArrowRight className="w-3.5 h-3.5" />
@@ -459,7 +507,7 @@ const LandingPagePage = ({
 
   // Default landing view
   return (
-    <div className="max-w-5xl mx-auto py-16 relative">
+    <div className="max-w-5xl mx-auto py-16 relative outline-none border-none ring-0">
       {/* Premium Background Decorations */}
       <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden">
         {/* Subtle Grid Pattern */}

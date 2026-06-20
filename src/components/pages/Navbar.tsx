@@ -7,9 +7,10 @@ interface NavbarProps {
   currentView: string;
   theme: string;
   toggleTheme: () => void;
+  systemSettings?: any;
 }
 
-const Navbar = ({ setView, currentView, theme, toggleTheme }: NavbarProps) => {
+const Navbar = ({ setView, currentView, theme, toggleTheme, systemSettings }: NavbarProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const menuItems = [
@@ -28,7 +29,11 @@ const Navbar = ({ setView, currentView, theme, toggleTheme }: NavbarProps) => {
           className="flex items-center gap-3 group cursor-pointer flex-shrink-0"
           onClick={() => setView('home')}
         >
-          <img src="/logo.png?v=8" alt="Uni-LandFarm Logo" className="h-[78px] object-contain" />
+          {systemSettings?.logo && (systemSettings.logo.startsWith('http') || systemSettings.logo.startsWith('/')) ? (
+            <img src={systemSettings.logo.startsWith('/') ? `${systemSettings.logo}?v=8` : systemSettings.logo} alt="Logo" className="h-[78px] object-contain" />
+          ) : (
+            <img src="/logo.png?v=8" alt="Uni-LandFarm Logo" className="h-[78px] object-contain" />
+          )}
         </div>
         
         {/* Desktop Nav */}
@@ -63,7 +68,11 @@ const Navbar = ({ setView, currentView, theme, toggleTheme }: NavbarProps) => {
               whileTap={{ scale: 0.95 }}
               className={`px-6 py-2.5 text-[15px] font-black transition-all rounded-full hover:bg-slate-100 dark:hover:bg-slate-900/60 cursor-pointer ${currentView === 'login' ? 'text-brand-blue' : 'text-slate-600 dark:text-slate-300 hover:text-brand-blue dark:hover:text-brand-blue'}`}
             >
+<<<<<<< HEAD
               Login
+=======
+              Masuk
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
             </motion.button>
             <motion.button 
               onClick={() => setView('signup')}
@@ -71,7 +80,11 @@ const Navbar = ({ setView, currentView, theme, toggleTheme }: NavbarProps) => {
               whileTap={{ scale: 0.95 }}
               className={`px-6 py-2.5 text-[15px] font-black transition-all rounded-full hover:bg-slate-100 dark:hover:bg-slate-900/60 cursor-pointer ${currentView === 'signup' ? 'text-brand-blue' : 'text-slate-600 dark:text-slate-300 hover:text-brand-blue dark:hover:text-brand-blue'}`}
             >
+<<<<<<< HEAD
               Sign Up
+=======
+              Daftar
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
             </motion.button>
           </div>
 
@@ -112,7 +125,11 @@ const Navbar = ({ setView, currentView, theme, toggleTheme }: NavbarProps) => {
                   whileTap={{ scale: 0.98 }}
                   className="py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-black text-sm cursor-pointer"
                 >
+<<<<<<< HEAD
                   Login
+=======
+                  Masuk
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
                 </motion.button>
                 <motion.button 
                   onClick={() => { setView('signup'); setIsMobileMenuOpen(false); }}
@@ -120,7 +137,11 @@ const Navbar = ({ setView, currentView, theme, toggleTheme }: NavbarProps) => {
                   whileTap={{ scale: 0.98 }}
                   className="py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-black text-sm cursor-pointer"
                 >
+<<<<<<< HEAD
                   Sign Up
+=======
+                  Daftar
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
                 </motion.button>
               </div>
             </div>

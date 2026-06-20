@@ -129,7 +129,11 @@ const LoginPage = ({ setView, setUser, prefilledEmail = '', setPrefilledEmail }:
               <button 
                 type="button" 
                 onClick={() => {
+<<<<<<< HEAD
                   setPrefilledEmail(email);
+=======
+                  if (setPrefilledEmail) setPrefilledEmail(email);
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
                   setView('forgot-password');
                 }} 
                 className="text-[10px] font-bold text-brand-blue hover:underline"
@@ -195,7 +199,11 @@ const LoginPage = ({ setView, setUser, prefilledEmail = '', setPrefilledEmail }:
             <button
               id="goto-signup-btn"
               onClick={() => {
+<<<<<<< HEAD
                 setPrefilledEmail(email);
+=======
+                if (setPrefilledEmail) setPrefilledEmail(email);
+>>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
                 setView('signup');
               }}
               className="text-brand-blue font-black hover:underline"
