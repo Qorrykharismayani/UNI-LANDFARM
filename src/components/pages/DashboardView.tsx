@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> orry
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   LineChart as LucideLineChart, 
@@ -1298,6 +1301,10 @@ export const DashboardView = ({
       onPublishSuccess={() => {
         fetchProjects();
       }}
+      onCreateNewPage={() => {
+        setIsCmsEditorOpen(false);
+        setSubView('buat_situs');
+      }}
     />
   ) : (
     <>
@@ -1716,6 +1723,7 @@ export const DashboardView = ({
 };
 
 export default DashboardView;
+<<<<<<< HEAD
 =======
 import React, { useState, useEffect, useRef } from 'react';
 import { 
@@ -3378,3 +3386,5 @@ export const DashboardView = ({
 
 export default DashboardView;
 >>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+>>>>>>> orry

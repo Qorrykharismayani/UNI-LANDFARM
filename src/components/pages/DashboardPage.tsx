@@ -37,9 +37,12 @@ const DashboardPage = ({
   fetchProjects,
 }: DashboardPageProps) => {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+>>>>>>> orry
   // Calculate dynamic stats from real data
   const totalWeb = userProjects.length;
   const publishedCount = userProjects.filter(p => p.status === 'Published').length;
@@ -47,10 +50,11 @@ const DashboardPage = ({
   const tokenPoint = user?.tokens ?? 0;
 
   // Build greeting with user's name
-  const userName = user?.name ? user.name.split(' ')[0] : '';
-  const welcomeTitle = systemSettings?.userPageJson?.welcomeTitle || "Halo, Pebisnis Modern!";
-  const greetingTitle = userName ? `${welcomeTitle} ${userName} 👋` : `${welcomeTitle} 👋`;
-  const greetingSubtitle = systemSettings?.userPageJson?.welcomeSubtitle || "Pantau dan kelola seluruh landing page Anda dari satu dashboard.";
+  const userName = user?.name;
+  const greetingTitle = userName
+    ? `Selamat datang, ${userName}! 👋`
+    : `Selamat datang! 👋`;
+  const greetingSubtitle = "Pantau dan kelola seluruh landing page Anda dari satu dashboard.";
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 relative">

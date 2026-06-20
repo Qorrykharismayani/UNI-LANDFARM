@@ -30,9 +30,12 @@ export async function GET(request: Request) {
         orderBy: { createdAt: 'desc' }
       });
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+>>>>>>> orry
     }
 
     const formattedPages = pages.map((p) => ({

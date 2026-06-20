@@ -30,6 +30,7 @@ model User {
   reviewedRequests PublishRequest[] @relation("ReviewedByAdmin")
   articles         Article[]
   transactions     Transaction[]
+  contentSchedules ContentSchedule[]
 
   @@map("users")
 }
@@ -67,7 +68,7 @@ model LandingPage {
   template        Template         @relation(fields: [templateId], references: [id], onDelete: Cascade)
   user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   mediaFiles      MediaFile[]
-
+  publishRequests PublishRequest[]
   content         TemplateSection?
   contentSchedules ContentSchedule[]
 
@@ -86,7 +87,22 @@ model TemplateSection {
   @@map("template_sections")
 }
 
+model PublishRequest {
+  id              Int         @id @default(autoincrement())
+  landingPageId   Int
+  requestedBy     Int
+  reviewedBy      Int?
+  status          String      @default("Pending")
+  rejectionReason String?
+  requestedAt     DateTime    @default(now())
+  reviewedAt      DateTime?
+  landingPage     LandingPage @relation(fields: [landingPageId], references: [id], onDelete: Cascade)
+  admin           User?       @relation("ReviewedByAdmin", fields: [reviewedBy], references: [id])
 
+  @@index([landingPageId], map: "publish_requests_landingPageId_fkey")
+  @@index([reviewedBy], map: "publish_requests_reviewedBy_fkey")
+  @@map("publish_requests")
+}
 
 model MediaFile {
   id            Int          @id @default(autoincrement())
@@ -117,7 +133,6 @@ model SystemSetting {
   featuresJson     Json?
   testimonialsJson Json?
   faqsJson         Json?
-  pricingJson      Json?
   userPageJson     Json?
   updatedAt        DateTime @updatedAt
 
@@ -150,6 +165,38 @@ model Notification {
   @@map("notifications")
 }
 
+model Article {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  title       String
+  status      String   @default("Draft")
+  author      String
+  scoreBefore Int      @default(0)
+  scoreAfter  Int      @default(0)
+  date        DateTime @default(now())
+  type        String   @default("Blog Post")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "articles_userId_fkey")
+  @@map("articles")
+}
+
+model Transaction {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  packageName   String
+  packageTokens Int
+  amount        Int
+  method        String
+  refId         String   @unique
+  status        String   @default("berhasil")
+  createdAt     DateTime @default(now())
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "transactions_userId_fkey")
+  @@map("transactions")
+}
+
 model ContentSchedule {
   id             Int          @id @default(autoincrement())
   userId         Int
@@ -170,36 +217,4 @@ model ContentSchedule {
   @@index([userId], map: "content_schedules_userId_fkey")
   @@index([landingPageId], map: "content_schedules_landingPageId_fkey")
   @@map("content_schedules")
-}
-
-model Transaction {
-  id            Int      @id @default(autoincrement())
-  userId        Int
-  packageName   String
-  packageTokens Int
-  amount        Int
-  method        String
-  refId         String   @unique
-  status        String   @default("berhasil")
-  createdAt     DateTime @default(now())
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId], map: "transactions_userId_fkey")
-  @@map("transactions")
-}
-
-model Transaction {
-  id            Int      @id @default(autoincrement())
-  userId        Int
-  packageName   String
-  packageTokens Int
-  amount        Int
-  method        String
-  refId         String   @unique
-  status        String   @default("berhasil")
-  createdAt     DateTime @default(now())
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId], map: "transactions_userId_fkey")
-  @@map("transactions")
 }

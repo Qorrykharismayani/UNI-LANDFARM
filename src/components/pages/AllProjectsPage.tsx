@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { Globe, Eye, Plus, Search, Clipboard, ExternalLink } from 'lucide-react';
 =======
 import { Globe, Eye, Plus, Search, ArrowLeft, Clipboard, ExternalLink } from 'lucide-react';
 >>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+import { Globe, Eye, Plus, Search, Clipboard, ExternalLink } from 'lucide-react';
+>>>>>>> orry
 
 interface AllProjectsPageProps {
   userProjects: any[];
@@ -42,9 +46,12 @@ const AllProjectsPage = ({
   });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+>>>>>>> orry
   return (
     <div className="max-w-6xl mx-auto space-y-8 relative">
       {/* Background Glows for Dark Mode */}
@@ -146,6 +153,9 @@ const AllProjectsPage = ({
                 <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-white/5">
                   {project.status === 'Published' ? (
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> orry
                     <div className="grid grid-cols-2 gap-2">
                       <button
                         onClick={(e) => {
@@ -185,6 +195,7 @@ const AllProjectsPage = ({
                       >
                         Salin Link
                       </button>
+<<<<<<< HEAD
 =======
                     <div className="space-y-2">
                       <div className="grid grid-cols-2 gap-2">
@@ -232,6 +243,8 @@ const AllProjectsPage = ({
                         </button>
                       </div>
 >>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+>>>>>>> orry
                     </div>
                   )}
                 </div>

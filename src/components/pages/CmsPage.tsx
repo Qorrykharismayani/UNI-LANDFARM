@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import React, { useState } from 'react';
 import { Layers, Search, Trash2, ChevronLeft, ChevronRight, Bot, Zap, Globe, Edit } from 'lucide-react';
 =======
@@ -24,10 +25,14 @@ import {
   FileText
 } from 'lucide-react';
 >>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+import React, { useState } from 'react';
+import { Layers, Search, Trash2, ChevronLeft, ChevronRight, Bot, Zap, Globe, Edit } from 'lucide-react';
+>>>>>>> orry
 
 interface CmsPageProps {
-  cmsSchedules: any[];
-  setCmsSchedules: (fn: (prev: any[]) => any[]) => void;
+  cmsPosts: any[];
+  setCmsPosts: (fn: (prev: any[]) => any[]) => void;
   cmsSearchQuery: string;
   setCmsSearchQuery: (q: string) => void;
   cmsCurrentPage: number;
@@ -36,6 +41,9 @@ interface CmsPageProps {
   selectedCmsProjectId: string;
   setSelectedCmsProjectId: (id: string) => void;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> orry
   aiTopic: string;
   setAiTopic: (topic: string) => void;
   aiTone: string;
@@ -50,6 +58,7 @@ interface CmsPageProps {
   setActivePageId: (id: string | null) => void;
   setIsCmsEditorOpen: (open: boolean) => void;
   handleDeleteProject: (id: string) => Promise<void>;
+<<<<<<< HEAD
 =======
   handleDeleteSchedule: (id: number) => Promise<void>;
   fetchSchedules: () => Promise<void>;
@@ -58,16 +67,21 @@ interface CmsPageProps {
   handleDeleteProject: (id: string) => Promise<void>;
   showNotification?: (message: string, type?: 'success' | 'info') => void;
 >>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+>>>>>>> orry
 }
 
 const CmsPage = ({
-  cmsSchedules = [],
-  setCmsSchedules,
+  cmsPosts,
+  setCmsPosts,
   cmsSearchQuery,
   setCmsSearchQuery,
   cmsCurrentPage,
   setCmsCurrentPage,
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> orry
   userProjects,
   selectedCmsProjectId,
   setSelectedCmsProjectId,
@@ -92,6 +106,7 @@ const CmsPage = ({
     (post.title || '').toLowerCase().includes(cmsSearchQuery.toLowerCase()) ||
     (post.author || '').toLowerCase().includes(cmsSearchQuery.toLowerCase()) ||
     (post.type || '').toLowerCase().includes(cmsSearchQuery.toLowerCase())
+<<<<<<< HEAD
 =======
   userProjects = [],
   handleDeleteSchedule,
@@ -143,226 +158,15 @@ const CmsPage = ({
     (sched.status || '').toLowerCase().includes(cmsSearchQuery.toLowerCase()) ||
     (sched.landingPage?.title || '').toLowerCase().includes(cmsSearchQuery.toLowerCase())
 >>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+>>>>>>> orry
   );
-
-  const itemsPerPage = 5;
-  const totalPages = Math.ceil(filteredSchedules.length / itemsPerPage);
+  const postsPerPage = 5;
+  const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
   const currentPage = Math.min(cmsCurrentPage, Math.max(totalPages, 1));
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentSchedules = filteredSchedules.slice(indexOfFirstItem, indexOfLastItem);
-
-  // AI Content Generator Execution
-  const handleGenerateAi = async () => {
-    if (!selectedProjectId) {
-      if (showNotification) showNotification('Silakan pilih target landing page terlebih dahulu!', 'info');
-      return;
-    }
-    if (!aiPrompt.trim()) {
-      if (showNotification) showNotification('Silakan isi instruksi konten!', 'info');
-      return;
-    }
-
-    setIsGenerating(true);
-    setGenProgress(0);
-    setGenStepText('Menganalisis landing page & profil bisnis...');
-
-    const steps = [
-      { progress: 25, text: 'Merumuskan salinan copywriting persuasif...' },
-      { progress: 50, text: 'Menyesuaikan dengan tone suara...' },
-      { progress: 80, text: 'Mengoptimasi CTA & keunggulan konten...' },
-      { progress: 100, text: 'Selesai!' }
-    ];
-
-    for (const step of steps) {
-      await new Promise(r => setTimeout(r, 600));
-      setGenStepText(step.text);
-      setGenProgress(step.progress);
-    }
-
-    try {
-      const selectedProj = userProjects.find(p => String(p.id) === String(selectedProjectId));
-      const bizName = selectedProj?.businessName || selectedProj?.name || 'Bisnis';
-
-      const res = await fetch('/api/ai/editor-copy', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          command: `Buat ${aiComponent} dengan tone ${aiTone} berdasarkan instruksi: ${aiPrompt} untuk bisnis ${bizName}`,
-          currentData: {}
-        })
-      });
-      const data = await res.json();
-      if (data.success && data.data?.suggestedData) {
-        setGeneratedContent(data.data.suggestedData);
-      } else {
-        // Fallback mockup
-        setGeneratedContent({
-          headline: `Solusi Unggulan ${bizName}`,
-          subheadline: `Membantu usaha Anda berkembang secara maksimal dengan kualitas terbaik. ${aiPrompt}`,
-          cta: `Pesan Sekarang`
-        });
-      }
-      if (showNotification) showNotification('Konten berhasil digenerate!', 'success');
-    } catch (err) {
-      setGeneratedContent({
-        headline: `Transformasi Bisnis Terbaik`,
-        subheadline: `Temukan kemudahan mengelola usaha Anda bersama kami. ${aiPrompt}`,
-        cta: `Hubungi Kami`
-      });
-      if (showNotification) showNotification('Menggunakan salinan draf default.', 'info');
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  // Apply Directly (Save directly to Landing Page)
-  const handleApplyDirectly = async (projectId: string, component: string, value: string) => {
-    try {
-      if (showNotification) showNotification('Menerapkan konten...', 'info');
-      
-      const getRes = await fetch(`/api/landing-pages/${projectId}`);
-      const getData = await getRes.json();
-      if (!getData.success || !getData.data) {
-        if (showNotification) showNotification('Gagal memuat detail landing page.', 'info');
-        return;
-      }
-
-      const page = getData.data;
-      let contentJson = page.content?.contentJson || {};
-
-      // Modify specific elements
-      if (component === 'Hero Title') {
-        if (!contentJson.hero) contentJson.hero = {};
-        contentJson.hero.headline = value;
-      } else if (component === 'Hero Subtitle') {
-        if (!contentJson.hero) contentJson.hero = {};
-        contentJson.hero.subheadline = value;
-      } else if (component === 'Banner Promosi') {
-        if (!contentJson.hero) contentJson.hero = {};
-        contentJson.hero.banner = value;
-      } else if (component === 'CTA Button') {
-        if (!contentJson.hero) contentJson.hero = {};
-        contentJson.hero.cta = value;
-        if (contentJson.cta) contentJson.cta.buttonText = value;
-      } else if (component === 'Card Produk') {
-        if (!Array.isArray(contentJson.products)) contentJson.products = [];
-        contentJson.products.push({ id: Date.now(), name: 'Produk Baru', description: value });
-      } else if (component === 'Card Layanan') {
-        if (!Array.isArray(contentJson.advantages)) contentJson.advantages = [];
-        contentJson.advantages.push({ icon: 'Zap', title: 'Layanan Baru', description: value });
-      } else if (component === 'Testimoni') {
-        if (!Array.isArray(contentJson.testimonials)) contentJson.testimonials = [];
-        contentJson.testimonials.push({ quote: value, author: 'Pelanggan' });
-      } else if (component === 'Kontak') {
-        if (!contentJson.contact) contentJson.contact = {};
-        contentJson.contact.whatsapp = value;
-      }
-
-      const saveRes = await fetch(`/api/landing-pages/${projectId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contentJson })
-      });
-      const saveData = await saveRes.json();
-      if (saveData.success) {
-        if (showNotification) showNotification('Konten berhasil diterapkan langsung!', 'success');
-        setGeneratedContent(null);
-        setAiPrompt('');
-      } else {
-        if (showNotification) showNotification(saveData.message || 'Gagal menerapkan konten.', 'info');
-      }
-    } catch (err) {
-      console.error(err);
-      if (showNotification) showNotification('Terjadi kesalahan koneksi.', 'info');
-    }
-  };
-
-  const formatForDateTimeLocal = (dateString: string) => {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
-  };
-
-  // Submit Content Schedule
-  const handleSaveSchedule = async () => {
-    if (!newScheduleTitle.trim() || !newScheduleDate.trim() || !newScheduleValue.trim()) {
-      if (showNotification) showNotification('Semua data jadwal wajib diisi!', 'info');
-      return;
-    }
-
-    try {
-      if (editingScheduleId) {
-        // Mode Edit (PUT)
-        const res = await fetch('/api/content-schedules', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            id: editingScheduleId,
-            title: newScheduleTitle,
-            landingPageId: Number(selectedProjectId),
-            sectionName: newScheduleSection,
-            component: newScheduleComponent,
-            newValue: newScheduleValue,
-            scheduledAt: new Date(newScheduleDate).toISOString(),
-            status: newScheduleStatus
-          })
-        });
-        const data = await res.json();
-        if (data.success && data.data) {
-          setCmsSchedules(prev => prev.map(s => s.id === editingScheduleId ? data.data : s));
-          setIsScheduleModalOpen(false);
-          setEditingScheduleId(null);
-          setNewScheduleTitle('');
-          setNewScheduleDate('');
-          setNewScheduleSection('hero');
-          setNewScheduleValue('');
-          if (showNotification) showNotification('Jadwal berhasil diperbarui!', 'success');
-        } else {
-          if (showNotification) showNotification(data.message || 'Gagal memperbarui jadwal.', 'info');
-        }
-      } else {
-        // Mode Tambah (POST)
-        const res = await fetch('/api/content-schedules', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            title: newScheduleTitle,
-            landingPageId: Number(selectedProjectId),
-            sectionName: newScheduleSection,
-            component: newScheduleComponent,
-            newValue: newScheduleValue,
-            scheduledAt: new Date(newScheduleDate).toISOString(),
-            status: newScheduleStatus
-          })
-        });
-        const data = await res.json();
-        if (data.success && data.data) {
-          setCmsSchedules(prev => [data.data, ...prev]);
-          setIsScheduleModalOpen(false);
-          setNewScheduleTitle('');
-          setNewScheduleDate('');
-          setNewScheduleSection('hero');
-          setNewScheduleValue('');
-          setGeneratedContent(null);
-          setAiPrompt('');
-          if (showNotification) showNotification('Jadwal perubahan konten berhasil dibuat!', 'success');
-        } else {
-          if (showNotification) showNotification(data.message || 'Gagal menyimpan jadwal.', 'info');
-        }
-      }
-    } catch (err) {
-      console.error(err);
-      if (showNotification) showNotification('Terjadi kesalahan koneksi.', 'info');
-    }
-  };
-
-  // handleExecuteSchedule dihapus karena ditangani secara otomatis oleh Cron Job.
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-700 pb-12">
@@ -371,6 +175,9 @@ const CmsPage = ({
         <div>
           <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-2 flex items-center gap-2">
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> orry
             Site Content Manager
           </h2>
           <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Kelola postingan blog, tulis artikel pintar dengan AI, dan hubungkan langsung ke proyek Anda.</p>
@@ -426,6 +233,7 @@ const CmsPage = ({
                 </h3>
                 <p className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none">
                   Manual management of blog posts and visual content
+<<<<<<< HEAD
 =======
             Kelola Proyek
           </h2>
@@ -468,6 +276,8 @@ const CmsPage = ({
                 <p className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none">
                   Monitoring scheduled content updates for landing page components
 >>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+>>>>>>> orry
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-3">
@@ -475,6 +285,9 @@ const CmsPage = ({
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
                   <input
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> orry
                     type="text"
                     placeholder="Search articles..."
                     value={cmsSearchQuery}
@@ -483,6 +296,7 @@ const CmsPage = ({
                       setCmsCurrentPage(() => 1);
                     }}
                     className="pl-9 pr-3.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-[10px] font-bold outline-none focus:border-brand-blue transition-all dark:text-white w-48"
+<<<<<<< HEAD
 =======
                      type="text"
                      placeholder="Cari jadwal..."
@@ -493,6 +307,8 @@ const CmsPage = ({
                      }}
                      className="pl-9 pr-3.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-[10px] font-bold outline-none focus:border-brand-blue transition-all dark:text-white w-48"
 >>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+>>>>>>> orry
                   />
                 </div>
                 <button
@@ -500,10 +316,14 @@ const CmsPage = ({
                   className="px-3.5 py-1.5 bg-brand-blue hover:bg-brand-blue/90 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
                 >
 <<<<<<< HEAD
+<<<<<<< HEAD
                   <Bot className="w-3.5 h-3.5" /> Buat Artikel
 =======
                   <Bot className="w-3.5 h-3.5" /> Buat Jadwal AI
 >>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+                  <Bot className="w-3.5 h-3.5" /> Buat Artikel
+>>>>>>> orry
                 </button>
               </div>
             </div>
@@ -514,6 +334,9 @@ const CmsPage = ({
                 <thead>
                   <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> orry
                     <th className="px-6 py-4 text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Title / Project</th>
                     <th className="px-6 py-4 text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Status</th>
                     <th className="px-6 py-4 text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Author</th>
@@ -567,6 +390,7 @@ const CmsPage = ({
                             <button
                               className="p-1.5 text-slate-400 hover:text-red-500 bg-slate-50 dark:bg-slate-800 rounded-lg transition-all hover:scale-110 shadow-sm cursor-pointer"
                               onClick={() => handleDeleteArticle(post.id)}
+<<<<<<< HEAD
 =======
                     <th className="px-6 py-4 text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Nama Jadwal / Proyek</th>
                     <th className="px-6 py-4 text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Komponen</th>
@@ -640,6 +464,8 @@ const CmsPage = ({
                               onClick={() => handleDeleteSchedule(sched.id)}
                               title="Hapus Jadwal"
 >>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+>>>>>>> orry
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
@@ -650,12 +476,17 @@ const CmsPage = ({
                   ) : (
                     <tr>
 <<<<<<< HEAD
+<<<<<<< HEAD
                       <td colSpan={5} className="px-6 py-12 text-center text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-widest">
                         {cmsSearchQuery ? "No articles match the search query." : "Belum ada artikel."}
 =======
                       <td colSpan={6} className="px-6 py-12 text-center text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-widest">
                         {cmsSearchQuery ? "Tidak ada jadwal yang cocok." : "Belum ada jadwal perubahan konten."}
 >>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+                      <td colSpan={5} className="px-6 py-12 text-center text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                        {cmsSearchQuery ? "No articles match the search query." : "Belum ada artikel."}
+>>>>>>> orry
                       </td>
                     </tr>
                   )}
@@ -667,10 +498,14 @@ const CmsPage = ({
             <div className="p-4 border-t border-slate-100 dark:border-slate-800/50 flex items-center justify-between bg-slate-50/10 dark:bg-slate-800/5">
               <p className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
 <<<<<<< HEAD
+<<<<<<< HEAD
                 Showing {filteredPosts.length > 0 ? indexOfFirstPost + 1 : 0}-{Math.min(indexOfLastPost, filteredPosts.length)} of {filteredPosts.length} articles
 =======
                 Showing {filteredSchedules.length > 0 ? indexOfFirstItem + 1 : 0}-{Math.min(indexOfLastItem, filteredSchedules.length)} of {filteredSchedules.length} schedules
 >>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+                Showing {filteredPosts.length > 0 ? indexOfFirstPost + 1 : 0}-{Math.min(indexOfLastPost, filteredPosts.length)} of {filteredPosts.length} articles
+>>>>>>> orry
               </p>
               <div className="flex gap-2">
                 <button
@@ -694,10 +529,14 @@ const CmsPage = ({
       ) : subTab === 'ai_scheduler' ? (
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 animate-in fade-in duration-500">
 <<<<<<< HEAD
+<<<<<<< HEAD
           {/* LEFT: AI CONTENT WRITER FORM */}
 =======
           {/* LEFT: AI SCHEDULER FORM */}
 >>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+          {/* LEFT: AI CONTENT WRITER FORM */}
+>>>>>>> orry
           <div className="md:col-span-7 bg-white dark:bg-slate-900 rounded-[24px] p-6 border border-slate-100 dark:border-slate-800 shadow-premium flex flex-col justify-between space-y-6">
             <div>
               <div className="flex items-center gap-3 mb-6 border-b border-slate-50 dark:border-slate-800/80 pb-4">
@@ -706,12 +545,16 @@ const CmsPage = ({
                 </div>
                 <div>
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> orry
                   <h4 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">AI Content Writer</h4>
                   <p className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Tulis artikel berkualitas tinggi secara otomatis untuk Proyek Anda</p>
                 </div>
               </div>
 
               {isGeneratingAiPost ? (
+<<<<<<< HEAD
 =======
                   <h4 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">AI Copywriter & Scheduler</h4>
                   <p className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Rancang dan jadwalkan perubahan elemen landing page otomatis</p>
@@ -720,16 +563,22 @@ const CmsPage = ({
 
               {isGenerating ? (
 >>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+>>>>>>> orry
                 <div className="h-[280px] flex flex-col items-center justify-center text-center space-y-6 animate-in fade-in duration-500">
                   <div className="relative">
                     <div className="w-20 h-20 border-4 border-slate-100 dark:border-slate-800 rounded-full"></div>
                     <div className="absolute top-0 left-0 w-20 h-20 border-4 border-brand-blue rounded-full border-t-transparent animate-spin"></div>
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> orry
                     <div className="absolute inset-0 flex items-center justify-center text-[10px] font-black text-slate-900 dark:text-white">{aiPostProgress}%</div>
                   </div>
                   <div className="space-y-1.5">
                     <h5 className="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-wider">AI sedang memproses draf</h5>
                     <p className="text-[9px] font-bold text-brand-blue uppercase tracking-widest animate-pulse">{aiPostStepText}</p>
+<<<<<<< HEAD
 =======
                     <div className="absolute inset-0 flex items-center justify-center text-[10px] font-black text-slate-900 dark:text-white">{genProgress}%</div>
                   </div>
@@ -737,11 +586,16 @@ const CmsPage = ({
                     <h5 className="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-wider">AI sedang memproses draf</h5>
                     <p className="text-[9px] font-bold text-brand-blue uppercase tracking-widest animate-pulse">{genStepText}</p>
 >>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+>>>>>>> orry
                   </div>
                 </div>
               ) : (
                 <div className="space-y-4">
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> orry
                   {/* Select Project Link */}
                   <div>
                     <label className="block text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">Asosiasi Proyek / Halaman</label>
@@ -754,6 +608,7 @@ const CmsPage = ({
                       {userProjects.map((proj) => (
                         <option key={proj.id} value={proj.id}>
                           {proj.name} ({proj.type})
+<<<<<<< HEAD
 =======
                   {/* Select Landing Page */}
                   <div>
@@ -768,12 +623,17 @@ const CmsPage = ({
                         <option key={proj.id} value={proj.id}>
                           {proj.name || proj.businessName} ({proj.slug})
 >>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+>>>>>>> orry
                         </option>
                       ))}
                     </select>
                   </div>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> orry
                   {/* Title Input */}
                   <div>
                     <label className="block text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">Topik / Judul Artikel</label>
@@ -811,6 +671,7 @@ const CmsPage = ({
                         <option>Panjang (1000 kata)</option>
                       </select>
                     </div>
+<<<<<<< HEAD
 =======
                   {/* Component Dropdown */}
                   <div>
@@ -860,18 +721,24 @@ const CmsPage = ({
                       <option>Persuasif & Promotif</option>
                     </select>
 >>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+>>>>>>> orry
                   </div>
                 </div>
               )}
             </div>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> orry
             {!isGeneratingAiPost && (
               <button
                 onClick={handleGenerateAiPost}
                 className="w-full py-3.5 bg-gradient-to-r from-brand-blue to-purple-600 hover:brightness-110 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-md transition-all active:scale-[0.98] cursor-pointer"
               >
                 Mulai Tulis Artikel
+<<<<<<< HEAD
 =======
             {!isGenerating && (
               <button
@@ -880,20 +747,29 @@ const CmsPage = ({
               >
                 Generate Salinan dengan AI
 >>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+>>>>>>> orry
               </button>
             )}
           </div>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
           {/* RIGHT: SCHEDULER & STATS INFO */}
 =======
           {/* RIGHT: AI SUGGESTION PREVIEW & ACTION PLAN */}
 >>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+          {/* RIGHT: SCHEDULER & STATS INFO */}
+>>>>>>> orry
           <div className="md:col-span-5 bg-white dark:bg-slate-900 rounded-[24px] p-6 border border-slate-100 dark:border-slate-800 shadow-premium flex flex-col justify-between space-y-6">
             <div>
               <div className="flex items-center gap-3 mb-6 border-b border-slate-50 dark:border-slate-800 pb-4">
                 <div className="w-10 h-10 bg-purple-500/10 text-purple-500 rounded-xl flex items-center justify-center shadow-inner shrink-0">
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> orry
                   <Zap className="w-5 h-5 animate-pulse" />
                 </div>
                 <div>
@@ -1014,6 +890,7 @@ const CmsPage = ({
             </div>
           </div>
         </div>
+<<<<<<< HEAD
 =======
                   <Sparkles className="w-5 h-5" />
                 </div>
@@ -1321,6 +1198,8 @@ const CmsPage = ({
           </div>
         </div>
 >>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+>>>>>>> orry
       )}
     </div>
   );

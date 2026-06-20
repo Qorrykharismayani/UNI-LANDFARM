@@ -83,43 +83,43 @@ export const FAQ = ({ systemSettings }: { systemSettings?: any }) => {
       q: "Apakah saya dapat membuat landing page tanpa kemampuan teknis?", 
       a: "Ya. UNI-LandFarm menggunakan konsep low-code/no-code sehingga pengguna dapat membuat dan mengelola landing page tanpa perlu menulis kode program.", 
       icon: Wand2,
-      color: "text-emerald-500",
-      bg: "bg-emerald-50 dark:bg-emerald-500/10"
+      color: "text-orange-500",
+      bg: "bg-orange-50 dark:bg-orange-500/10"
     },
     { 
       q: "Bagaimana cara mengubah konten landing page?", 
       a: "Konten dapat diubah langsung melalui CMS Editor. Pengguna dapat mengelola teks, gambar, tombol, informasi kontak, dan berbagai komponen lainnya secara mudah.", 
       icon: Edit3,
-      color: "text-yellow-500",
-      bg: "bg-yellow-50 dark:bg-yellow-500/10"
+      color: "text-amber-500",
+      bg: "bg-amber-50 dark:bg-amber-500/10"
     },
     { 
       q: "Apa fungsi AI Content Assistant?", 
       a: "AI Content Assistant membantu memberikan rekomendasi headline, deskripsi, CTA, dan ide promosi yang sesuai dengan kebutuhan bisnis Anda.", 
       icon: BrainCircuit,
-      color: "text-emerald-500",
-      bg: "bg-emerald-50 dark:bg-emerald-500/10"
+      color: "text-orange-500",
+      bg: "bg-orange-50 dark:bg-orange-500/10"
     },
     { 
       q: "Apakah perubahan konten dapat dijadwalkan otomatis?", 
       a: "Ya. Pengguna dapat menjadwalkan perubahan konten pada tanggal dan waktu tertentu. Sistem akan memperbarui landing page secara otomatis tanpa perlu menjalankan proses secara manual.", 
       icon: CalendarClock,
-      color: "text-yellow-500",
-      bg: "bg-yellow-50 dark:bg-yellow-500/10"
+      color: "text-amber-500",
+      bg: "bg-amber-50 dark:bg-amber-500/10"
     },
     { 
       q: "Bagaimana cara mempublikasikan landing page?", 
       a: "Setelah landing page selesai dibuat, pengguna cukup menekan tombol Publish dan sistem akan langsung menghasilkan URL yang dapat dibagikan.", 
       icon: Send,
-      color: "text-emerald-500",
-      bg: "bg-emerald-50 dark:bg-emerald-500/10"
+      color: "text-orange-500",
+      bg: "bg-orange-50 dark:bg-orange-500/10"
     },
     { 
       q: "Apakah landing page dapat diakses melalui perangkat mobile?", 
       a: "Ya. Landing page yang dibuat menggunakan desain responsif sehingga dapat diakses dengan baik melalui desktop, tablet, maupun smartphone.", 
       icon: Smartphone,
-      color: "text-yellow-500",
-      bg: "bg-yellow-50 dark:bg-yellow-500/10"
+      color: "text-amber-500",
+      bg: "bg-amber-50 dark:bg-amber-500/10"
     }
   ];
 
@@ -129,13 +129,13 @@ export const FAQ = ({ systemSettings }: { systemSettings?: any }) => {
         <motion.div 
           animate={{ scale: [1, 1.1, 1], opacity: [0.1, 0.2, 0.1] }}
           transition={{ duration: 10, repeat: Infinity }}
-          className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-emerald-500/5 to-transparent blur-[80px]" 
+          className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-orange-500/5 to-transparent blur-[80px]" 
         />
       </div>
       
       {/* Decorative Blobs */}
-      <div className="absolute top-1/4 left-0 w-64 h-64 bg-emerald-500/5 blur-[100px] rounded-full"></div>
-      <div className="absolute bottom-1/4 right-0 w-64 h-64 bg-yellow-500/5 blur-[100px] rounded-full"></div>
+      <div className="absolute top-1/4 left-0 w-64 h-64 bg-orange-500/5 blur-[100px] rounded-full"></div>
+      <div className="absolute bottom-1/4 right-0 w-64 h-64 bg-amber-500/5 blur-[100px] rounded-full"></div>
 
       <div className="max-w-4xl mx-auto relative z-10">
         <div className="text-center mb-16">
@@ -143,13 +143,13 @@ export const FAQ = ({ systemSettings }: { systemSettings?: any }) => {
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 backdrop-blur-md text-emerald-600 dark:text-emerald-400 text-[11px] font-black uppercase tracking-[0.25em] mb-6 shadow-sm"
+            className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-orange-50 dark:bg-orange-500/10 border border-orange-200 dark:border-orange-500/20 backdrop-blur-md text-orange-600 dark:text-orange-400 text-[11px] font-black uppercase tracking-[0.25em] mb-6 shadow-sm"
           >
             <Sparkles className="w-4 h-4 animate-pulse" />
             Bantuan
           </motion.div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight transition-colors mb-6">
-            Pertanyaan yang <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-yellow-500">Sering Diajukan</span>
+            Pertanyaan yang <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-500">Sering Diajukan</span>
           </h2>
           <p className="text-slate-600 dark:text-slate-400 font-medium max-w-2xl mx-auto text-base sm:text-lg leading-relaxed transition-colors">
             Temukan jawaban mengenai pengelolaan landing page, CMS, Agentic AI, dan penjadwalan konten pada UNI-LandFarm.
@@ -167,21 +167,21 @@ export const FAQ = ({ systemSettings }: { systemSettings?: any }) => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.05 }}
-              className={`rounded-2xl border transition-all duration-300 overflow-hidden ${isOpen ? 'bg-white dark:bg-slate-900 border-emerald-500/30 shadow-[0_10px_40px_-10px_rgba(16,185,129,0.15)]' : 'bg-white dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 hover:border-emerald-200 dark:hover:border-emerald-500/30 hover:shadow-lg hover:shadow-emerald-500/5 cursor-pointer'}`}
+              className={`rounded-2xl border transition-all duration-300 overflow-hidden ${isOpen ? 'bg-white dark:bg-slate-900 border-orange-500/30 shadow-[0_10px_40px_-10px_rgba(249,115,22,0.15)]' : 'bg-white dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 hover:border-orange-200 dark:hover:border-orange-500/30 hover:shadow-lg hover:shadow-orange-500/5 cursor-pointer'}`}
             >
               <button
                 onClick={() => setOpenIndex(isOpen ? null : i)}
                 className="w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none group"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 ${faq.bg || 'bg-orange-50 dark:bg-orange-500/10'} ${faq.color || 'text-orange-500'}`}>
                     <Icon className="w-5 h-5" />
                   </div>
-                  <h4 className={`font-black text-sm sm:text-base tracking-tight transition-colors ${isOpen ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400'}`}>
+                  <h4 className={`font-black text-sm sm:text-base tracking-tight transition-colors ${isOpen ? 'text-orange-500 dark:text-orange-400' : 'text-slate-900 dark:text-white group-hover:text-orange-500 dark:group-hover:text-orange-400'}`}>
                     {faq.q}
                   </h4>
                 </div>
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-transform duration-300 ${isOpen ? 'bg-emerald-500 text-white rotate-180' : 'bg-slate-100 dark:bg-slate-800 text-slate-400 group-hover:bg-emerald-50 dark:group-hover:bg-emerald-500/20 group-hover:text-emerald-500'}`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-transform duration-300 ${isOpen ? 'bg-orange-500 text-white rotate-180' : 'bg-slate-100 dark:bg-slate-800 text-slate-400 group-hover:bg-orange-50 dark:group-hover:bg-orange-500/20 group-hover:text-orange-500'}`}>
                   <ChevronDown className="w-4 h-4" />
                 </div>
               </button>

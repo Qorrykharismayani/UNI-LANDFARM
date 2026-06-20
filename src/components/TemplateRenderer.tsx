@@ -21,8 +21,7 @@ import {
   Check,
   User,
   ArrowRight,
-  ChevronRight,
-  Truck, Coffee, Briefcase, Camera, Globe, Headphones, Monitor, Smartphone, ShoppingBag, Award, CheckCircle, Smile, ThumbsUp, Gift, Anchor, Book, Compass, Crosshair, Feather, Flag, Key, Leaf, Lock, Music, Sun, Moon
+  ChevronRight
 } from 'lucide-react';
 
 interface TemplateRendererProps {
@@ -58,19 +57,19 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
   const footer = getSectionContent('footer', c.footer || { logo: '', businessName: '', copyright: '' });
 
   // Helper for rendering icons dynamically
-  const renderIcon = (iconName: string, customColor?: string) => {
-    const iconMap: Record<string, any> = {
-      Shield, Zap, Heart, Sparkles, Star, Truck, Coffee, Briefcase, Camera, Globe, Headphones, 
-      Monitor, Smartphone, ShoppingBag, Award, CheckCircle, Smile, ThumbsUp, Gift, Anchor, 
-      Book, Compass, Crosshair, Feather, Flag, Key, Leaf, Lock, Music, Sun, Moon
-    };
-    const IconCmp = iconMap[iconName] || Sparkles;
-    return <IconCmp className="w-6 h-6" style={customColor ? { color: customColor } : {}} />;
+  const renderIcon = (iconName: string) => {
+    switch (iconName) {
+      case 'Shield': return <Shield className="w-6 h-6 text-brand-blue" />;
+      case 'Zap': return <Zap className="w-6 h-6 text-amber-500" />;
+      case 'Heart': return <Heart className="w-6 h-6 text-red-500" />;
+      case 'Sparkles': return <Sparkles className="w-6 h-6 text-purple-500" />;
+      case 'Star': return <Star className="w-6 h-6 text-yellow-500 fill-current" />;
+      default: return <Sparkles className="w-6 h-6 text-brand-blue" />;
+    }
   };
 
   // 1. UMKM Template Layout (Makanan & Retail)
   if (tid === 'tpl-umkm' || tid === 'Makanan & Retail') {
-    const primaryColor = c.themeColor || '#d97706';
     const defaultSectionsList = [
       { id: 'logo', status: 'Aktif' },
       { id: 'navbar', status: 'Aktif' },
@@ -106,12 +105,8 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
       return type !== 'navbar' && type !== 'footer' && type !== 'logo' && type !== 'contact' && type !== 'socialMedia' && active;
     });
 
-    const fontName = c.fontFamily || 'Inter';
-    const fontUrl = `https://fonts.googleapis.com/css2?family=${fontName.replace(/ /g, '+')}:wght@300;400;500;600;700;800;900&display=swap`;
-
     return (
-      <div className={`w-full bg-[#fcfbf7] text-[#332f21] antialiased selection:bg-amber-100 selection:text-amber-900 ${isMobile ? 'py-2 px-1' : ''} min-h-screen`} style={{ fontFamily: `"${fontName}", sans-serif` }}>
-        <style dangerouslySetInnerHTML={{ __html: `@import url('${fontUrl}');` }} />
+      <div className={`w-full bg-[#fcfbf7] text-[#332f21] font-sans antialiased selection:bg-amber-100 selection:text-amber-900 ${isMobile ? 'py-2 px-1' : ''} min-h-screen`}>
         {/* Navigation */}
         {isNavbarActive && (
           <nav className={`bg-white/80 backdrop-blur-md border-b border-amber-100/50 flex justify-between items-center sticky top-0 z-50 shadow-sm ${isMobile ? 'py-2 px-3 gap-2' : 'py-4 px-6 md:px-12'}`}>
@@ -119,7 +114,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
               {logo ? (
                 <img src={logo} alt="Logo" className={`${isMobile ? 'w-9 h-9' : 'w-16 h-16'} object-contain`} />
               ) : (
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-black" style={{ backgroundColor: primaryColor }}>L</div>
+                <div className="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center text-white font-black">L</div>
               )}
               <span className={`tracking-tight uppercase font-black text-amber-950 ${isMobile ? 'text-[10px] leading-tight line-clamp-2' : 'text-lg'}`}>{navbar.brand || 'UMKM Nusantara'}</span>
             </div>
@@ -137,10 +132,14 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                 rel="noopener noreferrer"
                 className={`bg-amber-600 hover:bg-amber-700 text-white rounded-full font-bold uppercase tracking-wider transition-all shadow-sm ${isMobile ? 'px-3 py-1.5 text-[9px] shrink-0' : 'px-5 py-2.5 text-xs'}`}
 <<<<<<< HEAD
+<<<<<<< HEAD
                 style={{ backgroundColor: '#d97706' }}
 =======
                 style={{ backgroundColor: primaryColor }}
 >>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+                style={{ backgroundColor: '#d97706' }}
+>>>>>>> orry
               >
                 Order WA
               </a>
@@ -149,7 +148,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
         )}
 
         {/* Dynamic Sections */}
-        {layoutSections.map((sec: any, index: number) => {
+        {layoutSections.map((sec: any) => {
           const secType = sec.type || sec.id;
           const secContent = sec.content || c[secType] || {};
           
@@ -165,7 +164,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
           switch (secType) {
             case 'hero':
               return (
-                <section id="home" key={`hero-${index}`} className={`max-w-6xl mx-auto grid gap-12 items-center ${isMobile ? 'py-8 px-4 grid-cols-1 gap-6' : 'py-16 md:py-24 px-6 md:px-12 grid-cols-1 md:grid-cols-2'}`}>
+                <section id="home" key="hero" className={`max-w-6xl mx-auto grid gap-12 items-center ${isMobile ? 'py-8 px-4 grid-cols-1 gap-6' : 'py-16 md:py-24 px-6 md:px-12 grid-cols-1 md:grid-cols-2'}`}>
                   <div className="space-y-6 text-left">
                     <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-amber-50 border border-amber-200/50 text-amber-700 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm">
                       <Sparkles className="w-4 h-4 text-amber-600 animate-pulse" /> 100% Produk Lokal Asli
@@ -182,7 +181,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                         target="_blank"
                         rel="noopener noreferrer"
                         className={`inline-flex items-center gap-3 bg-amber-600 text-white font-black uppercase tracking-widest hover:bg-amber-700 transition-all shadow-lg hover:scale-105 ${isMobile ? 'px-5 py-3 text-xs rounded-xl' : 'px-8 py-4 text-sm rounded-2xl'}`}
-                        style={{ backgroundColor: primaryColor }}
+                        style={{ backgroundColor: '#d97706' }}
                       >
                         {hero.cta || 'Beli Sekarang'} <ShoppingCart className="w-4 h-4" />
                       </a>
@@ -201,15 +200,19 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
             case 'about':
               return (
-                <section id="about" key={`about-${index}`} className={`bg-amber-50/50 border-y border-amber-100/40 ${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'}`}>
+                <section id="about" key="about" className={`bg-amber-50/50 border-y border-amber-100/40 ${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'}`}>
                   <div className={`max-w-4xl mx-auto text-center ${isMobile ? 'space-y-6' : 'space-y-12'}`}>
                     <div className="space-y-3">
                       <h2 className={`font-black text-amber-950 uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Kisah Di Balik Produk Kami</h2>
+<<<<<<< HEAD
 <<<<<<< HEAD
                       <div className="w-16 h-1.5 bg-amber-500 mx-auto rounded-full" style={{ backgroundColor: '#d97706' }} />
 =======
                       <div className="w-16 h-1.5 mx-auto rounded-full" style={{ backgroundColor: primaryColor }} />
 >>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+                      <div className="w-16 h-1.5 bg-amber-500 mx-auto rounded-full" style={{ backgroundColor: '#d97706' }} />
+>>>>>>> orry
                     </div>
                     <div className={`grid gap-8 text-left ${isMobile ? 'grid-cols-1 gap-6' : 'grid-cols-1 md:grid-cols-3'}`}>
                       <div className="bg-white p-6 rounded-2xl border border-amber-100/50 shadow-sm space-y-3">
@@ -231,15 +234,19 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
             case 'products':
               return (
-                <section id="products" key={`products-${index}`} className={`max-w-6xl mx-auto ${isMobile ? 'py-8 px-4 space-y-6' : 'py-20 px-6 md:px-12 space-y-16'}`}>
+                <section id="products" key="products" className={`max-w-6xl mx-auto ${isMobile ? 'py-8 px-4 space-y-6' : 'py-20 px-6 md:px-12 space-y-16'}`}>
                   <div className="text-center space-y-3">
                     <h2 className={`font-black text-amber-950 uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Produk Pilihan Terbaik</h2>
                     <p className={`text-amber-900/60 max-w-lg mx-auto font-bold uppercase tracking-widest ${isMobile ? 'text-[9px]' : 'text-[10px] md:text-xs'}`}>Segar, berkualitas, diproduksi langsung dari petani & pengrajin lokal</p>
+<<<<<<< HEAD
 <<<<<<< HEAD
                     <div className="w-16 h-1.5 bg-amber-500 mx-auto rounded-full" style={{ backgroundColor: '#d97706' }} />
 =======
                     <div className="w-16 h-1.5 mx-auto rounded-full" style={{ backgroundColor: primaryColor }} />
 >>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+                    <div className="w-16 h-1.5 bg-amber-500 mx-auto rounded-full" style={{ backgroundColor: '#d97706' }} />
+>>>>>>> orry
                   </div>
                   <div className={`grid gap-8 ${isMobile ? 'grid-cols-1 gap-6' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'}`}>
                     {products.map((prod, i) => (
@@ -250,7 +257,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-amber-400 font-bold uppercase text-[10px] tracking-widest">[ Image {i+1} ]</div>
                           )}
-                          <div className="absolute bottom-4 right-4 text-white font-black px-3 py-1 rounded-xl text-xs" style={{ backgroundColor: primaryColor }}>
+                          <div className="absolute bottom-4 right-4 bg-amber-600 text-white font-black px-3 py-1 rounded-xl text-xs" style={{ backgroundColor: '#d97706' }}>
                             {prod.price}
                           </div>
                         </div>
@@ -278,12 +285,12 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
             case 'advantages':
               return (
-                <section key={`advantages-${index}`} className={`bg-amber-900 text-white ${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'}`} style={{ backgroundColor: '#451a03' }}>
+                <section key="advantages" className={`bg-amber-900 text-white ${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'}`} style={{ backgroundColor: '#451a03' }}>
                   <div className={`max-w-4xl mx-auto grid gap-8 ${isMobile ? 'grid-cols-1 gap-6' : 'grid-cols-1 md:grid-cols-3'}`}>
                     {advantages.map((adv, i) => (
                       <div key={i} className="text-center space-y-4">
                         <div className="w-14 h-14 bg-amber-800/50 rounded-2xl flex items-center justify-center mx-auto shadow-inner border border-amber-700/50">
-                          {renderIcon(adv.icon, primaryColor)}
+                          {renderIcon(adv.icon)}
                         </div>
                         <h4 className="font-black text-base uppercase tracking-tight">{adv.title}</h4>
                         <p className="text-xs text-amber-100/75 leading-relaxed">{adv.description}</p>
@@ -295,14 +302,18 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
             case 'gallery':
               return (
-                <section key={`gallery-${index}`} className={`max-w-6xl mx-auto ${isMobile ? 'py-8 px-4 space-y-6' : 'py-20 px-6 md:px-12 space-y-12'}`}>
+                <section key="gallery" className={`max-w-6xl mx-auto ${isMobile ? 'py-8 px-4 space-y-6' : 'py-20 px-6 md:px-12 space-y-12'}`}>
                   <div className="text-center space-y-3">
                     <h2 className={`font-black text-amber-950 uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Galeri Kegiatan Kami</h2>
+<<<<<<< HEAD
 <<<<<<< HEAD
                     <div className="w-16 h-1.5 bg-amber-500 mx-auto rounded-full" style={{ backgroundColor: '#d97706' }} />
 =======
                     <div className="w-16 h-1.5 mx-auto rounded-full" style={{ backgroundColor: primaryColor }} />
 >>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+                    <div className="w-16 h-1.5 bg-amber-500 mx-auto rounded-full" style={{ backgroundColor: '#d97706' }} />
+>>>>>>> orry
                   </div>
                   <div className={`grid gap-6 ${isMobile ? 'grid-cols-2 gap-4' : 'grid-cols-2 md:grid-cols-3'}`}>
                     {gallery.map((img, i) => (
@@ -320,15 +331,19 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
             case 'testimonials':
               return (
-                <section id="testimonials" key={`testimonials-${index}`} className={`bg-amber-50/50 border-y border-amber-100/40 ${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'}`}>
+                <section id="testimonials" key="testimonials" className={`bg-amber-50/50 border-y border-amber-100/40 ${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'}`}>
                   <div className={`max-w-4xl mx-auto text-center ${isMobile ? 'space-y-6' : 'space-y-12'}`}>
                     <div className="space-y-3">
                       <h2 className={`font-black text-amber-950 uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Ulasan Pelanggan</h2>
+<<<<<<< HEAD
 <<<<<<< HEAD
                       <div className="w-16 h-1.5 bg-amber-500 mx-auto rounded-full" style={{ backgroundColor: '#d97706' }} />
 =======
                       <div className="w-16 h-1.5 mx-auto rounded-full" style={{ backgroundColor: primaryColor }} />
 >>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
+=======
+                      <div className="w-16 h-1.5 bg-amber-500 mx-auto rounded-full" style={{ backgroundColor: '#d97706' }} />
+>>>>>>> orry
                     </div>
                     <div className={`grid gap-8 text-left ${isMobile ? 'grid-cols-1 gap-6' : 'grid-cols-1 md:grid-cols-2'}`}>
                       {testimonials.map((t, i) => (
@@ -350,7 +365,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
             case 'cta':
               return (
-                <section key={`cta-${index}`} className={`max-w-5xl mx-auto text-center relative overflow-hidden bg-amber-50 border border-amber-200/50 my-12 ${isMobile ? 'py-8 px-4 rounded-[24px] space-y-6 my-6' : 'py-16 md:py-24 px-6 md:px-12 rounded-[40px] space-y-8'}`}>
+                <section key="cta" className={`max-w-5xl mx-auto text-center relative overflow-hidden bg-amber-50 border border-amber-200/50 my-12 ${isMobile ? 'py-8 px-4 rounded-[24px] space-y-6 my-6' : 'py-16 md:py-24 px-6 md:px-12 rounded-[40px] space-y-8'}`}>
                   <div className="space-y-3">
                     <h2 className={`font-black text-amber-950 uppercase tracking-tight ${isMobile ? 'text-xl' : 'text-3xl md:text-4xl'}`}>{cta.title}</h2>
                     <p className={`text-amber-900/70 max-w-xl mx-auto font-medium ${isMobile ? 'text-xs' : 'text-xs md:text-sm'}`}>{cta.description}</p>
@@ -361,7 +376,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                       target="_blank"
                       rel="noopener noreferrer"
                       className={`inline-flex items-center gap-3 bg-amber-600 text-white font-black uppercase tracking-widest hover:bg-amber-700 transition-all shadow-lg ${isMobile ? 'px-5 py-3 text-xs rounded-xl' : 'px-8 py-4 text-sm rounded-2xl'}`}
-                      style={{ backgroundColor: primaryColor }}
+                      style={{ backgroundColor: '#d97706' }}
                     >
                       {cta.buttonText || 'Hubungi Kami'} <MessageCircle className="w-4.5 h-4.5" />
                     </a>
@@ -371,7 +386,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
             case 'marketplaces':
               return (
-                <section key={`marketplaces-${index}`} className={`border-t border-amber-100 bg-white text-center ${isMobile ? 'py-8 px-4' : 'py-12 px-6'}`}>
+                <section key="marketplaces" className={`border-t border-amber-100 bg-white text-center ${isMobile ? 'py-8 px-4' : 'py-12 px-6'}`}>
                   <div className="max-w-4xl mx-auto space-y-4">
                     <p className="text-[10px] font-black text-amber-900/60 uppercase tracking-widest">Tersedia Juga di Marketplace Resmi</p>
                     <div className="flex flex-wrap justify-center gap-6">
@@ -435,8 +450,8 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
   // Fallback for other templates (Jasa, Promo, Portfolio, Event)
   const isDarkTheme = tid === 'tpl-portfolio' || tid === 'Agensi & Kreatif' || tid === 'tpl-promo' || tid === 'Campaign & Promo';
   
-  let primaryColor = c.themeColor || '#3a86ff'; // Brand Blue
-  let primaryColorHover = c.themeColor ? `${c.themeColor}dd` : '#2563eb';
+  let primaryColor = '#3a86ff'; // Brand Blue
+  let primaryColorHover = '#2563eb';
   let bgColor = isDarkTheme ? 'bg-[#0b0f19]' : 'bg-slate-50';
   let textColor = isDarkTheme ? 'text-slate-100' : 'text-slate-900';
   let cardColor = isDarkTheme ? 'bg-slate-900/60 border-slate-800' : 'bg-white border-slate-100';
@@ -490,12 +505,8 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
     return type !== 'navbar' && type !== 'footer' && type !== 'logo' && type !== 'contact' && type !== 'socialMedia' && active;
   });
 
-  const fontName = c.fontFamily || 'Inter';
-  const fontUrl = `https://fonts.googleapis.com/css2?family=${fontName.replace(/ /g, '+')}:wght@300;400;500;600;700;800;900&display=swap`;
-
   return (
-    <div className={`w-full ${bgColor} ${textColor} antialiased ${isMobile ? 'py-2 px-1' : ''} min-h-screen`} style={{ fontFamily: `"${fontName}", sans-serif` }}>
-      <style dangerouslySetInnerHTML={{ __html: `@import url('${fontUrl}');` }} />
+    <div className={`w-full ${bgColor} ${textColor} font-sans antialiased ${isMobile ? 'py-2 px-1' : ''} min-h-screen`}>
       {/* Navigation */}
       {isNavbarActive && (
         <nav className={`flex justify-between items-center sticky top-0 z-50 shadow-sm backdrop-blur-md border-b ${isDarkTheme ? 'bg-[#0f172a]/95 border-slate-800/80' : 'bg-white/95 border-slate-100/80'} ${isMobile ? 'py-2 px-3 gap-2' : 'py-4 px-6 md:px-12'}`}>
@@ -529,7 +540,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
       )}
 
       {/* Dynamic Sections */}
-      {layoutSections.map((sec: any, index: number) => {
+      {layoutSections.map((sec: any) => {
         const secType = sec.type || sec.id;
         const secContent = sec.content || c[secType] || {};
         
@@ -545,7 +556,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
         switch (secType) {
           case 'hero':
             return (
-              <section id="home" key={`hero-${index}`} className={`max-w-6xl mx-auto grid gap-12 items-center ${isMobile ? 'py-8 px-4 grid-cols-1 gap-6' : 'py-16 md:py-24 px-6 md:px-12 grid-cols-1 md:grid-cols-2'}`}>
+              <section id="home" key="hero" className={`max-w-6xl mx-auto grid gap-12 items-center ${isMobile ? 'py-8 px-4 grid-cols-1 gap-6' : 'py-16 md:py-24 px-6 md:px-12 grid-cols-1 md:grid-cols-2'}`}>
                 <div className="space-y-6 text-left">
                   <div className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm ${isDarkTheme ? 'bg-purple-950/20 border-purple-800/30 text-purple-300' : 'bg-blue-50 border-blue-200/50 text-blue-700'}`}>
                     <Sparkles className="w-4 h-4 animate-pulse" /> Layanan Profesional & Terpercaya
@@ -581,7 +592,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
           case 'about':
             return (
-              <section id="about" key={`about-${index}`} className={`border-y ${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'} ${isDarkTheme ? 'bg-[#111827]/40 border-slate-900' : 'bg-slate-100/50 border-slate-200/50'}`}>
+              <section id="about" key="about" className={`border-y ${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'} ${isDarkTheme ? 'bg-[#111827]/40 border-slate-900' : 'bg-slate-100/50 border-slate-200/50'}`}>
                 <div className={`max-w-4xl mx-auto text-center ${isMobile ? 'space-y-6' : 'space-y-12'}`}>
                   <div className="space-y-3">
                     <h2 className={`font-black uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Mengenal Profil Kami</h2>
@@ -607,7 +618,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
           case 'products':
             return (
-              <section id="products" key={`products-${index}`} className={`max-w-6xl mx-auto ${isMobile ? 'py-8 px-4 space-y-6' : 'py-20 px-6 md:px-12 space-y-16'}`}>
+              <section id="products" key="products" className={`max-w-6xl mx-auto ${isMobile ? 'py-8 px-4 space-y-6' : 'py-20 px-6 md:px-12 space-y-16'}`}>
                 <div className="text-center space-y-3">
                   <h2 className={`font-black uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Layanan & Produk Unggulan</h2>
                   <p className={`max-w-lg mx-auto font-bold uppercase tracking-widest ${isDarkTheme ? 'text-slate-400' : 'text-slate-500'} ${isMobile ? 'text-[9px]' : 'text-[10px] md:text-xs'}`}>Dukungan penuh untuk efisiensi ekosistem operasional Anda</p>
@@ -651,12 +662,12 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
           case 'advantages':
             return (
-              <section key={`advantages-${index}`} className={`${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'} ${isDarkTheme ? 'bg-[#0f172a]' : 'bg-slate-900 text-white'}`}>
+              <section key="advantages" className={`${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'} ${isDarkTheme ? 'bg-[#0f172a]' : 'bg-slate-900 text-white'}`}>
                 <div className={`max-w-4xl mx-auto grid gap-8 ${isMobile ? 'grid-cols-1 gap-6' : 'grid-cols-1 md:grid-cols-3'}`}>
                   {advantages.map((adv, i) => (
                     <div key={i} className="text-center space-y-4">
                       <div className="w-14 h-14 bg-slate-800/80 rounded-2xl flex items-center justify-center mx-auto shadow-inner border border-slate-700/50">
-                        {renderIcon(adv.icon, primaryColor)}
+                        {renderIcon(adv.icon)}
                       </div>
                       <h4 className="font-black text-base uppercase tracking-tight">{adv.title}</h4>
                       <p className="text-xs text-slate-400 leading-relaxed">{adv.description}</p>
@@ -668,7 +679,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
           case 'gallery':
             return (
-              <section key={`gallery-${index}`} className={`max-w-6xl mx-auto ${isMobile ? 'py-8 px-4 space-y-6' : 'py-20 px-6 md:px-12 space-y-12'}`}>
+              <section key="gallery" className={`max-w-6xl mx-auto ${isMobile ? 'py-8 px-4 space-y-6' : 'py-20 px-6 md:px-12 space-y-12'}`}>
                 <div className="text-center space-y-3">
                   <h2 className={`font-black uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Dokumentasi Portofolio</h2>
                   <div className="w-16 h-1.5 mx-auto rounded-full" style={{ backgroundColor: primaryColor }} />
@@ -689,7 +700,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
           case 'testimonials':
             return (
-              <section id="testimonials" key={`testimonials-${index}`} className={`border-y ${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'} ${isDarkTheme ? 'bg-[#111827]/40 border-slate-900' : 'bg-slate-100/50 border-slate-200/50'}`}>
+              <section id="testimonials" key="testimonials" className={`border-y ${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'} ${isDarkTheme ? 'bg-[#111827]/40 border-slate-900' : 'bg-slate-100/50 border-slate-200/50'}`}>
                 <div className={`max-w-4xl mx-auto text-center ${isMobile ? 'space-y-6' : 'space-y-12'}`}>
                   <div className="space-y-3">
                     <h2 className={`font-black uppercase tracking-tight ${isMobile ? 'text-lg' : 'text-2xl md:text-3xl'}`}>Apa Kata Klien Kami?</h2>
@@ -715,7 +726,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
           case 'cta':
             return (
-              <section key={`cta-${index}`} className={`max-w-5xl mx-auto text-center relative overflow-hidden border my-12 ${cardColor} ${isMobile ? 'py-8 px-4 rounded-[24px] space-y-6 my-6' : 'py-16 md:py-24 px-6 md:px-12 rounded-[40px] space-y-8'}`}>
+              <section key="cta" className={`max-w-5xl mx-auto text-center relative overflow-hidden border my-12 ${cardColor} ${isMobile ? 'py-8 px-4 rounded-[24px] space-y-6 my-6' : 'py-16 md:py-24 px-6 md:px-12 rounded-[40px] space-y-8'}`}>
                 <div className="space-y-3">
                   <h2 className={`font-black uppercase tracking-tight ${isMobile ? 'text-xl' : 'text-3xl md:text-4xl'}`}>{cta.title}</h2>
                   <p className="text-slate-500 text-xs md:text-sm max-w-xl mx-auto font-medium">{cta.description}</p>
@@ -736,7 +747,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
 
           case 'marketplaces':
             return (
-              <section key={`marketplaces-${index}`} className={`border-t text-center ${isMobile ? 'py-8 px-4' : 'py-12 px-6'} ${isDarkTheme ? 'bg-[#0f172a] border-slate-800' : 'bg-white border-slate-200'}`}>
+              <section key="marketplaces" className={`border-t text-center ${isMobile ? 'py-8 px-4' : 'py-12 px-6'} ${isDarkTheme ? 'bg-[#0f172a] border-slate-800' : 'bg-white border-slate-200'}`}>
                 <div className="max-w-4xl mx-auto space-y-4">
                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Tautan Terkait Marketplace</p>
                   <div className="flex flex-wrap justify-center gap-6">

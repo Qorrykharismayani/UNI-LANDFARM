@@ -23,7 +23,6 @@ export async function PATCH(request: Request) {
       featuresJson,
       testimonialsJson,
       faqsJson,
-      pricingJson,
       userPageJson
     } = await request.json();
 
@@ -44,15 +43,14 @@ export async function PATCH(request: Request) {
           featuresJson: featuresJson !== undefined ? featuresJson : undefined,
           testimonialsJson: testimonialsJson !== undefined ? testimonialsJson : undefined,
           faqsJson: faqsJson !== undefined ? faqsJson : undefined,
-          pricingJson: pricingJson !== undefined ? pricingJson : undefined,
           userPageJson: userPageJson !== undefined ? userPageJson : undefined
         }
       });
     } else {
       updated = await prisma.systemSetting.create({
         data: {
-          platformName: platformName || 'Uni-LanFaram',
-          logo: logo || 'Uni-LanFaram',
+          platformName: platformName || 'UNI-LandFarm',
+          logo: logo || 'UNI-LandFarm',
           heroTitle: heroTitle || 'Platform Landing Page Mikro Berbasis AI CMS',
           heroDescription: heroDescription || 'Bantu kembangkan bisnis agrikultur, UMKM, dan produk lokal Anda dengan landing page super cepat yang dikelola kecerdasan buatan.',
           contactEmail: contactEmail || 'hello@unilanfarm.com',
@@ -62,11 +60,10 @@ export async function PATCH(request: Request) {
             facebook: 'https://facebook.com/unilanfarm',
             linkedin: 'https://linkedin.com/company/unilanfarm'
           },
-          footerText: footerText || '© 2026 Uni-LanFaram. Dipersembahkan oleh Uni-Inside.',
+          footerText: footerText || '© 2026 UNI-LandFarm. Dipersembahkan oleh Uni-Inside.',
           featuresJson: featuresJson || [],
           testimonialsJson: testimonialsJson || [],
           faqsJson: faqsJson || [],
-          pricingJson: pricingJson || [],
           userPageJson: userPageJson || {}
         }
       });
