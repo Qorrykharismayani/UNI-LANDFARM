@@ -39,7 +39,8 @@ import {
   Send,
   Globe,
   FileText,
-  Rocket
+  Rocket,
+  CheckCircle2
 } from 'lucide-react';
 import TemplateRenderer from './TemplateRenderer';
 import { generateEditorCopy } from '../services/ai';
@@ -122,6 +123,11 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
   const [loading, setLoading] = useState(true);
   const [pageData, setPageData] = useState<any>(null);
   const [contentJson, setRawContentJson] = useState<any>(null);
+  const [sitePages, setSitePages] = useState<any[]>([]);
+  const [currentPageSlug, setCurrentPageSlug] = useState<string>('/');
+  const [showAddPageModal, setShowAddPageModal] = useState(false);
+  const [newPageName, setNewPageName] = useState('');
+  const [newPageSlug, setNewPageSlug] = useState('');
 
   const syncContentAndSections = (newContent: any) => {
     if (!newContent) return;
@@ -248,7 +254,18 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
         if (data.success && data.data) {
           setPageData(data.data);
           const page = data.data;
-          const initialContent = page.content?.contentJson || page.template?.defaultContent || {};
+          const fetchedContent = page.content?.contentJson || page.template?.defaultContent || {};
+          let initialContent = fetchedContent;
+          if (fetchedContent.pages && Array.isArray(fetchedContent.pages)) {
+            setSitePages(fetchedContent.pages);
+            const homePage = fetchedContent.pages.find((p:any) => p.slug === '/') || fetchedContent.pages[0];
+            setCurrentPageSlug(homePage.slug);
+            initialContent = homePage.content;
+          } else {
+            setSitePages([{ slug: '/', name: 'Beranda', content: fetchedContent }]);
+            setCurrentPageSlug('/');
+            initialContent = fetchedContent;
+          }
           const defaultSectionsList = [
             { id: 'logo', type: 'logo', title: 'Logo Website', isActive: true, order: 1 },
             { id: 'navbar', type: 'navbar', title: 'Menu Navigasi', isActive: true, order: 2 },
@@ -341,10 +358,15 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
     setSaveStatus('Saving');
     const delayDebounce = setTimeout(async () => {
       try {
+        const updatedPages = sitePages.map(p => p.slug === currentPageSlug ? { ...p, content: contentJson } : p);
+        if (!updatedPages.find(p => p.slug === currentPageSlug)) {
+          updatedPages.push({ slug: currentPageSlug, name: currentPageSlug === '/' ? 'Beranda' : 'Halaman Baru', content: contentJson });
+        }
+        setSitePages(updatedPages);
         const res = await fetch(`/api/landing-pages/${pageId}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ contentJson })
+          body: JSON.stringify({ contentJson: { pages: updatedPages } })
         });
         const data = await res.json();
         if (data.success) {
@@ -397,11 +419,17 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
     try {
       // 1. Save all data CMS and update status to Published
       setSaveStatus('Saving');
+      const updatedPages = sitePages.map(p => p.slug === currentPageSlug ? { ...p, content: contentJson } : p);
+      if (!updatedPages.find(p => p.slug === currentPageSlug)) {
+        updatedPages.push({ slug: currentPageSlug, name: currentPageSlug === '/' ? 'Beranda' : 'Halaman Baru', content: contentJson });
+      }
+      setSitePages(updatedPages);
+
       const saveRes = await fetch(`/api/landing-pages/${pageId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          contentJson,
+          contentJson: { pages: updatedPages },
           status: 'Published',
           publishedAt: new Date().toISOString(),
           publicUrl: `/site/${pageData?.slug}`
@@ -569,6 +597,11 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
     
     updateSectionsState(updatedSections);
     triggerToast('Section berhasil dihapus!');
+    fetch('/api/notifications', { 
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: 'Section Dihapus', message: `Sebuah section telah dihapus dari halaman.`, type: 'info' }) 
+    });
   };
 
   // Reorder sections
@@ -975,14 +1008,14 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
           <div>
             <div className="flex items-center gap-2">
               <span className="text-lg font-black text-slate-900 dark:text-white tracking-tight uppercase leading-none">{pageData?.businessName || 'Visual Editor'}</span>
-              <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${pageData?.status === 'Published' ? 'bg-emerald-500/10 text-emerald-400 dark:text-emerald-450' :
+              <span className={`px-2.5 py-1 rounded-full text-xs font-black uppercase tracking-wider ${pageData?.status === 'Published' ? 'bg-emerald-500/10 text-emerald-400 dark:text-emerald-450' :
                   pageData?.status === 'Inactive' ? 'bg-red-500/10 text-red-400' :
                     'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
                 }`}>
                 {pageData?.status || 'Draft'}
               </span>
             </div>
-            <div className="flex items-center gap-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mt-1">
+            <div className="flex items-center gap-2 text-sm font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mt-1.5">
               <span>Template: {pageData?.template?.name || pageData?.template}</span>
               <span>•</span>
               <span className={saveStatus === 'Saving' ? 'text-amber-500 animate-pulse' : saveStatus === 'Error' ? 'text-red-500' : 'text-emerald-500'}>
@@ -1035,16 +1068,16 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                 setSaveStatus('Error');
               }
             }}
-            className="px-4 py-1.5 bg-brand-blue/10 hover:bg-brand-blue/20 text-brand-blue dark:bg-brand-blue/20 dark:hover:bg-brand-blue/30 dark:text-brand-blue-100 rounded-lg text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
+            className="px-5 py-2 bg-brand-blue/10 hover:bg-brand-blue/20 text-brand-blue dark:bg-brand-blue/20 dark:hover:bg-brand-blue/30 dark:text-brand-blue-100 rounded-lg text-sm font-black uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
           >
             Simpan Draft
           </button>
           {pageData?.status !== 'Published' && pageData?.status !== 'Inactive' && (
             <button
               onClick={() => setShowPublishConfirm(true)}
-              className="px-4 py-1.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg text-xs font-black uppercase tracking-wider hover:scale-105 transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
+              className="px-5 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg text-sm font-black uppercase tracking-wider hover:scale-105 transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
             >
-              Publish <Send className="w-3 h-3" />
+              Publish <Send className="w-3.5 h-3.5" />
             </button>
           )}
         </div>
@@ -1091,13 +1124,26 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                 {showAddSectionDropdown && (
                   <div className="absolute top-[4.2rem] right-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-1.5 shadow-xl z-[60] space-y-0.5 max-h-[300px] w-56 overflow-y-auto custom-scrollbar animate-in slide-in-from-top-2 duration-150">
                     <span className="text-[9px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 block px-2 py-1 select-none">Halaman:</span>
+                    {sitePages.map(page => (
+                      <button
+                        key={page.slug}
+                        onClick={() => {
+                          setShowAddSectionDropdown(false);
+                          setCurrentPageSlug(page.slug);
+                          setContentJson(page.content || {});
+                        }}
+                        className={`w-full text-left px-2.5 py-1.5 rounded-lg transition-all flex items-center justify-between text-xs ${currentPageSlug === page.slug ? 'bg-brand-blue/10 text-brand-blue font-bold' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
+                      >
+                        <span className="truncate">{page.name}</span>
+                        {currentPageSlug === page.slug && <CheckCircle2 className="w-3 h-3" />}
+                      </button>
+                    ))}
                     <button
                       onClick={() => {
                         setShowAddSectionDropdown(false);
-                        if (onCreateNewPage) onCreateNewPage();
-                        else if (onBack) onBack();
+                        setShowAddPageModal(true);
                       }}
-                      className="w-full text-left px-2.5 py-1.5 hover:bg-brand-blue/10 dark:hover:bg-brand-blue/15 rounded-lg transition-all flex items-center gap-2 text-xs text-brand-blue hover:text-brand-blue-600 dark:text-brand-blue-400 dark:hover:text-brand-blue-300 group cursor-pointer border-none"
+                      className="w-full text-left px-2.5 py-1.5 hover:bg-brand-blue/10 dark:hover:bg-brand-blue/15 rounded-lg transition-all flex items-center gap-2 text-xs text-brand-blue hover:text-brand-blue-600 dark:text-brand-blue-400 dark:hover:text-brand-blue-300 group cursor-pointer border-none mt-1"
                     >
                       <div className="w-5 h-5 rounded bg-brand-blue/10 dark:bg-brand-blue/20 flex items-center justify-center transition-colors">
                         <Plus className="w-3.5 h-3.5" />
@@ -2322,6 +2368,68 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
               >
                 Jadwalkan
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Page Modal */}
+      {showAddPageModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowAddPageModal(false)} />
+          <div className="relative w-full max-w-sm bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-2xl border border-slate-100 dark:border-slate-800 animate-in zoom-in-95 duration-200">
+            <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest mb-4">Tambah Halaman Baru</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Nama Halaman</label>
+                <input 
+                  type="text" 
+                  value={newPageName}
+                  onChange={e => {
+                    setNewPageName(e.target.value);
+                    if (!newPageSlug || newPageSlug === '/' || newPageSlug === '/' + e.target.value.toLowerCase().replace(/\s+/g, '-')) {
+                      setNewPageSlug('/' + e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, ''));
+                    }
+                  }}
+                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none focus:border-brand-blue"
+                  placeholder="Contoh: Tentang Kami"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">URL Slug</label>
+                <input 
+                  type="text" 
+                  value={newPageSlug}
+                  onChange={e => setNewPageSlug(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-sm outline-none focus:border-brand-blue"
+                  placeholder="Contoh: /tentang-kami"
+                />
+              </div>
+              <div className="flex gap-2 pt-2">
+                <button 
+                  onClick={() => setShowAddPageModal(false)}
+                  className="flex-1 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-bold border-none cursor-pointer"
+                >
+                  Batal
+                </button>
+                <button 
+                  onClick={() => {
+                    if (!newPageName || !newPageSlug) return;
+                    const newPage = { slug: newPageSlug, name: newPageName, content: {} };
+                    const updatedPages = [...sitePages, newPage];
+                    setSitePages(updatedPages);
+                    setCurrentPageSlug(newPageSlug);
+                    setContentJson({});
+                    setShowAddPageModal(false);
+                    setNewPageName('');
+                    setNewPageSlug('');
+                    triggerToast('Halaman baru berhasil ditambahkan!');
+                  }}
+                  className="flex-1 py-2 bg-brand-blue text-white rounded-xl text-xs font-bold border-none cursor-pointer"
+                >
+                  Tambah
+                </button>
+              </div>
             </div>
           </div>
         </div>

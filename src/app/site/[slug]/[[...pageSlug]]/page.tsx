@@ -5,8 +5,8 @@ import { cookies } from 'next/headers';
 import { getSessionFromCookies } from '@/lib/auth';
 import TemplateRenderer from '@/components/TemplateRenderer';
 
-export default async function PublicSitePage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
+export default async function PublicSitePage({ params }: { params: Promise<{ slug: string, pageSlug?: string[] }> }) {
+  const { slug, pageSlug } = await params;
   
   const page = await prisma.landingPage.findUnique({
     where: { slug },
@@ -53,12 +53,44 @@ export default async function PublicSitePage({ params }: { params: Promise<{ slu
     }
   }
 
-  const contentJson = page.content?.contentJson || page.template?.defaultContent || {};
+  const rawContentJson = page.content?.contentJson || page.template?.defaultContent || {};
+  let finalContentJson = rawContentJson;
+  let pageTitle = page.title;
+
+  const currentPath = pageSlug ? '/' + pageSlug.join('/') : '/';
+
+  // Multi-page support extraction
+  if (rawContentJson.pages && Array.isArray(rawContentJson.pages)) {
+    const foundPage = rawContentJson.pages.find((p: any) => p.slug === currentPath);
+    if (!foundPage) {
+      // Allow fallback to home if they only hit the base slug without matching pages array somehow
+      if (currentPath === '/' && rawContentJson.pages.length > 0) {
+        finalContentJson = rawContentJson.pages[0].content;
+        pageTitle = rawContentJson.pages[0].name || page.title;
+      } else {
+        notFound();
+      }
+    } else {
+      finalContentJson = foundPage.content;
+      pageTitle = foundPage.name || page.title;
+    }
+  } else {
+    // Backward compatibility: If no pages array, it's a single page site
+    // We should only render the root path for single page sites
+    if (currentPath !== '/') {
+      notFound();
+    }
+  }
 
   return (
     <TemplateRenderer 
       templateId={page.template.id} 
-      contentJson={contentJson} 
+      contentJson={finalContentJson} 
+      siteConfig={{
+        slug: page.slug,
+        title: pageTitle,
+        pages: rawContentJson.pages || [{ slug: '/', name: 'Beranda' }]
+      }}
     />
   );
 }

@@ -245,6 +245,11 @@ export const DashboardView = ({
       const data = await res.json();
       if (data.success) {
         showNotification("Proyek berhasil dihapus!", "success");
+        fetch('/api/notifications', { 
+          method: 'POST', 
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: 'Proyek Dihapus', message: `Proyek/website telah berhasil dihapus.`, type: 'info' }) 
+        });
         fetchProjects();
       } else {
         showNotification(data.message || "Gagal menghapus proyek.", "info");
@@ -1486,7 +1491,10 @@ export const DashboardView = ({
                 </button>
 
                 <button 
-                  onClick={() => setSubView('notifications')}
+                  onClick={() => {
+                    fetchNotifications();
+                    setSubView('notifications');
+                  }}
                   className="p-3 rounded-2xl text-slate-400 hover:text-brand-blue hover:bg-brand-blue/10 transition-all relative group"
                 >
                   <Bell className="w-5 h-5" />
@@ -1501,12 +1509,12 @@ export const DashboardView = ({
                 className="flex items-center gap-4 cursor-pointer group"
               >
                 <div className="text-right hidden sm:block">
-                  <p className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tighter leading-none mb-1.5 group-hover:text-brand-blue transition-colors">{user?.name || 'Sarah Anderson'}</p>
+                  <p className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tighter leading-none mb-1.5 group-hover:text-brand-blue transition-colors">{user?.name || 'Sarah Anderson'}</p>
                   <div className="flex items-center justify-end gap-2 leading-none">
                     <div className={`w-2 h-2 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)] ${
                       user?.plan && user.plan !== 'Regular Access' && user.plan !== '-' ? 'bg-emerald-500' : 'bg-slate-400'
                     }`} />
-                    <p className="text-[9px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-[0.2em] leading-none">
+                    <p className="text-xs font-black text-slate-500 dark:text-slate-500 uppercase tracking-[0.2em] leading-none">
                       {user?.plan || 'Regular Access'}
                     </p>
                   </div>
@@ -1536,7 +1544,7 @@ export const DashboardView = ({
                     <button
                       key={i}
                       onClick={() => setSubView(item.id)}
-                      className={`w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all group relative ${subView === item.id
+                      className={`w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-sm font-black uppercase tracking-wider transition-all group relative ${subView === item.id
                           ? 'bg-brand-blue/5 text-brand-blue shadow-[0_0_15px_rgba(255,176,0,0.05)] border border-brand-blue/10 dark:bg-brand-blue/10'
                           : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900/40 hover:text-slate-950 dark:hover:text-white border border-transparent'
                         }`}

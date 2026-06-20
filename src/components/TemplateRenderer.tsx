@@ -28,9 +28,10 @@ interface TemplateRendererProps {
   templateId: string | number;
   contentJson: any;
   isMobile?: boolean;
+  siteConfig?: { slug: string, title: string, pages: any[] };
 }
 
-export default function TemplateRenderer({ templateId, contentJson, isMobile = false }: TemplateRendererProps) {
+export default function TemplateRenderer({ templateId, contentJson, isMobile = false, siteConfig }: TemplateRendererProps) {
   const tid = String(templateId);
   // Normalize content JSON to avoid crashes
   const c = contentJson || {};
@@ -469,7 +470,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
     <div className={`w-full ${bgColor} ${textColor} font-sans antialiased ${isMobile ? 'py-2 px-1' : ''} min-h-screen`}>
       {/* Navigation */}
       {isNavbarActive && (
-        <nav className={`flex justify-between items-center sticky top-0 z-50 shadow-sm backdrop-blur-md border-b ${isDarkTheme ? 'bg-[#0f172a]/95 border-slate-800/80' : 'bg-white/95 border-slate-100/80'} ${isMobile ? 'py-2 px-3 gap-2' : 'py-4 px-6 md:px-12'}`}>
+        <nav className={`flex justify-between items-center ${isMobile ? 'relative' : 'sticky top-0'} z-50 shadow-sm backdrop-blur-md border-b ${isDarkTheme ? 'bg-[#0f172a]/95 border-slate-800/80' : 'bg-white/95 border-slate-100/80'} ${isMobile ? 'py-2 px-3 gap-2' : 'py-4 px-6 md:px-12'}`}>
           <div className={`flex items-center ${isMobile ? 'gap-1.5 max-w-[65%]' : 'gap-3'}`}>
             {logo ? (
               <img src={logo} alt="Logo" className={`${isMobile ? 'w-9 h-9' : 'w-16 h-16'} object-contain`} />
@@ -480,9 +481,15 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
           </div>
           {!isMobile && (
             <div className={`hidden md:flex gap-8 text-xs font-bold uppercase tracking-widest ${isDarkTheme ? 'text-slate-400' : 'text-slate-500'}`}>
-              {Array.isArray(navbar.items) && navbar.items.map((item: any) => (
-                <a key={item.id} href={`#${item.id}`} className="hover:text-brand-blue transition-colors" style={{ '--tw-hover-text': primaryColor } as any}>{item.label}</a>
-              ))}
+              {siteConfig && siteConfig.pages && siteConfig.pages.length > 1 ? (
+                siteConfig.pages.map((p: any) => (
+                  <a key={p.slug} href={`/site/${siteConfig.slug}${p.slug === '/' ? '' : p.slug}`} className="hover:text-brand-blue transition-colors" style={{ '--tw-hover-text': primaryColor } as any}>{p.name}</a>
+                ))
+              ) : (
+                Array.isArray(navbar.items) && navbar.items.map((item: any) => (
+                  <a key={item.id} href={`#${item.id}`} className="hover:text-brand-blue transition-colors" style={{ '--tw-hover-text': primaryColor } as any}>{item.label}</a>
+                ))
+              )}
             </div>
           )}
           {contact.whatsapp && (

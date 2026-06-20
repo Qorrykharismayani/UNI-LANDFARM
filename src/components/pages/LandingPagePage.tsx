@@ -499,7 +499,7 @@ const LandingPagePage = ({
 
   // Default landing view
   return (
-    <div className="max-w-5xl mx-auto py-16 relative">
+    <div className="max-w-5xl mx-auto pt-6 pb-16 relative">
       {/* Premium Background Decorations */}
       <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden">
         {/* Subtle Grid Pattern */}

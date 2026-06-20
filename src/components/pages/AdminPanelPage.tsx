@@ -895,6 +895,11 @@ const AdminPanelPage = ({
                             const nextStatus = tpl.status === 'Aktif' ? 'Nonaktif' : 'Aktif';
                             setTemplatesList(templatesList.map(t => t.id === tpl.id ? { ...t, status: nextStatus } : t));
                             showNotification(`Template ${tpl.name} diubah menjadi ${nextStatus}`, 'success');
+                            fetch('/api/notifications', { 
+                              method: 'POST', 
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ title: 'Status Template Diubah', message: `Status template ${tpl.name} telah diubah menjadi ${nextStatus}.`, type: 'info' }) 
+                            });
                           }}
                           className="flex-1 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-lg text-[9px] font-black uppercase tracking-widest transition-colors cursor-pointer text-center"
                         >
@@ -903,6 +908,11 @@ const AdminPanelPage = ({
                         <button
                           onClick={() => {
                             showNotification(`Template ${tpl.name} berhasil diedit!`, 'success');
+                            fetch('/api/notifications', { 
+                              method: 'POST', 
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ title: 'Template Diedit', message: `Data template ${tpl.name} telah berhasil diperbarui.`, type: 'success' }) 
+                            });
                           }}
                           className="px-2 py-1.5 bg-blue-500/10 hover:bg-blue-500 border border-blue-500/20 text-blue-400 hover:text-white rounded-lg transition-colors cursor-pointer flex items-center justify-center"
                           title="Edit Template"
@@ -913,6 +923,11 @@ const AdminPanelPage = ({
                           onClick={() => {
                             setTemplatesList(templatesList.filter(t => t.id !== tpl.id));
                             showNotification(`Template ${tpl.name} berhasil dihapus!`, 'info');
+                            fetch('/api/notifications', { 
+                              method: 'POST', 
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ title: 'Template Dihapus', message: `Template ${tpl.name} telah berhasil dihapus dari sistem.`, type: 'info' }) 
+                            });
                           }}
                           className="px-2 py-1.5 bg-red-500/10 hover:bg-red-500 border border-red-500/20 text-red-500 hover:text-white rounded-lg transition-colors cursor-pointer flex items-center justify-center"
                           title="Hapus Template"

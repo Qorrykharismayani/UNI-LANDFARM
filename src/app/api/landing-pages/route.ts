@@ -87,6 +87,15 @@ export async function POST(request: Request) {
     });
 
     if (!user || user.tokens < tokenCost) {
+      await (prisma.notification as any).create({
+        data: {
+          userId: session.userId,
+          title: 'Token Habis / Tidak Cukup',
+          message: `Pembuatan website gagal karena token tidak cukup. Dibutuhkan ${tokenCost} Token.`,
+          type: 'warning',
+          isRead: false
+        }
+      });
       return NextResponse.json({ success: false, message: `Token tidak cukup. Biaya pembuatan adalah ${tokenCost} Token. Silakan beli token terlebih dahulu.` }, { status: 402 });
     }
 
@@ -120,6 +129,15 @@ export async function POST(request: Request) {
           title: 'Draft Website Tersimpan',
           message: `Berhasil menyimpan draft untuk website: ${title}`,
           type: 'template',
+          isRead: false
+        }
+      }),
+      (prisma.notification as any).create({
+        data: {
+          userId: session.userId,
+          title: 'Token Berkurang',
+          message: `Sebanyak ${tokenCost} Token telah digunakan untuk membuat Landing Page ${title}.`,
+          type: 'info',
           isRead: false
         }
       })

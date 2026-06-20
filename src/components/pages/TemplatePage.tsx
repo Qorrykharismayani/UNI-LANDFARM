@@ -41,6 +41,13 @@ const TemplatePage = ({
   creationError,
   handleCreatePageFromTemplate,
 }: TemplatePageProps) => {
+  const [searchQuery, setSearchQuery] = React.useState('');
+
+  const finalDisplayedTemplates = filteredLibraryTemplates.filter(tpl => 
+    tpl.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    (tpl.description && tpl.description.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
   return (
     <div className="max-w-6xl mx-auto space-y-10">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -51,7 +58,13 @@ const TemplatePage = ({
         <div className="flex gap-4">
           <div className="relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-within:text-brand-blue transition-colors" />
-            <input type="text" placeholder="Cari template..." className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl py-3 pl-12 pr-4 text-xs font-bold focus:ring-2 focus:ring-brand-blue/20 transition-all dark:text-white" />
+            <input 
+              type="text" 
+              placeholder="Cari template..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl py-3 pl-12 pr-4 text-xs font-bold focus:ring-2 focus:ring-brand-blue/20 transition-all dark:text-white" 
+            />
           </div>
           <button className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-400 hover:text-brand-blue transition-all">
             <Filter className="w-4 h-4" />
@@ -72,7 +85,11 @@ const TemplatePage = ({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {filteredLibraryTemplates.map((tpl, i) => (
+        {finalDisplayedTemplates.length === 0 ? (
+          <div className="col-span-full py-12 text-center text-slate-500">
+            Tidak ada template yang cocok dengan pencarian "{searchQuery}".
+          </div>
+        ) : finalDisplayedTemplates.map((tpl, i) => (
           <div key={i} className="group relative bg-gradient-to-br from-white to-blue-50/15 dark:from-slate-900/60 dark:to-slate-950/60 rounded-[32px] overflow-hidden border border-slate-200/60 dark:border-slate-800/80 shadow-[0_10px_35px_-5px_rgba(255,176,0,0.05)] dark:shadow-[0_15px_40px_-5px_rgba(255,176,0,0.15)] hover:border-brand-blue/20 dark:hover:border-brand-blue/30 transition-all duration-300">
             <div className="aspect-[4/3] overflow-hidden relative">
               <img src={tpl.img} alt={tpl.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" referrerPolicy="no-referrer" />
@@ -131,7 +148,7 @@ const TemplatePage = ({
                   <Layout className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">{previewTemplate.title}</h3>
+                  <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-widest">{previewTemplate.title}</h3>
                   <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{previewTemplate.category} • Pratinjau Responsif</p>
                 </div>
               </div>
@@ -195,7 +212,7 @@ const TemplatePage = ({
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-[40px] overflow-hidden shadow-2xl flex flex-col border border-slate-100 dark:border-slate-800"
+            className="relative w-full max-w-xl bg-white dark:bg-slate-900 rounded-[40px] overflow-hidden shadow-2xl flex flex-col border border-slate-100 dark:border-slate-800"
           >
             <div className="p-8 border-b border-slate-150 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between">
               <div className="flex items-center gap-4">
@@ -203,8 +220,8 @@ const TemplatePage = ({
                   <img src={templateForCreation.img} alt={templateForCreation.title} className="w-full h-full object-cover" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Gunakan Template</h3>
-                  <p className="text-[10px] font-bold text-brand-blue uppercase tracking-widest">{templateForCreation.title} ({templateForCreation.category})</p>
+                  <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-widest">Gunakan Template</h3>
+                  <p className="text-xs font-bold text-brand-blue uppercase tracking-widest">{templateForCreation.title} ({templateForCreation.category})</p>
                 </div>
               </div>
               <button
@@ -223,31 +240,31 @@ const TemplatePage = ({
               )}
 
               <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Nama Website</label>
+                <label className="block text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Nama Website</label>
                 <input
                   type="text"
                   value={creationWebsiteTitle}
                   onChange={(e) => setCreationWebsiteTitle(e.target.value)}
                   placeholder="Contoh: Toko Kopi Merdeka"
-                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5 text-xs font-bold dark:text-white focus:ring-2 focus:ring-brand-blue/20 transition-all outline-none"
+                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5 text-sm font-bold dark:text-white focus:ring-2 focus:ring-brand-blue/20 transition-all outline-none"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Nama Bisnis / Brand</label>
+                <label className="block text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Nama Bisnis / Brand</label>
                 <input
                   type="text"
                   value={creationBusinessName}
                   onChange={(e) => setCreationBusinessName(e.target.value)}
                   placeholder="Contoh: Kopi Merdeka Indonesia"
-                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5 text-xs font-bold dark:text-white focus:ring-2 focus:ring-brand-blue/20 transition-all outline-none"
+                  className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5 text-sm font-bold dark:text-white focus:ring-2 focus:ring-brand-blue/20 transition-all outline-none"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Subdomain Slug</label>
+                <label className="block text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Subdomain Slug</label>
                 <div className="flex">
                   <input
                     type="text"
@@ -260,20 +277,20 @@ const TemplatePage = ({
                       setCreationSlug(val);
                     }}
                     placeholder="kopimerdeka"
-                    className="flex-1 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-l-xl px-4 py-3.5 text-xs font-bold dark:text-white focus:ring-2 focus:ring-brand-blue/20 transition-all outline-none"
+                    className="flex-1 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 rounded-l-xl px-4 py-3.5 text-sm font-bold dark:text-white focus:ring-2 focus:ring-brand-blue/20 transition-all outline-none"
                     required
                   />
-                  <span className="bg-slate-100 dark:bg-slate-800 px-4 py-3.5 border border-l-0 border-slate-200 dark:border-slate-800 rounded-r-xl text-xs font-black text-slate-400 dark:text-slate-500 flex items-center">
+                  <span className="bg-slate-100 dark:bg-slate-800 px-4 py-3.5 border border-l-0 border-slate-200 dark:border-slate-800 rounded-r-xl text-sm font-black text-slate-400 dark:text-slate-500 flex items-center">
                     /site/[slug]
                   </span>
                 </div>
-                <p className="text-[9px] text-slate-400 dark:text-slate-500 italic font-bold">Alamat publik website Anda nantinya akan menjadi: /site/{creationSlug || '[slug]'}</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500 italic font-bold">Alamat publik website Anda nantinya akan menjadi: /site/{creationSlug || '[slug]'}</p>
               </div>
 
               <button
                 type="submit"
                 disabled={isCreatingPage}
-                className="w-full py-4 bg-brand-blue hover:bg-blue-600 text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-blue hover:shadow-blue-lg transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full py-4 bg-brand-blue hover:bg-blue-600 text-white rounded-2xl text-sm font-black uppercase tracking-[0.2em] shadow-blue hover:shadow-blue-lg transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {isCreatingPage ? (
                   <>

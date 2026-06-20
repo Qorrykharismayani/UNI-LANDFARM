@@ -286,7 +286,7 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
                     </div>
                     <button
                       onClick={(e) => { e.stopPropagation(); setSelectedPackage(pkg); nextStep(); }}
-                      className={`w-full py-4 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer border-2 ${pkg.popular
+                      className={`w-full py-4 rounded-xl text-sm font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer border-2 ${pkg.popular
                           ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white border-slate-200 dark:border-slate-700 hover:bg-gradient-to-r hover:from-amber-400 hover:to-orange-500 hover:border-transparent hover:text-white hover:shadow-lg hover:shadow-amber-400/30'
                           : 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white border-slate-200 dark:border-slate-700 hover:bg-brand-blue hover:border-brand-blue hover:text-white hover:shadow-lg hover:shadow-brand-blue/30'
                         }`}
@@ -343,21 +343,21 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
                   <div className="bg-slate-50 dark:bg-slate-800/30 p-8 rounded-2xl border border-slate-100 dark:border-slate-800">
                     <h4 className="text-lg font-black text-slate-400 uppercase tracking-wider mb-6 text-center flex items-center justify-center gap-2"><Receipt className="w-4 h-4" /> Ringkasan Pesanan</h4>
                     <div className="space-y-4 mb-8">
-                      <div className="flex justify-between items-center text-xl"><span className="font-medium text-slate-500">Paket</span><span className="font-bold text-slate-900 dark:text-white">{selectedPackage?.name}</span></div>
-                      <div className="flex justify-between items-center text-xl"><span className="font-medium text-slate-500">Token</span><span className="font-bold text-slate-900 dark:text-white flex items-center gap-1"><Zap className="w-3.5 h-3.5 text-amber-500" /> {selectedPackage?.tokens} Token</span></div>
-                      <div className="flex justify-between items-center text-xl"><span className="font-medium text-slate-500">Metode</span><span className="font-bold text-slate-900 dark:text-white">{selectedPayment || '-'}</span></div>
+                      <div className="flex justify-between items-center text-sm lg:text-base"><span className="font-medium text-slate-500">Paket</span><span className="font-bold text-slate-900 dark:text-white">{selectedPackage?.name}</span></div>
+                      <div className="flex justify-between items-center text-sm lg:text-base"><span className="font-medium text-slate-500">Token</span><span className="font-bold text-slate-900 dark:text-white flex items-center gap-1"><Zap className="w-3.5 h-3.5 text-amber-500" /> {selectedPackage?.tokens} Token</span></div>
+                      <div className="flex justify-between items-center text-sm lg:text-base"><span className="font-medium text-slate-500">Metode</span><span className="font-bold text-slate-900 dark:text-white">{selectedPayment || '-'}</span></div>
                       <div className="pt-4 border-t border-slate-200 dark:border-slate-700 flex justify-between items-end">
-                        <span className="text-lg font-bold text-slate-400 uppercase">Total</span>
-                        <span className="text-4xl font-black text-slate-900 dark:text-white">Rp {selectedPackage?.price.toLocaleString()}</span>
+                        <span className="text-base font-bold text-slate-400 uppercase">Total</span>
+                        <span className="text-xl font-black text-slate-900 dark:text-white">Rp {selectedPackage?.price.toLocaleString()}</span>
                       </div>
                     </div>
-                    <input type="text" placeholder="KODE PROMO (OPSIONAL)" value={promoCode} onChange={(e) => setPromoCode(e.target.value.toUpperCase())} className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl py-3 px-4 text-lg font-bold uppercase tracking-wider outline-none focus:ring-2 focus:ring-brand-blue/20 focus:border-brand-blue/30 transition-all" />
+                    <input type="text" placeholder="KODE PROMO (OPSIONAL)" value={promoCode} onChange={(e) => setPromoCode(e.target.value.toUpperCase())} className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl py-2.5 px-4 text-sm font-bold uppercase tracking-wider outline-none focus:ring-2 focus:ring-brand-blue/20 focus:border-brand-blue/30 transition-all" />
                   </div>
                   <button onClick={handlePayment} disabled={!selectedPayment}
-                    className={`w-full py-4 rounded-xl text-xl font-bold uppercase tracking-wider transition-all shadow-lg cursor-pointer ${selectedPayment ? 'bg-brand-blue text-white shadow-brand-blue/20 hover:bg-blue-600 hover:scale-[1.01] active:scale-[0.99]' : 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none'}`}>
+                    className={`w-full py-3.5 rounded-xl text-base font-bold uppercase tracking-wider transition-all shadow-lg cursor-pointer ${selectedPayment ? 'bg-brand-blue text-white shadow-brand-blue/20 hover:bg-orange-500 hover:shadow-orange-500/20 hover:scale-[1.01] active:scale-[0.99]' : 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none'}`}>
                     Bayar Sekarang
                   </button>
-                  <p className="text-center text-base font-medium text-slate-400">🔒 Transaksi diamankan dengan enkripsi SSL 256-bit</p>
+                  <p className="text-center text-xs font-medium text-slate-400">🔒 Transaksi diamankan dengan enkripsi SSL 256-bit</p>
                 </div>
               </div>
             </motion.div>
@@ -375,9 +375,9 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
                   <input type="text" placeholder={selectedPayment?.includes('VA') ? '8806 0812 XXXX' : '0812-3456-XXXX'} value={accountNumber} onChange={(e) => setAccountNumber(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 focus:border-brand-blue/40 rounded-xl py-4 px-5 text-xl font-bold text-slate-900 dark:text-white outline-none transition-all placeholder:text-slate-300 focus:ring-4 focus:ring-brand-blue/10" />
                 </div>
               </div>
-              <div className="flex gap-3">
-                <button onClick={() => setCheckoutStep('payment')} className="flex-1 py-4 bg-slate-100 dark:bg-slate-800 text-slate-500 rounded-xl font-bold text-lg uppercase tracking-wider hover:bg-slate-200 dark:hover:bg-slate-700 transition-all cursor-pointer">Kembali</button>
-                <button onClick={processPayment} className="flex-1 py-4 bg-brand-blue text-white rounded-xl font-bold text-lg uppercase tracking-wider shadow-lg shadow-brand-blue/20 hover:bg-blue-600 hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer">Konfirmasi Bayar</button>
+              <div className="flex gap-4">
+                <button onClick={() => setCheckoutStep('package')} className="flex-1 py-4 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-xl font-bold text-lg uppercase tracking-wider transition-all cursor-pointer">Batal</button>
+                <button onClick={processPayment} className="flex-1 py-4 bg-brand-blue text-white rounded-xl font-bold text-lg uppercase tracking-wider shadow-lg shadow-brand-blue/20 hover:bg-orange-500 hover:shadow-orange-500/20 hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer">Konfirmasi Bayar</button>
               </div>
             </motion.div>
           )}
@@ -448,10 +448,10 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
               <div className="flex flex-wrap items-center gap-3">
                 <div className="relative">
                   <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input type="text" placeholder="Cari transaksi..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-lg font-medium outline-none focus:border-brand-blue/40 focus:ring-2 focus:ring-brand-blue/10 w-48 transition-all" />
+                  <input type="text" placeholder="Cari transaksi..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium outline-none focus:border-brand-blue/40 focus:ring-2 focus:ring-brand-blue/10 w-48 transition-all" />
                 </div>
                 <div className="relative">
-                  <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="appearance-none bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl pl-4 pr-10 py-2.5 text-lg font-bold text-slate-600 dark:text-slate-300 outline-none focus:border-brand-blue/40 focus:ring-2 focus:ring-brand-blue/10 transition-all cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700">
+                  <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="appearance-none bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl pl-4 pr-10 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-300 outline-none focus:border-brand-blue/40 focus:ring-2 focus:ring-brand-blue/10 transition-all cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700">
                     <option value="semua">Semua Status</option>
                     <option value="berhasil">✅ Berhasil</option>
                     <option value="gagal">❌ Gagal</option>
@@ -465,7 +465,7 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
                 <thead>
                   <tr className="bg-slate-50/80 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
                     {['Tanggal', 'Ref', 'Paket', 'Nominal', 'Metode', 'Status'].map((h) => (
-                      <th key={h} className="px-6 py-3.5 text-base font-bold text-slate-400 uppercase tracking-wider">{h}</th>
+                      <th key={h} className="px-6 py-3.5 text-xs font-bold text-slate-400 uppercase tracking-wider">{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -478,10 +478,10 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
                         <div className="flex flex-col items-center justify-center space-y-4">
                           <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center shadow-inner border border-slate-100 dark:border-slate-700"><Receipt className="w-8 h-8 text-slate-300 dark:text-slate-600" /></div>
                           <div>
-                            <p className="text-2xl font-bold text-slate-800 dark:text-white mb-1">Belum Ada Transaksi</p>
-                            <p className="text-xl text-slate-500 max-w-xs mx-auto">Riwayat pembelian token Anda akan muncul di sini setelah melakukan transaksi pertama.</p>
+                            <p className="text-xl font-bold text-slate-800 dark:text-white mb-1">Belum Ada Transaksi</p>
+                            <p className="text-sm text-slate-500 max-w-xs mx-auto">Riwayat pembelian token Anda akan muncul di sini setelah melakukan transaksi pertama.</p>
                           </div>
-                          <button onClick={() => { setActiveTab('checkout'); setCheckoutStep('package'); }} className="mt-2 px-6 py-2.5 bg-brand-blue text-white rounded-xl text-lg font-bold uppercase tracking-wider hover:bg-blue-600 transition-all shadow-md shadow-brand-blue/20 cursor-pointer">Beli Token Sekarang</button>
+                          <button onClick={() => { setActiveTab('checkout'); setCheckoutStep('package'); }} className="mt-2 px-6 py-2 bg-brand-blue text-white rounded-xl text-base font-bold uppercase tracking-wider hover:bg-orange-500 transition-all shadow-md shadow-brand-blue/20 hover:shadow-orange-500/20 cursor-pointer">Beli Token Sekarang</button>
                         </div>
                       </td>
                     </tr>
@@ -489,20 +489,20 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
                     filteredTransactions.map((tx, i) => (
                       <tr key={tx.id || i} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-all group">
                         <td className="px-6 py-4">
-                          <p className="text-lg font-bold text-slate-700 dark:text-slate-300">{formatDate(tx.createdAt)}</p>
-                          <p className="text-base font-medium text-slate-400">{formatTime(tx.createdAt)}</p>
+                          <p className="text-sm font-bold text-slate-700 dark:text-slate-300">{formatDate(tx.createdAt)}</p>
+                          <p className="text-xs font-medium text-slate-400">{formatTime(tx.createdAt)}</p>
                         </td>
-                        <td className="px-6 py-4"><span className="text-lg font-mono font-bold text-slate-400 group-hover:text-brand-blue transition-colors">#{tx.refId}</span></td>
+                        <td className="px-6 py-4"><span className="text-sm font-mono font-bold text-slate-400 group-hover:text-brand-blue transition-colors">#{tx.refId}</span></td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
-                            <div className="w-7 h-7 rounded-lg bg-brand-blue/10 flex items-center justify-center text-brand-blue"><Layers className="w-3.5 h-3.5" /></div>
-                            <p className="text-lg font-bold text-slate-900 dark:text-white">{tx.packageName}</p>
+                            <div className="w-6 h-6 rounded-lg bg-brand-blue/10 flex items-center justify-center text-brand-blue"><Layers className="w-3 h-3" /></div>
+                            <p className="text-sm font-bold text-slate-900 dark:text-white">{tx.packageName}</p>
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-lg font-bold text-slate-900 dark:text-white">Rp {tx.amount?.toLocaleString()}</td>
-                        <td className="px-6 py-4"><span className="text-lg font-medium text-slate-500 dark:text-slate-400">{tx.method}</span></td>
+                        <td className="px-6 py-4 text-sm font-bold text-slate-900 dark:text-white">Rp {tx.amount?.toLocaleString()}</td>
+                        <td className="px-6 py-4"><span className="text-sm font-medium text-slate-500 dark:text-slate-400">{tx.method}</span></td>
                         <td className="px-6 py-4">
-                          <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-base font-bold uppercase tracking-wider ${tx.status === 'berhasil' ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 border border-emerald-200 dark:border-emerald-500/20' : 'bg-red-50 dark:bg-red-500/10 text-red-600 border border-red-200 dark:border-red-500/20'}`}>
+                          <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider ${tx.status === 'berhasil' ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 border border-emerald-200 dark:border-emerald-500/20' : 'bg-red-50 dark:bg-red-500/10 text-red-600 border border-red-200 dark:border-red-500/20'}`}>
                             {tx.status === 'berhasil' ? '✓' : '✕'} {tx.status}
                           </span>
                         </td>

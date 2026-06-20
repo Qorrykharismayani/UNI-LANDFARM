@@ -68,13 +68,13 @@ const ProfilePage = ({
           className="hidden" 
         />
         <div>
-          <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-2">
+          <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-2">
             {user?.name || user?.email}
           </h2>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1.5 px-3 py-1 bg-brand-blue/10 rounded-full border border-brand-blue/10 shadow-[0_0_10px_rgba(59,130,246,0.1)]">
               <div className="w-1.5 h-1.5 bg-brand-blue rounded-full animate-pulse" />
-              <p className="text-[9px] font-black text-brand-blue uppercase tracking-widest">
+              <p className="text-xs font-black text-brand-blue uppercase tracking-widest">
                 {isSubscribed ? user?.plan : 'Regular Access'}
               </p>
             </div>
@@ -87,10 +87,10 @@ const ProfilePage = ({
         <div className="bg-gradient-to-br from-white to-blue-50/20 dark:from-slate-900/60 dark:to-slate-950/60 backdrop-blur-3xl p-6 rounded-[24px] border border-slate-200/60 dark:border-brand-blue/25 shadow-[0_10px_35px_-5px_rgba(255,176,0,0.12)] dark:shadow-[0_15px_40px_-5px_rgba(255,176,0,0.25)] flex flex-col justify-between hover:border-brand-blue/30 dark:hover:border-brand-blue/40 transition-all duration-300">
           <div>
             <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100 dark:border-white/5">
-              <h4 className="text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Informasi Akun</h4>
+              <h4 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Informasi Akun</h4>
               <button
                 onClick={() => setIsEditingProfile(!isEditingProfile)}
-                className={`text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl transition-all ${
+                className={`text-xs font-black uppercase tracking-widest px-3 py-1.5 rounded-xl transition-all ${
                   isEditingProfile 
                     ? 'bg-red-500/10 text-red-500 hover:bg-red-500/20' 
                     : 'text-brand-blue hover:bg-brand-blue/5'
@@ -103,7 +103,7 @@ const ProfilePage = ({
             {isEditingProfile ? (
               <div className="space-y-4 animate-in fade-in duration-300">
                 <div className="space-y-1.5">
-                  <label className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Nama Lengkap</label>
+                  <label className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Nama Lengkap</label>
                   <input
                     type="text"
                     value={profileData.name || ''}
@@ -113,7 +113,7 @@ const ProfilePage = ({
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Email Bisnis (Tetap)</label>
+                  <label className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Email Bisnis (Tetap)</label>
                   <input
                     type="email"
                     value={profileData.email || ''}
@@ -122,7 +122,7 @@ const ProfilePage = ({
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Nomor Telepon</label>
+                  <label className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Nomor Telepon</label>
                   <input
                     type="text"
                     value={profileData.phone || ''}
@@ -132,7 +132,7 @@ const ProfilePage = ({
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Domisili</label>
+                  <label className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Domisili</label>
                   <input
                     type="text"
                     value={profileData.location || ''}
@@ -143,7 +143,7 @@ const ProfilePage = ({
                 </div>
                 <button
                   onClick={handleSaveProfile}
-                  className="w-full py-4 bg-brand-blue text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-brand-blue/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                  className="w-full py-4 bg-brand-blue text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-brand-blue/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
                 >
                   Simpan Perubahan
                 </button>
@@ -157,8 +157,8 @@ const ProfilePage = ({
                   { label: 'Location', value: user?.location || '-' }
                 ].map((item, idx) => (
                   <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 bg-slate-50/50 dark:bg-slate-900/30 border border-slate-100/50 dark:border-white/5 rounded-2xl">
-                    <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 sm:mb-0">{item.label}</span>
-                    <span className={`text-[12px] font-bold text-slate-900 dark:text-white sm:text-right ${item.breakWord ? 'break-all sm:break-normal max-w-[240px] sm:max-w-[400px]' : ''}`}>{item.value}</span>
+                    <span className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 sm:mb-0">{item.label}</span>
+                    <span className={`text-sm font-bold text-slate-900 dark:text-white sm:text-right ${item.breakWord ? 'break-all sm:break-normal max-w-[240px] sm:max-w-[400px]' : ''}`}>{item.value}</span>
                   </div>
                 ))}
               </div>
@@ -170,13 +170,13 @@ const ProfilePage = ({
         <div className="bg-gradient-to-br from-white to-blue-50/20 dark:from-slate-900/60 dark:to-slate-950/60 backdrop-blur-3xl p-6 rounded-[24px] border border-slate-200/60 dark:border-brand-blue/25 shadow-[0_10px_35px_-5px_rgba(255,176,0,0.12)] dark:shadow-[0_15px_40px_-5px_rgba(255,176,0,0.25)] flex flex-col justify-between min-h-[350px] hover:border-brand-blue/30 dark:hover:border-brand-blue/40 transition-all duration-300">
           <div>
             <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100 dark:border-white/5">
-              <h4 className="text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Status & Keamanan</h4>
+              <h4 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Status & Keamanan</h4>
             </div>
 
             <div className="space-y-4 mb-8">
               <div className="flex items-center justify-between p-3.5 bg-slate-50/50 dark:bg-slate-900/30 border border-slate-100/50 dark:border-white/5 rounded-2xl">
-                <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Tipe Akun</span>
-                <span className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg ${
+                <span className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Tipe Akun</span>
+                <span className={`text-xs font-black uppercase tracking-widest px-2.5 py-1 rounded-lg ${
                   isSubscribed 
                     ? 'bg-brand-blue/15 text-brand-blue dark:bg-brand-blue/20' 
                     : 'bg-slate-100 text-slate-400 dark:bg-slate-900 dark:text-slate-500'
@@ -185,8 +185,8 @@ const ProfilePage = ({
                 </span>
               </div>
               <div className="flex items-center justify-between p-3.5 bg-slate-50/50 dark:bg-slate-900/30 border border-slate-100/50 dark:border-white/5 rounded-2xl">
-                <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Token Point</span>
-                <span className="text-[12px] font-bold text-slate-900 dark:text-white">
+                <span className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Token Point</span>
+                <span className="text-sm font-bold text-slate-900 dark:text-white">
                   {tokensDisplay}
                 </span>
               </div>
@@ -201,13 +201,13 @@ const ProfilePage = ({
                 setConfirmPassword('');
                 setIsChangingPassword(true);
               }}
-              className="w-full py-3.5 text-[9px] font-black text-white bg-brand-blue hover:bg-blue-600 uppercase tracking-widest rounded-2xl transition-all shadow-md shadow-brand-blue/20 flex items-center justify-center"
+              className="w-full py-3.5 text-xs font-black text-white bg-brand-blue hover:bg-blue-600 uppercase tracking-widest rounded-2xl transition-all shadow-md shadow-brand-blue/20 flex items-center justify-center"
             >
               Ubah Password
             </button>
             <button 
               onClick={() => setShowLogoutConfirm(true)}
-              className="w-full py-3.5 text-[9px] font-black text-red-500 hover:text-red-600 hover:border-red-500/50 uppercase tracking-widest border border-red-200/50 dark:border-red-900/30 rounded-2xl hover:bg-red-50 dark:hover:bg-red-900/10 transition-all shadow-sm flex items-center justify-center gap-2"
+              className="w-full py-3.5 text-xs font-black text-red-500 hover:text-red-600 hover:border-red-500/50 uppercase tracking-widest border border-red-200/50 dark:border-red-900/30 rounded-2xl hover:bg-red-50 dark:hover:bg-red-900/10 transition-all shadow-sm flex items-center justify-center gap-2"
             >
               <LogOut className="w-3.5 h-3.5" />
               Logout
