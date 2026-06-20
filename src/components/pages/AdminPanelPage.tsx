@@ -511,23 +511,16 @@ const AdminPanelPage = ({
                                 <Sparkles className="w-3.5 h-3.5" />
                               </span>
                             </div>
-                            <div className="flex-1 min-w-0 pt-1.5 flex justify-between space-x-4">
-                              <div>
-                                <p className="text-[10px] font-bold text-slate-300 uppercase tracking-wide leading-relaxed">{act.text}</p>
-                              </div>
-                              <div className="text-right text-[8px] font-black uppercase whitespace-nowrap text-slate-500">
-                                <span>{act.time}</span>
                               <div className="flex-1 min-w-0 pt-1.5 flex justify-between space-x-4">
                                 <div>
                                   <p className="text-[10.5px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide leading-relaxed">{act.text}</p>
                                 </div>
                                 <div className="text-right text-[8px] font-black uppercase whitespace-nowrap text-slate-400 dark:text-slate-500">
-                                  <span>{getRelativeTime(act.time)}</span>
+                                  <span>{act.time}</span>
                                 </div>
                               </div>
                             </div>
                           </div>
-                        </div>
                       </li>
                     ))}
                   </ul>
@@ -541,8 +534,7 @@ const AdminPanelPage = ({
         {/* VIEW: USER MANAGEMENT */}
         {adminView === 'users' && (
           <div className="space-y-6 animate-in fade-in duration-300">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
-          <div className="space-y-6 animate-in fade-in duration-300">            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
               <div>
                 <h2 className="text-md font-black uppercase tracking-widest text-white">User Management Panel</h2>
                 <p className="text-[9.5px] text-slate-400 font-bold uppercase tracking-wider mt-1">Kelola hak akses pengguna, status akun, dan memblokir sementara</p>
@@ -550,14 +542,12 @@ const AdminPanelPage = ({
               
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" />
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-455 dark:text-slate-500" />
                   <input
                     type="text"
                     placeholder="Cari pengguna..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs font-bold text-white outline-none focus:border-brand-blue focus:ring-1 focus:ring-brand-blue w-48 md:w-64"
                     className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue focus:ring-1 focus:ring-brand-blue w-48 md:w-64"
                   />
                 </div>
@@ -899,7 +889,6 @@ const AdminPanelPage = ({
                         <h4 className="text-xs font-black text-white uppercase tracking-tight">{tpl.name}</h4>
                         <p className="text-[10px] text-slate-400 font-medium leading-relaxed line-clamp-2">{tpl.description}</p>
                       </div>
-                      <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex gap-2">
                       <div className="pt-3 border-t border-slate-800 flex gap-2">
                         <button
                           onClick={() => {
@@ -1373,15 +1362,7 @@ const AdminPanelPage = ({
                   <h3 className="text-xs font-black uppercase tracking-widest text-white">Grafik Kunjungan 7 Hari Terakhir</h3>
                   <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Total tayangan halaman unik dari semua situs user</p>
                 </div>
-<<<<<<< HEAD
-<<<<<<< HEAD
                 <div className="h-64 flex items-center justify-center bg-slate-950/40 rounded-2xl p-4 border border-slate-800">
-=======
-                <div className="h-64 flex items-center justify-center bg-slate-50 dark:bg-slate-950/40 rounded-2xl p-4 border border-slate-200 dark:border-slate-800">
->>>>>>> 9995911289d2ae90948c14bfe01c98aa5445ce6c
-=======
-                <div className="h-64 flex items-center justify-center bg-slate-950/40 rounded-2xl p-4 border border-slate-800">
->>>>>>> orry
                   <svg className="w-full h-full" viewBox="0 0 500 200" preserveAspectRatio="none">
                     {/* Grid Lines */}
                     <line x1="0" y1="40" x2="500" y2="40" stroke="#1e293b" strokeDasharray="4 4" strokeWidth="1" />
@@ -1454,10 +1435,6 @@ const AdminPanelPage = ({
                   <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Persentase landing page terbit berdasarkan model bisnis</p>
                 </div>
                 <div className="h-64 flex flex-col justify-around bg-slate-950/40 rounded-2xl p-6 border border-slate-800">
-<<<<<<< HEAD
-                <div className="h-64 flex flex-col justify-around bg-slate-50 dark:bg-slate-950/40 rounded-2xl p-6 border border-slate-200 dark:border-slate-800">
-=======
->>>>>>> orry
                   {[
                     { name: "Pertanian & Pangan", count: 45, width: "85%", color: "bg-emerald-500" },
                     { name: "Makanan & Retail", count: 28, width: "60%", color: "bg-brand-blue" },
@@ -1630,21 +1607,12 @@ const AdminPanelPage = ({
                 <div>
                   <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 pb-4 border-b border-slate-800/60">Informasi Akun</h3>
                   <div className="space-y-4 text-xs">
-<<<<<<< HEAD
                     <div className="flex flex-col gap-1.5 p-3.5 bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-2xl">
                       <span className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">EMAIL OPERASIONAL</span>
                       <span className="text-slate-800 dark:text-white font-bold">admin@unilanfarm.com</span>
                     </div>
                     <div className="flex flex-col gap-1.5 p-3.5 bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-2xl">
                       <span className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">TIPE HAK AKSES</span>
-=======
-                    <div className="flex flex-col gap-1.5 p-3.5 bg-slate-950/40 border border-slate-800 rounded-2xl">
-                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">EMAIL OPERASIONAL</span>
-                      <span className="text-white font-bold">admin@unilanfarm.com</span>
-                    </div>
-                    <div className="flex flex-col gap-1.5 p-3.5 bg-slate-950/40 border border-slate-800 rounded-2xl">
-                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">TIPE HAK AKSES</span>
->>>>>>> orry
                       <span className="text-brand-blue font-bold">SYSTEM ROOT ADMINISTRATOR</span>
                     </div>
                   </div>
