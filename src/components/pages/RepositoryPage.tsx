@@ -50,6 +50,40 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
   const [pushState, setPushState] = useState<'input' | 'waiting'>('input');
   const [generatedVa, setGeneratedVa] = useState<string>('');
 
+  const isPromoApplied = promoCode.trim() === 'INIPROMOHARIAN';
+  const isPromoInvalid = promoCode.trim() !== '' && promoCode.trim() !== 'INIPROMOHARIAN';
+  const discountPercent = isPromoApplied ? 10 : 0;
+  const discountAmount = selectedPackage ? Math.round((selectedPackage.price * discountPercent) / 100) : 0;
+  const finalPrice = selectedPackage ? selectedPackage.price - discountAmount : 0;
+
+  const [timerSeconds, setTimerSeconds] = useState(86399);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (checkoutStep === 'input') {
+      setTimerSeconds(86399); // Reset to 23:59:59
+      interval = setInterval(() => {
+        setTimerSeconds((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [checkoutStep]);
+
+  const formatCountdown = (totalSeconds: number) => {
+    const hrs = Math.floor(totalSeconds / 3600);
+    const mins = Math.floor((totalSeconds % 3600) / 60);
+    const secs = totalSeconds % 60;
+    return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
   // Fetch transactions from API on mount
   useEffect(() => {
     fetchTransactions();
@@ -130,6 +164,11 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
 
   const handlePayment = () => {
     if (activeTab === 'checkout' && (!selectedPackage || !selectedPayment)) return;
+
+    if (isPromoInvalid) {
+      showNotification('Kode promo tidak valid! Silakan koreksi atau kosongkan kolom promo.', 'info');
+      return;
+    }
     
     let prefix = '8806';
     if (selectedPayment?.toLowerCase().includes('bca')) prefix = '39358';
@@ -160,7 +199,7 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
         body: JSON.stringify({
           packageName: selectedPackage?.name,
           packageTokens: selectedPackage?.tokens,
-          amount: selectedPackage?.price,
+          amount: finalPrice,
           method: selectedPayment,
           paymentCode: generatedVa
         }),
@@ -341,7 +380,7 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
                 </div>
                 <div className="text-right bg-brand-blue/5 px-5 py-3 rounded-xl border border-brand-blue/10">
                   <p className="text-base font-bold text-brand-blue uppercase mb-0.5">Total Bayar</p>
-                  <p className="text-3xl font-black text-slate-900 dark:text-white tabular-nums">Rp {selectedPackage?.price.toLocaleString()}</p>
+                  <p className="text-3xl font-black text-slate-900 dark:text-white tabular-nums">Rp {finalPrice.toLocaleString()}</p>
                 </div>
               </div>
               <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -399,15 +438,42 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
                       <div className="flex justify-between items-center text-sm lg:text-base"><span className="font-medium text-slate-500">Paket</span><span className="font-bold text-slate-900 dark:text-white">{selectedPackage?.name}</span></div>
                       <div className="flex justify-between items-center text-sm lg:text-base"><span className="font-medium text-slate-500">Token</span><span className="font-bold text-slate-900 dark:text-white flex items-center gap-1"><Zap className="w-3.5 h-3.5 text-amber-500" /> {selectedPackage?.tokens} Token</span></div>
                       <div className="flex justify-between items-center text-sm lg:text-base"><span className="font-medium text-slate-500">Metode</span><span className="font-bold text-slate-900 dark:text-white">{selectedPayment || '-'}</span></div>
+                      {isPromoApplied && (
+                        <div className="flex justify-between items-center text-sm lg:text-base"><span className="font-medium text-slate-500">Promo (INIPROMOHARIAN)</span><span className="font-bold text-emerald-500">-Rp {discountAmount.toLocaleString()} (10%)</span></div>
+                      )}
                       <div className="pt-4 border-t border-slate-200 dark:border-slate-700 flex justify-between items-end">
                         <span className="text-base font-bold text-slate-400 uppercase">Total</span>
-                        <span className="text-xl font-black text-slate-900 dark:text-white">Rp {selectedPackage?.price.toLocaleString()}</span>
+                        <span className="text-xl font-black text-slate-900 dark:text-white">Rp {finalPrice.toLocaleString()}</span>
                       </div>
                     </div>
-                    <input type="text" placeholder="KODE PROMO (OPSIONAL)" value={promoCode} onChange={(e) => setPromoCode(e.target.value.toUpperCase())} className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl py-2.5 px-4 text-sm font-bold uppercase tracking-wider outline-none focus:ring-2 focus:ring-brand-blue/20 focus:border-brand-blue/30 transition-all" />
+                    <div className="space-y-1.5">
+                      <input 
+                        type="text" 
+                        placeholder="KODE PROMO (OPSIONAL)" 
+                        value={promoCode} 
+                        onChange={(e) => setPromoCode(e.target.value.toUpperCase())} 
+                        className={`w-full bg-white dark:bg-slate-900 border rounded-xl py-2.5 px-4 text-sm font-bold uppercase tracking-wider outline-none focus:ring-2 transition-all ${
+                          promoCode.trim() === '' 
+                            ? 'border-slate-200 dark:border-slate-700 focus:ring-brand-blue/20 focus:border-brand-blue/30' 
+                            : isPromoApplied 
+                              ? 'border-emerald-500 dark:border-emerald-500/50 text-emerald-600 dark:text-emerald-400 focus:ring-emerald-500/20 focus:border-emerald-500/30' 
+                              : 'border-rose-500 dark:border-rose-500/50 text-rose-600 dark:text-rose-400 focus:ring-rose-500/20 focus:border-rose-500/30'
+                        }`} 
+                      />
+                      {promoCode.trim() !== '' && (
+                        <p className={`text-[11px] font-bold text-left leading-relaxed ${isPromoApplied ? 'text-emerald-500' : 'text-rose-500'}`}>
+                          {isPromoApplied ? '✓ Kode promo "INIPROMOHARIAN" berhasil digunakan. Diskon 10%!' : '✗ Kode promo tidak valid!'}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <button onClick={handlePayment} disabled={!selectedPayment}
-                    className={`w-full py-3.5 rounded-xl text-base font-bold uppercase tracking-wider transition-all shadow-lg cursor-pointer ${selectedPayment ? 'bg-brand-blue text-white shadow-brand-blue/20 hover:bg-amber-500 hover:shadow-amber-500/20 hover:scale-[1.01] active:scale-[0.99]' : 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none'}`}>
+                  <button onClick={handlePayment} disabled={!selectedPayment || isPromoInvalid}
+                    className={`w-full py-3.5 rounded-xl text-base font-bold uppercase tracking-wider transition-all shadow-lg cursor-pointer ${
+                      selectedPayment && !isPromoInvalid 
+                        ? 'bg-brand-blue text-white shadow-brand-blue/20 hover:bg-amber-500 hover:shadow-amber-500/20 hover:scale-[1.01] active:scale-[0.99]' 
+                        : 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none'
+                    }`}
+                  >
                     Bayar Sekarang
                   </button>
                   <p className="text-center text-xs font-medium text-slate-400">🔒 Transaksi diamankan dengan enkripsi SSL 256-bit</p>
@@ -578,7 +644,7 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
                       <div className="w-40 h-40 bg-white p-2 rounded-xl shadow-sm border border-slate-100 flex items-center justify-center mb-4">
                         <QrCode className="w-full h-full text-slate-900" />
                       </div>
-                      <p className="text-lg font-bold text-slate-700 dark:text-slate-200">Rp {selectedPackage?.price.toLocaleString()}</p>
+                      <p className="text-lg font-bold text-slate-700 dark:text-slate-200">Rp {finalPrice.toLocaleString()}</p>
                     </div>
                   </div>
                 )}
@@ -588,7 +654,7 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
                     {/* KOLOM KIRI: CARA PEMBAYARAN */}
                     <div className="space-y-3 md:pr-4">
                       <p className="text-sm font-bold text-slate-700 dark:text-slate-300">Cara Pembayaran</p>
-                      {getBankInstructions(selectedPayment || '', vaNumber, selectedPackage?.price).map((item) => (
+                      {getBankInstructions(selectedPayment || '', vaNumber, finalPrice).map((item) => (
                         <div key={item.key} className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm">
                           <button 
                             onClick={() => setVaAccordion(vaAccordion === item.key ? '' : item.key)}
@@ -641,7 +707,7 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
                           </div>
                           <div className="text-right">
                             <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center justify-end gap-1"><Timer className="w-3 h-3"/> Batas Waktu</p>
-                            <p className="text-lg font-bold text-orange-500">23:59:59</p>
+                            <p className="text-lg font-bold text-orange-500 tabular-nums">{formatCountdown(timerSeconds)}</p>
                           </div>
                         </div>
 
@@ -663,9 +729,9 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
                           <div>
                             <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Total Tagihan</p>
                             <div className="flex items-center justify-center gap-3">
-                              <p className="text-2xl font-black text-slate-900 dark:text-white">Rp {selectedPackage?.price.toLocaleString()}</p>
+                              <p className="text-2xl font-black text-slate-900 dark:text-white">Rp {finalPrice.toLocaleString()}</p>
                               <button 
-                                onClick={() => { copyToClipboard(selectedPackage?.price.toString() || ''); showNotification('Total tagihan berhasil disalin!', 'success'); }}
+                                onClick={() => { copyToClipboard(finalPrice.toString()); showNotification('Total tagihan berhasil disalin!', 'success'); }}
                                 className="p-2 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-all cursor-pointer" 
                                 title="Salin"
                               >
@@ -727,7 +793,7 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
                           </div>
                         </div>
                         <h4 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Menunggu Persetujuan</h4>
-                        <p className="text-sm text-slate-500 font-medium">Buka aplikasi {selectedPayment} Anda dan setujui transaksi sebesar <strong>Rp {selectedPackage?.price.toLocaleString()}</strong>.</p>
+                        <p className="text-sm text-slate-500 font-medium">Buka aplikasi {selectedPayment} Anda dan setujui transaksi sebesar <strong>Rp {finalPrice.toLocaleString()}</strong>.</p>
                         <button onClick={() => setPushState('input')} className="mt-6 text-sm font-bold text-brand-blue hover:text-blue-700 transition-all">Ganti Nomor HP?</button>
                       </div>
                     )}
@@ -816,7 +882,15 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
                   </div>
                 </div>
                 <div className="bg-slate-50 dark:bg-slate-800/50 p-5 rounded-2xl space-y-3">
-                  <div className="flex justify-between items-center"><span className="text-base font-bold text-slate-500">Total Dibayar</span><span className="text-2xl md:text-3xl font-black text-emerald-500">Rp {selectedPackage?.price.toLocaleString()}</span></div>
+                  {isPromoApplied ? (
+                    <>
+                      <div className="flex justify-between items-center text-sm md:text-base"><span className="font-bold text-slate-500">Harga Normal</span><span className="font-bold text-slate-400 line-through">Rp {selectedPackage?.price.toLocaleString()}</span></div>
+                      <div className="flex justify-between items-center text-sm md:text-base"><span className="font-bold text-slate-500">Potongan Promo (10%)</span><span className="font-bold text-emerald-500">-Rp {discountAmount.toLocaleString()}</span></div>
+                      <div className="flex justify-between items-center pt-3 border-t border-slate-200 dark:border-slate-700"><span className="text-base font-bold text-slate-600 dark:text-slate-200">Total Dibayar</span><span className="text-2xl md:text-3xl font-black text-emerald-500">Rp {finalPrice.toLocaleString()}</span></div>
+                    </>
+                  ) : (
+                    <div className="flex justify-between items-center"><span className="text-base font-bold text-slate-500">Total Dibayar</span><span className="text-2xl md:text-3xl font-black text-emerald-500">Rp {finalPrice.toLocaleString()}</span></div>
+                  )}
                   <div className="flex justify-between items-center pt-3 border-t border-slate-200 dark:border-slate-700">
                     <div className="flex items-center gap-2"><div className="w-7 h-7 bg-emerald-500/10 rounded-lg flex items-center justify-center text-emerald-500"><Zap className="w-3.5 h-3.5" /></div><span className="text-sm font-bold text-emerald-600 uppercase tracking-wider">Token Ditambahkan</span></div>
                     <span className="text-xl md:text-2xl font-black text-emerald-600">+{selectedPackage?.tokens}</span>
