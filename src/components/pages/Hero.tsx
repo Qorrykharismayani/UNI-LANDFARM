@@ -44,20 +44,20 @@ const Hero = ({ setView, systemSettings, user }: HeroProps) => (
         <h1 
           className="text-[32px] sm:text-[46px] lg:text-[56px] xl:text-[66px] font-black text-slate-900 dark:text-white leading-[1.15] mb-8 tracking-tight transition-colors"
           dangerouslySetInnerHTML={{ 
-            __html: `Bangun Situs Web <br />
+            __html: (!systemSettings?.heroTitle || systemSettings.heroTitle === 'Bangun Situs Web Bisnis Modern dengan AI') ? `Bangun Situs Web <br />
           <span class="text-brand-blue relative inline-block">
             Bisnis Modern
             <svg class="absolute -bottom-2 left-0 w-full h-3 text-brand-blue/30" viewBox="0 0 200 20" fill="none" preserveAspectRatio="none">
               <path d="M0 15C50 5 150 5 200 15" stroke="currentColor" stroke-width="8" stroke-linecap="round" />
             </svg>
           </span> <br />
-          dengan AI` 
+          dengan AI` : systemSettings.heroTitle
           }}
         />
         <p 
           className="text-[16px] sm:text-[19px] text-slate-600 dark:text-slate-400 mb-10 max-w-xl leading-relaxed font-medium transition-colors"
           dangerouslySetInnerHTML={{
-            __html: `Buat landing page profesional, toko online, dan konten bisnis secara instan bersama <span class="text-brand-blue font-bold">Uni-LandFarm</span>.`
+            __html: (!systemSettings?.heroDescription || systemSettings.heroDescription === 'Buat landing page profesional, toko online, dan konten bisnis secara instan bersama Uni-LandFarm.') ? `Buat landing page profesional, toko online, dan konten bisnis secara instan bersama <span class="text-brand-blue font-bold">Uni-LandFarm</span>.` : systemSettings.heroDescription
           }}
         />
         <div className="flex flex-col sm:flex-row gap-4">

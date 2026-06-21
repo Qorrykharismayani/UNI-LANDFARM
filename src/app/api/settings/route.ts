@@ -10,8 +10,8 @@ export async function GET() {
         id: 1,
         platformName: 'UNI-LandFarm',
         logo: 'UNI-LandFarm',
-        heroTitle: 'Platform Landing Page Mikro Berbasis AI CMS',
-        heroDescription: 'Bantu kembangkan bisnis agrikultur, UMKM, dan produk lokal Anda dengan landing page super cepat yang dikelola kecerdasan buatan.',
+        heroTitle: 'Bangun Situs Web Bisnis Modern dengan AI',
+        heroDescription: 'Buat landing page profesional, toko online, dan konten bisnis secara instan bersama Uni-LandFarm.',
         contactEmail: 'hello@unilanfarm.com',
         whatsapp: '0812-9999-8888',
         socialLinksJson: {
@@ -54,6 +54,12 @@ export async function GET() {
   try {
     const settings = await prisma.systemSetting.findFirst();
     if (settings) {
+      if (!settings.heroTitle || settings.heroTitle.includes('Platform Landing Page Mikro')) {
+        settings.heroTitle = 'Bangun Situs Web Bisnis Modern dengan AI';
+      }
+      if (!settings.heroDescription || settings.heroDescription.includes('Bantu kembangkan bisnis')) {
+        settings.heroDescription = 'Buat landing page profesional, toko online, dan konten bisnis secara instan bersama Uni-LandFarm.';
+      }
       if (!settings.featuresJson) {
         settings.featuresJson = [
           { title: "Pembuatan Instan", desc: "Buat landing page profesional hanya dalam hitungan menit dengan sistem otomatis berbasis AI.", icon: "Zap", num: "01" },

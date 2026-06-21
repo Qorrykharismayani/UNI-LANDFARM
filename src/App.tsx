@@ -80,22 +80,22 @@ export default function App() {
       case 'home':
         return (
           <>
-            <Hero setView={setView} user={user} />
-            <Features setView={setView} />
+            <Hero setView={setView} user={user} systemSettings={systemSettings} />
+            <Features setView={setView} systemSettings={systemSettings} />
             <TemplatePreview setView={setView} user={user} />
             <CMSLandingView setView={setView} user={user} />
             <Testimonials />
-            <PricingView setView={setView} user={user} />
+            <PricingView setView={setView} user={user} systemSettings={systemSettings} />
             <FAQ />
-            <FinalCTA setView={setView} user={user} />
+            <FinalCTA setView={setView} user={user} systemSettings={systemSettings} />
           </>
         );
       case 'features':
-        return <Features setView={setView} />;
+        return <Features setView={setView} systemSettings={systemSettings} />;
       case 'templates':
         return <TemplatesView setView={setView} user={user} />;
       case 'pricing':
-        return <PricingView setView={setView} user={user} />;
+        return <PricingView setView={setView} user={user} systemSettings={systemSettings} />;
       case 'cms':
         return <CMSLandingView setView={setView} user={user} />;
       case 'about':
@@ -113,12 +113,12 @@ export default function App() {
       return <DashboardView setView={setView} theme={theme} toggleTheme={toggleTheme} user={user} setUser={setUser} systemSettings={systemSettings} setSystemSettings={setSystemSettings} initialTab={initialTab} />;
     }
 
-    return <Hero setView={setView} user={user} />;
+    return <Hero setView={setView} user={user} systemSettings={systemSettings} />;
   };
 
   return (
     <div className={`min-h-screen ${theme === 'dark' ? 'dark' : ''} bg-white dark:bg-slate-950 transition-colors duration-500`}>
-      {!view.startsWith('dashboard') && <Navbar setView={setView} currentView={view} theme={theme} toggleTheme={toggleTheme} user={user} />}
+      {!view.startsWith('dashboard') && <Navbar setView={setView} currentView={view} theme={theme} toggleTheme={toggleTheme} user={user} systemSettings={systemSettings} />}
       <main className={!view.startsWith('dashboard') ? 'pt-20' : ''}>
         <AnimatePresence mode="wait">
           <motion.div

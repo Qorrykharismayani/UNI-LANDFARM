@@ -8,9 +8,10 @@ interface NavbarProps {
   theme: string;
   toggleTheme: () => void;
   user?: any;
+  systemSettings?: any;
 }
 
-const Navbar = ({ setView, currentView, theme, toggleTheme, user }: NavbarProps) => {
+const Navbar = ({ setView, currentView, theme, toggleTheme, user, systemSettings }: NavbarProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const menuItems = [
@@ -29,7 +30,7 @@ const Navbar = ({ setView, currentView, theme, toggleTheme, user }: NavbarProps)
           className="flex items-center gap-3 group cursor-pointer flex-shrink-0"
           onClick={() => setView('home')}
         >
-          <img src="/logo.png?v=8" alt="Uni-LandFarm Logo" className="h-[90px] object-contain" />
+          <img src={systemSettings?.logo || "/logo.png?v=8"} alt="Platform Logo" className="h-[90px] object-contain" />
         </div>
         
         {/* Desktop Nav */}

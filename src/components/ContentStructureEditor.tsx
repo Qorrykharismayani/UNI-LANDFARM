@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   ArrowLeft,
   Monitor,
@@ -192,11 +192,11 @@ const getSectionCompleteness = (type: string, content: any) => {
   }
 };
 
-const getSectionDefaultContent = (type: string, businessName = 'Situs Baru', pageTitle = 'Kembangkan Bisnis Anda') => {
+const getSectionDefaultContent = (type: string, businessName = 'Uni-LandFarm', pageTitle = 'Platform Landing Page Mikro Berbasis AI CMS') => {
   switch (type) {
-    case 'logo': return '';
+    case 'logo': return '/uploads/1781793939040-LOGO_Uni-LandFarm-removebg-preview-(1).png';
     case 'navbar': return { brand: businessName, items: [{ id: 'home', label: 'Home' }, { id: 'about', label: 'Tentang' }, { id: 'products', label: 'Produk' }, { id: 'testimonials', label: 'Testimoni' }, { id: 'contact', label: 'Kontak' }] };
-    case 'hero': return { headline: pageTitle, subheadline: 'Deskripsi singkat layanan/produk Anda.', banner: '', cta: 'Hubungi Kami' };
+    case 'hero': return { headline: pageTitle || 'Kembangkan Bisnis Anda', subheadline: 'Deskripsi singkat layanan/produk Anda.', banner: '', cta: 'Hubungi Kami' };
     case 'about': return { description: '', profile: '', story: '' };
     case 'products': return [];
     case 'advantages': return [
@@ -354,9 +354,9 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
   // Sections List State (Allows Reordering & Activation)
   const [draggedSectionIndex, setDraggedSectionIndex] = useState<number | null>(null);
   const [sections, setSections] = useState<any[]>([
-    { id: 'logo', type: 'logo', title: 'Logo Website', isActive: true, order: 1, content: '' },
-    { id: 'navbar', type: 'navbar', title: 'Menu Navigasi', isActive: true, order: 2, content: { brand: 'Situs Baru', items: [{ id: 'home', label: 'Home' }, { id: 'about', label: 'Tentang' }, { id: 'products', label: 'Produk' }, { id: 'testimonials', label: 'Testimoni' }, { id: 'contact', label: 'Kontak' }] } },
-    { id: 'hero', type: 'hero', title: 'Hero Banner', isActive: true, order: 3, content: { headline: 'Kembangkan Bisnis Anda', subheadline: 'Deskripsi singkat...', banner: '', cta: 'Hubungi Kami' } },
+    { id: 'logo', type: 'logo', title: 'Logo Website', isActive: true, order: 1, content: '/uploads/1781793939040-LOGO_Uni-LandFarm-removebg-preview-(1).png' },
+    { id: 'navbar', type: 'navbar', title: 'Menu Navigasi', isActive: true, order: 2, content: { brand: 'Uni-LandFarm', items: [{ id: 'home', label: 'Home' }, { id: 'about', label: 'Tentang' }, { id: 'products', label: 'Produk' }, { id: 'testimonials', label: 'Testimoni' }, { id: 'contact', label: 'Kontak' }] } },
+    { id: 'hero', type: 'hero', title: 'Hero Banner', isActive: true, order: 3, content: { headline: 'Kembangkan Bisnis Anda', subheadline: 'Deskripsi singkat layanan/produk Anda.', banner: '', cta: 'Hubungi Kami' } },
     { id: 'about', type: 'about', title: 'Tentang Usaha', isActive: true, order: 4, content: { description: '', profile: '', story: '' } },
     { id: 'products', type: 'products', title: 'Produk & Layanan', isActive: true, order: 5, content: [] },
     {
@@ -367,12 +367,13 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
     },
     { id: 'gallery', type: 'gallery', title: 'Galeri Foto', isActive: true, order: 7, content: [] },
     { id: 'testimonials', type: 'testimonials', title: 'Testimoni', isActive: true, order: 8, content: [] },
-    { id: 'cta', type: 'cta', title: 'CTA Penawaran', isActive: true, order: 9, content: { title: 'Mulai Sekarang!', description: 'Hubungi kami hari ini untuk penawaran khusus.', buttonText: 'Hubungi Kami' } },
+{ id: 'cta', type: 'cta', title: 'CTA Penawaran', isActive: true, order: 9, content: { title: 'Mulai Sekarang!', description: 'Hubungi kami hari ini untuk penawaran khusus.', buttonText: 'Hubungi Kami' } },
     { id: 'contact', type: 'contact', title: 'Kontak', isActive: true, order: 10, content: { whatsapp: '', email: '', address: '', operatingHours: '' } },
     { id: 'socialMedia', type: 'socialMedia', title: 'Media Sosial', isActive: true, order: 11, content: { instagram: '', tiktok: '', facebook: '', youtube: '' } },
     { id: 'marketplaces', type: 'marketplaces', title: 'Toko Online (Marketplace)', isActive: false, order: 12, content: { shopee: '', tokopedia: '', lazada: '', externalWebsite: '' } },
-    { id: 'footer', type: 'footer', title: 'Footer Halaman', isActive: true, order: 13, content: { logo: '', businessName: 'Situs Baru', copyright: '© 2026 Situs Baru. All rights reserved.' } }
+    { id: 'footer', type: 'footer', title: 'Footer Halaman', isActive: true, order: 13, content: { logo: '', businessName: 'Uni-LandFarm', copyright: '© 2026 Uni-LandFarm. All rights reserved.' } }
   ]);
+
   const renderImageUpload = (label: string, value: string, onChange: (val: string) => void, desc: string) => {
     const isRequired = label.includes('*');
     const isEmpty = !value || !value.trim();
@@ -518,6 +519,192 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
     setTimeout(() => setEditorToast(null), 3000);
   };
 
+  const fetchPageData = useCallback(async () => {
+    if (!pageId || pageId === 'undefined') {
+      setLoading(false);
+      return;
+    }
+    try {
+      const res = await fetch(`/api/landing-pages/${pageId}`);
+      const data = await res.json();
+      if (data.success && data.data) {
+        setPageData(data.data);
+        const page = data.data;
+        const fetchedContent = page.content?.contentJson || page.template?.defaultContent || {};
+        let initialContent = fetchedContent;
+        if (fetchedContent.pages && Array.isArray(fetchedContent.pages)) {
+          setSitePages(fetchedContent.pages);
+          const homePage = fetchedContent.pages.find((p: any) => p.slug === '/') || fetchedContent.pages[0];
+          setCurrentPageSlug(homePage.slug);
+          initialContent = homePage.content;
+        } else {
+          setSitePages([{ slug: '/', name: 'Beranda', content: fetchedContent }]);
+          setCurrentPageSlug('/');
+          initialContent = fetchedContent;
+        }
+
+        const isAi = !!(
+          fetchedContent.isAiGenerated ||
+          initialContent?.isAiGenerated ||
+          fetchedContent.themeColor ||
+          initialContent?.themeColor ||
+          page.themeColor ||
+          (fetchedContent.pages && fetchedContent.pages.some((p: any) => p.content?.isAiGenerated || p.content?.themeColor))
+        );
+        setIsAiPage(isAi);
+
+        // Fetch Schedules
+        if (pageId && pageId !== 'undefined') {
+          try {
+            const schedRes = await fetch(`/api/content-schedules?landingPageId=${pageId}`);
+            const schedData = await schedRes.json();
+            if (schedData.success && schedData.data) {
+              const mappedSchedules = schedData.data.map((s: any) => {
+                const dateObj = new Date(s.scheduledAt);
+                const formattedDate = dateObj.toLocaleString('id-ID', {
+                  day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+                return {
+                  id: s.id,
+                  title: s.title,
+                  date: formattedDate,
+                  timestamp: dateObj.getTime(),
+                  status: s.status.toUpperCase(),
+                  targetSection: s.sectionName,
+                  component: s.component,
+                  content: s.newValue
+                };
+              });
+              setSchedules(mappedSchedules);
+            }
+          } catch (err) {
+            console.error('Failed to fetch schedules', err);
+          }
+        }
+
+        const defaultSectionsList = [
+          { id: 'logo', type: 'logo', title: 'Logo Website', isActive: true, order: 1 },
+          { id: 'navbar', type: 'navbar', title: 'Menu Navigasi', isActive: true, order: 2 },
+          { id: 'hero', type: 'hero', title: 'Hero Banner', isActive: true, order: 3 },
+          { id: 'about', type: 'about', title: 'Tentang Usaha', isActive: true, order: 4 },
+          { id: 'products', type: 'products', title: 'Produk & Layanan', isActive: true, order: 5 },
+          { id: 'advantages', type: 'advantages', title: 'Keunggulan', isActive: true, order: 6 },
+          { id: 'gallery', type: 'gallery', title: 'Galeri Foto', isActive: true, order: 7 },
+          { id: 'testimonials', type: 'testimonials', title: 'Testimoni', isActive: true, order: 8 },
+          { id: 'cta', type: 'cta', title: 'CTA Penawaran', isActive: true, order: 9 },
+          { id: 'contact', type: 'contact', title: 'Kontak', isActive: true, order: 10 },
+          { id: 'socialMedia', type: 'socialMedia', title: 'Media Sosial', isActive: true, order: 11 },
+          { id: 'marketplaces', type: 'marketplaces', title: 'Toko Online (Marketplace)', isActive: false, order: 12 },
+          { id: 'footer', type: 'footer', title: 'Footer Halaman', isActive: true, order: 13 }
+        ];
+
+        const mappedSections = defaultSectionsList.map((defaultSec) => {
+          let aiSec = null;
+          let isStr = false;
+
+          if (Array.isArray(initialContent.sections)) {
+            aiSec = initialContent.sections.find((s: any) => {
+              if (typeof s === 'string') return s === defaultSec.id || s === defaultSec.type;
+              return s.id === defaultSec.id || s.type === defaultSec.type;
+            });
+            if (aiSec) isStr = typeof aiSec === 'string';
+          }
+
+          const secType = defaultSec.type;
+          const secTitle = defaultSec.title;
+
+          let secActive = defaultSec.isActive;
+          if (aiSec && !isStr && aiSec.isActive !== undefined) {
+            secActive = aiSec.isActive;
+          } else if (aiSec && !isStr && aiSec.status !== undefined) {
+            secActive = (aiSec.status === 'Aktif' || aiSec.status === true);
+          }
+
+          const secContent = initialContent[defaultSec.id] ||
+            (aiSec && !isStr && aiSec.content ? aiSec.content : null) ||
+            getSectionDefaultContent(secType, page.businessName, page.title);
+
+          const secStyles = (aiSec && !isStr && aiSec.styles ? aiSec.styles : null) || {};
+
+          return {
+            id: defaultSec.id,
+            type: secType,
+            title: secTitle,
+            isActive: secActive,
+            order: defaultSec.order,
+            content: secContent,
+            styles: secStyles
+          };
+        });
+
+        // Append any custom sections from AI that weren't in the default list
+        if (Array.isArray(initialContent.sections)) {
+          initialContent.sections.forEach((aiSec: any) => {
+            const secType = typeof aiSec === 'string' ? aiSec : (aiSec.type || aiSec.id);
+            if (!secType) return;
+
+            const exists = mappedSections.find(s => s.type === secType || s.id === secType);
+            if (!exists) {
+              const isStr = typeof aiSec === 'string';
+              mappedSections.push({
+                id: isStr ? aiSec : (aiSec.id || secType),
+                type: secType,
+                title: isStr ? getSectionDefaultTitle(secType) : (aiSec.title || aiSec.name || getSectionDefaultTitle(secType)),
+                isActive: isStr ? true : (aiSec.isActive !== undefined ? aiSec.isActive : (aiSec.status === 'Aktif' || aiSec.status === true || aiSec.status === undefined)),
+                order: mappedSections.length + 1,
+                content: isStr ? (initialContent[aiSec] || getSectionDefaultContent(secType, page.businessName, page.title)) : (aiSec.content || initialContent[aiSec.id] || getSectionDefaultContent(secType, page.businessName, page.title)),
+                styles: isStr ? {} : (aiSec.styles || {})
+              });
+            }
+          });
+        }
+        setSections(mappedSections);
+
+        // Ensure standard structure is populated
+        const normalized = {
+          isAiGenerated: isAi,
+          themeColor: initialContent.themeColor || fetchedContent.themeColor || page.themeColor || null,
+          sections: mappedSections.map(s => ({
+            id: s.id,
+            type: s.type,
+            title: s.title,
+            isActive: s.isActive,
+            order: s.order,
+            content: s.content,
+            styles: s.styles,
+            status: s.isActive ? 'Aktif' : 'Nonaktif',
+            name: s.title
+          })),
+          logo: getSectionContentFromMapped(mappedSections, 'logo', initialContent.logo || ''),
+          navbar: getSectionContentFromMapped(mappedSections, 'navbar', initialContent.navbar || { brand: page.businessName || 'Uni-LandFarm', items: [{ id: 'home', label: 'Home' }, { id: 'about', label: 'Tentang' }, { id: 'products', label: 'Produk' }, { id: 'testimonials', label: 'Testimoni' }, { id: 'contact', label: 'Kontak' }] }),
+          hero: getSectionContentFromMapped(mappedSections, 'hero', initialContent.hero || { headline: page.title || 'Kembangkan Bisnis Anda', subheadline: 'Deskripsi singkat layanan/produk Anda.', banner: '', cta: 'Hubungi Kami' }),
+          about: getSectionContentFromMapped(mappedSections, 'about', initialContent.about || { description: '', profile: '', story: '' }),
+          products: getSectionContentFromMapped(mappedSections, 'products', Array.isArray(initialContent.products) ? initialContent.products : []),
+          advantages: getSectionContentFromMapped(mappedSections, 'advantages', Array.isArray(initialContent.advantages) ? initialContent.advantages : [
+            { icon: 'Shield', title: 'Keamanan Terjamin', description: 'Perlindungan maksimal untuk seluruh data and sistem Anda.' },
+            { icon: 'Zap', title: 'Layanan Cepat', description: 'Respon instan dari tim support kami.' }
+          ]),
+          gallery: getSectionContentFromMapped(mappedSections, 'gallery', Array.isArray(initialContent.gallery) ? initialContent.gallery : []),
+          testimonials: getSectionContentFromMapped(mappedSections, 'testimonials', Array.isArray(initialContent.testimonials) ? initialContent.testimonials : []),
+          cta: getSectionContentFromMapped(mappedSections, 'cta', initialContent.cta || { title: 'Mulai Sekarang!', description: 'Hubungi kami hari ini untuk penawaran khusus.', buttonText: 'Hubungi Kami' }),
+          contact: getSectionContentFromMapped(mappedSections, 'contact', initialContent.contact || { whatsapp: '', email: '', address: '', operatingHours: '' }),
+          socialMedia: getSectionContentFromMapped(mappedSections, 'socialMedia', initialContent.socialMedia || { instagram: '', tiktok: '', facebook: '', youtube: '' }),
+          marketplaces: getSectionContentFromMapped(mappedSections, 'marketplaces', initialContent.marketplaces || { shopee: '', tokopedia: '', lazada: '', externalWebsite: '' }),
+          footer: getSectionContentFromMapped(mappedSections, 'footer', initialContent.footer || { logo: '', businessName: page.businessName || 'Uni-LandFarm', copyright: `© 2026 ${page.businessName || 'Uni-LandFarm'}. All rights reserved.` })
+        };
+
+        setRawContentJson(normalized);
+      } else {
+        triggerToast('Gagal memuat data landing page.');
+      }
+    } catch (err) {
+      console.error(err);
+      triggerToast('Terjadi kesalahan koneksi.');
+    } finally {
+      setLoading(false);
+    }
+  }, [pageId]);
+
   // Auto-Publish Scheduler Loop (Polling backend cron for dev environment)
   useEffect(() => {
     const interval = setInterval(async () => {
@@ -538,10 +725,8 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
             await fetch('/api/cron/process-schedules');
             
             // Notify and refresh
-            triggerToast('Jadwal konten otomatis dieksekusi! Memuat ulang data...');
-            setTimeout(() => {
-              window.location.reload();
-            }, 2000);
+            triggerToast('Jadwal konten otomatis dieksekusi! Memperbarui data...');
+            await fetchPageData();
           }
         }
       } catch (err) {
@@ -550,196 +735,11 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
     }, 15000); // Check every 15 seconds
 
     return () => clearInterval(interval);
-  }, [pageId]);
+  }, [pageId, fetchPageData]);
 
   useEffect(() => {
-    const fetchPage = async () => {
-      if (!pageId || pageId === 'undefined') {
-        setLoading(false);
-        return;
-      }
-      try {
-        const res = await fetch(`/api/landing-pages/${pageId}`);
-        const data = await res.json();
-        if (data.success && data.data) {
-          setPageData(data.data);
-          const page = data.data;
-          const fetchedContent = page.content?.contentJson || page.template?.defaultContent || {};
-          let initialContent = fetchedContent;
-          if (fetchedContent.pages && Array.isArray(fetchedContent.pages)) {
-            setSitePages(fetchedContent.pages);
-            const homePage = fetchedContent.pages.find((p: any) => p.slug === '/') || fetchedContent.pages[0];
-            setCurrentPageSlug(homePage.slug);
-            initialContent = homePage.content;
-          } else {
-            setSitePages([{ slug: '/', name: 'Beranda', content: fetchedContent }]);
-            setCurrentPageSlug('/');
-            initialContent = fetchedContent;
-          }
-
-          const isAi = !!(
-            fetchedContent.isAiGenerated ||
-            initialContent?.isAiGenerated ||
-            fetchedContent.themeColor ||
-            initialContent?.themeColor ||
-            page.themeColor ||
-            (fetchedContent.pages && fetchedContent.pages.some((p: any) => p.content?.isAiGenerated || p.content?.themeColor))
-          );
-          setIsAiPage(isAi);
-
-          // Fetch Schedules
-          if (pageId && pageId !== 'undefined') {
-            try {
-              const schedRes = await fetch(`/api/content-schedules?landingPageId=${pageId}`);
-              const schedData = await schedRes.json();
-              if (schedData.success && schedData.data) {
-                const mappedSchedules = schedData.data.map((s: any) => {
-                  const dateObj = new Date(s.scheduledAt);
-                  const formattedDate = dateObj.toLocaleString('id-ID', {
-                    day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
-                  });
-                  return {
-                    id: s.id,
-                    title: s.title,
-                    date: formattedDate,
-                    timestamp: dateObj.getTime(),
-                    status: s.status.toUpperCase(),
-                    targetSection: s.sectionName,
-                    component: s.component,
-                    content: s.newValue
-                  };
-                });
-                setSchedules(mappedSchedules);
-              }
-            } catch (err) {
-              console.error('Failed to fetch schedules', err);
-            }
-          }
-
-          const defaultSectionsList = [
-            { id: 'logo', type: 'logo', title: 'Logo Website', isActive: true, order: 1 },
-            { id: 'navbar', type: 'navbar', title: 'Menu Navigasi', isActive: true, order: 2 },
-            { id: 'hero', type: 'hero', title: 'Hero Banner', isActive: true, order: 3 },
-            { id: 'about', type: 'about', title: 'Tentang Usaha', isActive: true, order: 4 },
-            { id: 'products', type: 'products', title: 'Produk & Layanan', isActive: true, order: 5 },
-            { id: 'advantages', type: 'advantages', title: 'Keunggulan', isActive: true, order: 6 },
-            { id: 'gallery', type: 'gallery', title: 'Galeri Foto', isActive: true, order: 7 },
-            { id: 'testimonials', type: 'testimonials', title: 'Testimoni', isActive: true, order: 8 },
-            { id: 'cta', type: 'cta', title: 'CTA Penawaran', isActive: true, order: 9 },
-            { id: 'contact', type: 'contact', title: 'Kontak', isActive: true, order: 10 },
-            { id: 'socialMedia', type: 'socialMedia', title: 'Media Sosial', isActive: true, order: 11 },
-            { id: 'marketplaces', type: 'marketplaces', title: 'Toko Online (Marketplace)', isActive: false, order: 12 },
-            { id: 'footer', type: 'footer', title: 'Footer Halaman', isActive: true, order: 13 }
-          ];
-
-          const mappedSections = defaultSectionsList.map((defaultSec) => {
-            let aiSec = null;
-            let isStr = false;
-
-            if (Array.isArray(initialContent.sections)) {
-              aiSec = initialContent.sections.find((s: any) => {
-                if (typeof s === 'string') return s === defaultSec.id || s === defaultSec.type;
-                return s.id === defaultSec.id || s.type === defaultSec.type;
-              });
-              if (aiSec) isStr = typeof aiSec === 'string';
-            }
-
-            const secType = defaultSec.type;
-            const secTitle = defaultSec.title;
-
-            let secActive = defaultSec.isActive;
-            if (aiSec && !isStr && aiSec.isActive !== undefined) {
-              secActive = aiSec.isActive;
-            } else if (aiSec && !isStr && aiSec.status !== undefined) {
-              secActive = (aiSec.status === 'Aktif' || aiSec.status === true);
-            }
-
-            const secContent = initialContent[defaultSec.id] ||
-              (aiSec && !isStr && aiSec.content ? aiSec.content : null) ||
-              getSectionDefaultContent(secType, page.businessName, page.title);
-
-            const secStyles = (aiSec && !isStr && aiSec.styles ? aiSec.styles : null) || {};
-
-            return {
-              id: defaultSec.id,
-              type: secType,
-              title: secTitle,
-              isActive: secActive,
-              order: defaultSec.order,
-              content: secContent,
-              styles: secStyles
-            };
-          });
-
-          // Append any custom sections from AI that weren't in the default list
-          if (Array.isArray(initialContent.sections)) {
-            initialContent.sections.forEach((aiSec: any) => {
-              const secType = typeof aiSec === 'string' ? aiSec : (aiSec.type || aiSec.id);
-              if (!secType) return;
-
-              const exists = mappedSections.find(s => s.type === secType || s.id === secType);
-              if (!exists) {
-                const isStr = typeof aiSec === 'string';
-                mappedSections.push({
-                  id: isStr ? aiSec : (aiSec.id || secType),
-                  type: secType,
-                  title: isStr ? getSectionDefaultTitle(secType) : (aiSec.title || aiSec.name || getSectionDefaultTitle(secType)),
-                  isActive: isStr ? true : (aiSec.isActive !== undefined ? aiSec.isActive : (aiSec.status === 'Aktif' || aiSec.status === true || aiSec.status === undefined)),
-                  order: mappedSections.length + 1,
-                  content: isStr ? (initialContent[aiSec] || getSectionDefaultContent(secType, page.businessName, page.title)) : (aiSec.content || initialContent[aiSec.id] || getSectionDefaultContent(secType, page.businessName, page.title)),
-                  styles: isStr ? {} : (aiSec.styles || {})
-                });
-              }
-            });
-          }
-          setSections(mappedSections);
-
-          // Ensure standard structure is populated
-          const normalized = {
-            isAiGenerated: isAi,
-            themeColor: initialContent.themeColor || fetchedContent.themeColor || page.themeColor || null,
-            sections: mappedSections.map(s => ({
-              id: s.id,
-              type: s.type,
-              title: s.title,
-              isActive: s.isActive,
-              order: s.order,
-              content: s.content,
-              styles: s.styles,
-              status: s.isActive ? 'Aktif' : 'Nonaktif',
-              name: s.title
-            })),
-            logo: getSectionContentFromMapped(mappedSections, 'logo', initialContent.logo || ''),
-            navbar: getSectionContentFromMapped(mappedSections, 'navbar', initialContent.navbar || { brand: page.businessName || 'Situs Baru', items: [{ id: 'home', label: 'Home' }, { id: 'about', label: 'Tentang' }, { id: 'products', label: 'Produk' }, { id: 'testimonials', label: 'Testimoni' }, { id: 'contact', label: 'Kontak' }] }),
-            hero: getSectionContentFromMapped(mappedSections, 'hero', initialContent.hero || { headline: page.title || 'Kembangkan Bisnis Anda', subheadline: 'Deskripsi singkat layanan/produk Anda.', banner: '', cta: 'Hubungi Kami' }),
-            about: getSectionContentFromMapped(mappedSections, 'about', initialContent.about || { description: '', profile: '', story: '' }),
-            products: getSectionContentFromMapped(mappedSections, 'products', Array.isArray(initialContent.products) ? initialContent.products : []),
-            advantages: getSectionContentFromMapped(mappedSections, 'advantages', Array.isArray(initialContent.advantages) ? initialContent.advantages : [
-              { icon: 'Shield', title: 'Keamanan Terjamin', description: 'Perlindungan maksimal untuk seluruh data and sistem Anda.' },
-              { icon: 'Zap', title: 'Layanan Cepat', description: 'Respon instan dari tim support kami.' }
-            ]),
-            gallery: getSectionContentFromMapped(mappedSections, 'gallery', Array.isArray(initialContent.gallery) ? initialContent.gallery : []),
-            testimonials: getSectionContentFromMapped(mappedSections, 'testimonials', Array.isArray(initialContent.testimonials) ? initialContent.testimonials : []),
-            cta: getSectionContentFromMapped(mappedSections, 'cta', initialContent.cta || { title: 'Mulai Sekarang!', description: 'Hubungi kami hari ini untuk penawaran khusus.', buttonText: 'Hubungi Kami' }),
-            contact: getSectionContentFromMapped(mappedSections, 'contact', initialContent.contact || { whatsapp: '', email: '', address: '', operatingHours: '' }),
-            socialMedia: getSectionContentFromMapped(mappedSections, 'socialMedia', initialContent.socialMedia || { instagram: '', tiktok: '', facebook: '', youtube: '' }),
-            marketplaces: getSectionContentFromMapped(mappedSections, 'marketplaces', initialContent.marketplaces || { shopee: '', tokopedia: '', lazada: '', externalWebsite: '' }),
-            footer: getSectionContentFromMapped(mappedSections, 'footer', initialContent.footer || { logo: '', businessName: page.businessName || 'Situs Baru', copyright: `© 2026 ${page.businessName || 'Situs Baru'}. All rights reserved.` })
-          };
-
-          setRawContentJson(normalized);
-        } else {
-          triggerToast('Gagal memuat data landing page.');
-        }
-      } catch (err) {
-        console.error(err);
-        triggerToast('Terjadi kesalahan koneksi.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchPage();
-  }, [pageId]);
+    fetchPageData();
+  }, [fetchPageData]);
 
   // Debounced auto-save hook
   const prevContentJson = useRef<any>(null);
@@ -1258,8 +1258,8 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
   // Add item to schedule list
   const handleAddSchedule = async () => {
     setScheduleError(null);
-    if (!newScheduleTitle.trim() || !newScheduleTargetSection || !newScheduleContent.trim() || !newScheduleDate || !newScheduleTime) {
-      setScheduleError('Semua kolom harus diisi!');
+    if (!newScheduleTitle.trim() || !newScheduleTargetSection || (!newScheduleContent.trim() && !newScheduleImage.trim()) || !newScheduleDate || !newScheduleTime) {
+      setScheduleError('Judul, target section, waktu harus diisi, dan minimal salah satu dari teks konten atau gambar!');
       return;
     }
 
@@ -1278,8 +1278,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
           landingPageId: Number(pageId),
           sectionName: newScheduleTargetSection,
           component: 'Content',
-          newValue: newScheduleContent,
-          imageUrl: newScheduleImage || null,
+          newValue: JSON.stringify({ text: newScheduleContent, image: newScheduleImage }),
           scheduledAt: scheduleDateTime.toISOString(),
           status: 'Scheduled'
         })
@@ -1316,6 +1315,24 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
       }
     } catch (err: any) {
       setScheduleError('Terjadi kesalahan jaringan.');
+    }
+  };
+
+  const handleDeleteSchedule = async (id: number) => {
+    if (!confirm('Yakin ingin menghapus jadwal ini?')) return;
+    try {
+      const res = await fetch(`/api/content-schedules?id=${id}`, {
+        method: 'DELETE'
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSchedules(prev => prev.filter(s => s.id !== id));
+        triggerToast('Jadwal berhasil dihapus!');
+      } else {
+        triggerToast(data.message || 'Gagal menghapus jadwal.');
+      }
+    } catch (err) {
+      triggerToast('Terjadi kesalahan jaringan.');
     }
   };
 
@@ -2972,6 +2989,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                           <th className="px-8 py-3.5 uppercase tracking-wider text-[11px] font-black">Judul Konten</th>
                           <th className="px-8 py-3.5 uppercase tracking-wider text-[11px] font-black">Waktu Publikasi</th>
                           <th className="px-8 py-3.5 uppercase tracking-wider text-[11px] font-black text-center">Status</th>
+                          <th className="px-8 py-3.5 uppercase tracking-wider text-[11px] font-black text-right">Aksi</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -2984,7 +3002,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                           if (filteredSchedules.length === 0) {
                             return (
                               <tr>
-                                <td colSpan={3} className="px-8 py-10 text-center text-slate-500 font-medium text-sm">
+                                <td colSpan={4} className="px-8 py-10 text-center text-slate-500 font-medium text-sm">
                                   Belum ada jadwal.
                                 </td>
                               </tr>
@@ -3007,6 +3025,15 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                                   }`}>
                                   {item.status}
                                 </span>
+                              </td>
+                              <td className="px-6 md:px-8 py-5 text-right">
+                                <button
+                                  onClick={() => handleDeleteSchedule(item.id)}
+                                  className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer"
+                                  title="Hapus Jadwal"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
                               </td>
                             </tr>
                           ));
@@ -3201,17 +3228,18 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                     placeholder="Masukkan URL gambar atau klik tombol upload..."
                     className="flex-1 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-slate-200 outline-none focus:ring-4 focus:ring-brand-blue/10 focus:border-brand-blue transition-all shadow-sm"
                   />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const url = prompt('Masukkan URL gambar untuk dijadwalkan:');
-                      if(url) setNewScheduleImage(url);
-                    }}
-                    className="px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 font-bold text-sm transition-all flex items-center justify-center"
+                  <label
+                    className="px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 font-bold text-sm transition-all flex items-center justify-center cursor-pointer"
                     title="Upload Gambar"
                   >
                     <ImageIcon className="w-5 h-5" />
-                  </button>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => handleUpload(e, setNewScheduleImage)}
+                    />
+                  </label>
                 </div>
               </div>
 
@@ -3352,8 +3380,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
 
       {/* Floating Toast Notification */}
       {editorToast && (
-        <div className="fixed bottom-6 right-6 bg-white dark:bg-slate-900 border border-brand-blue/30 dark:border-brand-blue/50 text-slate-800 dark:text-slate-100 px-5 py-3 rounded-2xl shadow-2xl z-[350] animate-in slide-in-from-bottom-8 duration-300 flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-brand-blue animate-pulse" />
+        <div className="fixed bottom-6 right-6 bg-white dark:bg-slate-900 border border-brand-blue/30 dark:border-brand-blue/50 text-slate-800 dark:text-slate-100 px-5 py-3 rounded-2xl shadow-2xl z-[350] animate-in slide-in-from-bottom-8 duration-300 flex items-center gap-2">          <Sparkles className="w-4 h-4 text-brand-blue animate-pulse" />
           <span className="text-base font-black uppercase tracking-wider">{editorToast}</span>
         </div>
       )}

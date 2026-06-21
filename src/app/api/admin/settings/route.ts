@@ -32,12 +32,12 @@ export async function PATCH(request: Request) {
       updated = await prisma.systemSetting.update({
         where: { id: existing.id },
         data: {
-          platformName: platformName || undefined,
-          logo: logo || undefined,
-          heroTitle: heroTitle || undefined,
-          heroDescription: heroDescription || undefined,
-          contactEmail: contactEmail || undefined,
-          whatsapp: whatsapp || undefined,
+          platformName: platformName !== undefined ? platformName : undefined,
+          logo: logo !== undefined ? logo : undefined,
+          heroTitle: heroTitle !== undefined ? heroTitle : undefined,
+          heroDescription: heroDescription !== undefined ? heroDescription : undefined,
+          contactEmail: contactEmail !== undefined ? contactEmail : undefined,
+          whatsapp: whatsapp !== undefined ? whatsapp : undefined,
           socialLinksJson: socialLinksJson || undefined,
           footerText: footerText || undefined,
           featuresJson: featuresJson !== undefined ? featuresJson : undefined,
@@ -51,8 +51,8 @@ export async function PATCH(request: Request) {
         data: {
           platformName: platformName || 'UNI-LandFarm',
           logo: logo || 'UNI-LandFarm',
-          heroTitle: heroTitle || 'Platform Landing Page Mikro Berbasis AI CMS',
-          heroDescription: heroDescription || 'Bantu kembangkan bisnis agrikultur, UMKM, dan produk lokal Anda dengan landing page super cepat yang dikelola kecerdasan buatan.',
+          heroTitle: heroTitle || 'Bangun Situs Web Bisnis Modern dengan AI',
+          heroDescription: heroDescription || 'Buat landing page profesional, toko online, dan konten bisnis secara instan bersama Uni-LandFarm.',
           contactEmail: contactEmail || 'hello@unilanfarm.com',
           whatsapp: whatsapp || '0812-9999-8888',
           socialLinksJson: socialLinksJson || {

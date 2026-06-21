@@ -40,66 +40,113 @@ export async function GET(request: Request) {
           throw new Error('Template section tidak ditemukan.');
         }
 
-        let contentJson = templateSection.contentJson ? JSON.parse(JSON.stringify(templateSection.contentJson)) : {};
+        let dbContentJson = templateSection.contentJson ? JSON.parse(JSON.stringify(templateSection.contentJson)) : {};
+
+        // Penanganan struktur multi-page UNI-LANDFARM
+        let targetContent = dbContentJson;
+        if (dbContentJson.pages && Array.isArray(dbContentJson.pages) && dbContentJson.pages.length > 0) {
+          // Asumsikan update halaman pertama (Beranda)
+          if (!dbContentJson.pages[0].content) dbContentJson.pages[0].content = {};
+          targetContent = dbContentJson.pages[0].content;
+        }
+
         const sectionName = schedule.sectionName || 'hero';
         const component = schedule.component;
-        const value = schedule.newValue;
+        let value = schedule.newValue;
+        let imageUrl = null;
+        
+        try {
+          const parsed = JSON.parse(schedule.newValue);
+          if (typeof parsed === 'object' && parsed !== null && ('text' in parsed || 'image' in parsed)) {
+            value = parsed.text || '';
+            imageUrl = parsed.image || null;
+          }
+        } catch (e) {
+          // Fallback to raw string jika bukan JSON
+        }
 
         // Inisialisasi section object jika belum ada
-        if (!contentJson[sectionName]) {
-          contentJson[sectionName] = {};
+        if (!targetContent[sectionName]) {
+          targetContent[sectionName] = {};
         }
 
         // Logic memetakan component ke field di JSON content
-        // Menyesuaikan dengan standar format section di UNI-LANDFARM
-        if (component === 'Hero Title') {
-          contentJson[sectionName].headline = value;
+        // Frontend mengirim component: 'Content', jadi kita map berdasar sectionName
+        if (component === 'Hero Title' || (sectionName === 'hero' && component === 'Content')) {
+          targetContent[sectionName].headline = value;
+          if (imageUrl) targetContent[sectionName].image = imageUrl;
         } else if (component === 'Hero Subtitle') {
-          contentJson[sectionName].subheadline = value;
+          targetContent[sectionName].subheadline = value;
         } else if (component === 'Banner Promosi') {
-          contentJson[sectionName].banner = value;
-        } else if (component === 'CTA Button') {
-          contentJson[sectionName].cta = value;
-          if (contentJson.cta) contentJson.cta.buttonText = value;
-        } else if (component === 'Card Produk' && sectionName === 'products') {
-          if (!Array.isArray(contentJson.products)) contentJson.products = [];
-          if (contentJson.products.length > 0) {
-            contentJson.products[0].description = value;
+          targetContent[sectionName].banner = value;
+        } else if (component === 'CTA Button' || (sectionName === 'cta' && component === 'Content')) {
+          if (!targetContent.cta) targetContent.cta = {};
+          targetContent.cta.headline = value;
+          targetContent.cta.buttonText = value;
+          if (imageUrl) targetContent.cta.image = imageUrl;
+        } else if (component === 'Card Produk' || (sectionName === 'products' && component === 'Content')) {
+          if (!Array.isArray(targetContent.products)) targetContent.products = [];
+          if (targetContent.products.length > 0) {
+            targetContent.products[0].description = value;
+            if (imageUrl) targetContent.products[0].image = imageUrl;
           } else {
-            contentJson.products.push({ id: Date.now(), name: 'Produk Baru', description: value });
+            targetContent.products.push({ id: Date.now(), name: schedule.title || 'Produk', description: value, image: imageUrl });
           }
-        } else if (component === 'Card Layanan' && sectionName === 'advantages') {
-          if (!Array.isArray(contentJson.advantages)) contentJson.advantages = [];
-          if (contentJson.advantages.length > 0) {
-            contentJson.advantages[0].description = value;
+        } else if (component === 'Card Layanan' || (sectionName === 'advantages' && component === 'Content')) {
+          if (!Array.isArray(targetContent.advantages)) targetContent.advantages = [];
+          if (targetContent.advantages.length > 0) {
+            targetContent.advantages[0].description = value;
+            if (imageUrl) targetContent.advantages[0].image = imageUrl;
           } else {
-            contentJson.advantages.push({ icon: 'Zap', title: 'Layanan Baru', description: value });
+            targetContent.advantages.push({ icon: 'Zap', title: schedule.title || 'Layanan', description: value, image: imageUrl });
           }
-        } else if (component === 'Testimoni' && sectionName === 'testimonials') {
-          if (!Array.isArray(contentJson.testimonials)) contentJson.testimonials = [];
-          if (contentJson.testimonials.length > 0) {
-            contentJson.testimonials[0].quote = value;
-            contentJson.testimonials[0].content = value;
+        } else if (component === 'Testimoni' || (sectionName === 'testimonials' && component === 'Content')) {
+          if (!Array.isArray(targetContent.testimonials)) targetContent.testimonials = [];
+          if (targetContent.testimonials.length > 0) {
+            targetContent.testimonials[0].quote = value;
+            targetContent.testimonials[0].content = value;
+            if (imageUrl) targetContent.testimonials[0].avatar = imageUrl;
           } else {
-            contentJson.testimonials.push({ quote: value, content: value, author: 'Pelanggan', name: 'Pelanggan' });
+            targetContent.testimonials.push({ quote: value, content: value, author: schedule.title || 'Pelanggan', name: schedule.title || 'Pelanggan', avatar: imageUrl });
           }
-        } else if (component === 'Kontak' && sectionName === 'contact') {
-          contentJson.contact.whatsapp = value;
+        } else if (component === 'Kontak' || (sectionName === 'contact' && component === 'Content')) {
+          if (!targetContent.contact) targetContent.contact = {};
+          targetContent.contact.whatsapp = value;
+        } else if (sectionName === 'about' && component === 'Content') {
+          targetContent[sectionName].description = value;
+          if (imageUrl) targetContent[sectionName].image = imageUrl;
+        } else if (sectionName === 'logo' && component === 'Content') {
+          if (typeof targetContent.logo === 'object' && targetContent.logo !== null) {
+            targetContent.logo.url = imageUrl || value;
+          } else {
+            targetContent.logo = imageUrl || value;
+          }
+        } else if (sectionName === 'navbar' && component === 'Content') {
+          targetContent.navbar = targetContent.navbar || {};
+          targetContent.navbar.businessName = value;
+        } else if (sectionName === 'footer' && component === 'Content') {
+          targetContent.footer = targetContent.footer || {};
+          targetContent.footer.copyright = value;
+        } else if (sectionName === 'gallery' && component === 'Content') {
+          if (!Array.isArray(targetContent.gallery)) targetContent.gallery = [];
+          if (imageUrl) {
+            targetContent.gallery.push({ id: Date.now(), url: imageUrl, caption: value });
+          }
         } else {
            // Fallback general update
-           contentJson[sectionName][component] = value;
+           targetContent[sectionName][component] = value;
         }
 
         // Sinkronisasi array 'sections' jika diperlukan oleh Editor component
-        if (Array.isArray(contentJson.sections)) {
-          contentJson.sections = contentJson.sections.map((sec: any) => {
+        if (Array.isArray(targetContent.sections)) {
+          targetContent.sections = targetContent.sections.map((sec: any) => {
             const type = sec.type || sec.id;
             if (type === sectionName) {
-              return { ...sec, content: contentJson[sectionName] };
+              return { ...sec, content: targetContent[sectionName] };
             }
             // Juga sinkronkan CTA jika update diubah via hero CTA
-            if (type === 'cta' && contentJson.cta && component === 'CTA Button') {
-                return { ...sec, content: contentJson.cta };
+            if (type === 'cta' && targetContent.cta && (component === 'CTA Button' || (sectionName === 'cta' && component === 'Content'))) {
+                return { ...sec, content: targetContent.cta };
             }
             return sec;
           });
@@ -108,7 +155,7 @@ export async function GET(request: Request) {
         // Simpan pembaruan ke TemplateSection
         await prisma.templateSection.update({
           where: { landingPageId: schedule.landingPageId },
-          data: { contentJson }
+          data: { contentJson: dbContentJson }
         });
 
         // Update status ContentSchedule menjadi Completed

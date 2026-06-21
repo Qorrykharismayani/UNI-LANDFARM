@@ -46,10 +46,10 @@ const AdminPanelPage = ({
   const [landingPages, setLandingPages] = useState<any[]>([]);
   const [templatesList, setTemplatesList] = useState<any[]>([]);
   const [systemSettings, setSystemSettings] = useState<any>({
-    platformName: '',
-    logo: '',
-    heroTitle: '',
-    heroDescription: '',
+    platformName: 'Uni-LandFarm',
+    logo: '/uploads/1781793939040-LOGO_Uni-LandFarm-removebg-preview-(1).png',
+    heroTitle: 'Bangun Situs Web Bisnis Modern dengan AI',
+    heroDescription: 'Buat landing page profesional, toko online, dan konten bisnis secara instan bersama Uni-LandFarm.',
     contactEmail: '',
     whatsapp: '',
     footerText: '',
@@ -151,6 +151,10 @@ const AdminPanelPage = ({
         const fetched = resSettings.data || {};
         setSystemSettings({
           ...fetched,
+          platformName: fetched.platformName || 'Uni-LandFarm',
+          logo: fetched.logo || '/uploads/1781793939040-LOGO_Uni-LandFarm-removebg-preview-(1).png',
+          heroTitle: fetched.heroTitle || 'Bangun Situs Web Bisnis Modern dengan AI',
+          heroDescription: fetched.heroDescription || 'Buat landing page profesional, toko online, dan konten bisnis secara instan bersama Uni-LandFarm.',
           featuresJson: fetched.featuresJson || [
             { title: "Pembuatan Instan", desc: "Buat landing page profesional hanya dalam hitungan menit dengan sistem otomatis berbasis AI.", icon: "Zap", num: "01" },
             { title: "Pustaka Template", desc: "Tersedia berbagai template modern dan premium yang siap digunakan untuk semua kebutuhan bisnis.", icon: "Folder", num: "02" },
