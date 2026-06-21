@@ -12,9 +12,10 @@ interface LoginPageProps {
   setUser: (u: any) => void;
   prefilledEmail?: string;
   setPrefilledEmail?: (e: string) => void;
+  systemSettings?: any;
 }
 
-const LoginPage = ({ setView, setUser, prefilledEmail = '', setPrefilledEmail }: LoginPageProps) => {
+const LoginPage = ({ setView, setUser, prefilledEmail = '', setPrefilledEmail, systemSettings }: LoginPageProps) => {
   const [email, setEmail] = useState(prefilledEmail || '');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -67,12 +68,16 @@ const LoginPage = ({ setView, setUser, prefilledEmail = '', setPrefilledEmail }:
       >
         {/* Logo */}
         <div className="flex justify-center mb-6">
-          <img src="/logo.png?v=8" alt="Uni-LandFarm Logo" className="h-[105px] object-contain" />
+          {systemSettings?.logo ? (
+            <img src={systemSettings.logo.startsWith('/') ? `${systemSettings.logo}?v=8` : systemSettings.logo} alt="Logo" className="h-[105px] object-contain" />
+          ) : (
+            <img src="/logo.png?v=8" alt="Logo" className="h-[105px] object-contain" />
+          )}
         </div>
 
         <div className="mb-8 text-center">
           <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-1 tracking-tight">Selamat Datang Kembali</h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400">Login ke akun Uni-LandFarm Anda</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Login ke akun {systemSettings?.platformName || 'Uni-LandFarm'} Anda</p>
         </div>
 
         {/* Google Button */}

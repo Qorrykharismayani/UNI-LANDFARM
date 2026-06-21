@@ -129,8 +129,8 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
     }
   };
 
-  // 1. UMKM Template Layout (Makanan & Retail)
-  if (tid === 'tpl-umkm' || tid === 'Makanan & Retail') {
+  // 1. Default Template Layout
+  {
     const defaultSectionsList = [
       { id: 'logo', status: 'Aktif' },
       { id: 'navbar', status: 'Aktif' },

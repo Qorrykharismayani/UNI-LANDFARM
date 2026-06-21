@@ -15,9 +15,10 @@ interface ForgotPasswordPageProps {
   setView: (v: string) => void;
   prefilledEmail?: string;
   setPrefilledEmail?: (e: string) => void;
+  systemSettings?: any;
 }
 
-const ForgotPasswordPage = ({ setView, prefilledEmail = '', setPrefilledEmail }: ForgotPasswordPageProps) => {
+const ForgotPasswordPage = ({ setView, prefilledEmail = '', setPrefilledEmail, systemSettings }: ForgotPasswordPageProps) => {
   const [step, setStep] = useState<1 | 2>(1);
   const [email, setEmail] = useState(prefilledEmail);
   const [token, setToken] = useState('');
@@ -135,7 +136,11 @@ const ForgotPasswordPage = ({ setView, prefilledEmail = '', setPrefilledEmail }:
 
         {/* Logo */}
         <div className="flex justify-center mb-6 mt-4">
-          <img src="/logo.png?v=8" alt="Uni-LandFarm Logo" className="h-[105px] object-contain" />
+          {systemSettings?.logo ? (
+            <img src={systemSettings.logo.startsWith('/') ? `${systemSettings.logo}?v=8` : systemSettings.logo} alt="Logo" className="h-[105px] object-contain" />
+          ) : (
+            <img src="/logo.png?v=8" alt="Logo" className="h-[105px] object-contain" />
+          )}
         </div>
 
         <div className="mb-6 text-center">

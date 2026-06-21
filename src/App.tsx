@@ -99,13 +99,13 @@ export default function App() {
       case 'cms':
         return <CMSLandingView setView={setView} user={user} />;
       case 'about':
-        return <AboutUsView />;
+        return <AboutUsView systemSettings={systemSettings} />;
       case 'login':
-        return <LoginView setView={setView} setUser={setUser} prefilledEmail={prefilledEmail} setPrefilledEmail={setPrefilledEmail} />;
+        return <LoginView setView={setView} setUser={setUser} prefilledEmail={prefilledEmail} setPrefilledEmail={setPrefilledEmail} systemSettings={systemSettings} />;
       case 'signup':
-        return <SignupView setView={setView} setUser={setUser} prefilledEmail={prefilledEmail} setPrefilledEmail={setPrefilledEmail} />;
+        return <SignupView setView={setView} setUser={setUser} prefilledEmail={prefilledEmail} setPrefilledEmail={setPrefilledEmail} systemSettings={systemSettings} />;
       case 'forgot-password':
-        return <ForgotPasswordPage setView={setView} prefilledEmail={prefilledEmail} setPrefilledEmail={setPrefilledEmail} />;
+        return <ForgotPasswordPage setView={setView} prefilledEmail={prefilledEmail} setPrefilledEmail={setPrefilledEmail} systemSettings={systemSettings} />;
     }
     
     if (view.startsWith('dashboard')) {

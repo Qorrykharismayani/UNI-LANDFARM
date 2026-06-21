@@ -14,9 +14,10 @@ interface SignupPageProps {
   setUser: (u: any) => void;
   prefilledEmail: string;
   setPrefilledEmail: (e: string) => void;
+  systemSettings?: any;
 }
 
-const SignupPage = ({ setView, setUser, prefilledEmail, setPrefilledEmail }: SignupPageProps) => {
+const SignupPage = ({ setView, setUser, prefilledEmail, setPrefilledEmail, systemSettings }: SignupPageProps) => {
   const [businessName, setBusinessName] = useState('');
   const [email, setEmail] = useState(prefilledEmail || '');
   const [password, setPassword] = useState('');
@@ -72,12 +73,16 @@ const SignupPage = ({ setView, setUser, prefilledEmail, setPrefilledEmail }: Sig
       >
         {/* Logo */}
         <div className="flex justify-center mb-6">
-          <img src="/logo.png?v=8" alt="Uni-LandFarm Logo" className="h-[105px] object-contain" />
+          {systemSettings?.logo ? (
+            <img src={systemSettings.logo.startsWith('/') ? `${systemSettings.logo}?v=8` : systemSettings.logo} alt="Logo" className="h-[105px] object-contain" />
+          ) : (
+            <img src="/logo.png?v=8" alt="Logo" className="h-[105px] object-contain" />
+          )}
         </div>
 
         <div className="mb-8 text-center">
           <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-1 tracking-tight">Registrasi Akun</h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400">Daftarkan bisnis Anda untuk mulai menggunakan UNI-LandFarm</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Daftarkan bisnis Anda untuk mulai menggunakan {systemSettings?.platformName || 'UNI-LandFarm'}</p>
         </div>
 
         {/* Google Button */}
@@ -190,7 +195,7 @@ const SignupPage = ({ setView, setUser, prefilledEmail, setPrefilledEmail }: Sig
           </div>
           <span className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
             Saya menyetujui <span className="text-brand-blue font-bold">Syarat & Ketentuan</span> serta{' '}
-            <span className="text-brand-blue font-bold">Kebijakan Privasi</span> Uni-LandFarm
+            <span className="text-brand-blue font-bold">Kebijakan Privasi</span> {systemSettings?.platformName || 'Uni-LandFarm'}
           </span>
         </label>
         {errors.agree && <p className="text-xs text-red-500 font-bold flex items-center gap-1 -mt-4 mb-4 ml-1"><AlertCircle className="w-3 h-3" />{errors.agree}</p>}

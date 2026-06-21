@@ -20,7 +20,7 @@ export const Footer = ({ setView, systemSettings, user }: FooterProps) => (
             {systemSettings?.logo && (systemSettings.logo.startsWith('http') || systemSettings.logo.startsWith('/')) ? (
               <img src={systemSettings.logo.startsWith('/') ? `${systemSettings.logo}?v=8` : systemSettings.logo} alt="Logo" className="h-[74px] object-contain" />
             ) : (
-              <img src="/logo.png?v=8" alt="UNI-LandFarm Logo" className="h-[74px] object-contain" />
+              <img src="/logo.png?v=8" alt={`${systemSettings?.platformName || 'UNI-LandFarm'} Logo`} className="h-[74px] object-contain" />
             )}
           </div>
           <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-8 font-medium">
@@ -72,7 +72,7 @@ export const Footer = ({ setView, systemSettings, user }: FooterProps) => (
 
       <div className="pt-10 border-t border-slate-100 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-6">
         <p className="text-slate-400 dark:text-slate-500 text-xs font-medium">
-          {systemSettings?.footerText || '© 2026 Platform UNI-LandFarm. Hak cipta dilindungi undang-undang.'}
+          {systemSettings?.footerText || `© 2026 Platform ${systemSettings?.platformName || 'UNI-LandFarm'}. Hak cipta dilindungi undang-undang.`}
         </p>
         <div className="flex gap-8 text-[10px] text-slate-400 dark:text-slate-500 font-black uppercase tracking-widest">
           <a href="#" className="hover:text-brand-blue transition-colors">Kebijakan Privasi</a>

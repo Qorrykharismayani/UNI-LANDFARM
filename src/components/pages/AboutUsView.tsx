@@ -9,7 +9,7 @@ export const Testimonials = ({ systemSettings }: { systemSettings?: any }) => {
         {
           name: "Budi Santoso",
           role: "CEO of TechFlow",
-          content: "Uni-LandFarm benar-benar mengubah cara kami mengelola kehadiran digital. AI-nya sangat intuitif dan membantu kami menghemat waktu hingga 70%.",
+          content: `${systemSettings?.platformName || 'Uni-LandFarm'} benar-benar mengubah cara kami mengelola kehadiran digital. AI-nya sangat intuitif dan membantu kami menghemat waktu hingga 70%.`,
           avatar: "https://picsum.photos/seed/budi/100/100"
         },
         {
@@ -81,7 +81,7 @@ export const FAQ = ({ systemSettings }: { systemSettings?: any }) => {
   const faqs = (systemSettings?.faqsJson && systemSettings.faqsJson.length > 0) ? systemSettings.faqsJson : [
     { 
       q: "Apakah saya dapat membuat landing page tanpa kemampuan teknis?", 
-      a: "Ya. UNI-LandFarm menggunakan konsep low-code/no-code sehingga pengguna dapat membuat dan mengelola landing page tanpa perlu menulis kode program.", 
+      a: `Ya. ${systemSettings?.platformName || 'UNI-LandFarm'} menggunakan konsep low-code/no-code sehingga pengguna dapat membuat dan mengelola landing page tanpa perlu menulis kode program.`, 
       icon: Wand2,
       color: "text-orange-500",
       bg: "bg-orange-50 dark:bg-orange-500/10"
@@ -152,7 +152,7 @@ export const FAQ = ({ systemSettings }: { systemSettings?: any }) => {
             Pertanyaan yang <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-500">Sering Diajukan</span>
           </h2>
           <p className="text-slate-600 dark:text-slate-400 font-medium max-w-2xl mx-auto text-base sm:text-lg leading-relaxed transition-colors">
-            Temukan jawaban mengenai pengelolaan landing page, CMS, Agentic AI, dan penjadwalan konten pada UNI-LandFarm.
+            Temukan jawaban mengenai pengelolaan landing page, CMS, Agentic AI, dan penjadwalan konten pada {systemSettings?.platformName || 'UNI-LandFarm'}.
           </p>
         </div>
 
@@ -209,7 +209,7 @@ export const FAQ = ({ systemSettings }: { systemSettings?: any }) => {
   );
 };
 
-export const AboutUsView = () => (
+export const AboutUsView = ({ systemSettings }: { systemSettings?: any }) => (
   <section className="py-32 px-6 bg-white dark:bg-slate-950 relative overflow-hidden transition-colors duration-300">
     {/* —— Background Mesh Glows —— */}
     <div className="absolute inset-0 pointer-events-none">
@@ -249,7 +249,7 @@ export const AboutUsView = () => (
         >
           <span className="text-slate-900 dark:text-white">Mengenal </span>
           <span className="bg-clip-text text-transparent bg-gradient-to-r from-brand-blue via-indigo-500 to-blue-400">
-            Uni-LandFarm
+            {systemSettings?.platformName || 'Uni-LandFarm'}
           </span>
         </motion.h2>
 
@@ -367,7 +367,7 @@ export const AboutUsView = () => (
             </div>
             <h3 className="text-2xl lg:text-4xl font-black tracking-tight mb-4 text-slate-900 dark:text-white">Teknologi Inti Kami</h3>
             <p className="text-slate-500 dark:text-slate-400 max-w-xl mx-auto text-sm lg:text-base">
-              Inovasi yang menggerakkan Uni-LandFarm ke masa depan.
+              Inovasi yang menggerakkan {systemSettings?.platformName || 'Uni-LandFarm'} ke masa depan.
             </p>
           </div>
 

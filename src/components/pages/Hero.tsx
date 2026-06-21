@@ -39,7 +39,7 @@ const Hero = ({ setView, systemSettings, user }: HeroProps) => (
       >
         <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-brand-blue/10 text-brand-blue border border-brand-blue/20 mb-8 shadow-[0_0_25px_rgba(255,176,0,0.15)] backdrop-blur-md">
           <Sparkles className="w-4 h-4 text-brand-blue animate-pulse" />
-          <span className="text-[11px] font-black tracking-[0.25em] uppercase">AI-Powered Precision • Uni-LandFarm</span>
+          <span className="text-[11px] font-black tracking-[0.25em] uppercase">AI-Powered Precision • {systemSettings?.platformName || 'Uni-LandFarm'}</span>
         </div>
         <h1 
           className="text-[32px] sm:text-[46px] lg:text-[56px] xl:text-[66px] font-black text-slate-900 dark:text-white leading-[1.15] mb-8 tracking-tight transition-colors"
@@ -57,7 +57,7 @@ const Hero = ({ setView, systemSettings, user }: HeroProps) => (
         <p 
           className="text-[16px] sm:text-[19px] text-slate-600 dark:text-slate-400 mb-10 max-w-xl leading-relaxed font-medium transition-colors"
           dangerouslySetInnerHTML={{
-            __html: (!systemSettings?.heroDescription || systemSettings.heroDescription === 'Buat landing page profesional, toko online, dan konten bisnis secara instan bersama Uni-LandFarm.') ? `Buat landing page profesional, toko online, dan konten bisnis secara instan bersama <span class="text-brand-blue font-bold">Uni-LandFarm</span>.` : systemSettings.heroDescription
+            __html: (!systemSettings?.heroDescription || systemSettings.heroDescription === 'Buat landing page profesional, toko online, dan konten bisnis secara instan bersama Uni-LandFarm.' || systemSettings.heroDescription === `Buat landing page profesional, toko online, dan konten bisnis secara instan bersama ${systemSettings?.platformName}.`) ? `Buat landing page profesional, toko online, dan konten bisnis secara instan bersama <span class="text-brand-blue font-bold">${systemSettings?.platformName || 'Uni-LandFarm'}</span>.` : systemSettings.heroDescription
           }}
         />
         <div className="flex flex-col sm:flex-row gap-4">
