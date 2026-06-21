@@ -132,6 +132,9 @@ const AdminPanelPage = ({
     status: 'Aktif'
   });
 
+  // Edit template form state
+  const [editingTemplate, setEditingTemplate] = useState<any>(null);
+
   // (admin review/reject removed — publishing is now automatic)
 
   // CMS Tab state
@@ -441,6 +444,38 @@ const AdminPanelPage = ({
         showNotification('User baru berhasil ditambahkan!', 'success');
       } else {
         showNotification(data.message || 'Gagal menambahkan user.', 'info');
+      }
+    } catch (err) {
+      console.error(err);
+      showNotification('Gagal menghubungi server.', 'info');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleSaveTemplateEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingTemplate) return;
+    setActionLoading(`edit-template-${editingTemplate.id}`);
+    try {
+      const res = await fetch(`/api/admin/templates/${editingTemplate.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: editingTemplate.name,
+          category: editingTemplate.category,
+          description: editingTemplate.description,
+          thumbnail: editingTemplate.thumbnail,
+          status: editingTemplate.status
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTemplatesList(templatesList.map(t => t.id === editingTemplate.id ? { ...t, ...editingTemplate } : t));
+        setEditingTemplate(null);
+        showNotification('Template berhasil diperbarui!', 'success');
+      } else {
+        showNotification(data.message || 'Gagal memperbarui template.', 'info');
       }
     } catch (err) {
       console.error(err);
@@ -1224,14 +1259,7 @@ const AdminPanelPage = ({
                           Ubah Status
                         </button>
                         <button
-                          onClick={() => {
-                            showNotification(`Template ${tpl.name} berhasil diedit!`, 'success');
-                            fetch('/api/notifications', { 
-                              method: 'POST', 
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ title: 'Template Diedit', message: `Data template ${tpl.name} telah berhasil diperbarui.`, type: 'success' }) 
-                            });
-                          }}
+                          onClick={() => setEditingTemplate(tpl)}
                           className="px-2 py-1.5 bg-blue-500/10 hover:bg-blue-500 border border-blue-500/20 text-blue-400 hover:text-white rounded-lg transition-colors cursor-pointer flex items-center justify-center"
                           title="Edit Template"
                         >
@@ -2232,7 +2260,7 @@ const AdminPanelPage = ({
             <div className="border-b border-slate-200 dark:border-slate-800 pb-5 flex justify-between items-end">
               <div>
                 <h2 className="text-md font-black uppercase tracking-widest text-slate-800 dark:text-white">Riwayat Transaksi</h2>
-                <p className="text-[9.5px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-1">Pantau semua pembelian paket token oleh pengguna</p>
+                <p className="text-[9.5px] text-slate-500 dark:text-slate-400 font-bold mt-1">Pantau semua pembelian paket token oleh pengguna</p>
               </div>
             </div>
 
@@ -2419,6 +2447,83 @@ const AdminPanelPage = ({
                     className="flex-1 py-3 bg-brand-blue hover:bg-blue-600 text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all cursor-pointer"
                   >
                     Tambah Desain
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL: EDIT TEMPLATE */}
+        {editingTemplate && (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-slate-900/80 dark:bg-slate-950/80 backdrop-blur-sm" onClick={() => setEditingTemplate(null)} />
+            <div className="relative w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[28px] p-6 shadow-2xl space-y-6 z-10 animate-in fade-in zoom-in-95 duration-200">
+              <div className="border-b border-slate-200 dark:border-slate-800 pb-4 flex justify-between items-center">
+                <h3 className="text-sm font-black text-slate-800 dark:text-white uppercase tracking-widest">Edit Template</h3>
+                <button onClick={() => setEditingTemplate(null)} className="w-8 h-8 flex items-center justify-center bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl transition-colors cursor-pointer">
+                  <X className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+                </button>
+              </div>
+              <form onSubmit={handleSaveTemplateEdit} className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Nama Template</label>
+                  <input
+                    type="text"
+                    value={editingTemplate.name || ''}
+                    onChange={(e) => setEditingTemplate({ ...editingTemplate, name: e.target.value })}
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none"
+                    placeholder="Masukkan nama template"
+                    required
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Kategori</label>
+                  <select
+                    value={editingTemplate.category || 'Makanan & Retail'}
+                    onChange={(e) => setEditingTemplate({ ...editingTemplate, category: e.target.value })}
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none"
+                  >
+                    <option value="Makanan & Retail">Makanan & Retail</option>
+                    <option value="Jasa Profesional">Jasa Profesional</option>
+                    <option value="Pertanian & Agribisnis">Pertanian & Agribisnis</option>
+                    <option value="Portofolio Kreatif">Portofolio Kreatif</option>
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Deskripsi Singkat</label>
+                  <input
+                    type="text"
+                    value={editingTemplate.description || ''}
+                    onChange={(e) => setEditingTemplate({ ...editingTemplate, description: e.target.value })}
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none"
+                    placeholder="Deskripsi template"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Thumbnail URL</label>
+                  <input
+                    type="text"
+                    value={editingTemplate.thumbnail || ''}
+                    onChange={(e) => setEditingTemplate({ ...editingTemplate, thumbnail: e.target.value })}
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none"
+                    placeholder="https://..."
+                  />
+                </div>
+                <div className="flex gap-4 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setEditingTemplate(null)}
+                    className="flex-1 py-3 text-[9px] font-black text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white uppercase tracking-widest border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 rounded-xl transition-all cursor-pointer"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={actionLoading === `edit-template-${editingTemplate.id}`}
+                    className="flex-1 py-3 bg-brand-blue hover:bg-blue-600 text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center"
+                  >
+                    {actionLoading === `edit-template-${editingTemplate.id}` ? 'Menyimpan...' : 'Simpan Perubahan'}
                   </button>
                 </div>
               </form>

@@ -245,7 +245,9 @@ const DashboardPage = ({
               <div className="w-1.5 h-1.5 bg-brand-blue rounded-full animate-pulse" />
             </h4>
             <div className="space-y-4">
+              <p className="text-sm text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
                 Butuh bantuan belajar cara menggunakan {systemSettings?.platformName || 'Uni-LandFarm'}? Buka halaman panduan resmi kami.
+              </p>
               <button
                 onClick={() => setSubView('panduan')}
                 className="w-full py-2.5 bg-slate-950 dark:bg-white text-white dark:text-slate-950 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-900 dark:hover:bg-slate-800 transition-all shadow-sm flex items-center justify-center gap-2 group"
