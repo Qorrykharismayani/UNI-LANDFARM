@@ -30,7 +30,13 @@ const Navbar = ({ setView, currentView, theme, toggleTheme, user, systemSettings
           className="flex items-center gap-3 group cursor-pointer flex-shrink-0"
           onClick={() => setView('home')}
         >
-          <img src={systemSettings?.logo || "/logo.png?v=8"} alt="Platform Logo" className="h-[90px] object-contain" />
+          <img 
+            src={(systemSettings?.logo && (systemSettings.logo.startsWith('http') || systemSettings.logo.startsWith('/'))) 
+              ? (systemSettings.logo.startsWith('/') ? `${systemSettings.logo}?v=8` : systemSettings.logo) 
+              : "/logo.png?v=8"} 
+            alt="Platform Logo" 
+            className="h-[90px] object-contain" 
+          />
         </div>
         
         {/* Desktop Nav */}

@@ -28,29 +28,7 @@ export async function POST(request: Request) {
       }
     });
 
-    const defaultTemplate = await prisma.template.findFirst({
-      where: { status: 'Aktif' }
-    });
-    if (defaultTemplate) {
-      await prisma.landingPage.create({
-        data: {
-          userId: newUser.id,
-          templateId: defaultTemplate.id,
-          title: 'Situs Pertanian Uni-LandFarm',
-          businessName: newUser.name || 'Madu Klanceng Alami',
-          slug: `situs-baru-${String(newUser.id).substring(0, 5).toLowerCase()}`,
-          status: 'Draft',
-          views: 0,
-          content: {
-            create: {
-              contentJson: defaultTemplate.defaultContent || {
-                hero: { headline: 'Situs Pertanian Uni-LandFarm', subheadline: 'Madu Klanceng Alami', cta: 'Hubungi Kami' }
-              }
-            }
-          }
-        }
-      });
-    }
+
 
     return NextResponse.json({
       success: true,

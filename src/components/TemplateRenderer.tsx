@@ -167,13 +167,65 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
     });
 
     return (
-      <div className={`w-full bg-[#fcfbf7] text-[#332f21] font-sans antialiased selection:bg-amber-100 selection:text-amber-900 ${isMobile ? 'py-2 px-1' : ''} min-h-screen`}>
+      <div className={`w-full bg-[#fcfbf7] text-[#332f21] font-sans antialiased selection:bg-amber-100 selection:text-amber-900 ${isMobile ? 'py-2 px-1' : ''} min-h-screen theme-amber-override`}>
+        {themeColor && (
+          <style>{`
+            .theme-amber-override .bg-amber-500 { background-color: ${themeColor} !important; }
+            .theme-amber-override .bg-amber-600 { background-color: ${themeColor} !important; }
+            .theme-amber-override .bg-amber-700 { background-color: ${themeColor} !important; }
+            .theme-amber-override .hover\\:bg-amber-600:hover { background-color: ${themeColor}ee !important; }
+            .theme-amber-override .hover\\:bg-amber-700:hover { background-color: ${themeColor}ee !important; }
+            
+            .theme-amber-override .bg-amber-50 { background-color: ${themeColor}0a !important; }
+            .theme-amber-override .bg-amber-100 { background-color: ${themeColor}15 !important; }
+            .theme-amber-override .bg-amber-50\\/50 { background-color: ${themeColor}08 !important; }
+            .theme-amber-override .bg-amber-500\\/10 { background-color: ${themeColor}12 !important; }
+            
+            /* Dark background blending using color-mix */
+            .theme-amber-override .bg-amber-900 { background-color: color-mix(in srgb, ${themeColor} 12%, #0e120f) !important; }
+            .theme-amber-override .bg-amber-800\\/50 { background-color: color-mix(in srgb, ${themeColor} 20%, rgba(20, 25, 20, 0.4)) !important; }
+            .theme-amber-override .border-amber-700\\/50 { border-color: color-mix(in srgb, ${themeColor} 30%, rgba(100, 110, 100, 0.2)) !important; }
+            
+            .theme-amber-override .border-amber-50 { border-color: ${themeColor}15 !important; }
+            .theme-amber-override .border-amber-100 { border-color: ${themeColor}20 !important; }
+            .theme-amber-override .border-amber-200 { border-color: ${themeColor}30 !important; }
+            .theme-amber-override .border-amber-100\\/40 { border-color: ${themeColor}10 !important; }
+            .theme-amber-override .border-amber-100\\/50 { border-color: ${themeColor}15 !important; }
+            .theme-amber-override .border-amber-100\\/60 { border-color: ${themeColor}20 !important; }
+            .theme-amber-override .border-amber-200\\/50 { border-color: ${themeColor}30 !important; }
+            
+            .theme-amber-override .text-amber-500 { color: ${themeColor} !important; }
+            .theme-amber-override .text-amber-600 { color: ${themeColor} !important; }
+            .theme-amber-override .text-amber-700 { color: ${themeColor} !important; }
+            .theme-amber-override .text-amber-800 { color: ${themeColor} !important; }
+            .theme-amber-override .text-amber-400 { color: ${themeColor} !important; }
+            .theme-amber-override .hover\\:text-amber-600:hover { color: ${themeColor} !important; }
+            .theme-amber-override .hover\\:text-amber-400:hover { color: ${themeColor} !important; }
+            .theme-amber-override .hover\\:text-amber-600 { color: ${themeColor} !important; }
+            
+            .theme-amber-override .text-amber-950 { color: #1e293b !important; }
+            .theme-amber-override .text-amber-900 { color: #334155 !important; }
+            .theme-amber-override .text-amber-900\\/70 { color: #64748b !important; }
+            .theme-amber-override .text-amber-900\\/80 { color: #475569 !important; }
+            .theme-amber-override .text-amber-900\\/60 { color: #94a3b8 !important; }
+            .theme-amber-override .text-amber-100\\/75 { color: #cbd5e1 !important; }
+            .theme-amber-override .text-amber-100\\/70 { color: #cbd5e1 !important; }
+            .theme-amber-override .text-amber-100\\/50 { color: #94a3b8 !important; }
+            
+            /* Footer background blending using color-mix */
+            .theme-amber-override .bg-amber-950 { background-color: color-mix(in srgb, ${themeColor} 8%, #080a08) !important; }
+            .theme-amber-override .border-amber-900\\/40 { border-color: color-mix(in srgb, ${themeColor} 15%, rgba(40, 50, 40, 0.3)) !important; }
+            .theme-amber-override .border-amber-900\\/60 { border-color: color-mix(in srgb, ${themeColor} 20%, rgba(60, 75, 60, 0.4)) !important; }
+            
+            .theme-amber-override *::selection { background-color: ${themeColor}20 !important; color: #1e293b !important; }
+          `}</style>
+        )}
         {/* Navigation */}
         {isNavbarActive && (() => {
           const navStyles = getSectionStyle('navbar');
           return (
             <nav 
-              className={`backdrop-blur-md border-b flex justify-between items-center sticky top-0 z-50 shadow-sm ${isMobile ? 'py-2 px-3 gap-2' : 'py-4 px-6 md:px-12'}`}
+              className={`backdrop-blur-md border-b flex justify-between items-center ${isMobile ? 'relative' : 'relative md:sticky md:top-0'} z-50 shadow-sm ${isMobile ? 'py-2 px-3 gap-2' : 'py-4 px-6 md:px-12'}`}
               style={{
                 backgroundColor: navStyles.backgroundColor || 'rgba(255, 255, 255, 0.8)',
                 borderColor: navStyles.color ? `${navStyles.color}20` : 'rgba(245, 158, 11, 0.2)',
@@ -217,7 +269,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
         })()}
 
         {/* Dynamic Sections */}
-        {layoutSections.map((sec: any) => {
+        {layoutSections.map((sec: any, index: number) => {
           const secType = sec.type || sec.id;
           const secContent = sec.content || c[secType] || {};
           
@@ -235,7 +287,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
               return (
                 <section 
                   id="home" 
-                  key="hero" 
+                  key={sec.id ? `${sec.id}-${index}` : `hero-${index}`} 
                   className={`max-w-6xl mx-auto grid gap-12 items-center ${isMobile ? 'py-8 px-4 grid-cols-1 gap-6' : 'py-16 md:py-24 px-6 md:px-12 grid-cols-1 md:grid-cols-2'}`}
                   style={getSectionStyle(sec.id)}
                 >
@@ -285,7 +337,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
               return (
                 <section 
                   id="about" 
-                  key="about" 
+                  key={sec.id ? `${sec.id}-${index}` : `about-${index}`} 
                   className={`bg-amber-50/50 border-y border-amber-100/40 ${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'}`}
                   style={getSectionStyle(sec.id)}
                 >
@@ -357,7 +409,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
               return (
                 <section 
                   id="products" 
-                  key="products" 
+                  key={sec.id ? `${sec.id}-${index}` : `products-${index}`} 
                   className={`max-w-6xl mx-auto ${isMobile ? 'py-8 px-4 space-y-6' : 'py-20 px-6 md:px-12 space-y-16'}`}
                   style={getSectionStyle(sec.id)}
                 >
@@ -433,7 +485,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
             case 'advantages':
               return (
                 <section 
-                  key="advantages" 
+                  key={sec.id ? `${sec.id}-${index}` : `advantages-${index}`} 
                   className={`bg-amber-900 text-white ${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'}`} 
                   style={getSectionStyle(sec.id, '#451a03', '#ffffff')}
                 >
@@ -464,7 +516,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
             case 'gallery':
               return (
                 <section 
-                  key="gallery" 
+                  key={sec.id ? `${sec.id}-${index}` : `gallery-${index}`} 
                   className={`max-w-6xl mx-auto ${isMobile ? 'py-8 px-4 space-y-6' : 'py-20 px-6 md:px-12 space-y-12'}`}
                   style={getSectionStyle(sec.id)}
                 >
@@ -495,7 +547,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
               return (
                 <section 
                   id="testimonials" 
-                  key="testimonials" 
+                  key={sec.id ? `${sec.id}-${index}` : `testimonials-${index}`} 
                   className={`bg-amber-50/50 border-y border-amber-100/40 ${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'}`}
                   style={getSectionStyle(sec.id)}
                 >
@@ -544,7 +596,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
             case 'cta':
               return (
                 <section 
-                  key="cta" 
+                  key={sec.id ? `${sec.id}-${index}` : `cta-${index}`} 
                   className={`max-w-5xl mx-auto text-center relative overflow-hidden bg-amber-50 border border-amber-200/50 my-12 ${isMobile ? 'py-8 px-4 rounded-[24px] space-y-6 my-6' : 'py-16 md:py-24 px-6 md:px-12 rounded-[40px] space-y-8'}`}
                   style={getSectionStyle(sec.id, '#fffbeb')}
                 >
@@ -579,7 +631,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
             case 'marketplaces':
               return (
                 <section 
-                  key="marketplaces" 
+                  key={sec.id ? `${sec.id}-${index}` : `marketplaces-${index}`} 
                   className={`border-t border-amber-100 bg-white text-center ${isMobile ? 'py-8 px-4' : 'py-12 px-6'}`}
                   style={getSectionStyle(sec.id, '#ffffff')}
                 >
@@ -719,7 +771,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
         const navStyles = getSectionStyle('navbar');
         return (
           <nav 
-            className={`flex justify-between items-center ${isMobile ? 'relative' : 'sticky top-0'} z-50 shadow-sm backdrop-blur-md border-b ${isMobile ? 'py-2 px-3 gap-2' : 'py-4 px-6 md:px-12'}`}
+            className={`flex justify-between items-center ${isMobile ? 'relative' : 'relative md:sticky md:top-0'} z-50 shadow-sm backdrop-blur-md border-b ${isMobile ? 'py-2 px-3 gap-2' : 'py-4 px-6 md:px-12'}`}
             style={{
               backgroundColor: navStyles.backgroundColor || (isDarkTheme ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)'),
               borderColor: navStyles.color ? `${navStyles.color}20` : (isDarkTheme ? 'rgba(30, 41, 59, 0.8)' : 'rgba(241, 245, 249, 0.8)'),
@@ -769,7 +821,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
       })()}
 
       {/* Dynamic Sections */}
-      {layoutSections.map((sec: any) => {
+      {layoutSections.map((sec: any, index: number) => {
         const secType = sec.type || sec.id;
         const secContent = sec.content || c[secType] || {};
         
@@ -787,7 +839,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
             return (
               <section 
                 id="home" 
-                key="hero" 
+                key={sec.id ? `${sec.id}-${index}` : `hero-${index}`} 
                 className={`max-w-6xl mx-auto grid gap-12 items-center ${isMobile ? 'py-8 px-4 grid-cols-1 gap-6' : 'py-16 md:py-24 px-6 md:px-12 grid-cols-1 md:grid-cols-2'}`}
                 style={getSectionStyle(sec.id)}
               >
@@ -837,7 +889,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
             return (
               <section 
                 id="about" 
-                key="about" 
+                key={sec.id ? `${sec.id}-${index}` : `about-${index}`} 
                 className={`border-y ${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'}`} 
                 style={getSectionStyle(sec.id, primaryColor, '#ffffff')}
               >
@@ -888,7 +940,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
             return (
               <section 
                 id="products" 
-                key="products" 
+                key={sec.id ? `${sec.id}-${index}` : `products-${index}`} 
                 className={`max-w-6xl mx-auto ${isMobile ? 'py-8 px-4 space-y-6' : 'py-20 px-6 md:px-12 space-y-16'}`}
                 style={getSectionStyle(sec.id)}
               >
@@ -964,7 +1016,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
           case 'advantages':
             return (
               <section 
-                key="advantages" 
+                key={sec.id ? `${sec.id}-${index}` : `advantages-${index}`} 
                 className={`${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'}`} 
                 style={getSectionStyle(sec.id, primaryColor, '#ffffff')}
               >
@@ -995,7 +1047,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
           case 'gallery':
             return (
               <section 
-                key="gallery" 
+                key={sec.id ? `${sec.id}-${index}` : `gallery-${index}`} 
                 className={`max-w-6xl mx-auto ${isMobile ? 'py-8 px-4 space-y-6' : 'py-20 px-6 md:px-12 space-y-12'}`}
                 style={getSectionStyle(sec.id)}
               >
@@ -1026,7 +1078,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
             return (
               <section 
                 id="testimonials" 
-                key="testimonials" 
+                key={sec.id ? `${sec.id}-${index}` : `testimonials-${index}`} 
                 className={`border-y ${isMobile ? 'py-8 px-4' : 'py-20 px-6 md:px-12'}`} 
                 style={getSectionStyle(sec.id, primaryColor, '#ffffff')}
               >
@@ -1075,7 +1127,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
           case 'cta':
             return (
               <section 
-                key="cta" 
+                key={sec.id ? `${sec.id}-${index}` : `cta-${index}`} 
                 className={`max-w-5xl mx-auto text-center relative overflow-hidden border my-12 ${cardColor} ${isMobile ? 'py-8 px-4 rounded-[24px] space-y-6 my-6' : 'py-16 md:py-24 px-6 md:px-12 rounded-[40px] space-y-8'}`}
                 style={getSectionStyle(sec.id)}
               >
@@ -1110,7 +1162,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
           case 'marketplaces':
             return (
               <section 
-                key="marketplaces" 
+                key={sec.id ? `${sec.id}-${index}` : `marketplaces-${index}`} 
                 className={`border-t text-center ${isMobile ? 'py-8 px-4' : 'py-12 px-6'} ${isDarkTheme ? 'bg-[#0f172a] border-slate-800' : 'bg-white border-slate-200'}`}
                 style={getSectionStyle(sec.id)}
               >

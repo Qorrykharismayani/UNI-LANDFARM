@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { copyToClipboard } from '../../lib/clipboard';
 import { motion } from 'motion/react';
 import { 
   ArrowLeft, 
@@ -107,16 +108,16 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
   ];
 
   const paymentMethods = [
-    { id: 'gopay', name: 'GoPay', group: 'DOMPET DIGITAL (E-WALLET)', color: '#00AED6' },
-    { id: 'ovo', name: 'OVO', group: 'DOMPET DIGITAL (E-WALLET)', color: '#4C2A86' },
-    { id: 'dana', name: 'DANA', group: 'DOMPET DIGITAL (E-WALLET)', color: '#108EE9' },
-    { id: 'shopeepay', name: 'ShopeePay', group: 'DOMPET DIGITAL (E-WALLET)', color: '#EE4D2D' },
-    { id: 'bca_va', name: 'BCA VA', group: 'VIRTUAL ACCOUNT', color: '#0060AF' },
-    { id: 'mandiri_va', name: 'Mandiri VA', group: 'VIRTUAL ACCOUNT', color: '#FFC425' },
-    { id: 'bni_va', name: 'BNI VA', group: 'VIRTUAL ACCOUNT', color: '#005E6A' },
-    { id: 'bri_va', name: 'BRI VA', group: 'VIRTUAL ACCOUNT', color: '#00529C' },
-    { id: 'bca_mobile', name: 'BCA Mobile', group: 'MOBILE BANKING', color: '#0060AF' },
-    { id: 'livin_mandiri', name: "Livin' by Mandiri", group: 'MOBILE BANKING', color: '#FFC425' },
+    { id: 'gopay', name: 'GoPay', group: 'DOMPET DIGITAL (E-WALLET)', color: '#00AED6', logo: '/gopay.jpg' },
+    { id: 'ovo', name: 'OVO', group: 'DOMPET DIGITAL (E-WALLET)', color: '#4C2A86', logo: '/ovo.jpg' },
+    { id: 'dana', name: 'DANA', group: 'DOMPET DIGITAL (E-WALLET)', color: '#108EE9', logo: '/dana.jpg' },
+    { id: 'shopeepay', name: 'ShopeePay', group: 'DOMPET DIGITAL (E-WALLET)', color: '#EE4D2D', logo: '/shopeepay.jpg' },
+    { id: 'bca_va', name: 'BCA VA', group: 'VIRTUAL ACCOUNT', color: '#0060AF', logo: '/bca.jpg' },
+    { id: 'mandiri_va', name: 'Mandiri VA', group: 'VIRTUAL ACCOUNT', color: '#FFC425', logo: '/mandiri.jpg' },
+    { id: 'bni_va', name: 'BNI VA', group: 'VIRTUAL ACCOUNT', color: '#005E6A', logo: '/bni.jpg' },
+    { id: 'bri_va', name: 'BRI VA', group: 'VIRTUAL ACCOUNT', color: '#00529C', logo: '/bri.jpg' },
+    { id: 'bca_mobile', name: 'BCA Mobile', group: 'MOBILE BANKING', color: '#0060AF', logo: '/bca_mobile.png' },
+    { id: 'livin_mandiri', name: "Livin' by Mandiri", group: 'MOBILE BANKING', color: '#FFC425', logo: '/livin.jpg' },
   ];
 
   const filteredTransactions = transactions.filter(tx => {
@@ -355,8 +356,25 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
                             {selectedPayment === method.name && (
                               <div className="absolute top-0 right-0 w-7 h-7 bg-brand-blue flex items-center justify-center rounded-bl-lg"><CheckCircle2 className="w-3.5 h-3.5 text-white" /></div>
                             )}
-                            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-[7px] font-black uppercase shrink-0 transition-transform group-hover:scale-105 shadow-md" style={{ backgroundColor: method.color, color: isTextDark(method.color) ? '#1e293b' : '#fff' }}>
-                              {method.name.split(' ')[0].substring(0, 6)}
+                            <div 
+                              className="w-16 h-12 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 shadow-sm overflow-hidden bg-white border border-slate-100/80" 
+                              style={{ 
+                                backgroundColor: method.logo ? '#fff' : method.color, 
+                                color: isTextDark(method.color) ? '#1e293b' : '#fff' 
+                              }}
+                            >
+                              {method.logo ? (
+                                <img 
+                                  src={method.logo} 
+                                  alt={method.name} 
+                                  className={`w-full h-full object-contain ${method.id.startsWith('bca') ? 'scale-[1.6]' : 'p-1'}`} 
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).style.display = 'none';
+                                  }}
+                                />
+                              ) : (
+                                <span className="text-[9px] font-black uppercase tracking-wider">{method.name.split(' ')[0].substring(0, 6)}</span>
+                              )}
                             </div>
                             <span className={`text-lg font-bold text-left leading-tight ${selectedPayment === method.name ? 'text-brand-blue' : 'text-slate-600 dark:text-slate-400'}`}>{method.name}</span>
                           </button>
@@ -584,7 +602,20 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
                       <div className="space-y-6">
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 bg-brand-blue/10 rounded-xl flex items-center justify-center"><CreditCard className="w-6 h-6 text-brand-blue" /></div>
+                            {(() => {
+                              const methodObj = paymentMethods.find(m => m.name === selectedPayment);
+                              return methodObj?.logo ? (
+                                <div className="w-20 h-14 rounded-xl flex items-center justify-center overflow-hidden bg-white shadow-sm border border-slate-200 shrink-0">
+                                  <img 
+                                    src={methodObj.logo} 
+                                    alt={selectedPayment} 
+                                    className={`w-full h-full object-contain ${methodObj.id.startsWith('bca') ? 'scale-[1.6]' : 'p-1.5'}`} 
+                                  />
+                                </div>
+                              ) : (
+                                <div className="w-20 h-14 bg-brand-blue/10 rounded-xl flex items-center justify-center shrink-0"><CreditCard className="w-8 h-8 text-brand-blue" /></div>
+                              );
+                            })()}
                             <div>
                               <h3 className="text-xl font-black text-slate-900 dark:text-white">Transfer VA</h3>
                               <p className="text-sm font-medium text-slate-500">{selectedPayment}</p>
@@ -602,7 +633,7 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
                             <div className="flex items-center justify-center gap-3">
                               <p className="text-2xl font-mono font-black text-brand-blue tracking-widest">{vaNumber}</p>
                               <button 
-                                onClick={() => { navigator.clipboard.writeText(vaNumber.replace(/\s/g, '')); showNotification('Nomor VA berhasil disalin!', 'success'); }}
+                                onClick={() => { copyToClipboard(vaNumber.replace(/\s/g, '')); showNotification('Nomor VA berhasil disalin!', 'success'); }}
                                 className="p-2 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-all cursor-pointer" 
                                 title="Salin"
                               >
@@ -616,7 +647,7 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
                             <div className="flex items-center justify-center gap-3">
                               <p className="text-2xl font-black text-slate-900 dark:text-white">Rp {selectedPackage?.price.toLocaleString()}</p>
                               <button 
-                                onClick={() => { navigator.clipboard.writeText(selectedPackage?.price.toString() || ''); showNotification('Total tagihan berhasil disalin!', 'success'); }}
+                                onClick={() => { copyToClipboard(selectedPackage?.price.toString() || ''); showNotification('Total tagihan berhasil disalin!', 'success'); }}
                                 className="p-2 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-all cursor-pointer" 
                                 title="Salin"
                               >

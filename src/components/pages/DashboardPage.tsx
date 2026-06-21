@@ -1,4 +1,5 @@
 import React from 'react';
+import { copyToClipboard } from '../../lib/clipboard';
 import { Globe, Eye, Zap, Plus, ChevronRight, Rocket, ArrowRight, CheckCircle2, FileText } from 'lucide-react';
 
 interface DashboardPageProps {
@@ -161,7 +162,7 @@ const DashboardPage = ({
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                navigator.clipboard.writeText(`${window.location.origin}/site/${project.slug}`);
+                                copyToClipboard(`${window.location.origin}/site/${project.slug}`);
                                 showNotification('Tautan berhasil disalin!', 'success');
                               }}
                               className="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-white py-2 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm transition-all flex items-center justify-center gap-1 cursor-pointer"

@@ -73,7 +73,7 @@ const SignupPage = ({ setView, setUser, prefilledEmail, setPrefilledEmail, syste
       >
         {/* Logo */}
         <div className="flex justify-center mb-6">
-          {systemSettings?.logo ? (
+          {systemSettings?.logo && (systemSettings.logo.startsWith('http') || systemSettings.logo.startsWith('/')) ? (
             <img src={systemSettings.logo.startsWith('/') ? `${systemSettings.logo}?v=8` : systemSettings.logo} alt="Logo" className="h-[105px] object-contain" />
           ) : (
             <img src="/logo.png?v=8" alt="Logo" className="h-[105px] object-contain" />

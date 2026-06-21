@@ -2,8 +2,9 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getSessionFromCookies } from '@/lib/auth';
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const session = getSessionFromCookies(request.headers.get('cookie'));
     if (!session || session.role !== 'ADMIN') {
       return NextResponse.json({ success: false, message: 'Tidak diotorisasi. Khusus admin.' }, { status: 403 });
@@ -16,7 +17,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     }
 
     const user = await prisma.user.update({
-      where: { id: parseInt(params.id, 10) },
+      where: { id: parseInt(id, 10) },
       data: { role, status }
     });
 
@@ -26,8 +27,9 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const session = getSessionFromCookies(request.headers.get('cookie'));
     if (!session || session.role !== 'ADMIN') {
       return NextResponse.json({ success: false, message: 'Tidak diotorisasi. Khusus admin.' }, { status: 403 });
@@ -35,7 +37,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
 
     // Attempt to delete user. Will throw if foreign keys restrict it, which is fine for now.
     await prisma.user.delete({
-      where: { id: parseInt(params.id, 10) }
+      where: { id: parseInt(id, 10) }
     });
 
     return NextResponse.json({ success: true, message: 'Pengguna berhasil dihapus.' });

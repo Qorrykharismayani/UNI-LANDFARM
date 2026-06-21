@@ -13,6 +13,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 import TemplateRenderer from './TemplateRenderer';
+import { copyToClipboard } from '../lib/clipboard';
 
 interface PreviewLandingPageProps {
   pageId: string;
@@ -92,7 +93,7 @@ export default function PreviewLandingPage({ pageId, onBack, onPublishSuccess }:
 
   const handleShare = () => {
     const publicUrl = `${window.location.origin}/site/${pageData?.slug || ''}`;
-    navigator.clipboard.writeText(publicUrl);
+    copyToClipboard(publicUrl);
     triggerToast('Link pratinjau berhasil disalin ke clipboard!');
   };
 
@@ -234,6 +235,8 @@ export default function PreviewLandingPage({ pageId, onBack, onPublishSuccess }:
             <TemplateRenderer 
               templateId={pageData?.template?.id || pageData?.template?.name} 
               contentJson={contentJson} 
+              isMobile={previewDevice === 'mobile'}
+              themeColor={pageData?.themeColor}
             />
           </div>
         </div>

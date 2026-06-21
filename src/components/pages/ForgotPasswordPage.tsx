@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { copyToClipboard } from '../../lib/clipboard';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Mail, 
@@ -136,7 +137,7 @@ const ForgotPasswordPage = ({ setView, prefilledEmail = '', setPrefilledEmail, s
 
         {/* Logo */}
         <div className="flex justify-center mb-6 mt-4">
-          {systemSettings?.logo ? (
+          {systemSettings?.logo && (systemSettings.logo.startsWith('http') || systemSettings.logo.startsWith('/')) ? (
             <img src={systemSettings.logo.startsWith('/') ? `${systemSettings.logo}?v=8` : systemSettings.logo} alt="Logo" className="h-[105px] object-contain" />
           ) : (
             <img src="/logo.png?v=8" alt="Logo" className="h-[105px] object-contain" />
@@ -395,7 +396,7 @@ const ForgotPasswordPage = ({ setView, prefilledEmail = '', setPrefilledEmail, s
                 <button
                   onClick={async () => {
                     try {
-                      await navigator.clipboard.writeText(devToken);
+                      await copyToClipboard(devToken);
                       setCopied(true);
                       setTimeout(() => setCopied(false), 2000);
                     } catch (err) {}

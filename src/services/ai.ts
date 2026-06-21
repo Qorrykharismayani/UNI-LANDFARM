@@ -5,6 +5,7 @@ export interface GeneratedWebsiteDraft {
   url: string;
   sections: string[];
   themeColor: string;
+  category?: string;
 }
 
 export const generateWebsiteDraft = async (

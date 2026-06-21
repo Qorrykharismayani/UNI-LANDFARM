@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { copyToClipboard } from '../../lib/clipboard';
 import { 
   LayoutDashboard,
   User,
@@ -999,7 +1000,7 @@ const AdminPanelPage = ({
                                 <button
                                   onClick={() => {
                                     const origin = typeof window !== 'undefined' ? window.location.origin : '';
-                                    navigator.clipboard.writeText(`${origin}/site/${lp.slug}`);
+                                    copyToClipboard(`${origin}/site/${lp.slug}`);
                                     showNotification('URL disalin!', 'success');
                                   }}
                                   className="px-2.5 py-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-200 rounded-lg text-[9px] font-black uppercase tracking-wider transition-colors cursor-pointer"

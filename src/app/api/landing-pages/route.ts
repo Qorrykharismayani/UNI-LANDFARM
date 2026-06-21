@@ -16,7 +16,8 @@ export async function GET(request: Request) {
       pages = await prisma.landingPage.findMany({
         include: {
           user: { select: { name: true, email: true } },
-          template: { select: { name: true, category: true, thumbnail: true } }
+          template: { select: { name: true, category: true, thumbnail: true } },
+          content: true
         },
         orderBy: { createdAt: 'desc' }
       });
@@ -25,34 +26,50 @@ export async function GET(request: Request) {
         where: { userId: session.userId },
         include: {
           user: { select: { name: true, email: true } },
-          template: { select: { name: true, category: true, thumbnail: true } }
+          template: { select: { name: true, category: true, thumbnail: true } },
+          content: true
         },
         orderBy: { createdAt: 'desc' }
       });
     }
 
-    const formattedPages = pages.map((p) => ({
-      id: p.id,
-      userId: p.userId,
-      // Nested objects for admin monitoring panel
-      user: (p as any).user ? { name: (p as any).user.name, email: (p as any).user.email } : { name: 'Tidak Diketahui' },
-      template: { name: p.template.name, category: p.template.category, thumbnail: p.template.thumbnail },
-      // Flattened fields for backward compatibility (user dashboard)
-      userName: (p as any).user?.name || 'Sarah Anderson',
-      name: p.businessName,
-      businessName: p.businessName,
-      title: p.title,
-      createdDate: p.createdAt.toISOString().split('T')[0],
-      createdAt: p.createdAt.toISOString(),
-      publishedAt: p.publishedAt ? p.publishedAt.toISOString() : null,
-      status: p.status,
-      views: p.views,
-      type: p.template.category,
-      image: p.template.thumbnail,
-      slug: p.slug,
-      url: p.publicUrl,
-      adminNote: null
-    }));
+    const formattedPages = pages.map((p) => {
+      const contentJson = (p.content?.contentJson as any) || {};
+      
+      // Determine category: priority is p.category -> contentJson.category -> p.template.category
+      const displayCategory = p.category || contentJson.category || p.template.category;
+      
+      // Determine thumbnail: priority is contentJson.hero?.banner -> contentJson.logo -> p.template.thumbnail
+      let displayImage = p.template.thumbnail;
+      if (contentJson.hero && contentJson.hero.banner) {
+        displayImage = contentJson.hero.banner;
+      } else if (contentJson.logo) {
+        displayImage = contentJson.logo;
+      }
+
+      return {
+        id: p.id,
+        userId: p.userId,
+        // Nested objects for admin monitoring panel
+        user: (p as any).user ? { name: (p as any).user.name, email: (p as any).user.email } : { name: 'Tidak Diketahui' },
+        template: { name: p.template.name, category: p.template.category, thumbnail: p.template.thumbnail },
+        // Flattened fields for backward compatibility (user dashboard)
+        userName: (p as any).user?.name || 'Sarah Anderson',
+        name: p.businessName,
+        businessName: p.businessName,
+        title: p.title,
+        createdDate: p.createdAt.toISOString().split('T')[0],
+        createdAt: p.createdAt.toISOString(),
+        publishedAt: p.publishedAt ? p.publishedAt.toISOString() : null,
+        status: p.status,
+        views: p.views,
+        type: displayCategory,
+        image: displayImage,
+        slug: p.slug,
+        url: p.publicUrl,
+        adminNote: null
+      };
+    });
 
     return NextResponse.json({ success: true, message: 'Berhasil', data: formattedPages });
   } catch (error: any) {

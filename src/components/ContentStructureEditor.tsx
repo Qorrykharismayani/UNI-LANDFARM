@@ -48,6 +48,7 @@ import {
 } from 'lucide-react';
 import TemplateRenderer from './TemplateRenderer';
 import { generateEditorCopy } from '../services/ai';
+import { copyToClipboard } from '../lib/clipboard';
 
 const getSectionIcon = (type: string, active: boolean) => {
   const colorClass = active ? "text-brand-blue" : "text-slate-500";
@@ -195,7 +196,7 @@ const getSectionCompleteness = (type: string, content: any) => {
 const getSectionDefaultContent = (type: string, businessName = 'Uni-LandFarm', pageTitle = 'Platform Landing Page Mikro Berbasis AI CMS') => {
   switch (type) {
     case 'logo': return '/uploads/1781793939040-LOGO_Uni-LandFarm-removebg-preview-(1).png';
-    case 'navbar': return { brand: businessName, items: [{ id: 'home', label: 'Home' }, { id: 'about', label: 'Tentang' }, { id: 'products', label: 'Produk' }, { id: 'testimonials', label: 'Testimoni' }, { id: 'contact', label: 'Kontak' }] };
+    case 'navbar': return { brand: businessName, items: [{ id: 'home', label: 'Beranda' }, { id: 'about', label: 'Tentang' }, { id: 'products', label: 'Produk' }, { id: 'testimonials', label: 'Testimoni' }, { id: 'contact', label: 'Kontak' }] };
     case 'hero': return { headline: pageTitle || 'Kembangkan Bisnis Anda', subheadline: 'Deskripsi singkat layanan/produk Anda.', banner: '', cta: 'Hubungi Kami' };
     case 'about': return { description: '', profile: '', story: '' };
     case 'products': return [];
@@ -355,7 +356,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
   const [draggedSectionIndex, setDraggedSectionIndex] = useState<number | null>(null);
   const [sections, setSections] = useState<any[]>([
     { id: 'logo', type: 'logo', title: 'Logo Website', isActive: true, order: 1, content: '/uploads/1781793939040-LOGO_Uni-LandFarm-removebg-preview-(1).png' },
-    { id: 'navbar', type: 'navbar', title: 'Menu Navigasi', isActive: true, order: 2, content: { brand: 'Uni-LandFarm', items: [{ id: 'home', label: 'Home' }, { id: 'about', label: 'Tentang' }, { id: 'products', label: 'Produk' }, { id: 'testimonials', label: 'Testimoni' }, { id: 'contact', label: 'Kontak' }] } },
+    { id: 'navbar', type: 'navbar', title: 'Menu Navigasi', isActive: true, order: 2, content: { brand: 'Uni-LandFarm', items: [{ id: 'home', label: 'Beranda' }, { id: 'about', label: 'Tentang' }, { id: 'products', label: 'Produk' }, { id: 'testimonials', label: 'Testimoni' }, { id: 'contact', label: 'Kontak' }] } },
     { id: 'hero', type: 'hero', title: 'Hero Banner', isActive: true, order: 3, content: { headline: 'Kembangkan Bisnis Anda', subheadline: 'Deskripsi singkat layanan/produk Anda.', banner: '', cta: 'Hubungi Kami' } },
     { id: 'about', type: 'about', title: 'Tentang Usaha', isActive: true, order: 4, content: { description: '', profile: '', story: '' } },
     { id: 'products', type: 'products', title: 'Produk & Layanan', isActive: true, order: 5, content: [] },
@@ -676,7 +677,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
             name: s.title
           })),
           logo: getSectionContentFromMapped(mappedSections, 'logo', initialContent.logo || ''),
-          navbar: getSectionContentFromMapped(mappedSections, 'navbar', initialContent.navbar || { brand: page.businessName || 'Uni-LandFarm', items: [{ id: 'home', label: 'Home' }, { id: 'about', label: 'Tentang' }, { id: 'products', label: 'Produk' }, { id: 'testimonials', label: 'Testimoni' }, { id: 'contact', label: 'Kontak' }] }),
+          navbar: getSectionContentFromMapped(mappedSections, 'navbar', initialContent.navbar || { brand: page.businessName || 'Uni-LandFarm', items: [{ id: 'home', label: 'Beranda' }, { id: 'about', label: 'Tentang' }, { id: 'products', label: 'Produk' }, { id: 'testimonials', label: 'Testimoni' }, { id: 'contact', label: 'Kontak' }] }),
           hero: getSectionContentFromMapped(mappedSections, 'hero', initialContent.hero || { headline: page.title || 'Kembangkan Bisnis Anda', subheadline: 'Deskripsi singkat layanan/produk Anda.', banner: '', cta: 'Hubungi Kami' }),
           about: getSectionContentFromMapped(mappedSections, 'about', initialContent.about || { description: '', profile: '', story: '' }),
           products: getSectionContentFromMapped(mappedSections, 'products', Array.isArray(initialContent.products) ? initialContent.products : []),
@@ -1407,7 +1408,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                 />
                 <button
                   onClick={() => {
-                    navigator.clipboard.writeText(publicSiteUrl);
+                    copyToClipboard(publicSiteUrl);
                     setIsUrlCopied(true);
                     triggerToast('URL disalin ke clipboard!');
                     setTimeout(() => setIsUrlCopied(false), 2000);
@@ -1628,7 +1629,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                 </div>
                 <button
                   onClick={() => {
-                    navigator.clipboard.writeText(publicSiteUrl);
+                    copyToClipboard(publicSiteUrl);
                     setIsUrlCopied(true);
                     triggerToast('Link disalin ke clipboard!');
                     setTimeout(() => setIsUrlCopied(false), 2000);

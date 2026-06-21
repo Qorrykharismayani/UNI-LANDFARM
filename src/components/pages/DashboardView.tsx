@@ -56,8 +56,8 @@ interface DashboardFooterProps {
 }
 
 export const DashboardFooter = ({ setView, setSubView, systemSettings }: DashboardFooterProps) => (
-  <footer className="py-12 px-6 print:py-4 border-t border-slate-100 dark:border-slate-800 print:border-none bg-white dark:bg-slate-950 print:bg-transparent relative overflow-hidden">
-    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-slate-200 dark:via-slate-700 to-transparent print:hidden"></div>
+  <footer className="py-12 px-6 print:hidden border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 relative overflow-hidden">
+    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-slate-200 dark:via-slate-700 to-transparent"></div>
 
     <div className="max-w-6xl mx-auto relative z-10 print:flex print:flex-col print:items-center print:-mt-24">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 mb-8 w-full print:block print:mb-2 print:text-center">
@@ -198,7 +198,8 @@ export const DashboardView = ({
     category: 'E-Commerce / Toko Online',
     template: 'Modern Dark Pro (Recommended)',
     color: '#3B82F6',
-    description: ''
+    description: '',
+    logo: ''
   });
 
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
@@ -594,6 +595,22 @@ export const DashboardView = ({
       const finalDraft = {
         ...draft,
         isAiGenerated: true,
+        logo: '',
+        navbar: {
+          brand: 'Situs Bisnis AI',
+          items: [
+            { id: 'home', label: 'Beranda' },
+            { id: 'about', label: 'Tentang' },
+            { id: 'products', label: 'Produk' },
+            { id: 'testimonials', label: 'Testimoni' },
+            { id: 'contact', label: 'Kontak' }
+          ]
+        },
+        footer: {
+          logo: '',
+          businessName: 'Situs Bisnis AI',
+          copyright: `© 2026 Situs Bisnis AI. All rights reserved.`
+        },
         sections: ['Hero Section', 'Tentang Kami', 'Produk/Layanan', 'Galeri', 'CTA', 'Footer']
       };
       setGeneratedDraft(finalDraft);
@@ -605,9 +622,10 @@ export const DashboardView = ({
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             templateId: 1,
-            title: 'Situs Bisnis AI',
-            businessName: 'Situs Bisnis AI',
+            title: draft.headline || 'Situs Bisnis AI',
+            businessName: draft.headline || 'Situs Bisnis AI',
             slug: 'situs-bisnis-ai-' + Math.floor(Math.random() * 1000),
+            category: draft.category || 'General',
             contentJson: finalDraft,
             tokenCost: 1500
           })
@@ -631,7 +649,23 @@ export const DashboardView = ({
         url: 'uni-landfarm.ai/preview-site',
         sections: ['Hero Section', 'Tentang Kami', 'Produk/Layanan', 'Galeri', 'CTA', 'Footer'],
         themeColor: '#3b82f6',
-        isAiGenerated: true
+        isAiGenerated: true,
+        logo: '',
+        navbar: {
+          brand: 'Situs Bisnis AI',
+          items: [
+            { id: 'home', label: 'Beranda' },
+            { id: 'about', label: 'Tentang' },
+            { id: 'products', label: 'Produk' },
+            { id: 'testimonials', label: 'Testimoni' },
+            { id: 'contact', label: 'Kontak' }
+          ]
+        },
+        footer: {
+          logo: '',
+          businessName: 'Situs Bisnis AI',
+          copyright: `© 2026 Situs Bisnis AI. All rights reserved.`
+        }
       };
       setGeneratedDraft(defaultDraft);
       setSelectedColor('#3b82f6');
@@ -645,6 +679,7 @@ export const DashboardView = ({
             title: 'Situs Bisnis AI',
             businessName: 'Situs Bisnis AI',
             slug: 'situs-bisnis-ai-' + Math.floor(Math.random() * 1000),
+            category: 'General',
             contentJson: defaultDraft,
             tokenCost: 1500
           })
@@ -709,6 +744,34 @@ export const DashboardView = ({
       const finalDraft = {
         ...draft,
         isAiGenerated: true,
+        logo: manualData.logo || '',
+        themeColor: manualData.color,
+        navbar: {
+          brand: manualData.name,
+          items: [
+            { id: 'home', label: 'Beranda' },
+            { id: 'about', label: 'Tentang' },
+            { id: 'products', label: 'Produk' },
+            { id: 'testimonials', label: 'Testimoni' },
+            { id: 'contact', label: 'Kontak' }
+          ]
+        },
+        hero: {
+          headline: draft.headline || `Selamat Datang di ${manualData.name}`,
+          subheadline: draft.subheadline || manualData.description,
+          banner: '',
+          cta: draft.cta || 'Mulai Sekarang'
+        },
+        about: {
+          description: manualData.description,
+          profile: `Kami adalah penyedia layanan terpercaya untuk kategori ${manualData.category}.`,
+          story: `Didirikan dengan visi untuk mempermudah kebutuhan konsumen, ${manualData.name} berkomitmen untuk terus memberikan kualitas terbaik.`
+        },
+        footer: {
+          logo: manualData.logo || '',
+          businessName: manualData.name,
+          copyright: `© 2026 ${manualData.name}. All rights reserved.`
+        },
         sections: ['Hero Section', 'Tentang Kami', 'Produk/Layanan', 'Galeri', 'CTA', 'Footer']
       };
       setGeneratedDraft(finalDraft);
@@ -753,7 +816,34 @@ export const DashboardView = ({
         url: manualData.subdomain + '.unilandfarm.ai',
         sections: ['Hero Section', 'Tentang Kami', 'Produk/Layanan', 'Galeri', 'CTA', 'Footer'],
         themeColor: manualData.color,
-        isAiGenerated: true
+        isAiGenerated: true,
+        logo: manualData.logo || '',
+        navbar: {
+          brand: manualData.name,
+          items: [
+            { id: 'home', label: 'Beranda' },
+            { id: 'about', label: 'Tentang' },
+            { id: 'products', label: 'Produk' },
+            { id: 'testimonials', label: 'Testimoni' },
+            { id: 'contact', label: 'Kontak' }
+          ]
+        },
+        hero: {
+          headline: `Selamat Datang di ${manualData.name}`,
+          subheadline: manualData.description,
+          banner: '',
+          cta: 'Mulai Sekarang'
+        },
+        about: {
+          description: manualData.description,
+          profile: `Kami adalah penyedia layanan terpercaya untuk kategori ${manualData.category}.`,
+          story: `Didirikan dengan visi untuk mempermudah kebutuhan konsumen, ${manualData.name} berkomitmen untuk terus memberikan kualitas terbaik.`
+        },
+        footer: {
+          logo: manualData.logo || '',
+          businessName: manualData.name,
+          copyright: `© 2026 ${manualData.name}. All rights reserved.`
+        }
       };
       setGeneratedDraft(defaultDraft);
       setSelectedColor(manualData.color);
@@ -1502,8 +1592,8 @@ export const DashboardView = ({
           <div className="fixed -bottom-48 left-1/2 -translate-x-1/2 w-full max-w-[1200px] h-96 bg-brand-blue/15 blur-[120px] pointer-events-none opacity-40 dark:opacity-20 z-0"></div>
 
           {/* SECTION 1: PERSISTENT HEADER BAR */}
-          <header className="print:static print:shadow-none print:border-none print:bg-transparent fixed top-0 left-0 right-0 z-50 bg-white dark:bg-[#020617] h-[72px] flex items-center justify-between px-8 shadow-sm dark:shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all duration-500">
-            <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-brand-blue/30 to-transparent opacity-0 dark:opacity-100 print:hidden"></div>
+          <header className="print:hidden fixed top-0 left-0 right-0 z-50 bg-white dark:bg-[#020617] h-[72px] flex items-center justify-between px-8 shadow-sm dark:shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all duration-500">
+            <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-brand-blue/30 to-transparent opacity-0 dark:opacity-100"></div>
             <div className="flex items-center gap-4">
               <div
                 className="cursor-pointer hover:scale-110 active:scale-95 transition-all"
@@ -1573,11 +1663,11 @@ export const DashboardView = ({
             </div>
           </header>
 
-          <div className="flex flex-col flex-grow pt-[72px]">
+          <div className="flex flex-col flex-grow pt-[72px] print:pt-0">
             {/* Row Container for Sidebar + Content */}
             <div className="flex flex-1 w-full">
               {/* SECTION 2: ENRICHED SIDEBAR */}
-              <aside className="w-[280px] bg-white dark:bg-slate-950 border-r border-slate-100 dark:border-slate-900 flex flex-col hidden lg:flex transition-colors duration-300 sticky top-[72px] h-[calc(100vh-72px)] overflow-y-auto z-20">
+              <aside className="w-[280px] bg-white dark:bg-slate-950 border-r border-slate-100 dark:border-slate-900 flex flex-col hidden lg:flex transition-colors duration-300 sticky top-[72px] h-[calc(100vh-72px)] overflow-y-auto z-20 print:hidden font-sans text-slate-800 dark:text-slate-100">
                 <nav className="flex-1 px-4 space-y-3 py-6">
                   {menuItems.map((item, i) => (
                     <button

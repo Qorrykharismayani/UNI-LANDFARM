@@ -11,6 +11,7 @@ export interface GeneratedWebsiteDraft {
   url: string;
   sections: string[];
   themeColor: string;
+  category?: string;
 }
 
 export const generateWebsiteDraft = async (
@@ -24,6 +25,8 @@ export const generateWebsiteDraft = async (
   Category: ${category}
   Description: ${description}
   Template Theme: ${templateName}
+  
+  Language Rule: The main titles/headlines (such as the 'headline' field) must be in English. All other details, descriptions, subheadlines, and body texts (such as the 'subheadline' field) must be in Indonesian.
   
   Return a professional and creative plan in JSON. Ensure the headlines, subheadlines, and theme color perfectly match the aesthetics of the chosen template theme (e.g. dark and neon tones for Modern Dark, clean and bright for Light Agency, warm earth and neutral tones for Minimalist, bold high-contrast for Bold Storefront).`;
 
@@ -43,9 +46,10 @@ export const generateWebsiteDraft = async (
             type: Type.ARRAY,
             items: { type: Type.STRING }
           },
-          themeColor: { type: Type.STRING, description: "hex color code" }
+          themeColor: { type: Type.STRING, description: "hex color code" },
+          category: { type: Type.STRING, description: "business category in Indonesian (e.g. Kuliner, Fashion, Teknologi, Kesehatan, Jasa, Kecantikan, Otomotif, Hobi, dll.)" }
         },
-        required: ["headline", "subheadline", "cta", "url", "sections", "themeColor"]
+        required: ["headline", "subheadline", "cta", "url", "sections", "themeColor", "category"]
       }
     }
   });
