@@ -184,18 +184,18 @@ const AdminPanelPage = ({
           userPageJson: fetched.userPageJson ? {
             welcomeTitle: fetched.userPageJson.welcomeTitle || "Halo, Pebisnis Modern!",
             welcomeSubtitle: fetched.userPageJson.welcomeSubtitle || "Siap untuk mengotomatisasi ekosistem digital Anda hari ini?",
-            pricing: fetched.userPageJson.pricing || [
-              { name: 'PAKET BASIC', price: 'Rp 75.000', description: 'Untuk kebutuhan desain dasar.', features: ['1 prompt', 'Rasio 16:9', '1 konsep infografis', '500-800 token'], buttonText: 'BELI 800 TOKEN', isPopular: false, gradient: 'from-blue-500 to-cyan-400' },
-              { name: 'PAKET STANDARD', price: 'Rp 250.000', description: 'Pilihan terbaik untuk hasil profesional.', features: ['3 alternatif desain', 'Prompt detail', 'Branding sesuai website', 'Struktur visual profesional', '1.000-2.500 token'], buttonText: 'BELI 2500 TOKEN', isPopular: true, gradient: 'from-amber-400 to-orange-500' },
-              { name: 'PAKET PREMIUM', price: 'Rp 500.000', description: 'Solusi terlengkap untuk berbagai format visual.', features: ['Menggunakan screenshot website sebagai referensi', 'Prompt sangat detail', 'Storytelling visual', 'Layout presentasi/lomba/skripsi', '3.000-5.000 token', 'Beberapa versi (poster, banner, slide)'], buttonText: 'BELI 5000 TOKEN', isPopular: false, gradient: 'from-violet-500 to-purple-600' }
+            pricing: fetched.userPageJson?.pricing || [
+              { name: 'PAKET BASIC', price: 'Rp 75.000', description: 'Untuk kebutuhan desain dasar.', features: ['1 prompt', 'Rasio 16:9', '1 konsep infografis', '500 token'], buttonText: 'BELI 500 TOKEN', isPopular: false, gradient: 'from-blue-500 to-cyan-400' },
+              { name: 'PAKET STANDARD', price: 'Rp 250.000', description: 'Pilihan terbaik untuk hasil profesional.', features: ['3 alternatif desain', 'Prompt detail', 'Branding sesuai website', 'Struktur visual profesional', '1000 token'], buttonText: 'BELI 1000 TOKEN', isPopular: true, gradient: 'from-amber-400 to-orange-500' },
+              { name: 'PAKET PREMIUM', price: 'Rp 500.000', description: 'Solusi terlengkap untuk berbagai format visual.', features: ['Menggunakan screenshot website sebagai referensi', 'Prompt sangat detail', 'Storytelling visual', 'Layout presentasi/lomba/skripsi', '3000 token', 'Beberapa versi (poster, banner, slide)'], buttonText: 'BELI 3000 TOKEN', isPopular: false, gradient: 'from-violet-500 to-purple-600' }
             ]
           } : {
             welcomeTitle: "Halo, Pebisnis Modern!",
             welcomeSubtitle: "Siap untuk mengotomatisasi ekosistem digital Anda hari ini?",
             pricing: [
-              { name: 'PAKET BASIC', price: 'Rp 75.000', description: 'Untuk kebutuhan desain dasar.', features: ['1 prompt', 'Rasio 16:9', '1 konsep infografis', '500-800 token'], buttonText: 'BELI 800 TOKEN', isPopular: false, gradient: 'from-blue-500 to-cyan-400' },
-              { name: 'PAKET STANDARD', price: 'Rp 250.000', description: 'Pilihan terbaik untuk hasil profesional.', features: ['3 alternatif desain', 'Prompt detail', 'Branding sesuai website', 'Struktur visual profesional', '1.000-2.500 token'], buttonText: 'BELI 2500 TOKEN', isPopular: true, gradient: 'from-amber-400 to-orange-500' },
-              { name: 'PAKET PREMIUM', price: 'Rp 500.000', description: 'Solusi terlengkap untuk berbagai format visual.', features: ['Menggunakan screenshot website sebagai referensi', 'Prompt sangat detail', 'Storytelling visual', 'Layout presentasi/lomba/skripsi', '3.000-5.000 token', 'Beberapa versi (poster, banner, slide)'], buttonText: 'BELI 5000 TOKEN', isPopular: false, gradient: 'from-violet-500 to-purple-600' }
+              { name: 'PAKET BASIC', price: 'Rp 75.000', description: 'Untuk kebutuhan desain dasar.', features: ['1 prompt', 'Rasio 16:9', '1 konsep infografis', '500 token'], buttonText: 'BELI 500 TOKEN', isPopular: false, gradient: 'from-blue-500 to-cyan-400' },
+              { name: 'PAKET STANDARD', price: 'Rp 250.000', description: 'Pilihan terbaik untuk hasil profesional.', features: ['3 alternatif desain', 'Prompt detail', 'Branding sesuai website', 'Struktur visual profesional', '1000 token'], buttonText: 'BELI 1000 TOKEN', isPopular: true, gradient: 'from-amber-400 to-orange-500' },
+              { name: 'PAKET PREMIUM', price: 'Rp 500.000', description: 'Solusi terlengkap untuk berbagai format visual.', features: ['Menggunakan screenshot website sebagai referensi', 'Prompt sangat detail', 'Storytelling visual', 'Layout presentasi/lomba/skripsi', '3000 token', 'Beberapa versi (poster, banner, slide)'], buttonText: 'BELI 3000 TOKEN', isPopular: false, gradient: 'from-violet-500 to-purple-600' }
             ]
           }
         });
@@ -2257,7 +2257,7 @@ const AdminPanelPage = ({
                     ) : (
                       transactions.map((trx, idx) => (
                         <tr key={idx} className="border-b border-slate-200 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                          <td className="py-4 px-6 text-xs text-slate-800 dark:text-white font-mono">{trx.orderId}</td>
+                          <td className="py-4 px-6 text-xs text-slate-800 dark:text-white font-mono">{trx.refId || '-'}</td>
                           <td className="py-4 px-6 text-xs text-slate-700 dark:text-slate-300">
                             <div className="font-bold">{trx.user?.name || 'Unknown'}</div>
                             <div className="text-[9px] text-slate-500">{trx.user?.email || ''}</div>
@@ -2356,29 +2356,29 @@ const AdminPanelPage = ({
         {/* MODAL: ADD TEMPLATE */}
         {showAddTemplateModal && (
           <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" onClick={() => setShowAddTemplateModal(false)} />
-            <div className="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-[28px] p-6 shadow-2xl space-y-6 z-10 animate-in fade-in zoom-in-95 duration-200">
-              <div className="border-b border-slate-800 pb-4">
-                <h3 className="text-sm font-black text-white uppercase tracking-widest">Tambah Template Baru</h3>
+            <div className="absolute inset-0 bg-slate-900/80 dark:bg-slate-950/80 backdrop-blur-sm" onClick={() => setShowAddTemplateModal(false)} />
+            <div className="relative w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[28px] p-6 shadow-2xl space-y-6 z-10 animate-in fade-in zoom-in-95 duration-200">
+              <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
+                <h3 className="text-sm font-black text-slate-800 dark:text-white uppercase tracking-widest">Tambah Template Baru</h3>
               </div>
               <form onSubmit={handleAddTemplate} className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Nama Template</label>
+                  <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Nama Template</label>
                   <input
                     type="text"
                     value={newTemplateData.name}
                     onChange={(e) => setNewTemplateData({ ...newTemplateData, name: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none"
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none"
                     placeholder="Masukkan nama template"
                     required
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Kategori</label>
+                  <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Kategori</label>
                   <select
                     value={newTemplateData.category}
                     onChange={(e) => setNewTemplateData({ ...newTemplateData, category: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none"
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none"
                   >
                     <option value="Makanan & Retail">Makanan & Retail</option>
                     <option value="Jasa Profesional">Jasa Profesional</option>
@@ -2387,22 +2387,22 @@ const AdminPanelPage = ({
                   </select>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Deskripsi Singkat</label>
+                  <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Deskripsi Singkat</label>
                   <input
                     type="text"
                     value={newTemplateData.description}
                     onChange={(e) => setNewTemplateData({ ...newTemplateData, description: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none"
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none"
                     placeholder="Deskripsi template"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Thumbnail URL</label>
+                  <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Thumbnail URL</label>
                   <input
                     type="text"
                     value={newTemplateData.thumbnail}
                     onChange={(e) => setNewTemplateData({ ...newTemplateData, thumbnail: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none"
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none"
                     placeholder="https://..."
                   />
                 </div>
@@ -2410,7 +2410,7 @@ const AdminPanelPage = ({
                   <button
                     type="button"
                     onClick={() => setShowAddTemplateModal(false)}
-                    className="flex-1 py-3 text-[9px] font-black text-slate-400 hover:text-white uppercase tracking-widest border border-slate-800 hover:border-slate-700 rounded-xl transition-all cursor-pointer"
+                    className="flex-1 py-3 text-[9px] font-black text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white uppercase tracking-widest border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 rounded-xl transition-all cursor-pointer"
                   >
                     Batal
                   </button>
