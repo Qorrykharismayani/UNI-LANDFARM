@@ -99,7 +99,7 @@ const SignupPage = ({ setView, setUser, prefilledEmail, setPrefilledEmail }: Sig
             <div className="w-full border-t border-slate-100 dark:border-slate-700"></div>
           </div>
           <div className="relative flex justify-center text-[10px] uppercase tracking-widest font-black">
-            <span className="bg-white dark:bg-slate-800 px-3 text-slate-300 dark:text-slate-600">atau daftar dengan email</span>
+            <span className="bg-white dark:bg-slate-800 px-3 text-slate-300 dark:text-slate-600">atau sign up dengan email</span>
           </div>
         </div>
 
@@ -210,10 +210,10 @@ const SignupPage = ({ setView, setUser, prefilledEmail, setPrefilledEmail }: Sig
                 transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
                 className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
               />
-              Mendaftar...
+              Memproses...
             </>
           ) : (
-            'Daftar'
+            'Sign Up'
           )}
         </motion.button>
 
@@ -228,7 +228,7 @@ const SignupPage = ({ setView, setUser, prefilledEmail, setPrefilledEmail }: Sig
               }}
               className="text-brand-blue font-black hover:underline"
             >
-              Masuk di sini
+              Login di sini
             </button>
           </p>
         </div>

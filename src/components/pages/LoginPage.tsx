@@ -72,7 +72,7 @@ const LoginPage = ({ setView, setUser, prefilledEmail = '', setPrefilledEmail }:
 
         <div className="mb-8 text-center">
           <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-1 tracking-tight">Selamat Datang Kembali</h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400">Masuk ke akun Uni-LandFarm Anda</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Login ke akun Uni-LandFarm Anda</p>
         </div>
 
         {/* Google Button */}
@@ -94,7 +94,7 @@ const LoginPage = ({ setView, setUser, prefilledEmail = '', setPrefilledEmail }:
             <div className="w-full border-t border-slate-100 dark:border-slate-700"></div>
           </div>
           <div className="relative flex justify-center text-[10px] uppercase tracking-widest font-black">
-            <span className="bg-white dark:bg-slate-800 px-3 text-slate-300 dark:text-slate-600">atau masuk dengan email</span>
+            <span className="bg-white dark:bg-slate-800 px-3 text-slate-300 dark:text-slate-600">atau login dengan email</span>
           </div>
         </div>
 
@@ -185,7 +185,7 @@ const LoginPage = ({ setView, setUser, prefilledEmail = '', setPrefilledEmail }:
               Memproses...
             </>
           ) : (
-            <>Masuk</>
+            <>Login</>
           )}
         </motion.button>
 
@@ -200,7 +200,7 @@ const LoginPage = ({ setView, setUser, prefilledEmail = '', setPrefilledEmail }:
               }}
               className="text-brand-blue font-black hover:underline"
             >
-              Daftar sekarang
+              Sign Up sekarang
             </button>
           </p>
         </div>
