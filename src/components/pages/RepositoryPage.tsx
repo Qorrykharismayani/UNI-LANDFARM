@@ -367,7 +367,16 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
                                 <img 
                                   src={method.logo} 
                                   alt={method.name} 
-                                  className={`w-full h-full object-contain ${method.id.startsWith('bca') ? 'scale-[1.6]' : 'p-1'}`} 
+                                  className={`w-full h-full object-contain ${
+                                    method.id === 'bca_va' ? 'scale-[1.15]' : 
+                                    method.id === 'mandiri_va' ? 'scale-[1.4] p-0' : 
+                                    method.id === 'bni_va' ? 'p-0.5' : 
+                                    method.id === 'bri_va' ? 'scale-[1.25] p-0' : 
+                                    method.id === 'bca_mobile' ? 'scale-[2.1]' : 
+                                    method.id === 'gopay' ? 'p-0.5' : 
+                                    method.id === 'dana' ? 'p-0.5' : 
+                                    'p-1'
+                                  }`} 
                                   onError={(e) => {
                                     (e.target as HTMLImageElement).style.display = 'none';
                                   }}
@@ -609,7 +618,16 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
                                   <img 
                                     src={methodObj.logo} 
                                     alt={selectedPayment} 
-                                    className={`w-full h-full object-contain ${methodObj.id.startsWith('bca') ? 'scale-[1.6]' : 'p-1.5'}`} 
+                                    className={`w-full h-full object-contain ${
+                                      methodObj.id === 'bca_va' ? 'scale-[1.15]' : 
+                                      methodObj.id === 'mandiri_va' ? 'scale-[1.4] p-0' : 
+                                      methodObj.id === 'bni_va' ? 'p-0.5' : 
+                                      methodObj.id === 'bri_va' ? 'scale-[1.25] p-0' : 
+                                      methodObj.id === 'bca_mobile' ? 'scale-[2.1]' : 
+                                      methodObj.id === 'gopay' ? 'p-0.5' : 
+                                      methodObj.id === 'dana' ? 'p-0.5' : 
+                                      'p-1.5'
+                                    }`} 
                                   />
                                 </div>
                               ) : (
