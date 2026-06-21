@@ -46,6 +46,8 @@ const AdminPanelPage = ({
   const [users, setUsers] = useState<any[]>([]);
   const [landingPages, setLandingPages] = useState<any[]>([]);
   const [templatesList, setTemplatesList] = useState<any[]>([]);
+  const [transactions, setTransactions] = useState<any[]>([]);
+  const [analyticsData, setAnalyticsData] = useState<any>(null);
   const [systemSettings, setSystemSettings] = useState<any>({
     platformName: 'Uni-LandFarm',
     logo: '/uploads/1781793939040-LOGO_Uni-LandFarm-removebg-preview-(1).png',
@@ -116,6 +118,7 @@ const AdminPanelPage = ({
   const [newUserData, setNewUserData] = useState({
     name: '',
     email: '',
+    password: '',
     role: 'USER'
   });
 
@@ -138,16 +141,20 @@ const AdminPanelPage = ({
   const fetchAllData = async () => {
     setLoading(true);
     try {
-      const [resUsers, resPages, resTemplates, resSettings] = await Promise.all([
+      const [resUsers, resPages, resTemplates, resSettings, resAnalytics, resTransactions] = await Promise.all([
         fetch('/api/admin/users').then(r => r.json()),
         fetch('/api/landing-pages').then(r => r.json()),
         fetch('/api/templates').then(r => r.json()),
-        fetch('/api/settings').then(r => r.json())
+        fetch('/api/settings').then(r => r.json()),
+        fetch('/api/admin/analytics').then(r => r.json()),
+        fetch('/api/admin/transactions').then(r => r.json())
       ]);
 
       if (resUsers.success) setUsers(resUsers.data);
       if (resPages.success) setLandingPages(resPages.data);
       if (resTemplates.success) setTemplatesList(resTemplates.data);
+      if (resAnalytics?.success) setAnalyticsData(resAnalytics.data);
+      if (resTransactions?.success) setTransactions(resTransactions.data);
       if (resSettings.success) {
         const fetched = resSettings.data || {};
         setSystemSettings({
@@ -413,42 +420,69 @@ const AdminPanelPage = ({
     }
   };
 
-  const handleAddUserMock = (e: React.FormEvent) => {
+  const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault();
-    const mockNewUser = {
-      id: `MOCK-U-${Date.now()}`,
-      name: newUserData.name,
-      email: newUserData.email,
-      role: newUserData.role,
-      landingPageCount: 0,
-      status: 'Aktif'
-    };
-    setUsers([mockNewUser, ...users]);
-    setShowAddUserModal(false);
-    setNewUserData({ name: '', email: '', role: 'USER' });
-    showNotification('User baru berhasil ditambahkan (simulasi)!', 'success');
+    if (!newUserData.name || !newUserData.email || !newUserData.password) {
+      showNotification('Nama, email, dan password wajib diisi!', 'info');
+      return;
+    }
+    setActionLoading('add-user');
+    try {
+      const res = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newUserData)
+      });
+      const data = await res.json();
+      if (data.success) {
+        setUsers([data.data, ...users]);
+        setShowAddUserModal(false);
+        setNewUserData({ name: '', email: '', password: '', role: 'USER' });
+        showNotification('User baru berhasil ditambahkan!', 'success');
+      } else {
+        showNotification(data.message || 'Gagal menambahkan user.', 'info');
+      }
+    } catch (err) {
+      console.error(err);
+      showNotification('Gagal menghubungi server.', 'info');
+    } finally {
+      setActionLoading(null);
+    }
   };
 
-  const handleAddTemplateMock = (e: React.FormEvent) => {
+  const handleAddTemplate = async (e: React.FormEvent) => {
     e.preventDefault();
-    const mockNewTpl = {
-      id: `MOCK-T-${Date.now()}`,
-      name: newTemplateData.name,
-      category: newTemplateData.category,
-      description: newTemplateData.description,
-      thumbnail: newTemplateData.thumbnail || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=500&q=80',
-      status: newTemplateData.status
-    };
-    setTemplatesList([mockNewTpl, ...templatesList]);
-    setShowAddTemplateModal(false);
-    setNewTemplateData({
-      name: '',
-      category: 'Makanan & Retail',
-      description: '',
-      thumbnail: '',
-      status: 'Aktif'
-    });
-    showNotification('Template berhasil dibuat (generated)!', 'success');
+    setActionLoading('add-template');
+    try {
+      const res = await fetch('/api/admin/templates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...newTemplateData,
+          thumbnail: newTemplateData.thumbnail || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=500&q=80'
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTemplatesList([data.data, ...templatesList]);
+        setShowAddTemplateModal(false);
+        setNewTemplateData({
+          name: '',
+          category: 'Makanan & Retail',
+          description: '',
+          thumbnail: '',
+          status: 'Aktif'
+        });
+        showNotification('Template berhasil ditambahkan!', 'success');
+      } else {
+        showNotification(data.message || 'Gagal menambahkan template.', 'info');
+      }
+    } catch (err) {
+      console.error(err);
+      showNotification('Gagal menghubungi server.', 'info');
+    } finally {
+      setActionLoading(null);
+    }
   };
 
   const publishedPagesCount = landingPages.filter(p => p.status === 'Published').length;
@@ -461,6 +495,7 @@ const AdminPanelPage = ({
     { id: 'landing_pages', label: 'Publications', icon: <Layers className="w-4.5 h-4.5" /> },
     { id: 'templates', label: 'Template Management', icon: <Layout className="w-4.5 h-4.5" /> },
     { id: 'content', label: 'Content Management (CMS)', icon: <Database className="w-4.5 h-4.5" /> },
+    { id: 'transactions', label: 'Transaksi', icon: <Wallet className="w-4.5 h-4.5" /> },
   ];
 
   return (
@@ -1165,15 +1200,24 @@ const AdminPanelPage = ({
                       </div>
                       <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex gap-2">
                         <button
-                          onClick={() => {
+                          onClick={async () => {
                             const nextStatus = tpl.status === 'Aktif' ? 'Nonaktif' : 'Aktif';
-                            setTemplatesList(templatesList.map(t => t.id === tpl.id ? { ...t, status: nextStatus } : t));
-                            showNotification(`Template ${tpl.name} diubah menjadi ${nextStatus}`, 'success');
-                            fetch('/api/notifications', { 
-                              method: 'POST', 
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ title: 'Status Template Diubah', message: `Status template ${tpl.name} telah diubah menjadi ${nextStatus}.`, type: 'info' }) 
-                            });
+                            try {
+                              const res = await fetch(`/api/admin/templates/${tpl.id}`, {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ status: nextStatus })
+                              });
+                              const data = await res.json();
+                              if (data.success) {
+                                setTemplatesList(templatesList.map(t => t.id === tpl.id ? { ...t, status: nextStatus } : t));
+                                showNotification(`Template ${tpl.name} diubah menjadi ${nextStatus}`, 'success');
+                              } else {
+                                showNotification(data.message || 'Gagal mengubah status', 'error');
+                              }
+                            } catch (err) {
+                              showNotification('Gagal menghubungi server', 'error');
+                            }
                           }}
                           className="flex-1 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-[9px] font-black uppercase tracking-widest transition-colors cursor-pointer text-center"
                         >
@@ -1194,14 +1238,22 @@ const AdminPanelPage = ({
                           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                         </button>
                         <button
-                          onClick={() => {
-                            setTemplatesList(templatesList.filter(t => t.id !== tpl.id));
-                            showNotification(`Template ${tpl.name} berhasil dihapus!`, 'info');
-                            fetch('/api/notifications', { 
-                              method: 'POST', 
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ title: 'Template Dihapus', message: `Template ${tpl.name} telah berhasil dihapus dari sistem.`, type: 'info' }) 
-                            });
+                          onClick={async () => {
+                            if (!confirm(`Yakin ingin menghapus template ${tpl.name}?`)) return;
+                            try {
+                              const res = await fetch(`/api/admin/templates/${tpl.id}`, {
+                                method: 'DELETE'
+                              });
+                              const data = await res.json();
+                              if (data.success) {
+                                setTemplatesList(templatesList.filter(t => t.id !== tpl.id));
+                                showNotification(`Template ${tpl.name} berhasil dihapus!`, 'info');
+                              } else {
+                                showNotification(data.message || 'Gagal menghapus template', 'error');
+                              }
+                            } catch (err) {
+                              showNotification('Gagal menghubungi server', 'error');
+                            }
                           }}
                           className="px-2 py-1.5 bg-red-500/10 hover:bg-red-500 border border-red-500/20 text-red-500 hover:text-white rounded-lg transition-colors cursor-pointer flex items-center justify-center"
                           title="Hapus Template"
@@ -1243,7 +1295,7 @@ const AdminPanelPage = ({
                    tab === 'testimonials' ? 'Testimoni' :
                    tab === 'faqs' ? 'Daftar FAQ' :
                    tab === 'user_dashboard' ? 'Welcome Dashboard' :
-                   tab === 'pricing' ? '🏷️ Paket Token' :
+                   tab === 'pricing' ? '🏷️ Paket & Pembayaran' :
                    tab === 'guides' ? 'Pusat Panduan' :
                    tab === 'seo' ? 'Pengaturan SEO' : 'Kontak'}
                 </button>
@@ -1458,6 +1510,112 @@ const AdminPanelPage = ({
                                 }}
                                 className="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none"
                                 placeholder="from-blue-500 to-cyan-400"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Payment Methods Section */}
+                  <div className="flex justify-between items-center mt-8 mb-4 border-t border-slate-200 dark:border-slate-800 pt-6">
+                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">Metode Pembayaran</h3>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newMethods = [...(systemSettings.userPageJson?.paymentMethods || [])];
+                        newMethods.push({
+                          id: `PAY-${Date.now()}`,
+                          name: 'METODE BARU',
+                          type: 'EWALLET',
+                          logo: '/icons/default.png'
+                        });
+                        updateUserPage('paymentMethods', newMethods);
+                      }}
+                      className="px-3 py-1.5 bg-brand-blue hover:bg-blue-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest transition-all cursor-pointer flex items-center gap-1 shadow-md shadow-brand-blue/10 animate-in fade-in"
+                    >
+                      <Plus className="w-3 h-3" /> Tambah Metode
+                    </button>
+                  </div>
+
+                  {(systemSettings.userPageJson?.paymentMethods || []).length === 0 ? (
+                    <div className="text-center py-8 text-[11px] text-slate-500 font-bold uppercase tracking-wider bg-slate-50 dark:bg-slate-950/40 border border-dashed border-slate-200 dark:border-slate-800/80 rounded-xl">
+                      Klik "Tambah Metode" untuk membuat metode pembayaran kustom.
+                    </div>
+                  ) : (
+                    <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent">
+                      {(systemSettings.userPageJson?.paymentMethods || []).map((method: any, idx: number) => (
+                        <div key={idx} className="relative bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-4 space-y-3">
+                          <div className="absolute top-4 right-4 flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newMethods = systemSettings.userPageJson.paymentMethods.filter((_: any, i: number) => i !== idx);
+                                updateUserPage('paymentMethods', newMethods);
+                              }}
+                              className="p-1.5 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-lg transition-all cursor-pointer"
+                              title="Hapus Metode"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-3 pr-16">
+                            <div className="space-y-1.5">
+                              <label className="text-[8px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest">ID Pembayaran (Unik)</label>
+                              <input
+                                type="text"
+                                value={method.id || ''}
+                                onChange={(e) => {
+                                  const nm = [...systemSettings.userPageJson.paymentMethods];
+                                  nm[idx].id = e.target.value;
+                                  updateUserPage('paymentMethods', nm);
+                                }}
+                                className="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none font-mono"
+                              />
+                            </div>
+                            <div className="space-y-1.5">
+                              <label className="text-[8px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest">Nama Layanan</label>
+                              <input
+                                type="text"
+                                value={method.name || ''}
+                                onChange={(e) => {
+                                  const nm = [...systemSettings.userPageJson.paymentMethods];
+                                  nm[idx].name = e.target.value;
+                                  updateUserPage('paymentMethods', nm);
+                                }}
+                                className="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none"
+                              />
+                            </div>
+                            <div className="space-y-1.5">
+                              <label className="text-[8px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest">Tipe (VA/EWALLET/Qris)</label>
+                              <select
+                                value={method.type || 'EWALLET'}
+                                onChange={(e) => {
+                                  const nm = [...systemSettings.userPageJson.paymentMethods];
+                                  nm[idx].type = e.target.value;
+                                  updateUserPage('paymentMethods', nm);
+                                }}
+                                className="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none"
+                              >
+                                <option value="EWALLET">E-Wallet</option>
+                                <option value="VA">Virtual Account</option>
+                                <option value="QRIS">QRIS</option>
+                              </select>
+                            </div>
+                            <div className="space-y-1.5">
+                              <label className="text-[8px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest">URL Logo/Icon</label>
+                              <input
+                                type="text"
+                                value={method.logo || ''}
+                                onChange={(e) => {
+                                  const nm = [...systemSettings.userPageJson.paymentMethods];
+                                  nm[idx].logo = e.target.value;
+                                  updateUserPage('paymentMethods', nm);
+                                }}
+                                className="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none"
+                                placeholder="/icons/gopay.svg"
                               />
                             </div>
                           </div>
@@ -1947,9 +2105,9 @@ const AdminPanelPage = ({
             {/* Analytics Statistics Row */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[
-                { label: "Puncak Kunjungan Harian", value: "3.482 HITS", trend: "+12.4% dari kemarin" },
-                { label: "Rasio Konversi SEO", value: "94.2% SCORE", trend: "Sangat Optimal" },
-                { label: "Halaman Baru Bulan Ini", value: "+38 SITUS", trend: "Target bulanan tercapai 110%" }
+                { label: "Puncak Kunjungan Harian", value: analyticsData ? `${analyticsData.totalViews.toLocaleString('id-ID')} HITS` : "0 HITS", trend: "Total Tayangan Publik" },
+                { label: "Rasio Konversi SEO", value: analyticsData ? `${analyticsData.conversionScore}% SCORE` : "0% SCORE", trend: "Halaman Berhasil Diterbitkan" },
+                { label: "Total Halaman Aktif", value: analyticsData ? `${analyticsData.activePages} SITUS` : "0 SITUS", trend: "Sedang Live di Publik" }
               ].map((an, i) => (
                 <div key={i} className="bg-slate-900/50 border border-slate-800/80 p-6 rounded-2xl shadow-sm space-y-1">
                   <span className="text-[8.5px] font-black text-slate-400 uppercase tracking-widest block">{an.label}</span>
@@ -2040,23 +2198,83 @@ const AdminPanelPage = ({
                   <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Persentase landing page terbit berdasarkan model bisnis</p>
                 </div>
                 <div className="h-64 flex flex-col justify-around bg-slate-950/40 rounded-2xl p-6 border border-slate-800">
-                  {[
-                    { name: "Pertanian & Pangan", count: 45, width: "85%", color: "bg-emerald-500" },
-                    { name: "Makanan & Retail", count: 28, width: "60%", color: "bg-brand-blue" },
-                    { name: "Jasa Profesional", count: 15, width: "38%", color: "bg-purple-500" },
-                    { name: "IoT & Smart Tech", count: 12, width: "25%", color: "bg-amber-500" }
-                  ].map((bar, idx) => (
-                    <div key={idx} className="space-y-1.5">
-                      <div className="flex justify-between text-[9px] font-black uppercase text-slate-300">
-                        <span>{bar.name}</span>
-                        <span className="text-white">{bar.count} situs</span>
-                      </div>
-                      <div className="w-full bg-slate-900 rounded-full h-2.5 overflow-hidden">
-                        <div className={`h-full ${bar.color} rounded-full`} style={{ width: bar.width }}></div>
-                      </div>
-                    </div>
-                  ))}
+                  {(analyticsData?.categoryDistribution || []).length > 0 ? (
+                    analyticsData.categoryDistribution.map((bar: any, idx: number) => {
+                      const colors = ["bg-emerald-500", "bg-brand-blue", "bg-purple-500", "bg-amber-500"];
+                      const color = colors[idx % colors.length];
+                      const totalPages = Math.max(landingPages.length, 1);
+                      const width = `${Math.round((bar.count / totalPages) * 100)}%`;
+                      return (
+                        <div key={idx} className="space-y-1.5">
+                          <div className="flex justify-between text-[9px] font-black uppercase text-slate-300">
+                            <span>{bar.name}</span>
+                            <span className="text-white">{bar.count} situs</span>
+                          </div>
+                          <div className="w-full bg-slate-900 rounded-full h-2.5 overflow-hidden">
+                            <div className={`h-full ${color} rounded-full`} style={{ width }}></div>
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className="text-center text-slate-500 text-xs py-10">Belum ada data kategori</div>
+                  )}
+                  {/* .map((bar, idx) => ( */}
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* VIEW: TRANSAKSI */}
+        {adminView === 'transactions' && (
+          <div className="space-y-6 animate-in fade-in duration-300">
+            <div className="border-b border-slate-200 dark:border-slate-800 pb-5 flex justify-between items-end">
+              <div>
+                <h2 className="text-md font-black uppercase tracking-widest text-slate-800 dark:text-white">Riwayat Transaksi</h2>
+                <p className="text-[9.5px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-1">Pantau semua pembelian paket token oleh pengguna</p>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 rounded-[24px] overflow-hidden shadow-sm">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/40">
+                      <th className="py-4 px-6 text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Order ID</th>
+                      <th className="py-4 px-6 text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">User</th>
+                      <th className="py-4 px-6 text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Paket</th>
+                      <th className="py-4 px-6 text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Jumlah</th>
+                      <th className="py-4 px-6 text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Status</th>
+                      <th className="py-4 px-6 text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Tanggal</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {transactions.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="py-8 px-6 text-center text-slate-500 text-xs">Belum ada transaksi</td>
+                      </tr>
+                    ) : (
+                      transactions.map((trx, idx) => (
+                        <tr key={idx} className="border-b border-slate-200 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                          <td className="py-4 px-6 text-xs text-slate-800 dark:text-white font-mono">{trx.orderId}</td>
+                          <td className="py-4 px-6 text-xs text-slate-700 dark:text-slate-300">
+                            <div className="font-bold">{trx.user?.name || 'Unknown'}</div>
+                            <div className="text-[9px] text-slate-500">{trx.user?.email || ''}</div>
+                          </td>
+                          <td className="py-4 px-6 text-xs text-slate-700 dark:text-slate-300 font-medium">{trx.packageName}</td>
+                          <td className="py-4 px-6 text-xs text-emerald-600 dark:text-emerald-400 font-bold">Rp {trx.amount.toLocaleString('id-ID')}</td>
+                          <td className="py-4 px-6">
+                            <span className={`px-2 py-1 rounded text-[9px] font-black uppercase tracking-wider ${trx.status === 'PAID' ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-amber-100 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400'}`}>
+                              {trx.status}
+                            </span>
+                          </td>
+                          <td className="py-4 px-6 text-xs text-slate-500 dark:text-slate-400 font-medium">{new Date(trx.createdAt).toLocaleDateString('id-ID')}</td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
@@ -2070,7 +2288,7 @@ const AdminPanelPage = ({
               <div className="border-b border-slate-800 pb-4">
                 <h3 className="text-sm font-black text-white uppercase tracking-widest">Tambah Pengguna Baru</h3>
               </div>
-              <form onSubmit={handleAddUserMock} className="space-y-4">
+              <form onSubmit={handleAddUser} className="space-y-4">
                 <div className="space-y-1.5">
                   <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Nama Lengkap</label>
                   <input
@@ -2090,6 +2308,17 @@ const AdminPanelPage = ({
                     onChange={(e) => setNewUserData({ ...newUserData, email: e.target.value })}
                     className="w-full bg-slate-950 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none"
                     placeholder="contoh@domain.com"
+                    required
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Password</label>
+                  <input
+                    type="password"
+                    value={newUserData.password}
+                    onChange={(e) => setNewUserData({ ...newUserData, password: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none"
+                    placeholder="Minimal 6 karakter"
                     required
                   />
                 </div>
@@ -2132,7 +2361,7 @@ const AdminPanelPage = ({
               <div className="border-b border-slate-800 pb-4">
                 <h3 className="text-sm font-black text-white uppercase tracking-widest">Tambah Template Baru</h3>
               </div>
-              <form onSubmit={handleAddTemplateMock} className="space-y-4">
+              <form onSubmit={handleAddTemplate} className="space-y-4">
                 <div className="space-y-1.5">
                   <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Nama Template</label>
                   <input

@@ -44,6 +44,8 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
   const [isPrintingAll, setIsPrintingAll] = useState(false);
   const [tokenBalance, setTokenBalance] = useState<number>(user?.tokens || 0);
   const [transactions, setTransactions] = useState<any[]>([]);
+  const [packagesData, setPackagesData] = useState<any[]>([]);
+  const [paymentMethodsData, setPaymentMethodsData] = useState<any[]>([]);
   const [lastReceiptRef, setLastReceiptRef] = useState('');
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [vaAccordion, setVaAccordion] = useState<string>('atm');
@@ -96,63 +98,75 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
   const fetchTransactions = async () => {
     setIsLoadingHistory(true);
     try {
-      const res = await fetch('/api/transactions');
-      const data = await res.json();
-      if (data.success && Array.isArray(data.data)) {
-        setTransactions(data.data);
+      const [resTx, resSet] = await Promise.all([
+        fetch('/api/transactions'),
+        fetch('/api/settings')
+      ]);
+      const dataTx = await resTx.json();
+      const dataSet = await resSet.json();
+      
+      if (dataTx.success && Array.isArray(dataTx.data)) {
+        setTransactions(dataTx.data);
       }
+
+      const defaultPackages = [
+        {
+          id: 'basic', name: 'Paket Basic', price: 75000, tokens: 800, description: 'Untuk kebutuhan desain dasar.',
+          features: ['1 prompt', 'Rasio 16:9', '1 konsep infografis', '500-800 token'], popular: false, gradient: 'from-blue-500 to-cyan-400'
+        },
+        {
+          id: 'standard', name: 'Paket Standard', price: 250000, tokens: 2500, description: 'Pilihan terbaik untuk hasil profesional.',
+          features: ['3 alternatif desain', 'Prompt detail', 'Branding sesuai website', 'Struktur visual profesional', '1.000-2.500 token'], popular: true, gradient: 'from-amber-400 to-orange-500'
+        },
+        {
+          id: 'premium', name: 'Paket Premium', price: 500000, tokens: 5000, description: 'Solusi terlengkap untuk berbagai format visual.',
+          features: ['Menggunakan screenshot website sebagai referensi', 'Prompt sangat detail', 'Storytelling visual', 'Layout presentasi/lomba/skripsi', '3.000-5.000 token', 'Beberapa versi (poster, banner, slide)'], popular: false, gradient: 'from-violet-500 to-purple-600'
+        }
+      ];
+
+      const defaultPaymentMethods = [
+        { id: 'gopay', name: 'GoPay', group: 'DOMPET DIGITAL (E-WALLET)', color: '#00AED6', logo: '/gopay.jpg' },
+        { id: 'ovo', name: 'OVO', group: 'DOMPET DIGITAL (E-WALLET)', color: '#4C2A86', logo: '/ovo.jpg' },
+        { id: 'dana', name: 'DANA', group: 'DOMPET DIGITAL (E-WALLET)', color: '#108EE9', logo: '/dana.jpg' },
+        { id: 'shopeepay', name: 'ShopeePay', group: 'DOMPET DIGITAL (E-WALLET)', color: '#EE4D2D', logo: '/shopeepay.jpg' },
+        { id: 'bca_va', name: 'BCA VA', group: 'VIRTUAL ACCOUNT', color: '#0060AF', logo: '/bca.jpg' },
+        { id: 'mandiri_va', name: 'Mandiri VA', group: 'VIRTUAL ACCOUNT', color: '#FFC425', logo: '/mandiri.jpg' },
+        { id: 'bni_va', name: 'BNI VA', group: 'VIRTUAL ACCOUNT', color: '#005E6A', logo: '/bni.jpg' },
+        { id: 'bri_va', name: 'BRI VA', group: 'VIRTUAL ACCOUNT', color: '#00529C', logo: '/bri.jpg' },
+        { id: 'bca_mobile', name: 'BCA Mobile', group: 'MOBILE BANKING', color: '#0060AF', logo: '/bca_mobile.png' },
+        { id: 'livin_mandiri', name: "Livin' by Mandiri", group: 'MOBILE BANKING', color: '#FFC425', logo: '/livin.jpg' },
+      ];
+
+      if (dataSet.success && dataSet.data?.userPageJson) {
+        const p = dataSet.data.userPageJson.pricing;
+        const m = dataSet.data.userPageJson.paymentMethods;
+        setPackagesData(Array.isArray(p) && p.length > 0 ? p.map((pkg, i) => ({
+          ...pkg, 
+          id: pkg.id || `pkg-${i}`, 
+          price: parseInt(pkg.price.toString().replace(/\D/g, '')) || 0,
+          tokens: parseInt((pkg.features.find((f:string) => f.includes('token')) || '0').replace(/\D/g, '')) || 0,
+          popular: pkg.isPopular || false
+        })) : defaultPackages);
+        
+        setPaymentMethodsData(Array.isArray(m) && m.length > 0 ? m.map((method, i) => ({
+          ...method,
+          group: method.type === 'EWALLET' ? 'DOMPET DIGITAL (E-WALLET)' : method.type === 'VA' ? 'VIRTUAL ACCOUNT' : method.type === 'QRIS' ? 'QRIS' : 'Lainnya',
+          color: '#1e293b'
+        })) : defaultPaymentMethods);
+      } else {
+        setPackagesData(defaultPackages);
+        setPaymentMethodsData(defaultPaymentMethods);
+      }
+
     } catch (err) {
-      console.error('Failed to fetch transactions:', err);
+      console.error('Failed to fetch data:', err);
     } finally {
       setIsLoadingHistory(false);
     }
   };
 
-  const packages = [
-    {
-      id: 'basic',
-      name: 'Paket Basic',
-      price: 75000,
-      tokens: 800,
-      description: 'Untuk kebutuhan desain dasar.',
-      features: ['1 prompt', 'Rasio 16:9', '1 konsep infografis', '500-800 token'],
-      popular: false,
-      gradient: 'from-blue-500 to-cyan-400'
-    },
-    {
-      id: 'standard',
-      name: 'Paket Standard',
-      price: 250000,
-      tokens: 2500,
-      description: 'Pilihan terbaik untuk hasil profesional.',
-      features: ['3 alternatif desain', 'Prompt detail', 'Branding sesuai website', 'Struktur visual profesional', '1.000-2.500 token'],
-      popular: true,
-      gradient: 'from-amber-400 to-orange-500'
-    },
-    {
-      id: 'premium',
-      name: 'Paket Premium',
-      price: 500000,
-      tokens: 5000,
-      description: 'Solusi terlengkap untuk berbagai format visual.',
-      features: ['Menggunakan screenshot website sebagai referensi', 'Prompt sangat detail', 'Storytelling visual', 'Layout presentasi/lomba/skripsi', '3.000-5.000 token', 'Beberapa versi (poster, banner, slide)'],
-      popular: false,
-      gradient: 'from-violet-500 to-purple-600'
-    }
-  ];
-
-  const paymentMethods = [
-    { id: 'gopay', name: 'GoPay', group: 'DOMPET DIGITAL (E-WALLET)', color: '#00AED6', logo: '/gopay.jpg' },
-    { id: 'ovo', name: 'OVO', group: 'DOMPET DIGITAL (E-WALLET)', color: '#4C2A86', logo: '/ovo.jpg' },
-    { id: 'dana', name: 'DANA', group: 'DOMPET DIGITAL (E-WALLET)', color: '#108EE9', logo: '/dana.jpg' },
-    { id: 'shopeepay', name: 'ShopeePay', group: 'DOMPET DIGITAL (E-WALLET)', color: '#EE4D2D', logo: '/shopeepay.jpg' },
-    { id: 'bca_va', name: 'BCA VA', group: 'VIRTUAL ACCOUNT', color: '#0060AF', logo: '/bca.jpg' },
-    { id: 'mandiri_va', name: 'Mandiri VA', group: 'VIRTUAL ACCOUNT', color: '#FFC425', logo: '/mandiri.jpg' },
-    { id: 'bni_va', name: 'BNI VA', group: 'VIRTUAL ACCOUNT', color: '#005E6A', logo: '/bni.jpg' },
-    { id: 'bri_va', name: 'BRI VA', group: 'VIRTUAL ACCOUNT', color: '#00529C', logo: '/bri.jpg' },
-    { id: 'bca_mobile', name: 'BCA Mobile', group: 'MOBILE BANKING', color: '#0060AF', logo: '/bca_mobile.png' },
-    { id: 'livin_mandiri', name: "Livin' by Mandiri", group: 'MOBILE BANKING', color: '#FFC425', logo: '/livin.jpg' },
-  ];
+  const packages = packagesData;
+  const paymentMethods = paymentMethodsData;
 
   const filteredTransactions = transactions.filter(tx => {
     const matchesSearch = (tx.refId || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
