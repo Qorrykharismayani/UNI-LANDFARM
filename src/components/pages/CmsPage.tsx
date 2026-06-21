@@ -66,52 +66,33 @@ const CmsPage = ({
   const indexOfFirstPost = indexOfLastPost - postsPerPage;
   const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
 
+  const filteredProjects = userProjects.filter((project) => {
+    const name = (project.name || project.businessName || '').toLowerCase();
+    const type = (project.category || project.type || '').toLowerCase();
+    return name.includes(cmsSearchQuery.toLowerCase()) || type.includes(cmsSearchQuery.toLowerCase());
+  });
+
   return (
     <div className="max-w-5xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-700 pb-12">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800/80 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
         <div>
-          <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-2 flex items-center gap-2">
-            Site Content Manager
+          <h2 className="text-md lg:text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-1.5 flex items-center gap-2">
+            Pengelola Konten Situs
           </h2>
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Kelola postingan blog, tulis artikel pintar dengan AI, dan hubungkan langsung ke proyek Anda.</p>
+          <p className="text-base font-medium text-slate-500 dark:text-slate-400">Kelola dan pantau semua proyek situs web Anda dengan mudah.</p>
         </div>
 
-        {/* Tab Switcher */}
-        <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/60 p-1.5 rounded-xl border border-slate-200/50 dark:border-slate-800 shrink-0">
-          <button
-            onClick={() => setSubTab('projects')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer ${
-              subTab === 'projects'
-                ? 'bg-white dark:bg-slate-900 text-brand-blue shadow-sm'
-                : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
-            }`}
-          >
-            <Globe className="w-3.5 h-3.5" />
-            Kelola Proyek
-          </button>
-          <button
-            onClick={() => setSubTab('list')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer ${
-              subTab === 'list'
-                ? 'bg-white dark:bg-slate-900 text-brand-blue shadow-sm'
-                : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-350'
-            }`}
-          >
-            <Layers className="w-3.5 h-3.5" />
-            Daftar Artikel
-          </button>
-          <button
-            onClick={() => setSubTab('ai_scheduler')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer ${
-              subTab === 'ai_scheduler'
-                ? 'bg-white dark:bg-slate-900 text-brand-blue shadow-sm'
-                : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-350'
-            }`}
-          >
-            <Bot className="w-3.5 h-3.5 animate-pulse" />
-            Tulis dengan AI & Jadwal
-          </button>
+        {/* Search Bar */}
+        <div className="relative w-full sm:w-64 lg:w-80 shrink-0">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" />
+          <input
+            type="text"
+            placeholder="Cari situs landing page..."
+            value={cmsSearchQuery}
+            onChange={(e) => setCmsSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800/80 rounded-xl text-sm font-bold text-slate-800 dark:text-white outline-none focus:border-brand-blue dark:focus:border-brand-blue/50 transition-colors shadow-sm"
+          />
         </div>
       </div>
 
@@ -386,13 +367,16 @@ const CmsPage = ({
           <div className="bg-white dark:bg-slate-900 rounded-[24px] border border-slate-100 dark:border-slate-800 shadow-premium overflow-hidden animate-in fade-in duration-500">
             {/* Header */}
             <div className="p-5 border-b border-slate-50 dark:border-slate-800/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/30 dark:bg-slate-800/20">
-              <div className="flex flex-col gap-1">
-                <h3 className="text-base font-black text-slate-900 dark:text-white uppercase tracking-[0.2em] flex items-center gap-2.5">
-                  <Globe className="w-5 h-5 text-brand-blue" /> Daftar Proyek Landing Page
-                </h3>
-                <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mt-1">
-                  Edit dan hapus situs landing page Anda secara langsung
-                </p>
+              <div className="flex items-start gap-2.5">
+                <Globe className="w-5 h-5 text-brand-blue shrink-0 mt-0.5" />
+                <div className="flex flex-col">
+                  <h3 className="text-base font-black text-slate-900 dark:text-white">
+                    Daftar Proyek Landing Page
+                  </h3>
+                  <p className="text-xs lowercase font-medium text-slate-400 dark:text-slate-500 mt-1">
+                    edit dan hapus situs landing page anda secara langsung
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -404,12 +388,12 @@ const CmsPage = ({
                     <th className="px-6 py-4 text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Situs</th>
                     <th className="px-6 py-4 text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Kategori</th>
                     <th className="px-6 py-4 text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Status</th>
-                    <th className="px-6 py-4 text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest text-right">Aksi</th>
+                    <th className="px-6 py-4 text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest text-center">Aksi</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50 dark:divide-slate-800/50 text-slate-700 dark:text-slate-350">
-                  {userProjects.length > 0 ? (
-                    userProjects.map((project) => (
+                  {filteredProjects.length > 0 ? (
+                    filteredProjects.map((project) => (
                       <tr key={project.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors group">
                         <td className="px-6 py-4 flex items-center gap-3">
                           <div className="w-12 h-8 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 shadow-sm shrink-0">
@@ -442,8 +426,8 @@ const CmsPage = ({
                             {project.status}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-right">
-                          <div className="flex gap-1.5 justify-end">
+                        <td className="px-6 py-4 text-center">
+                          <div className="flex gap-1.5 justify-center">
                             <button
                               onClick={() => {
                                 setActivePageId(project.id);
@@ -466,7 +450,7 @@ const CmsPage = ({
                   ) : (
                     <tr>
                       <td colSpan={4} className="px-6 py-12 text-center text-sm font-medium text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-                        Belum ada proyek yang dibuat.
+                        {cmsSearchQuery ? "Tidak ada proyek yang sesuai dengan pencarian." : "Belum ada proyek yang dibuat."}
                       </td>
                     </tr>
                   )}

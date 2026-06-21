@@ -219,6 +219,14 @@ export const DashboardView = ({
   const [templates, setTemplates] = useState<any[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
 
+  // States for creation modal
+  const [templateForCreation, setTemplateForCreation] = useState<any>(null);
+  const [creationWebsiteTitle, setCreationWebsiteTitle] = useState('');
+  const [creationBusinessName, setCreationBusinessName] = useState('');
+  const [creationSlug, setCreationSlug] = useState('');
+  const [isCreatingPage, setIsCreatingPage] = useState(false);
+  const [creationError, setCreationError] = useState<string | null>(null);
+
   const profileImageInputRef = useRef<HTMLInputElement>(null);
 
   const fetchProjects = async () => {
@@ -364,6 +372,34 @@ export const DashboardView = ({
     fetchArticles();
     fetchNotifications();
   }, []);
+
+  useEffect(() => {
+    if (templates.length > 0) {
+      const savedTplId = localStorage.getItem('selectedTemplateId');
+      if (savedTplId) {
+        const found = templates.find(t => String(t.id) === String(savedTplId));
+        if (found) {
+          const mappedFound = {
+            id: found.id,
+            title: found.name,
+            category: found.category,
+            img: found.thumbnail || "https://picsum.photos/seed/design/800/600",
+            description: found.description,
+            defaultContent: found.defaultContent,
+            type: "Landing Page"
+          };
+          if (user?.tokens < 500) {
+            showNotification('Token Anda tidak cukup (butuh 500). Silakan beli token terlebih dahulu.', 'info');
+            setSubView('tokens');
+          } else {
+            setTemplateForCreation(mappedFound);
+            setSubView('templates');
+          }
+        }
+        localStorage.removeItem('selectedTemplateId');
+      }
+    }
+  }, [templates, user]);
 
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [profileData, setProfileData] = useState({
@@ -623,7 +659,7 @@ export const DashboardView = ({
       }
 
       setUser({ ...user, tokens: user.tokens - 1500 });
-      setCmsNavMode('preview');;
+      setCmsNavMode('preview');
       showNotification('Gagal menghubungi AI, menggunakan draf default.', 'info');
     } finally {
       setIsGenerating(false);
@@ -845,13 +881,6 @@ export const DashboardView = ({
   const [isPublishing, setIsPublishing] = useState(false);
   const [previewTemplate, setPreviewTemplate] = useState<any>(null);
 
-  // States for creation modal
-  const [templateForCreation, setTemplateForCreation] = useState<any>(null);
-  const [creationWebsiteTitle, setCreationWebsiteTitle] = useState('');
-  const [creationBusinessName, setCreationBusinessName] = useState('');
-  const [creationSlug, setCreationSlug] = useState('');
-  const [isCreatingPage, setIsCreatingPage] = useState(false);
-  const [creationError, setCreationError] = useState<string | null>(null);
 
   const handleCreatePageFromTemplate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1322,7 +1351,7 @@ export const DashboardView = ({
   ) : (
     <>
       {isAdminPanelActive ? (
-        <div className="min-h-screen bg-[#070b19] dark:bg-[#070b19] bg-slate-50 flex flex-col font-sans relative pt-[72px] transition-colors duration-300">
+        <div className="min-h-screen bg-slate-50 dark:bg-[#070b19] flex flex-col font-sans relative pt-[72px] transition-colors duration-300">
           {/* ADMIN PERSISTENT HEADER BAR */}
           <header className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-[#070b19] border-b border-slate-200 dark:border-slate-800/60 h-[72px] flex items-center justify-between px-8 text-slate-800 dark:text-white transition-colors duration-300">
             <div className="flex items-center gap-4">
@@ -1357,21 +1386,21 @@ export const DashboardView = ({
               {/* Admin User Info with Dropdown */}
               <div 
                 onClick={() => setIsAdminDropdownOpen(!isAdminDropdownOpen)}
-                className="flex items-center gap-3 cursor-pointer group select-none"
+                className="flex items-center gap-2.5 cursor-pointer group select-none"
               >
                 <div className="text-right hidden sm:block">
-                  <p className="text-lg font-black uppercase tracking-tighter leading-none mb-1 text-slate-200 group-hover:text-brand-blue transition-colors">
+                  <p className="text-sm font-black uppercase tracking-tight leading-none mb-1 text-slate-800 dark:text-slate-200 group-hover:text-brand-blue transition-colors">
                     Uni-Inside Administrator
                   </p>
-                  <div className="flex items-center justify-end gap-1.5 leading-none">
+                  <div className="flex items-center justify-end gap-1.5 leading-none mt-1">
                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
-                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none">
+                    <p className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none">
                       Root Admin
                     </p>
                   </div>
                 </div>
-                <div className="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center border border-slate-700 shadow-sm overflow-hidden group-hover:border-brand-blue/50 transition-colors">
-                  <div className="w-full h-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-lg font-black uppercase">
+                <div className="w-9 h-9 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden group-hover:border-brand-blue/50 transition-colors">
+                  <div className="w-full h-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-base font-black uppercase">
                     U
                   </div>
                 </div>
@@ -1384,15 +1413,15 @@ export const DashboardView = ({
                     className="fixed inset-0 z-30" 
                     onClick={() => setIsAdminDropdownOpen(false)} 
                   />
-                  <div className="absolute right-0 top-12 z-45 w-48 bg-[#0b1226] border border-slate-800 rounded-2xl p-2 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="absolute right-0 top-12 z-45 w-44 bg-white dark:bg-[#0b1226] border border-slate-200 dark:border-slate-800 rounded-xl p-1.5 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-150">
                     <button
                       onClick={() => {
                         setAdminView('profile');
                         setIsAdminDropdownOpen(false);
                       }}
-                      className="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-left text-base font-black uppercase tracking-wider text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors cursor-pointer"
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
                     >
-                      <User className="w-3.5 h-3.5 text-slate-400" />
+                      <User className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                       <span>Profile</span>
                     </button>
                     <button
@@ -1404,20 +1433,20 @@ export const DashboardView = ({
                           if (el) (el as HTMLInputElement).focus();
                         }, 100);
                       }}
-                      className="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-left text-base font-black uppercase tracking-wider text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors cursor-pointer"
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
                     >
-                      <Lock className="w-3.5 h-3.5 text-slate-400" />
+                      <Lock className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                       <span>Change Password</span>
                     </button>
-                    <div className="border-t border-slate-800 my-1" />
+                    <div className="border-t border-slate-200 dark:border-slate-800 my-1" />
                     <button
                       onClick={() => {
                         setIsAdminDropdownOpen(false);
                         setShowLogoutConfirm(true);
                       }}
-                      className="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-left text-base font-black uppercase tracking-wider text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors cursor-pointer"
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-[11px] font-bold uppercase tracking-wider text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors cursor-pointer"
                     >
-                      <LogOut className="w-3.5 h-3.5 text-red-400" />
+                      <LogOut className="w-3.5 h-3.5 text-red-500 dark:text-red-400" />
                       <span>Logout</span>
                     </button>
                   </div>
@@ -1437,7 +1466,7 @@ export const DashboardView = ({
               setAdminView={setAdminView}
             />
           </main>
-          <footer className="py-6 text-center text-lg text-slate-500 bg-[#070b19] border-t border-slate-800/60 font-medium select-none">
+          <footer className="py-4 text-center text-[11px] font-semibold text-slate-500 dark:text-slate-400 bg-white dark:bg-[#070b19] border-t border-slate-200 dark:border-slate-800/60 select-none transition-colors duration-300">
             © 2026 UNI-LandFarm | Admin Panel Uni-Inside
           </footer>
         </div>
@@ -1710,24 +1739,21 @@ export const DashboardView = ({
                 <LogOut className="w-5 h-5" />
               </div>
               <div className="space-y-2">
-                <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-widest">Confirm Logout</h3>
-                <p className="text-lg text-slate-500 dark:text-slate-400 font-medium">Are you sure you want to log out?</p>
+                <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-widest">KONFIRMASI LOGOUT</h3>
+                <p className="text-lg text-slate-500 dark:text-slate-400 font-medium">Apakah Anda yakin ingin keluar?</p>
               </div>
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowLogoutConfirm(false)}
                   className="flex-1 py-3 text-base font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest border border-slate-200 dark:border-white/5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-all"
                 >
-                  Cancel
+                  BATAL
                 </button>
                 <button
-                  onClick={() => {
-                    setShowLogoutConfirm(false);
-                    handleLogout();
-                  }}
-                  className="flex-1 py-3 bg-red-500 text-white rounded-2xl text-base font-black uppercase tracking-widest shadow-xl shadow-red-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                  onClick={handleLogout}
+                  className="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white rounded-2xl text-base font-black uppercase tracking-widest shadow-xl shadow-red-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
                 >
-                  Logout
+                  KELUAR
                 </button>
               </div>
             </motion.div>

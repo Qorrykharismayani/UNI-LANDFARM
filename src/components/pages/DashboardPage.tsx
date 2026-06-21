@@ -215,30 +215,36 @@ const DashboardPage = ({
         {/* Right Side: Pro details & Panduan (1 column on lg) */}
         <div className="space-y-4">
           <div className="bg-gradient-to-br from-brand-blue to-purple-600 rounded-3xl p-5 text-white shadow-lg overflow-hidden relative group border border-white/10">
-            <div className="absolute -top-10 -right-10 w-24 h-24 bg-white/10 blur-2xl rounded-full transition-transform group-hover:scale-150 duration-700" />
-            <Rocket className="w-5 h-5 mb-3 drop-shadow-md" />
-            <div className="flex items-center gap-2 mb-2">
-              <h4 className="text-base font-black tracking-tight uppercase">Siap Meluncur?</h4>
-              <span className="text-[7px] font-black bg-white/20 px-1.5 py-0.5 rounded-full">PRO</span>
+            <div className="absolute -top-10 -right-10 w-24 h-24 bg-white/10 blur-2xl rounded-full transition-transform group-hover:scale-150 duration-700 pointer-events-none" />
+            
+            <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mb-4 shadow-inner">
+              <Zap className="w-5 h-5 drop-shadow-md" />
             </div>
-            <p className="text-white/80 text-base font-medium leading-relaxed mb-4">
-              Gunakan domain kustom sendiri dan hapus branding platform.
+            
+            <div className="flex items-center gap-2 mb-2">
+              <h4 className="text-base font-black tracking-tight uppercase">Butuh Token?</h4>
+              <span className="text-[7px] font-black bg-white/20 px-1.5 py-0.5 rounded-full uppercase tracking-widest">AI</span>
+            </div>
+            
+            <p className="text-white/90 text-sm font-medium leading-relaxed mb-4">
+              Isi ulang token Anda untuk terus menggunakan asisten AI pintar dan membuat landing page tanpa batas.
             </p>
+            
             <button
               onClick={() => setSubView('tokens')}
-              className="w-full py-2 bg-white text-brand-blue rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-50 transition-all shadow-md flex items-center justify-center gap-2"
+              className="w-full py-2 bg-white text-brand-blue rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-white/90 transition-all shadow-md flex items-center justify-center gap-2"
             >
-              Upgrade <Zap className="w-2.5 h-2.5" />
+              Isi Token <Zap className="w-2.5 h-2.5" />
             </button>
           </div>
 
           <div className="bg-white dark:bg-slate-900/60 rounded-3xl border border-slate-200/60 dark:border-slate-800/80 shadow-sm p-5 hover:border-brand-blue/10 transition-all duration-300">
-            <h4 className="text-[8px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4 flex items-center justify-between">
+            <h4 className="text-base font-black text-slate-800 dark:text-slate-200 tracking-tight uppercase mb-3 flex items-center gap-2">
               Panduan & Bantuan
               <div className="w-1.5 h-1.5 bg-brand-blue rounded-full animate-pulse" />
             </h4>
-            <div className="space-y-3">
-              <p className="text-base text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
+            <div className="space-y-4">
+              <p className="text-sm text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
                 Butuh bantuan belajar cara menggunakan Uni-LandFarm? Buka halaman panduan resmi kami.
               </p>
               <button

@@ -18,7 +18,8 @@ import {
   Lock,
   Smartphone,
   Wallet,
-  BarChart3
+  BarChart3,
+  BookOpen
 } from 'lucide-react';
 
 interface AdminPanelPageProps {
@@ -130,7 +131,7 @@ const AdminPanelPage = ({
   // (admin review/reject removed — publishing is now automatic)
 
   // CMS Tab state
-  const [cmsSettingsTab, setCmsSettingsTab] = useState<'basic' | 'support' | 'seo' | 'features' | 'testimonials' | 'faqs' | 'user_dashboard'>('basic');
+  const [cmsSettingsTab, setCmsSettingsTab] = useState<'basic' | 'support' | 'seo' | 'features' | 'testimonials' | 'faqs' | 'user_dashboard' | 'pricing' | 'guides'>('basic');
   const [savingSettings, setSavingSettings] = useState(false);
 
   const fetchAllData = async () => {
@@ -168,9 +169,22 @@ const AdminPanelPage = ({
             { q: "Apakah situs saya akan SEO-friendly?", a: "Ya, AI kami secara otomatis mengoptimalkan struktur, meta tag, dan konten untuk mesin pencari.", color: "bg-indigo-500" },
             { q: "Bisakah saya menggunakan domain sendiri?", a: "Tentu. Anda dapat menghubungkan domain kustom Anda dengan mudah di dashboard.", color: "bg-violet-500" }
           ],
-          userPageJson: fetched.userPageJson || {
+          userPageJson: fetched.userPageJson ? {
+            welcomeTitle: fetched.userPageJson.welcomeTitle || "Halo, Pebisnis Modern!",
+            welcomeSubtitle: fetched.userPageJson.welcomeSubtitle || "Siap untuk mengotomatisasi ekosistem digital Anda hari ini?",
+            pricing: fetched.userPageJson.pricing || [
+              { name: 'PAKET BASIC', price: 'Rp 75.000', description: 'Untuk kebutuhan desain dasar.', features: ['1 prompt', 'Rasio 16:9', '1 konsep infografis', '500-800 token'], buttonText: 'BELI 800 TOKEN', isPopular: false, gradient: 'from-blue-500 to-cyan-400' },
+              { name: 'PAKET STANDARD', price: 'Rp 250.000', description: 'Pilihan terbaik untuk hasil profesional.', features: ['3 alternatif desain', 'Prompt detail', 'Branding sesuai website', 'Struktur visual profesional', '1.000-2.500 token'], buttonText: 'BELI 2500 TOKEN', isPopular: true, gradient: 'from-amber-400 to-orange-500' },
+              { name: 'PAKET PREMIUM', price: 'Rp 500.000', description: 'Solusi terlengkap untuk berbagai format visual.', features: ['Menggunakan screenshot website sebagai referensi', 'Prompt sangat detail', 'Storytelling visual', 'Layout presentasi/lomba/skripsi', '3.000-5.000 token', 'Beberapa versi (poster, banner, slide)'], buttonText: 'BELI 5000 TOKEN', isPopular: false, gradient: 'from-violet-500 to-purple-600' }
+            ]
+          } : {
             welcomeTitle: "Halo, Pebisnis Modern!",
-            welcomeSubtitle: "Siap untuk mengotomatisasi ekosistem digital Anda hari ini?"
+            welcomeSubtitle: "Siap untuk mengotomatisasi ekosistem digital Anda hari ini?",
+            pricing: [
+              { name: 'PAKET BASIC', price: 'Rp 75.000', description: 'Untuk kebutuhan desain dasar.', features: ['1 prompt', 'Rasio 16:9', '1 konsep infografis', '500-800 token'], buttonText: 'BELI 800 TOKEN', isPopular: false, gradient: 'from-blue-500 to-cyan-400' },
+              { name: 'PAKET STANDARD', price: 'Rp 250.000', description: 'Pilihan terbaik untuk hasil profesional.', features: ['3 alternatif desain', 'Prompt detail', 'Branding sesuai website', 'Struktur visual profesional', '1.000-2.500 token'], buttonText: 'BELI 2500 TOKEN', isPopular: true, gradient: 'from-amber-400 to-orange-500' },
+              { name: 'PAKET PREMIUM', price: 'Rp 500.000', description: 'Solusi terlengkap untuk berbagai format visual.', features: ['Menggunakan screenshot website sebagai referensi', 'Prompt sangat detail', 'Storytelling visual', 'Layout presentasi/lomba/skripsi', '3.000-5.000 token', 'Beberapa versi (poster, banner, slide)'], buttonText: 'BELI 5000 TOKEN', isPopular: false, gradient: 'from-violet-500 to-purple-600' }
+            ]
           }
         });
       }
@@ -209,6 +223,52 @@ const AdminPanelPage = ({
       setActionLoading(null);
     }
   };
+
+  const [editingUser, setEditingUser] = useState<any>(null);
+  
+  const handleSaveUserEdit = async () => {
+    if (!editingUser) return;
+    setActionLoading(`edit-user-${editingUser.id}`);
+    try {
+      const res = await fetch(`/api/admin/users/${editingUser.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role: editingUser.role, status: editingUser.status })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showNotification(data.message, 'success');
+        setUsers(users.map(u => u.id === editingUser.id ? { ...u, role: editingUser.role, status: editingUser.status } : u));
+        setEditingUser(null);
+      } else {
+        showNotification(data.message || 'Gagal mengupdate pengguna.', 'info');
+      }
+    } catch (err) {
+      showNotification('Terjadi kesalahan saat menyimpan data.', 'info');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    if (!confirm('Apakah Anda yakin ingin menghapus pengguna ini secara permanen? Data yang berkaitan juga mungkin terhapus.')) return;
+    setActionLoading(`delete-user-${userId}`);
+    try {
+      const res = await fetch(`/api/admin/users/${userId}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        showNotification(data.message, 'success');
+        setUsers(users.filter(u => u.id !== userId));
+      } else {
+        showNotification(data.message || 'Gagal menghapus pengguna.', 'info');
+      }
+    } catch (err) {
+      showNotification('Terjadi kesalahan saat menghapus pengguna.', 'info');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
 
   const [selectedPageDetails, setSelectedPageDetails] = useState<any | null>(null);
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'Published' | 'Draft' | 'Inactive'>('ALL');
@@ -305,6 +365,23 @@ const AdminPanelPage = ({
     setSystemSettings({ ...systemSettings, userPageJson: obj });
   };
 
+  const updatePricingPlan = (index: number, field: string, value: any) => {
+    const userPage = { ...(systemSettings.userPageJson || {}) };
+    const pricingList = [...(userPage.pricing || [])];
+    pricingList[index] = { ...pricingList[index], [field]: value };
+    userPage.pricing = pricingList;
+    setSystemSettings({ ...systemSettings, userPageJson: userPage });
+  };
+
+  const updatePricingFeatures = (index: number, textValue: string) => {
+    const featuresArray = textValue.split('\n').map(f => f.trim()).filter(Boolean);
+    const userPage = { ...(systemSettings.userPageJson || {}) };
+    const pricingList = [...(userPage.pricing || [])];
+    pricingList[index] = { ...pricingList[index], features: featuresArray };
+    userPage.pricing = pricingList;
+    setSystemSettings({ ...systemSettings, userPageJson: userPage });
+  };
+
   const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
     setSavingSettings(true);
@@ -382,7 +459,7 @@ const AdminPanelPage = ({
   ];
 
   return (
-    <div className="bg-[#070b19] dark:bg-[#070b19] bg-slate-50 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col md:flex-row font-sans transition-colors duration-300">
+    <div className="bg-slate-50 dark:bg-[#070b19] text-slate-800 dark:text-slate-100 min-h-screen flex flex-col md:flex-row font-sans transition-colors duration-300">
       
       {/* 1. SIDEBAR NAVIGATION */}
       <aside className="w-full md:w-[250px] bg-white dark:bg-[#0b1226] border-r border-slate-200 dark:border-slate-800/60 p-6 flex flex-col gap-6 shrink-0 z-10 transition-colors duration-300">
@@ -433,7 +510,6 @@ const AdminPanelPage = ({
             <div className="bg-gradient-to-r from-blue-700/80 to-indigo-950/80 p-8 rounded-[24px] text-white shadow-md relative overflow-hidden border border-blue-500/20">
               <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-brand-blue/10 blur-[80px] rounded-full translate-x-1/2 -translate-y-1/2" />
               <div className="relative z-10 max-w-xl space-y-2.5">
-                <span className="px-3 py-1 bg-white/10 rounded-full text-[8.5px] font-black uppercase tracking-widest">Selamat Datang</span>
                 <h1 className="text-xl md:text-2xl font-black tracking-tight leading-none uppercase">Selamat Datang, Admin Uni-LandFarm</h1>
                 <p className="text-white/80 text-[11px] leading-relaxed font-medium">
                   Kelola sistem AI CMS, pantau landing page yang dipublikasikan, kelola data template, serta monitor aktivitas pengguna dari panel kendali terpusat.
@@ -447,12 +523,12 @@ const AdminPanelPage = ({
                 { title: "Total Users", val: users.length, icon: <User className="w-5 h-5" />, bg: "bg-blue-500/10", border: "border-slate-800/80", text: "text-brand-blue" },
                 { title: "Total Landing Pages", val: landingPages.length, icon: <Layers className="w-5 h-5" />, bg: "bg-indigo-500/10", border: "border-slate-800/80", text: "text-indigo-400" },
                 { title: "Published Landing Pages", val: publishedPagesCount, icon: <Globe className="w-5 h-5" />, bg: "bg-emerald-500/10", border: "border-slate-800/80", text: "text-emerald-400" },
-                { title: "Total Templates", val: templatesList.length || 5, icon: <Layout className="w-5 h-5" />, bg: "bg-purple-500/10", border: "border-slate-800/80", text: "text-purple-400" }
+                { title: "Total Templates", val: templatesList.length, icon: <Layout className="w-5 h-5" />, bg: "bg-purple-500/10", border: "border-slate-800/80", text: "text-purple-400" }
               ].map((stat, i) => (
-                <div key={i} className="bg-slate-900/50 border border-slate-800/80 p-6 rounded-2xl shadow-sm hover:shadow-md transition-all flex items-center justify-between">
+                <div key={i} className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 p-6 rounded-2xl shadow-sm hover:shadow-md transition-all flex items-center justify-between">
                   <div className="space-y-1">
-                    <span className="text-[8.5px] font-black text-slate-400 uppercase tracking-widest block">{stat.title}</span>
-                    <h2 className="text-2xl font-black text-white leading-none">{stat.val}</h2>
+                    <span className="text-[8.5px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest block">{stat.title}</span>
+                    <h2 className="text-2xl font-black text-slate-800 dark:text-white leading-none">{stat.val}</h2>
                   </div>
                   <div className={`w-12 h-12 rounded-2xl ${stat.bg} ${stat.text} flex items-center justify-center`}>
                     {stat.icon}
@@ -465,52 +541,180 @@ const AdminPanelPage = ({
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
               
               {/* Performance Overview (lg:span-7) */}
-              <div className="lg:col-span-7 bg-slate-900/50 border border-slate-800/80 p-6 rounded-[24px] shadow-sm space-y-6">
-                <div>
-                  <h3 className="text-xs font-black uppercase tracking-widest text-white">Landing Page Performance Overview</h3>
-                  <p className="text-[9.5px] text-slate-400 font-bold uppercase tracking-wider mt-1">Metrik performa pengunjung dan rasio status penerbitan</p>
+              <div className="lg:col-span-7 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 rounded-[24px] shadow-sm flex flex-col overflow-hidden">
+                <div className="p-6 pb-3">
+                  <h3 className="text-xs font-black uppercase tracking-widest text-slate-800 dark:text-white">Landing Page Performance Overview</h3>
+                  <p className="text-[9.5px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-1">Grafik rasio status publikasi landing page</p>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4 bg-slate-950/40 p-4 rounded-xl border border-slate-880/50">
-                  <div className="text-center py-2">
-                    <span className="text-[7.5px] font-black text-slate-400 uppercase block mb-1">Total Visitors</span>
-                    <span className="text-lg font-black text-slate-200">{landingPages.reduce((acc, p) => acc + (p.views || 0), 0).toLocaleString()}</span>
-                  </div>
-                  <div className="text-center py-2 border-x border-slate-800/60">
-                    <span className="text-[7.5px] font-black text-slate-400 uppercase block mb-1">Published Pages</span>
-                    <span className="text-lg font-black text-emerald-400">{publishedPagesCount}</span>
-                  </div>
-                  <div className="text-center py-2">
-                    <span className="text-[7.5px] font-black text-slate-400 uppercase block mb-1">Active Pages</span>
-                    <span className="text-lg font-black text-brand-blue">{landingPages.filter(p => p.status !== 'Draft').length}</span>
-                  </div>
+                {/* Legend */}
+                <div className="px-6 flex items-center gap-4 pb-2">
+                  {[
+                    { label: 'Published', color: '#10b981', val: publishedPagesCount },
+                    { label: 'Draft', color: '#f59e0b', val: draftPagesCount },
+                    { label: 'Inactive', color: '#ef4444', val: inactivePagesCount },
+                  ].map((s, i) => (
+                    <div key={i} className="flex items-center gap-1.5">
+                      <span className="w-5 h-0.5 rounded-full inline-block" style={{ backgroundColor: s.color }}></span>
+                      <span className="text-[8.5px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">{s.label} ({s.val})</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* SVG Line Chart */}
+                <div className="flex-1 min-h-0">
+                  {(() => {
+                    const now = new Date();
+                    const past6Months = Array.from({length: 6}, (_, i) => {
+                      const d = new Date(now.getFullYear(), now.getMonth() - 5 + i, 1);
+                      return { year: d.getFullYear(), month: d.getMonth(), label: d.toLocaleDateString('id-ID', { month: 'short' }) };
+                    });
+
+                    const getCountUpTo = (status: string, year: number, month: number) => {
+                      return landingPages.filter(lp => {
+                        if (status !== 'ALL' && lp.status !== status) return false;
+                        const d = new Date(lp.createdAt || lp.updatedAt || new Date());
+                        return d.getFullYear() < year || (d.getFullYear() === year && d.getMonth() <= month);
+                      }).length;
+                    };
+
+                    const maxVal = Math.max(1, ...past6Months.map(m => Math.max(
+                      getCountUpTo('Aktif', m.year, m.month),
+                      getCountUpTo('Draft', m.year, m.month),
+                      getCountUpTo('Nonaktif', m.year, m.month)
+                    )));
+
+                    const W = 500, H = 180, padX = 32, padY = 20;
+                    const chartW = W - padX * 2, chartH = H - padY * 2;
+                    
+                    const genPoints = (status: string) => {
+                      return past6Months.map((m, i) => {
+                        const v = getCountUpTo(status, m.year, m.month);
+                        const x = padX + (i / 5) * chartW;
+                        const y = padY + chartH - (v / maxVal) * chartH;
+                        return { x, y, v };
+                      });
+                    };
+
+                    const series = [
+                      { status: 'Aktif', stroke: '#10b981', fill: 'rgba(16,185,129,0.08)' },
+                      { status: 'Draft', stroke: '#f59e0b', fill: 'rgba(245,158,11,0.08)' },
+                      { status: 'Nonaktif', stroke: '#ef4444', fill: 'rgba(239,68,68,0.08)' },
+                    ];
+
+                    return (
+                      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="w-full h-full" style={{ minHeight: '160px' }}>
+                        {/* Grid lines */}
+                        {[0,1,2,3,4].map(i => {
+                          const y = padY + (i / 4) * chartH;
+                          return <line key={i} x1={padX} x2={W - padX} y1={y} y2={y} stroke="currentColor" strokeOpacity="0.07" strokeWidth="1" className="text-slate-900 dark:text-slate-100" />;
+                        })}
+
+                        {series.map(({ status, stroke, fill }, si) => {
+                          const pts = genPoints(status);
+                          const d = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+                          const area = `M ${pts[0].x} ${padY + chartH} L ${pts.map(p => `${p.x} ${p.y}`).join(' L ')} L ${pts[pts.length - 1].x} ${padY + chartH} Z`;
+                          return (
+                            <g key={si}>
+                              <path d={area} fill={fill} />
+                              <path d={d} fill="none" stroke={stroke} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+                              {pts.map((p, i) => i === pts.length - 1 && (
+                                <circle key={i} cx={p.x} cy={p.y} r="3.5" fill={stroke} stroke="white" strokeWidth="1.5" />
+                              ))}
+                            </g>
+                          );
+                        })}
+
+                        {/* X-axis labels */}
+                        {past6Months.map((m, i) => {
+                          const x = padX + (i / 5) * chartW;
+                          return <text key={i} x={x} y={H - 4} textAnchor="middle" className="fill-slate-400" fontSize="8" fontWeight="700" style={{ fontFamily: 'inherit', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{m.label}</text>;
+                        })}
+                      </svg>
+                    );
+                  })()}
                 </div>
               </div>
 
               {/* Recent Activity (lg:span-5) */}
-              <div className="lg:col-span-5 bg-slate-900/50 border border-slate-800/80 p-6 rounded-[24px] shadow-sm space-y-6">
+              <div className="lg:col-span-5 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 p-6 rounded-[24px] shadow-sm space-y-6">
                 <div>
-                  <h3 className="text-xs font-black uppercase tracking-widest text-white">Recent Activity Section</h3>
-                  <p className="text-[9.5px] text-slate-400 font-bold uppercase tracking-wider mt-1">Catatan log aktivitas administratif sistem</p>
+                  <h3 className="text-xs font-black uppercase tracking-widest text-slate-800 dark:text-white">Recent Activity Section</h3>
+                  <p className="text-[9.5px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-1">Catatan log aktivitas administratif sistem</p>
                 </div>
 
                 <div className="flow-root">
                   <ul className="-mb-8">
-                    {[
-                      { text: "User registration: Sarah Anderson mendaftar akun baru", time: "Baru saja", color: "bg-brand-blue" },
-                      { text: "Landing page publication: Toko Kopi Merdeka live di internet", time: "1 jam lalu", color: "bg-indigo-500" },
-                      { text: "Content updates: Jasa Bersih Merdeka memperbarui detail kontak", time: "3 jam lalu", color: "bg-amber-500" },
-                      { text: "Template updates: Template Makanan & Retail dimodifikasi", time: "1 hari lalu", color: "bg-purple-500" }
-                    ].map((act, i) => (
-                      <li key={i}>
-                        <div className="relative pb-8">
-                          {i !== 3 && <span className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-slate-800" aria-hidden="true" />}
-                          <div className="relative flex space-x-3">
-                            <div>
-                              <span className={`h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-slate-900 ${act.color} text-white`}>
-                                <Sparkles className="w-3.5 h-3.5" />
-                              </span>
-                            </div>
+                    {(() => {
+                      const activities: any[] = [];
+                      
+                      users.forEach(u => {
+                        if (u.createdAt) {
+                          activities.push({
+                            text: `User Registration: ${u.name} mendaftar akun baru`,
+                            date: new Date(u.createdAt),
+                            color: 'bg-brand-blue'
+                          });
+                        }
+                      });
+
+                      landingPages.forEach(lp => {
+                        if (lp.createdAt) {
+                          activities.push({
+                            text: `Landing Page Created: ${lp.title || lp.name || lp.businessName} oleh ${lp.user?.name || 'Seseorang'}`,
+                            date: new Date(lp.createdAt),
+                            color: 'bg-amber-500'
+                          });
+                        }
+                        if (lp.publishedAt && lp.status === 'Published') {
+                          activities.push({
+                            text: `Landing Page Published: ${lp.title || lp.name || lp.businessName} live di internet`,
+                            date: new Date(lp.publishedAt),
+                            color: 'bg-emerald-500'
+                          });
+                        }
+                      });
+
+                      templatesList.forEach(tpl => {
+                        if (tpl.createdAt) {
+                          activities.push({
+                            text: `Template Added: Template ${tpl.name} ditambahkan`,
+                            date: new Date(tpl.createdAt),
+                            color: 'bg-purple-500'
+                          });
+                        }
+                      });
+
+                      activities.sort((a, b) => b.date.getTime() - a.date.getTime());
+                      
+                      const topActivities = activities.slice(0, 5).map(act => {
+                        const diffMs = Date.now() - act.date.getTime();
+                        const diffMins = Math.floor(diffMs / 60000);
+                        const diffHours = Math.floor(diffMins / 60);
+                        const diffDays = Math.floor(diffHours / 24);
+                        
+                        let timeStr = 'Baru saja';
+                        if (diffMins > 0 && diffMins < 60) timeStr = `${diffMins} menit lalu`;
+                        else if (diffHours > 0 && diffHours < 24) timeStr = `${diffHours} jam lalu`;
+                        else if (diffDays > 0) timeStr = `${diffDays} hari lalu`;
+
+                        return { text: act.text, time: timeStr, color: act.color };
+                      });
+
+                      if (topActivities.length === 0) {
+                        return <p className="text-xs text-slate-400">Belum ada aktivitas tercatat.</p>;
+                      }
+
+                      return topActivities.map((act, i) => (
+                        <li key={i}>
+                          <div className="relative pb-8">
+                            {i !== topActivities.length - 1 && <span className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-slate-200 dark:bg-slate-800" aria-hidden="true" />}
+                            <div className="relative flex space-x-3">
+                              <div>
+                                <span className={`h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-white dark:ring-slate-900 ${act.color} text-white`}>
+                                  <Sparkles className="w-3.5 h-3.5" />
+                                </span>
+                              </div>
                               <div className="flex-1 min-w-0 pt-1.5 flex justify-between space-x-4">
                                 <div>
                                   <p className="text-[10.5px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide leading-relaxed">{act.text}</p>
@@ -521,8 +725,9 @@ const AdminPanelPage = ({
                               </div>
                             </div>
                           </div>
-                      </li>
-                    ))}
+                        </li>
+                      ));
+                    })()}
                   </ul>
                 </div>
               </div>
@@ -536,8 +741,8 @@ const AdminPanelPage = ({
           <div className="space-y-6 animate-in fade-in duration-300">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
               <div>
-                <h2 className="text-md font-black uppercase tracking-widest text-white">User Management Panel</h2>
-                <p className="text-[9.5px] text-slate-400 font-bold uppercase tracking-wider mt-1">Kelola hak akses pengguna, status akun, dan memblokir sementara</p>
+                <h2 className="text-md font-black uppercase tracking-widest text-slate-800 dark:text-white">User Management Panel</h2>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-bold mt-1">Kelola hak akses pengguna, status akun, dan memblokir sementara</p>
               </div>
               
               <div className="flex items-center gap-3">
@@ -554,39 +759,103 @@ const AdminPanelPage = ({
               </div>
             </div>
 
-            <div className="bg-slate-900/50 border border-slate-800/80 rounded-[24px] shadow-sm overflow-hidden">
+            <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 rounded-[24px] shadow-sm overflow-hidden">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="bg-slate-950/40 border-b border-slate-800/60">
-                    <th className="px-6 py-3.5 text-[9px] font-black text-slate-400 uppercase tracking-widest">Nama Lengkap</th>
-                    <th className="px-6 py-3.5 text-[9px] font-black text-slate-400 uppercase tracking-widest">Email</th>
-                    <th className="px-6 py-3.5 text-[9px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-                    <th className="px-6 py-3.5 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Aksi</th>
+                  <tr className="bg-slate-100 dark:bg-slate-950/40 border-b border-slate-200 dark:border-slate-800/60">
+                    <th className="px-6 py-3.5 text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Nama Lengkap</th>
+                    <th className="px-6 py-3.5 text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Email</th>
+                    <th className="px-6 py-3.5 text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Role</th>
+                    <th className="px-6 py-3.5 text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Status</th>
+                    <th className="px-6 py-3.5 text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest text-right">Aksi</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/60">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
                   {users.map((usr) => (
-                    <tr key={usr.id} className="hover:bg-slate-800/20 transition-colors">
-                      <td className="px-6 py-4 font-bold text-white">{usr.name}</td>
-                      <td className="px-6 py-4 text-slate-400 font-medium">{usr.email}</td>
+                    <tr key={usr.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-colors">
+                      <td className="px-6 py-4 font-bold text-slate-800 dark:text-white">{usr.name}</td>
+                      <td className="px-6 py-4 text-slate-500 dark:text-slate-400 font-medium">{usr.email}</td>
                       <td className="px-6 py-4">
-                        <span className={`px-2 py-0.5 text-[8px] font-black uppercase tracking-widest border rounded ${usr.status === 'Aktif' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
+                        <span className={`px-2 py-0.5 text-[8px] font-black uppercase tracking-widest border rounded ${usr.role === 'ADMIN' ? 'bg-purple-500/10 text-purple-500 border-purple-500/20' : 'bg-slate-200/50 text-slate-500 border-slate-300 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'}`}>
+                          {usr.role || 'USER'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`px-2 py-0.5 text-[8px] font-black uppercase tracking-widest border rounded ${usr.status === 'Aktif' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-red-500/10 text-red-500 border-red-500/20'}`}>
                           {usr.status}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <button
-                          onClick={() => toggleUserStatus(usr.id, usr.status)}
-                          className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-[9px] font-black text-slate-200 uppercase tracking-widest transition-all"
-                        >
-                          Ubah Status
-                        </button>
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => setEditingUser(usr)}
+                            className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-xl text-[9px] font-black text-slate-700 dark:text-slate-200 uppercase tracking-widest transition-all"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteUser(usr.id)}
+                            disabled={actionLoading === `delete-user-${usr.id}`}
+                            className="px-3 py-1.5 bg-red-50 hover:bg-red-100 dark:bg-red-500/10 dark:hover:bg-red-500/20 border border-red-200 dark:border-red-500/20 rounded-xl text-[9px] font-black text-red-600 dark:text-red-400 uppercase tracking-widest transition-all"
+                          >
+                            {actionLoading === `delete-user-${usr.id}` ? '...' : 'Hapus'}
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
+
+            {/* Edit User Modal */}
+            {editingUser && (
+              <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                <div className="bg-white dark:bg-[#0b1226] border border-slate-200 dark:border-slate-700 rounded-[24px] shadow-2xl w-full max-w-md">
+                  <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-800">
+                    <div>
+                      <h3 className="text-sm font-black uppercase tracking-widest text-slate-800 dark:text-white">Edit Pengguna</h3>
+                      <p className="text-[9px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5">{editingUser.email}</p>
+                    </div>
+                    <button onClick={() => setEditingUser(null)} className="w-8 h-8 flex items-center justify-center bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl transition-colors cursor-pointer">
+                      <X className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+                    </button>
+                  </div>
+                  <div className="p-6 space-y-4">
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">Role Pengguna</label>
+                      <select 
+                        value={editingUser.role || 'USER'}
+                        onChange={(e) => setEditingUser({...editingUser, role: e.target.value})}
+                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-800 dark:text-white focus:border-brand-blue outline-none"
+                      >
+                        <option value="USER">USER (Pengguna Biasa)</option>
+                        <option value="ADMIN">ADMIN (Hak Akses Penuh)</option>
+                      </select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">Status Akun</label>
+                      <select 
+                        value={editingUser.status || 'Aktif'}
+                        onChange={(e) => setEditingUser({...editingUser, status: e.target.value})}
+                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-800 dark:text-white focus:border-brand-blue outline-none"
+                      >
+                        <option value="Aktif">Aktif</option>
+                        <option value="Nonaktif">Nonaktif</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="p-6 border-t border-slate-200 dark:border-slate-800 flex gap-3">
+                    <button onClick={() => setEditingUser(null)} className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-[10px] font-black uppercase tracking-widest transition-colors">
+                      Batal
+                    </button>
+                    <button onClick={handleSaveUserEdit} disabled={actionLoading === `edit-user-${editingUser.id}`} className="flex-1 py-3 bg-brand-blue hover:bg-blue-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-colors flex items-center justify-center">
+                      {actionLoading === `edit-user-${editingUser.id}` ? 'Menyimpan...' : 'Simpan'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -606,7 +875,7 @@ const AdminPanelPage = ({
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
                 <div>
                   <h2 className="text-md font-black uppercase tracking-widest text-slate-800 dark:text-white">Kelola Publikasi</h2>
-                  <p className="text-[9.5px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-1">Kelola seluruh landing page yang dipublikasikan pada platform UNI-LandFarm.</p>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-1">Kelola seluruh landing page yang dipublikasikan pada platform UNI-LandFarm.</p>
                 </div>
                 <button
                   type="button"
@@ -764,29 +1033,29 @@ const AdminPanelPage = ({
               {/* Detail Modal */}
               {selectedPageDetails && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setSelectedPageDetails(null)}>
-                  <div className="bg-[#0b1226] border border-slate-700 rounded-[24px] shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-                    <div className="flex items-center justify-between p-6 border-b border-slate-800">
+                  <div className="bg-white dark:bg-[#0b1226] border border-slate-200 dark:border-slate-700 rounded-[24px] shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+                    <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-800">
                       <div>
-                        <h3 className="text-sm font-black uppercase tracking-widest text-white">{selectedPageDetails.name || selectedPageDetails.businessName || selectedPageDetails.title}</h3>
-                        <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Detail Landing Page</p>
+                        <h3 className="text-sm font-black uppercase tracking-widest text-slate-800 dark:text-white">{selectedPageDetails.name || selectedPageDetails.businessName || selectedPageDetails.title}</h3>
+                        <p className="text-[9px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5">Detail Landing Page</p>
                       </div>
-                      <button onClick={() => setSelectedPageDetails(null)} className="w-8 h-8 flex items-center justify-center bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors cursor-pointer">
-                        <X className="w-4 h-4 text-slate-300" />
+                      <button onClick={() => setSelectedPageDetails(null)} className="w-8 h-8 flex items-center justify-center bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl transition-colors cursor-pointer">
+                        <X className="w-4 h-4 text-slate-600 dark:text-slate-300" />
                       </button>
                     </div>
                     <div className="p-6 space-y-5">
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-xs">
+                      <div className="grid grid-cols-2 md:grid-cols-2 gap-4 text-xs">
                         {[
-                          { label: 'Nama Bisnis', val: selectedPageDetails.businessName || '-' },
-                          { label: 'Pemilik', val: selectedPageDetails.user?.name || '-' },
-                          { label: 'Template', val: selectedPageDetails.template?.name || '-' },
-                          { label: 'URL Slug', val: selectedPageDetails.slug || '-' },
-                          { label: 'Status', val: selectedPageDetails.status || '-' },
-                          { label: 'Total Views', val: (selectedPageDetails.views || 0).toLocaleString() },
+                          { label: 'Nama Bisnis', val: selectedPageDetails.businessName || '-', icon: '🏢' },
+                          { label: 'Pemilik', val: selectedPageDetails.user?.name || '-', icon: '👤' },
+                          { label: 'Template', val: selectedPageDetails.template?.name || '-', icon: '🎨' },
+                          { label: 'URL Slug', val: selectedPageDetails.slug || '-', icon: '🔗' },
+                          { label: 'Status', val: selectedPageDetails.status || '-', icon: '📊' },
+                          { label: 'Tanggal Publish', val: selectedPageDetails.publishedAt ? new Date(selectedPageDetails.publishedAt).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : 'Belum Terbit', icon: '📅' },
                         ].map((item, i) => (
-                          <div key={i} className="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
-                            <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1">{item.label}</span>
-                            <span className="font-bold text-white text-[11px] truncate block">{item.val}</span>
+                          <div key={i} className="bg-slate-50 dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+                            <span className="text-[8px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-1.5">{item.icon} {item.label}</span>
+                            <span className={`font-bold text-[12px] truncate block ${item.label === 'Status' ? (item.val === 'Published' ? 'text-emerald-600 dark:text-emerald-400' : item.val === 'Inactive' ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400') : 'text-slate-800 dark:text-white'}`}>{item.val}</span>
                           </div>
                         ))}
                       </div>
@@ -840,10 +1109,10 @@ const AdminPanelPage = ({
         {/* VIEW: TEMPLATE MANAGEMENT */}
         {adminView === 'templates' && (
           <div className="space-y-6 animate-in fade-in duration-300">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
               <div>
-                <h2 className="text-md font-black uppercase tracking-widest text-white">Template Management Panel</h2>
-                <p className="text-[9.5px] text-slate-400 font-bold uppercase tracking-wider mt-1">Kelola pustaka template situs, ubah status, dan tambahkan desain baru</p>
+                <h2 className="text-md font-black uppercase tracking-widest text-slate-800 dark:text-white">Template Management Panel</h2>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-1">Kelola pustaka template situs, ubah status, dan tambahkan desain baru</p>
               </div>
               <button
                 onClick={() => setShowAddTemplateModal(true)}
@@ -862,8 +1131,8 @@ const AdminPanelPage = ({
                   { id: 't2', name: 'FreshMarket Store', category: 'E-Commerce / Retail', thumbnail: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=500&q=80', status: 'Aktif', description: 'Template e-commerce sayur, buah, dan pangan segar.' },
                   { id: 't3', name: 'SmartFarm Tech', category: 'Teknologi & IoT', thumbnail: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=500&q=80', status: 'Aktif', description: 'Tampilan futuristik untuk teknologi IoT pertanian.' }
                 ].map((tpl) => (
-                  <div key={tpl.id} className="bg-slate-900/50 border border-slate-800/80 rounded-2xl overflow-hidden shadow-sm hover:border-slate-700/80 transition-all flex flex-col group">
-                    <div className="h-40 bg-slate-950 relative overflow-hidden shrink-0 border-b border-slate-800/55">
+                  <div key={tpl.id} className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 rounded-2xl overflow-hidden shadow-sm hover:shadow-md dark:hover:border-slate-700/80 transition-all flex flex-col group">
+                    <div className="h-40 bg-slate-100 dark:bg-slate-950 relative overflow-hidden shrink-0 border-b border-slate-200 dark:border-slate-800/55">
                       <img src={tpl.thumbnail} alt={tpl.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                       <span className="absolute top-3 right-3 px-2 py-0.5 rounded text-[8px] font-black uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">{tpl.status}</span>
                     </div>
@@ -878,18 +1147,18 @@ const AdminPanelPage = ({
                 ))
               ) : (
                 templatesList.map((tpl) => (
-                  <div key={tpl.id} className="bg-slate-900/50 border border-slate-800/80 rounded-2xl overflow-hidden shadow-sm hover:border-slate-700/80 transition-all flex flex-col group">
-                    <div className="h-40 bg-slate-950 relative overflow-hidden shrink-0 border-b border-slate-800/55">
+                  <div key={tpl.id} className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 rounded-2xl overflow-hidden shadow-sm hover:shadow-md dark:hover:border-slate-700/80 transition-all flex flex-col group">
+                    <div className="h-40 bg-slate-100 dark:bg-slate-950 relative overflow-hidden shrink-0 border-b border-slate-200 dark:border-slate-800/55">
                       <img src={tpl.thumbnail || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=500&q=80'} alt={tpl.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                       <span className={`absolute top-3 right-3 px-2 py-0.5 rounded text-[8px] font-black uppercase border ${tpl.status === 'Aktif' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-slate-800/80 text-slate-400 border-slate-700'}`}>{tpl.status}</span>
                     </div>
                     <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
                       <div className="space-y-1">
                         <span className="text-[8.5px] font-black text-brand-blue uppercase tracking-widest">{tpl.category}</span>
-                        <h4 className="text-xs font-black text-white uppercase tracking-tight">{tpl.name}</h4>
-                        <p className="text-[10px] text-slate-400 font-medium leading-relaxed line-clamp-2">{tpl.description}</p>
+                        <h4 className="text-xs font-black text-slate-800 dark:text-white uppercase tracking-tight">{tpl.name}</h4>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium leading-relaxed line-clamp-2">{tpl.description}</p>
                       </div>
-                      <div className="pt-3 border-t border-slate-800 flex gap-2">
+                      <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex gap-2">
                         <button
                           onClick={() => {
                             const nextStatus = tpl.status === 'Aktif' ? 'Nonaktif' : 'Aktif';
@@ -901,7 +1170,7 @@ const AdminPanelPage = ({
                               body: JSON.stringify({ title: 'Status Template Diubah', message: `Status template ${tpl.name} telah diubah menjadi ${nextStatus}.`, type: 'info' }) 
                             });
                           }}
-                          className="flex-1 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-lg text-[9px] font-black uppercase tracking-widest transition-colors cursor-pointer text-center"
+                          className="flex-1 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-[9px] font-black uppercase tracking-widest transition-colors cursor-pointer text-center"
                         >
                           Ubah Status
                         </button>
@@ -946,14 +1215,14 @@ const AdminPanelPage = ({
         {/* VIEW: CONTENT MANAGEMENT (CMS) */}
         {adminView === 'content' && (
           <div className="space-y-6 animate-in fade-in duration-300">
-            <div className="border-b border-slate-800 pb-5">
-              <h2 className="text-md font-black uppercase tracking-widest text-white">Global CMS Content Management</h2>
-              <p className="text-[9.5px] text-slate-400 font-bold uppercase tracking-wider mt-1">Kelola informasi publik, teks promosi, dan kontak yang dipublikasikan sistem</p>
+            <div className="border-b border-slate-200 dark:border-slate-800 pb-5">
+              <h2 className="text-md font-black uppercase tracking-widest text-slate-800 dark:text-white">Global CMS Content Management</h2>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-1">Kelola informasi publik, teks promosi, kontak, dan pengaturan platform yang dipublikasikan sistem</p>
             </div>
 
             {/* Tabs for sections */}
-            <div className="flex gap-2 border-b border-slate-800 pb-px overflow-x-auto scrollbar-none">
-              {['basic', 'features', 'testimonials', 'faqs', 'user_dashboard', 'seo', 'support'].map((tab) => (
+            <div className="flex gap-1 border-b border-slate-200 dark:border-slate-800 pb-px overflow-x-auto scrollbar-none">
+              {['basic', 'features', 'testimonials', 'faqs', 'user_dashboard', 'pricing', 'guides', 'seo', 'support'].map((tab) => (
                 <button
                   key={tab}
                   type="button"
@@ -961,7 +1230,7 @@ const AdminPanelPage = ({
                   className={`px-4 py-2.5 text-[9.5px] font-black uppercase tracking-widest transition-all cursor-pointer whitespace-nowrap ${
                     cmsSettingsTab === tab
                       ? 'border-b-2 border-brand-blue text-brand-blue'
-                      : 'text-slate-400 hover:text-slate-200'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
                   }`}
                 >
                   {tab === 'basic' ? 'Informasi Dasar' :
@@ -969,71 +1238,386 @@ const AdminPanelPage = ({
                    tab === 'testimonials' ? 'Testimoni' :
                    tab === 'faqs' ? 'Daftar FAQ' :
                    tab === 'user_dashboard' ? 'Welcome Dashboard' :
+                   tab === 'pricing' ? '🏷️ Paket Token' :
+                   tab === 'guides' ? 'Pusat Panduan' :
                    tab === 'seo' ? 'Pengaturan SEO' : 'Kontak'}
                 </button>
               ))}
             </div>
 
-            <form onSubmit={handleSaveSettings} className="space-y-6 bg-slate-900/40 p-8 rounded-[24px] border border-slate-800/80">
+            <form onSubmit={handleSaveSettings} className="space-y-6 bg-white dark:bg-slate-900/40 p-8 rounded-[24px] border border-slate-200 dark:border-slate-800/80 shadow-sm">
               {cmsSettingsTab === 'basic' && (
                 <div className="space-y-4 animate-in fade-in duration-200">
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Platform Name</label>
+                    <label className="text-[9px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest ml-1">Platform Name</label>
                     <input
                       type="text"
                       value={systemSettings.platformName}
                       onChange={(e) => setSystemSettings({ ...systemSettings, platformName: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none"
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/60 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none transition-colors"
                       required
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Platform Logo (URL)</label>
-                    <input
-                      type="text"
-                      value={systemSettings.logo}
-                      onChange={(e) => setSystemSettings({ ...systemSettings, logo: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none"
-                    />
+                    <label className="text-[9px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest ml-1">Platform Logo</label>
+                    <div className="flex flex-col sm:flex-row gap-4 items-center">
+                      <div className="w-20 h-20 bg-slate-100 dark:bg-slate-950 rounded-2xl flex items-center justify-center border border-slate-200 dark:border-slate-800/80 overflow-hidden relative shrink-0">
+                        {systemSettings.logo ? (
+                          <img src={systemSettings.logo} alt="Logo" className="w-full h-full object-contain p-2" />
+                        ) : (
+                          <span className="text-[8px] font-black text-slate-400 uppercase">No Logo</span>
+                        )}
+                      </div>
+                      <div className="flex-1 w-full space-y-2">
+                        <div className="relative border border-dashed border-slate-300 dark:border-slate-800 rounded-xl p-4 text-center hover:border-brand-blue/30 transition-all cursor-pointer group overflow-hidden bg-slate-50 dark:bg-slate-950">
+                          <input 
+                            type="file" 
+                            accept="image/png, image/jpeg, image/svg+xml"
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              const formData = new FormData();
+                              formData.append('file', file);
+                              try {
+                                showNotification('Mengunggah logo...', 'info');
+                                const res = await fetch('/api/media/upload', {
+                                  method: 'POST',
+                                  body: formData
+                                });
+                                const data = await res.json();
+                                if (data.success && data.data?.fileUrl) {
+                                  setSystemSettings({ ...systemSettings, logo: data.data.fileUrl });
+                                  showNotification('Logo platform berhasil diunggah!', 'success');
+                                } else {
+                                  showNotification(data.message || 'Gagal mengunggah logo.', 'info');
+                                }
+                              } catch (err) {
+                                showNotification('Koneksi upload bermasalah.', 'info');
+                              }
+                            }}
+                          />
+                          <p className="text-[10px] font-black text-slate-550 dark:text-slate-400 uppercase group-hover:text-brand-blue transition-colors">Upload File Logo Baru</p>
+                          <p className="text-[8px] text-slate-400 uppercase mt-0.5">PNG, JPG, SVG (Maks. 2MB)</p>
+                        </div>
+                        <input
+                          type="text"
+                          value={systemSettings.logo || ''}
+                          onChange={(e) => setSystemSettings({ ...systemSettings, logo: e.target.value })}
+                          placeholder="Atau masukkan URL Logo di sini..."
+                          className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/60 rounded-xl px-4 py-2 text-xs text-slate-800 dark:text-white outline-none transition-colors"
+                        />
+                      </div>
+                    </div>
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Judul Utama Hero (Landing Page)</label>
+                    <label className="text-[9px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest ml-1">Judul Utama Hero (Landing Page)</label>
                     <input
                       type="text"
                       value={systemSettings.heroTitle}
                       onChange={(e) => setSystemSettings({ ...systemSettings, heroTitle: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none"
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/60 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none transition-colors"
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Deskripsi Hero</label>
+                    <label className="text-[9px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest ml-1">Deskripsi Hero</label>
                     <textarea
                       value={systemSettings.heroDescription}
                       onChange={(e) => setSystemSettings({ ...systemSettings, heroDescription: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none min-h-[100px] resize-none"
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/60 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none min-h-[100px] resize-none transition-colors"
                     />
                   </div>
+                </div>
+              )}
+
+              {cmsSettingsTab === 'pricing' && (
+                <div className="space-y-6 animate-in fade-in duration-200">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">Daftar Paket Token</h3>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newPricing = [...(systemSettings.userPageJson?.pricing || [])];
+                        newPricing.push({
+                          name: 'PAKET BARU',
+                          price: 'Rp 0',
+                          description: 'Deskripsi paket',
+                          features: ['Fitur 1'],
+                          buttonText: 'BELI SEKARANG',
+                          gradient: 'from-slate-500 to-slate-400'
+                        });
+                        updateUserPage('pricing', newPricing);
+                      }}
+                      className="px-3 py-1.5 bg-brand-blue hover:bg-blue-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest transition-all cursor-pointer flex items-center gap-1 shadow-md shadow-brand-blue/10 animate-in fade-in"
+                    >
+                      <Plus className="w-3 h-3" /> Tambah Paket
+                    </button>
+                  </div>
+
+                  {(systemSettings.userPageJson?.pricing || []).length === 0 ? (
+                    <div className="text-center py-8 text-[11px] text-slate-500 font-bold uppercase tracking-wider bg-slate-50 dark:bg-slate-950/40 border border-dashed border-slate-200 dark:border-slate-800/80 rounded-xl">
+                      Sistem menggunakan paket default. Klik "Tambah Paket" untuk membuat paket khusus.
+                    </div>
+                  ) : (
+                    <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent">
+                      {(systemSettings.userPageJson?.pricing || []).map((plan: any, idx: number) => (
+                        <div key={idx} className="relative bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-4 space-y-3">
+                          <div className="absolute top-4 right-4 flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newPricing = systemSettings.userPageJson.pricing.filter((_: any, i: number) => i !== idx);
+                                updateUserPage('pricing', newPricing);
+                              }}
+                              className="p-1.5 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-lg transition-all cursor-pointer"
+                              title="Hapus Paket"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-3 pr-16">
+                            <div className="space-y-1.5">
+                              <label className="text-[8px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest">Nama Paket</label>
+                              <input
+                                type="text"
+                                value={plan.name || ''}
+                                onChange={(e) => {
+                                  const np = [...systemSettings.userPageJson.pricing];
+                                  np[idx].name = e.target.value;
+                                  updateUserPage('pricing', np);
+                                }}
+                                className="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none"
+                              />
+                            </div>
+                            <div className="space-y-1.5">
+                              <label className="text-[8px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest">Harga</label>
+                              <input
+                                type="text"
+                                value={plan.price || ''}
+                                onChange={(e) => {
+                                  const np = [...systemSettings.userPageJson.pricing];
+                                  np[idx].price = e.target.value;
+                                  updateUserPage('pricing', np);
+                                }}
+                                className="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none"
+                              />
+                            </div>
+                            <div className="space-y-1.5 col-span-2">
+                              <label className="text-[8px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest">Deskripsi</label>
+                              <input
+                                type="text"
+                                value={plan.description || ''}
+                                onChange={(e) => {
+                                  const np = [...systemSettings.userPageJson.pricing];
+                                  np[idx].description = e.target.value;
+                                  updateUserPage('pricing', np);
+                                }}
+                                className="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none"
+                              />
+                            </div>
+                            <div className="space-y-1.5 col-span-2">
+                              <label className="text-[8px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest">Fitur (Satu per baris)</label>
+                              <textarea
+                                value={Array.isArray(plan.features) ? plan.features.join('\n') : ''}
+                                onChange={(e) => {
+                                  const np = [...systemSettings.userPageJson.pricing];
+                                  np[idx].features = e.target.value.split('\n');
+                                  updateUserPage('pricing', np);
+                                }}
+                                className="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none min-h-[60px] resize-none"
+                              />
+                            </div>
+                            <div className="space-y-1.5">
+                              <label className="text-[8px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest">Teks Tombol</label>
+                              <input
+                                type="text"
+                                value={plan.buttonText || ''}
+                                onChange={(e) => {
+                                  const np = [...systemSettings.userPageJson.pricing];
+                                  np[idx].buttonText = e.target.value;
+                                  updateUserPage('pricing', np);
+                                }}
+                                className="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none"
+                              />
+                            </div>
+                            <div className="space-y-1.5">
+                              <label className="text-[8px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest">Warna Gradien (Tailwind)</label>
+                              <input
+                                type="text"
+                                value={plan.gradient || ''}
+                                onChange={(e) => {
+                                  const np = [...systemSettings.userPageJson.pricing];
+                                  np[idx].gradient = e.target.value;
+                                  updateUserPage('pricing', np);
+                                }}
+                                className="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none"
+                                placeholder="from-blue-500 to-cyan-400"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {cmsSettingsTab === 'guides' && (
+                <div className="space-y-6 animate-in fade-in duration-200">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">Pusat Panduan (Guide Center)</h3>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newGuides = [...(systemSettings.userPageJson?.guides || [])];
+                        newGuides.push({
+                          title: 'PANDUAN BARU',
+                          desc: 'Deskripsi panduan',
+                          time: '3 Menit',
+                          icon: 'Zap',
+                          bg: 'from-blue-500 to-cyan-400',
+                          steps: ['Langkah 1']
+                        });
+                        updateUserPage('guides', newGuides);
+                      }}
+                      className="px-3 py-1.5 bg-brand-blue hover:bg-blue-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest transition-all cursor-pointer flex items-center gap-1 shadow-md shadow-brand-blue/10 animate-in fade-in"
+                    >
+                      <Plus className="w-3 h-3" /> Tambah Panduan
+                    </button>
+                  </div>
+
+                  {(systemSettings.userPageJson?.guides || []).length === 0 ? (
+                    <div className="text-center py-8 text-[11px] text-slate-500 font-bold uppercase tracking-wider bg-slate-50 dark:bg-slate-950/40 border border-dashed border-slate-200 dark:border-slate-800/80 rounded-xl">
+                      Sistem menggunakan panduan default. Klik "Tambah Panduan" untuk membuat panduan kustom.
+                    </div>
+                  ) : (
+                    <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent">
+                      {(systemSettings.userPageJson?.guides || []).map((guide: any, idx: number) => (
+                        <div key={idx} className="relative bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-4 space-y-3">
+                          <div className="absolute top-4 right-4 flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newGuides = systemSettings.userPageJson.guides.filter((_: any, i: number) => i !== idx);
+                                updateUserPage('guides', newGuides);
+                              }}
+                              className="p-1.5 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-lg transition-all cursor-pointer"
+                              title="Hapus Panduan"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-3 pr-16">
+                            <div className="space-y-1.5">
+                              <label className="text-[8px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest">Judul Panduan</label>
+                              <input
+                                type="text"
+                                value={guide.title || ''}
+                                onChange={(e) => {
+                                  const ng = [...systemSettings.userPageJson.guides];
+                                  ng[idx].title = e.target.value;
+                                  updateUserPage('guides', ng);
+                                }}
+                                className="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none"
+                              />
+                            </div>
+                            <div className="space-y-1.5">
+                              <label className="text-[8px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest">Waktu Baca</label>
+                              <input
+                                type="text"
+                                value={guide.time || ''}
+                                onChange={(e) => {
+                                  const ng = [...systemSettings.userPageJson.guides];
+                                  ng[idx].time = e.target.value;
+                                  updateUserPage('guides', ng);
+                                }}
+                                className="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none"
+                              />
+                            </div>
+                            <div className="space-y-1.5 col-span-2">
+                              <label className="text-[8px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest">Deskripsi</label>
+                              <textarea
+                                value={guide.desc || ''}
+                                onChange={(e) => {
+                                  const ng = [...systemSettings.userPageJson.guides];
+                                  ng[idx].desc = e.target.value;
+                                  updateUserPage('guides', ng);
+                                }}
+                                className="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none min-h-[50px] resize-none"
+                              />
+                            </div>
+                            <div className="space-y-1.5">
+                              <label className="text-[8px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest">Ikon (Lucide)</label>
+                              <select
+                                value={guide.icon || 'Zap'}
+                                onChange={(e) => {
+                                  const ng = [...systemSettings.userPageJson.guides];
+                                  ng[idx].icon = e.target.value;
+                                  updateUserPage('guides', ng);
+                                }}
+                                className="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none"
+                              >
+                                <option value="Zap">Zap</option>
+                                <option value="Database">Database</option>
+                                <option value="Layout">Layout</option>
+                                <option value="Rocket">Rocket</option>
+                                <option value="BookOpen">BookOpen</option>
+                              </select>
+                            </div>
+                            <div className="space-y-1.5">
+                              <label className="text-[8px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest">Warna Gradien (Tailwind)</label>
+                              <input
+                                type="text"
+                                value={guide.bg || ''}
+                                onChange={(e) => {
+                                  const ng = [...systemSettings.userPageJson.guides];
+                                  ng[idx].bg = e.target.value;
+                                  updateUserPage('guides', ng);
+                                }}
+                                className="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none"
+                                placeholder="from-blue-500 to-cyan-400"
+                              />
+                            </div>
+                            <div className="space-y-1.5 col-span-2">
+                              <label className="text-[8px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest">Langkah-Langkah (Satu per baris)</label>
+                              <textarea
+                                value={Array.isArray(guide.steps) ? guide.steps.join('\n') : ''}
+                                onChange={(e) => {
+                                  const ng = [...systemSettings.userPageJson.guides];
+                                  ng[idx].steps = e.target.value.split('\n');
+                                  updateUserPage('guides', ng);
+                                }}
+                                className="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none min-h-[60px] resize-none"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 
               {cmsSettingsTab === 'seo' && (
                 <div className="space-y-4 animate-in fade-in duration-200">
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Meta Deskripsi Default</label>
+                    <label className="text-[9px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest ml-1">Meta Deskripsi Default</label>
                     <textarea
                       value={systemSettings.heroDescription || ''}
                       onChange={(e) => setSystemSettings({ ...systemSettings, heroDescription: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none min-h-[100px] resize-none"
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/60 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none min-h-[100px] resize-none transition-colors"
                       placeholder="Deskripsi SEO yang digunakan sistem"
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Default Footer Text</label>
+                    <label className="text-[9px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest ml-1">Default Footer Text</label>
                     <input
                       type="text"
                       value={systemSettings.footerText}
                       onChange={(e) => setSystemSettings({ ...systemSettings, footerText: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none"
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/60 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none transition-colors"
                     />
                   </div>
                 </div>
@@ -1042,22 +1626,22 @@ const AdminPanelPage = ({
               {cmsSettingsTab === 'support' && (
                 <div className="space-y-4 animate-in fade-in duration-200">
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Kontak Utama</label>
+                    <label className="text-[9px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest ml-1">Email Kontak Utama</label>
                     <input
                       type="email"
                       value={systemSettings.contactEmail}
                       onChange={(e) => setSystemSettings({ ...systemSettings, contactEmail: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none"
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/60 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none transition-colors"
                       required
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Nomor WhatsApp Operasional</label>
+                    <label className="text-[9px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest ml-1">Nomor WhatsApp Operasional</label>
                     <input
                       type="text"
                       value={systemSettings.whatsapp}
                       onChange={(e) => setSystemSettings({ ...systemSettings, whatsapp: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none"
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/60 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none transition-colors"
                       placeholder="628123456..."
                     />
                   </div>
@@ -1067,7 +1651,7 @@ const AdminPanelPage = ({
               {cmsSettingsTab === 'features' && (
                 <div className="space-y-6 animate-in fade-in duration-200">
                   <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-300">Daftar Fitur Platform</h3>
+                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">Daftar Fitur Platform</h3>
                     <button
                       type="button"
                       onClick={addFeature}
@@ -1084,7 +1668,7 @@ const AdminPanelPage = ({
                   ) : (
                     <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent">
                       {(systemSettings.featuresJson || []).map((feature: any, idx: number) => (
-                        <div key={idx} className="relative bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 space-y-3">
+                        <div key={idx} className="relative bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-4 space-y-3">
                           <div className="absolute top-4 right-4 flex items-center gap-2">
                             <span className="text-[10px] text-slate-500 font-black italic">#{feature.num || String(idx + 1).padStart(2, '0')}</span>
                             <button
@@ -1099,22 +1683,22 @@ const AdminPanelPage = ({
 
                           <div className="grid grid-cols-2 gap-3 pr-12">
                             <div className="space-y-1.5">
-                              <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Judul Fitur</label>
+                              <label className="text-[8px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest">Judul Fitur</label>
                               <input
                                 type="text"
                                 value={feature.title || ''}
                                 onChange={(e) => updateFeature(idx, 'title', e.target.value)}
-                                className="w-full bg-slate-900 border border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-white outline-none"
+                                className="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none"
                                 placeholder="Nama Fitur"
                                 required
                               />
                             </div>
                             <div className="space-y-1.5">
-                              <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Ikon (Lucide)</label>
+                              <label className="text-[8px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest">Ikon (Lucide)</label>
                               <select
                                 value={feature.icon || 'Zap'}
                                 onChange={(e) => updateFeature(idx, 'icon', e.target.value)}
-                                className="w-full bg-slate-900 border border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-white outline-none"
+                                className="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none"
                               >
                                 {['Zap', 'Folder', 'Smartphone', 'Wallet', 'BarChart3', 'Cpu', 'Globe', 'Database', 'Shield', 'Coffee', 'Leaf', 'Tractor'].map((ico) => (
                                   <option key={ico} value={ico}>{ico}</option>
@@ -1124,11 +1708,11 @@ const AdminPanelPage = ({
                           </div>
 
                           <div className="space-y-1.5">
-                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Deskripsi Fitur</label>
+                            <label className="text-[8px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest">Deskripsi Fitur</label>
                             <textarea
                               value={feature.desc || ''}
                               onChange={(e) => updateFeature(idx, 'desc', e.target.value)}
-                              className="w-full bg-slate-900 border border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-white outline-none min-h-[60px] resize-none"
+                              className="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none min-h-[60px] resize-none"
                               placeholder="Deskripsi lengkap kegunaan fitur ini..."
                               required
                             />
@@ -1143,7 +1727,7 @@ const AdminPanelPage = ({
               {cmsSettingsTab === 'testimonials' && (
                 <div className="space-y-6 animate-in fade-in duration-200">
                   <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-300">Daftar Testimoni Klien</h3>
+                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">Daftar Testimoni Klien</h3>
                     <button
                       type="button"
                       onClick={addTestimonial}
@@ -1154,13 +1738,13 @@ const AdminPanelPage = ({
                   </div>
 
                   {(systemSettings.testimonialsJson || []).length === 0 ? (
-                    <div className="text-center py-8 text-[11px] text-slate-500 font-bold uppercase tracking-wider bg-slate-950/40 border border-dashed border-slate-800/80 rounded-xl">
+                    <div className="text-center py-8 text-[11px] text-slate-550 dark:text-slate-400 font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-950/40 border border-dashed border-slate-200 dark:border-slate-800/80 rounded-xl">
                       Belum ada testimoni. Klik "Tambah Testimoni" untuk memulai.
                     </div>
                   ) : (
                     <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent">
                       {(systemSettings.testimonialsJson || []).map((testi: any, idx: number) => (
-                        <div key={idx} className="relative bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 space-y-3">
+                        <div key={idx} className="relative bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-4 space-y-3">
                           <div className="absolute top-4 right-4">
                             <button
                               type="button"
@@ -1174,23 +1758,23 @@ const AdminPanelPage = ({
 
                           <div className="grid grid-cols-2 gap-3 pr-12">
                             <div className="space-y-1.5">
-                              <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Nama Klien</label>
+                              <label className="text-[8px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest">Nama Klien</label>
                               <input
                                 type="text"
                                 value={testi.name || ''}
                                 onChange={(e) => updateTestimonial(idx, 'name', e.target.value)}
-                                className="w-full bg-slate-900 border border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-white outline-none"
+                                className="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none"
                                 placeholder="Nama Lengkap"
                                 required
                               />
                             </div>
                             <div className="space-y-1.5">
-                              <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Jabatan / Perusahaan</label>
+                              <label className="text-[8px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest">Jabatan / Perusahaan</label>
                               <input
                                 type="text"
                                 value={testi.role || ''}
                                 onChange={(e) => updateTestimonial(idx, 'role', e.target.value)}
-                                className="w-full bg-slate-900 border border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-white outline-none"
+                                className="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none"
                                 placeholder="Contoh: CEO of TokoKopi"
                                 required
                               />
@@ -1199,23 +1783,23 @@ const AdminPanelPage = ({
 
                           <div className="grid grid-cols-1 gap-3">
                             <div className="space-y-1.5">
-                              <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Avatar URL</label>
+                              <label className="text-[8px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest">Avatar URL</label>
                               <input
                                 type="text"
                                 value={testi.avatar || ''}
                                 onChange={(e) => updateTestimonial(idx, 'avatar', e.target.value)}
-                                className="w-full bg-slate-900 border border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-white outline-none"
+                                className="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none"
                                 placeholder="https://picsum.photos/seed/..."
                               />
                             </div>
                           </div>
 
                           <div className="space-y-1.5">
-                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Isi Testimoni</label>
+                            <label className="text-[8px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest">Isi Testimoni</label>
                             <textarea
                               value={testi.content || ''}
                               onChange={(e) => updateTestimonial(idx, 'content', e.target.value)}
-                              className="w-full bg-slate-900 border border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-white outline-none min-h-[60px] resize-none"
+                              className="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none min-h-[60px] resize-none"
                               placeholder="Ulasan positif klien..."
                               required
                             />
@@ -1230,7 +1814,7 @@ const AdminPanelPage = ({
               {cmsSettingsTab === 'faqs' && (
                 <div className="space-y-6 animate-in fade-in duration-200">
                   <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-300">Daftar Pertanyaan Umum (FAQ)</h3>
+                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">Daftar Pertanyaan Umum (FAQ)</h3>
                     <button
                       type="button"
                       onClick={addFaq}
@@ -1241,13 +1825,13 @@ const AdminPanelPage = ({
                   </div>
 
                   {(systemSettings.faqsJson || []).length === 0 ? (
-                    <div className="text-center py-8 text-[11px] text-slate-500 font-bold uppercase tracking-wider bg-slate-950/40 border border-dashed border-slate-800/80 rounded-xl">
+                    <div className="text-center py-8 text-[11px] text-slate-550 dark:text-slate-400 font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-950/40 border border-dashed border-slate-200 dark:border-slate-800/80 rounded-xl">
                       Belum ada FAQ. Klik "Tambah FAQ" untuk memulai.
                     </div>
                   ) : (
                     <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent">
                       {(systemSettings.faqsJson || []).map((faq: any, idx: number) => (
-                        <div key={idx} className="relative bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 space-y-3">
+                        <div key={idx} className="relative bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 rounded-2xl p-4 space-y-3">
                           <div className="absolute top-4 right-4 flex items-center gap-2">
                             <span className={`w-3.5 h-3.5 rounded-full ${faq.color || 'bg-blue-500'} opacity-75`} title="Warna Aksen" />
                             <button
@@ -1262,22 +1846,22 @@ const AdminPanelPage = ({
 
                           <div className="grid grid-cols-2 gap-3 pr-16">
                             <div className="space-y-1.5 col-span-2 sm:col-span-1">
-                              <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Pertanyaan</label>
+                              <label className="text-[8px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest">Pertanyaan</label>
                               <input
                                 type="text"
                                 value={faq.q || ''}
                                 onChange={(e) => updateFaq(idx, 'q', e.target.value)}
-                                className="w-full bg-slate-900 border border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-white outline-none"
+                                className="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none"
                                 placeholder="Contoh: Apakah bisa custom domain?"
                                 required
                               />
                             </div>
                             <div className="space-y-1.5 col-span-2 sm:col-span-1">
-                              <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Aksen Warna (Tailwind)</label>
+                              <label className="text-[8px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest">Aksen Warna (Tailwind)</label>
                               <select
                                 value={faq.color || 'bg-blue-500'}
                                 onChange={(e) => updateFaq(idx, 'color', e.target.value)}
-                                className="w-full bg-slate-900 border border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-white outline-none"
+                                className="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none"
                               >
                                 <option value="bg-blue-500">Blue (Biru)</option>
                                 <option value="bg-purple-500">Purple (Ungu)</option>
@@ -1290,11 +1874,11 @@ const AdminPanelPage = ({
                           </div>
 
                           <div className="space-y-1.5">
-                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Jawaban</label>
+                            <label className="text-[8px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest">Jawaban</label>
                             <textarea
                               value={faq.a || ''}
                               onChange={(e) => updateFaq(idx, 'a', e.target.value)}
-                              className="w-full bg-slate-900 border border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-white outline-none min-h-[60px] resize-none"
+                              className="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-lg px-3 py-2 text-xs text-slate-800 dark:text-white outline-none min-h-[60px] resize-none"
                               placeholder="Tulis jawaban lengkap di sini..."
                               required
                             />
@@ -1306,28 +1890,29 @@ const AdminPanelPage = ({
                 </div>
               )}
 
+
               {cmsSettingsTab === 'user_dashboard' && (
                 <div className="space-y-4 animate-in fade-in duration-200">
-                  <div className="border-b border-slate-800/50 pb-3 mb-2">
-                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-300">Header Welcome Dashboard Pengguna</h3>
+                  <div className="border-b border-slate-200 dark:border-slate-800/50 pb-3 mb-2">
+                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">Header Welcome Dashboard Pengguna</h3>
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Judul Selamat Datang (Welcome Title)</label>
+                    <label className="text-[9px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest ml-1">Judul Selamat Datang (Welcome Title)</label>
                     <input
                       type="text"
                       value={systemSettings.userPageJson?.welcomeTitle || ''}
                       onChange={(e) => updateUserPage('welcomeTitle', e.target.value)}
-                      className="w-full bg-slate-950 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none"
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none"
                       placeholder="Halo, Pebisnis Modern!"
                       required
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Sub-judul Selamat Datang (Welcome Subtitle)</label>
+                    <label className="text-[9px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest ml-1">Sub-judul Selamat Datang (Welcome Subtitle)</label>
                     <textarea
                       value={systemSettings.userPageJson?.welcomeSubtitle || ''}
                       onChange={(e) => updateUserPage('welcomeSubtitle', e.target.value)}
-                      className="w-full bg-slate-950 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none min-h-[80px] resize-none"
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none min-h-[80px] resize-none"
                       placeholder="Siap untuk mengotomatisasi ekosistem digital Anda hari ini?"
                       required
                     />
@@ -1618,15 +2203,15 @@ const AdminPanelPage = ({
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl">
               {/* Left Card: Account Information */}
-              <div className="bg-slate-900/50 border border-slate-800/80 rounded-[24px] p-8 shadow-sm space-y-6 flex flex-col justify-between">
+              <div className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 rounded-[24px] p-8 shadow-sm space-y-6 flex flex-col justify-between">
                 <div>
-                  <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 pb-4 border-b border-slate-800/60">Informasi Akun</h3>
+                  <h3 className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-6 pb-4 border-b border-slate-200 dark:border-slate-800/60">Informasi Akun</h3>
                   <div className="space-y-4 text-xs">
-                    <div className="flex flex-col gap-1.5 p-3.5 bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-2xl">
+                    <div className="flex flex-col gap-1.5 p-3.5 bg-white dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-2xl">
                       <span className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">EMAIL OPERASIONAL</span>
                       <span className="text-slate-800 dark:text-white font-bold">admin@unilanfarm.com</span>
                     </div>
-                    <div className="flex flex-col gap-1.5 p-3.5 bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-2xl">
+                    <div className="flex flex-col gap-1.5 p-3.5 bg-white dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-2xl">
                       <span className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">TIPE HAK AKSES</span>
                       <span className="text-brand-blue font-bold">SYSTEM ROOT ADMINISTRATOR</span>
                     </div>
@@ -1635,7 +2220,7 @@ const AdminPanelPage = ({
                 {onLogout && (
                   <button
                     onClick={onLogout}
-                    className="w-full mt-8 py-3.5 text-[9px] font-black text-red-500 hover:text-red-650 hover:border-red-500/50 uppercase tracking-widest border border-red-500/20 rounded-xl hover:bg-red-500/10 transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer animate-in duration-200"
+                    className="w-full mt-8 py-3.5 text-[9px] font-black text-red-500 hover:text-red-600 hover:border-red-500/50 uppercase tracking-widest border border-red-500/20 rounded-xl hover:bg-red-50 dark:hover:bg-red-500/10 transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer animate-in duration-200"
                   >
                     <LogOut className="w-3.5 h-3.5" />
                     Logout Akun
@@ -1644,38 +2229,38 @@ const AdminPanelPage = ({
               </div>
 
               {/* Right Card: Change Password Form */}
-              <div className="bg-slate-900/50 border border-slate-800/80 rounded-[24px] p-8 shadow-sm">
-                <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 pb-4 border-b border-slate-800/60">Keamanan & Ubah Password</h3>
+              <div className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 rounded-[24px] p-8 shadow-sm">
+                <h3 className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-6 pb-4 border-b border-slate-200 dark:border-slate-800/60">Keamanan & Ubah Password</h3>
                 <form onSubmit={handleAdminChangePassword} className="space-y-4">
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Password Saat Ini</label>
+                    <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Password Saat Ini</label>
                     <input
                       type="password"
                       value={oldPassword}
                       onChange={(e) => setOldPassword(e.target.value)}
-                      className="w-full bg-slate-950/60 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none transition-all"
+                      className="w-full bg-white dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none transition-all"
                       placeholder="••••••••"
                       required
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Password Baru</label>
+                    <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Password Baru</label>
                     <input
                       type="password"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      className="w-full bg-slate-950/60 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none transition-all"
+                      className="w-full bg-white dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none transition-all"
                       placeholder="Minimal 6 karakter"
                       required
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Konfirmasi Password Baru</label>
+                    <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Konfirmasi Password Baru</label>
                     <input
                       type="password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="w-full bg-slate-950/60 border border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-white outline-none transition-all"
+                      className="w-full bg-white dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none transition-all"
                       placeholder="Ulangi password baru"
                       required
                     />

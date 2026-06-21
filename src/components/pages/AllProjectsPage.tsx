@@ -44,10 +44,10 @@ const AllProjectsPage = ({
       <div className="absolute bottom-0 -right-20 w-80 h-80 bg-purple-500/10 dark:bg-purple-600/20 blur-[120px] rounded-full pointer-events-none -z-10 animate-pulse delay-5000 duration-10000" />
 
       {/* Header and Back Button */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/60 dark:border-slate-800/80 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5">
         <div className="flex items-center gap-3">
           <div>
-            <h2 className="text-md lg:text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-1.5 uppercase">
+            <h2 className="text-md lg:text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-none mb-1.5">
               Semua Proyek
             </h2>
             <p className="text-base text-slate-500 dark:text-slate-400 font-medium">
