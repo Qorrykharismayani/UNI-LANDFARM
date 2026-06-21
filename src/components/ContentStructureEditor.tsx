@@ -756,42 +756,23 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
 
     setSaveStatus('Saving');
     const delayDebounce = setTimeout(async () => {
-      // Validate section completeness
-      const emptyActiveSections = sections.filter(s => s.isActive && getSectionCompleteness(s.type || s.id, s.content).type === 'warning');
-      if (emptyActiveSections.length > 0) {
-        setSaveStatus('Error');
-        const emptyNames = emptyActiveSections.map(s => {
-          switch (s.type || s.id) {
-            case 'logo': return 'Logo Website';
-            case 'navbar': return 'Menu Navigasi';
-            case 'hero': return 'Hero Banner';
-            case 'about': return 'Tentang Usaha';
-            case 'products': return 'Produk & Layanan';
-            case 'advantages': return 'Keunggulan';
-            case 'gallery': return 'Galeri Foto';
-            case 'testimonials': return 'Testimoni';
-            case 'cta': return 'CTA Penawaran';
-            case 'contact': return 'Kontak';
-            case 'socialMedia': return 'Media Sosial';
-            case 'marketplaces': return 'Toko Online';
-            case 'footer': return 'Footer Halaman';
-            default: return s.title || s.type;
-          }
-        });
-        triggerToast(`Gagal menyimpan otomatis! Konten pada bagian berikut harus diisi: ${emptyNames.join(', ')}`);
-        return;
-      }
-
       try {
         const updatedPages = sitePages.map(p => p.slug === currentPageSlug ? { ...p, content: contentJson } : p);
         if (!updatedPages.find(p => p.slug === currentPageSlug)) {
           updatedPages.push({ slug: currentPageSlug, name: currentPageSlug === '/' ? 'Beranda' : 'Halaman Baru', content: contentJson });
         }
         setSitePages(updatedPages);
+        const homePage = updatedPages.find(p => p.slug === '/') || updatedPages[0];
+        const homeContent = homePage?.content || {};
         const res = await fetch(`/api/landing-pages/${pageId}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ contentJson: { pages: updatedPages } })
+          body: JSON.stringify({
+            contentJson: {
+              ...homeContent,
+              pages: updatedPages
+            }
+          })
         });
         const data = await res.json();
         if (data.success) {
@@ -896,11 +877,16 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
       }
       setSitePages(updatedPages);
 
+      const homePage = updatedPages.find(p => p.slug === '/') || updatedPages[0];
+      const homeContent = homePage?.content || {};
       const saveRes = await fetch(`/api/landing-pages/${pageId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contentJson: { pages: updatedPages },
+          contentJson: {
+            ...homeContent,
+            pages: updatedPages
+          },
           title: editPublishTitle.trim(),
           businessName: editPublishBusinessName.trim(),
           slug: editPublishSlug.trim(),
@@ -937,32 +923,6 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
 
   // Save manual draft with validation
   const handleSaveDraft = async () => {
-    // Validate section completeness
-    const incompleteSections = sections.filter(s => s.isActive && getSectionCompleteness(s.type || s.id, s.content).type === 'warning');
-    if (incompleteSections.length > 0) {
-      const incompleteNames = incompleteSections.map(s => {
-        switch (s.type || s.id) {
-          case 'logo': return 'Logo Website';
-          case 'navbar': return 'Menu Navigasi';
-          case 'hero': return 'Hero Banner';
-          case 'about': return 'Tentang Usaha';
-          case 'products': return 'Produk & Layanan';
-          case 'advantages': return 'Keunggulan';
-          case 'gallery': return 'Galeri Foto';
-          case 'testimonials': return 'Testimoni';
-          case 'cta': return 'CTA Penawaran';
-          case 'contact': return 'Kontak';
-          case 'socialMedia': return 'Media Sosial';
-          case 'marketplaces': return 'Toko Online';
-          case 'footer': return 'Footer Halaman';
-          default: return s.title || s.type;
-        }
-      });
-      triggerToast(`Gagal menyimpan! Konten pada bagian berikut harus diisi: ${incompleteNames.join(', ')}`);
-      setSaveStatus('Error');
-      return;
-    }
-
     setSaveStatus('Saving');
     try {
       const updatedPages = sitePages.map(p => p.slug === currentPageSlug ? { ...p, content: contentJson } : p);
@@ -970,10 +930,17 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
         updatedPages.push({ slug: currentPageSlug, name: currentPageSlug === '/' ? 'Beranda' : 'Halaman Baru', content: contentJson });
       }
 
+      const homePage = updatedPages.find(p => p.slug === '/') || updatedPages[0];
+      const homeContent = homePage?.content || {};
       const res = await fetch(`/api/landing-pages/${pageId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contentJson: { pages: updatedPages } })
+        body: JSON.stringify({
+          contentJson: {
+            ...homeContent,
+            pages: updatedPages
+          }
+        })
       });
       const data = await res.json();
       if (data.success) {

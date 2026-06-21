@@ -1429,6 +1429,7 @@ export const DashboardView = ({
         if (cmsSubTab === 'editor') {
           setCmsSubTab('manual');
         }
+        fetchProjects();
       }}
       onPublishSuccess={() => {
         fetchProjects();

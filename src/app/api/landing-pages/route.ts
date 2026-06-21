@@ -36,15 +36,27 @@ export async function GET(request: Request) {
     const formattedPages = pages.map((p) => {
       const contentJson = (p.content?.contentJson as any) || {};
       
-      // Determine category: priority is p.category -> contentJson.category -> p.template.category
-      const displayCategory = p.category || contentJson.category || p.template.category;
+      // Determine nested content if pages array exists
+      let targetContent = contentJson;
+      if (contentJson.pages && Array.isArray(contentJson.pages) && contentJson.pages.length > 0) {
+        if (contentJson.pages[0].content) {
+          targetContent = contentJson.pages[0].content;
+        }
+      }
+
+      // Determine category: priority is p.category -> targetContent.category -> p.template.category
+      const displayCategory = p.category || targetContent.category || p.template.category;
       
-      // Determine thumbnail: priority is contentJson.hero?.banner -> contentJson.logo -> p.template.thumbnail
+      // Determine thumbnail: priority is targetContent.hero?.banner -> targetContent.logo -> p.template.thumbnail
       let displayImage = p.template.thumbnail;
-      if (contentJson.hero && contentJson.hero.banner) {
-        displayImage = contentJson.hero.banner;
-      } else if (contentJson.logo) {
-        displayImage = contentJson.logo;
+      if (targetContent.hero && targetContent.hero.banner) {
+        displayImage = targetContent.hero.banner;
+      } else if (targetContent.logo) {
+        displayImage = targetContent.logo;
+      } else if (targetContent.products && Array.isArray(targetContent.products) && targetContent.products.length > 0 && targetContent.products[0].image) {
+        displayImage = targetContent.products[0].image;
+      } else if (targetContent.gallery && Array.isArray(targetContent.gallery) && targetContent.gallery.length > 0 && typeof targetContent.gallery[0] === 'string') {
+        displayImage = targetContent.gallery[0];
       }
 
       return {
