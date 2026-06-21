@@ -28,8 +28,8 @@ interface AdminPanelPageProps {
   onLogout?: () => void;
   onSwitchToUserView?: () => void;
   onSettingsUpdate?: (s: any) => void;
-  adminView?: 'dashboard' | 'users' | 'landing_pages' | 'templates' | 'content' | 'profile' | 'analytics';
-  setAdminView?: (v: 'dashboard' | 'users' | 'landing_pages' | 'templates' | 'content' | 'profile' | 'analytics') => void;
+  adminView?: 'dashboard' | 'users' | 'landing_pages' | 'templates' | 'content' | 'profile' | 'analytics' | 'transactions';
+  setAdminView?: (v: 'dashboard' | 'users' | 'landing_pages' | 'templates' | 'content' | 'profile' | 'analytics' | 'transactions') => void;
 }
 
 const AdminPanelPage = ({ 
@@ -40,7 +40,7 @@ const AdminPanelPage = ({
   adminView: propsAdminView,
   setAdminView: propsSetAdminView
 }: AdminPanelPageProps) => {
-  const [localAdminView, setLocalAdminView] = useState<'dashboard' | 'users' | 'landing_pages' | 'templates' | 'content' | 'profile' | 'analytics'>('dashboard');
+  const [localAdminView, setLocalAdminView] = useState<'dashboard' | 'users' | 'landing_pages' | 'templates' | 'content' | 'profile' | 'analytics' | 'transactions'>('dashboard');
   const adminView = propsAdminView || localAdminView;
   const setAdminView = propsSetAdminView || setLocalAdminView;
   const [users, setUsers] = useState<any[]>([]);
@@ -787,7 +787,7 @@ const AdminPanelPage = ({
               
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-455 dark:text-slate-500" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
                   <input
                     type="text"
                     placeholder="Cari pengguna..."
@@ -1213,10 +1213,10 @@ const AdminPanelPage = ({
                                 setTemplatesList(templatesList.map(t => t.id === tpl.id ? { ...t, status: nextStatus } : t));
                                 showNotification(`Template ${tpl.name} diubah menjadi ${nextStatus}`, 'success');
                               } else {
-                                showNotification(data.message || 'Gagal mengubah status', 'error');
+                                showNotification(data.message || 'Gagal mengubah status', 'info');
                               }
                             } catch (err) {
-                              showNotification('Gagal menghubungi server', 'error');
+                              showNotification('Gagal menghubungi server', 'info');
                             }
                           }}
                           className="flex-1 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-[9px] font-black uppercase tracking-widest transition-colors cursor-pointer text-center"
@@ -1249,10 +1249,10 @@ const AdminPanelPage = ({
                                 setTemplatesList(templatesList.filter(t => t.id !== tpl.id));
                                 showNotification(`Template ${tpl.name} berhasil dihapus!`, 'info');
                               } else {
-                                showNotification(data.message || 'Gagal menghapus template', 'error');
+                                showNotification(data.message || 'Gagal menghapus template', 'info');
                               }
                             } catch (err) {
-                              showNotification('Gagal menghubungi server', 'error');
+                              showNotification('Gagal menghubungi server', 'info');
                             }
                           }}
                           className="px-2 py-1.5 bg-red-500/10 hover:bg-red-500 border border-red-500/20 text-red-500 hover:text-white rounded-lg transition-colors cursor-pointer flex items-center justify-center"
