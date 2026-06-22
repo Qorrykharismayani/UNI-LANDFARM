@@ -426,12 +426,6 @@ const LandingPagePage = ({
   if (cmsNavMode === 'manual') {
     return (
       <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-500">
-        <button
-          onClick={() => setCmsNavMode('landing')}
-          className="flex items-center gap-2 text-xs font-black text-slate-400 hover:text-brand-blue uppercase tracking-widest transition-colors mb-4"
-        >
-          <ArrowLeft className="w-3 h-3" /> Kembali
-        </button>
 
         <div className="bg-white dark:bg-slate-900 rounded-[32px] p-10 border border-slate-100 dark:border-slate-800 shadow-premium">
           <div className="flex items-center gap-4 mb-10">
