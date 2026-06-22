@@ -255,15 +255,15 @@ const LandingPagePage = ({
             {/* Navbar Preview */}
             <nav className="flex justify-between items-center py-4 px-8 border-b border-slate-100 dark:border-slate-800/80 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-20">
               <div className="flex items-center gap-3">
-                {generatedDraft.logo || manualData.logo ? (
-                  <img src={generatedDraft.logo || manualData.logo} alt="Logo" className="h-8 w-auto max-w-[120px] object-contain" />
+                {manualData.logo || generatedDraft.logo ? (
+                  <img src={manualData.logo || generatedDraft.logo} alt="Logo" className="h-8 w-auto max-w-[120px] object-contain" />
                 ) : (
                   <div className="w-8 h-8 rounded-lg bg-brand-blue flex items-center justify-center text-white font-black text-sm">
-                    {(generatedDraft.navbar?.brand || manualData.name || 'Situs Bisnis').charAt(0).toUpperCase()}
+                    {(manualData.name || generatedDraft.navbar?.brand || 'Situs Bisnis').charAt(0).toUpperCase()}
                   </div>
                 )}
                 <span className="font-extrabold text-slate-800 dark:text-white text-sm tracking-tight">
-                  {generatedDraft.navbar?.brand || manualData.name || 'Situs Bisnis'}
+                  {manualData.name || generatedDraft.navbar?.brand || 'Situs Bisnis'}
                 </span>
               </div>
               <div className="hidden sm:flex gap-6 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
@@ -322,10 +322,10 @@ const LandingPagePage = ({
                   {section === 'Tentang Kami' ? (
                     <div className="bg-slate-100 dark:bg-slate-950 rounded-3xl p-8 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-4 text-left">
                       <p className="text-sm font-medium text-slate-700 dark:text-slate-300 leading-relaxed">
-                        {generatedDraft.about?.description || manualData.description || 'Penyedia produk kerajinan dan kuliner lokal unggulan.'}
+                        {manualData.description || generatedDraft.about?.description || 'Penyedia produk kerajinan dan kuliner lokal unggulan.'}
                       </p>
                       <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-semibold">
-                        {generatedDraft.about?.profile || `Kami adalah bisnis yang bergerak di bidang ${manualData.category || 'layanan profesional'}.`}
+                        {manualData.category ? `Kami adalah bisnis yang bergerak di bidang ${manualData.category}.` : (generatedDraft.about?.profile || `Kami adalah bisnis yang bergerak di bidang ${manualData.category || 'layanan profesional'}.`)}
                       </p>
                     </div>
                   ) : (
