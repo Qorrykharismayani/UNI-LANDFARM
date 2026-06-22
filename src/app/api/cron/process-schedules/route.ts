@@ -53,14 +53,16 @@ export async function GET(request: Request) {
         const sectionName = schedule.sectionName || 'hero';
         const component = schedule.component;
         let value = schedule.newValue;
+        let headlineValue = null;
         let imageUrl = null;
         let aiPayload: any = null;
         
         try {
           const parsed = JSON.parse(schedule.newValue);
           if (typeof parsed === 'object' && parsed !== null) {
-            if ('text' in parsed || 'image' in parsed) {
+            if ('text' in parsed || 'image' in parsed || 'headline' in parsed) {
               value = parsed.text || '';
+              headlineValue = parsed.headline || null;
               imageUrl = parsed.image || null;
             }
             if ('aiPayload' in parsed) {
@@ -84,7 +86,8 @@ export async function GET(request: Request) {
             targetContent[sectionName].subheadline = aiPayload.subheadline || '';
             if (aiPayload.cta) targetContent[sectionName].cta = aiPayload.cta;
           } else {
-            targetContent[sectionName].headline = value;
+            targetContent[sectionName].headline = headlineValue || value;
+            if (headlineValue) targetContent[sectionName].subheadline = value;
           }
           if (imageUrl) targetContent[sectionName].image = imageUrl;
         } else if (component === 'Hero Subtitle') {
@@ -98,7 +101,7 @@ export async function GET(request: Request) {
             targetContent.cta.description = aiPayload.subheadline || '';
             targetContent.cta.buttonText = aiPayload.cta || '';
           } else {
-            targetContent.cta.headline = value;
+            targetContent.cta.title = headlineValue || value;
             targetContent.cta.buttonText = value;
           }
           if (imageUrl) targetContent.cta.image = imageUrl;
@@ -113,10 +116,11 @@ export async function GET(request: Request) {
              }
           } else {
             if (targetContent.products.length > 0) {
+              if (headlineValue) targetContent.products[0].name = headlineValue;
               targetContent.products[0].description = value;
               if (imageUrl) targetContent.products[0].image = imageUrl;
             } else {
-              targetContent.products.push({ id: Date.now(), name: schedule.title || 'Produk', description: value, image: imageUrl });
+              targetContent.products.push({ id: Date.now(), name: headlineValue || schedule.title || 'Produk', description: value, image: imageUrl });
             }
           }
         } else if (component === 'Card Layanan' || (sectionName === 'advantages' && component === 'Content')) {
@@ -130,10 +134,11 @@ export async function GET(request: Request) {
             }
           } else {
             if (targetContent.advantages.length > 0) {
+              if (headlineValue) targetContent.advantages[0].title = headlineValue;
               targetContent.advantages[0].description = value;
               if (imageUrl) targetContent.advantages[0].image = imageUrl;
             } else {
-              targetContent.advantages.push({ icon: 'Zap', title: schedule.title || 'Layanan', description: value, image: imageUrl });
+              targetContent.advantages.push({ icon: 'Zap', title: headlineValue || schedule.title || 'Layanan', description: value, image: imageUrl });
             }
           }
         } else if (component === 'Testimoni' || (sectionName === 'testimonials' && component === 'Content')) {
@@ -147,11 +152,12 @@ export async function GET(request: Request) {
             }
           } else {
             if (targetContent.testimonials.length > 0) {
+              if (headlineValue) targetContent.testimonials[0].name = headlineValue;
               targetContent.testimonials[0].quote = value;
               targetContent.testimonials[0].content = value;
               if (imageUrl) targetContent.testimonials[0].photo = imageUrl;
             } else {
-              targetContent.testimonials.push({ quote: value, content: value, author: schedule.title || 'Pelanggan', name: schedule.title || 'Pelanggan', photo: imageUrl });
+              targetContent.testimonials.push({ quote: value, content: value, author: headlineValue || schedule.title || 'Pelanggan', name: headlineValue || schedule.title || 'Pelanggan', photo: imageUrl });
             }
           }
         } else if (component === 'Kontak' || (sectionName === 'contact' && component === 'Content')) {

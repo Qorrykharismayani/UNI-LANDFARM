@@ -41,7 +41,12 @@ export default function App() {
         console.error("Gagal mengambil settings:", err);
       }
     };
+
     fetchSettings();
+
+    // Auto-refresh saat pengguna kembali ke tab ini
+    window.addEventListener('focus', fetchSettings);
+    return () => window.removeEventListener('focus', fetchSettings);
   }, [view]);
 
   useEffect(() => {
@@ -84,9 +89,9 @@ export default function App() {
             <Features setView={setView} systemSettings={systemSettings} />
             <TemplatePreview setView={setView} user={user} />
             <CMSLandingView setView={setView} user={user} />
-            <Testimonials />
+            <Testimonials systemSettings={systemSettings} />
             <PricingView setView={setView} user={user} systemSettings={systemSettings} />
-            <FAQ />
+            <FAQ systemSettings={systemSettings} />
             <FinalCTA setView={setView} user={user} systemSettings={systemSettings} />
           </>
         );

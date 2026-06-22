@@ -328,6 +328,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
   const [filterStatus, setFilterStatus] = useState<string>('ALL');
   const [isSchedulerModalOpen, setIsSchedulerModalOpen] = useState(false);
   const [newScheduleTitle, setNewScheduleTitle] = useState('');
+  const [newScheduleHeadline, setNewScheduleHeadline] = useState('');
   const [newScheduleDate, setNewScheduleDate] = useState('');
   const [newScheduleTime, setNewScheduleTime] = useState('');
   const [newScheduleTargetSection, setNewScheduleTargetSection] = useState('logo');
@@ -1296,6 +1297,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
   const resetScheduleForm = () => {
     setEditingScheduleId(null);
     setNewScheduleTitle('');
+    setNewScheduleHeadline('');
     setNewScheduleDate('');
     setNewScheduleTime('');
     setNewScheduleTargetSection('logo');
@@ -1328,7 +1330,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
         landingPageId: Number(pageId),
         sectionName: newScheduleTargetSection,
         component: 'Content',
-        newValue: JSON.stringify({ text: newScheduleContent, image: newScheduleImage, aiPayload: newScheduleAiPayload }),
+        newValue: JSON.stringify({ headline: newScheduleHeadline, text: newScheduleContent, image: newScheduleImage, aiPayload: newScheduleAiPayload }),
         scheduledAt: scheduleDateTime.toISOString(),
         status: 'Scheduled'
       };
@@ -1408,10 +1410,12 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
     
     try {
       const parsed = JSON.parse(item.content || '{}');
+      setNewScheduleHeadline(parsed.headline || '');
       setNewScheduleContent(parsed.text || '');
       setNewScheduleImage(parsed.image || '');
       setNewScheduleAiPayload(parsed.aiPayload || null);
     } catch (e) {
+      setNewScheduleHeadline('');
       setNewScheduleContent(item.content || '');
       setNewScheduleImage('');
       setNewScheduleAiPayload(null);
@@ -3307,7 +3311,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
       {isSchedulerModalOpen && (
         <div className="fixed inset-0 z-[250] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm" onClick={() => setIsSchedulerModalOpen(false)} />
-          <div className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl p-6 md:p-8 space-y-6 shadow-2xl border border-slate-200 dark:border-slate-800 z-10 animate-in fade-in zoom-in-95 duration-150">
+          <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-2xl p-6 md:p-8 space-y-6 shadow-2xl border border-slate-200 dark:border-slate-800 z-10 animate-in fade-in zoom-in-95 duration-150">
             <div className="border-b border-slate-100 dark:border-slate-800 pb-4">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
@@ -3330,83 +3334,102 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                   {scheduleError}
                 </div>
               )}
-              <div className="space-y-1.5">
-                <label className="text-sm font-bold text-slate-700 dark:text-slate-300 block">Judul Konten</label>
-                <input
-                  type="text"
-                  value={newScheduleTitle}
-                  onChange={(e) => setNewScheduleTitle(e.target.value)}
-                  placeholder="Contoh: Promo Ramadhan Kopi"
-                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-slate-200 outline-none focus:ring-4 focus:ring-brand-blue/10 focus:border-brand-blue transition-all shadow-sm"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-sm font-bold text-slate-700 dark:text-slate-300 block">Target Section</label>
-                <select
-                  value={newScheduleTargetSection}
-                  onChange={(e) => setNewScheduleTargetSection(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-slate-200 outline-none focus:ring-4 focus:ring-brand-blue/10 focus:border-brand-blue transition-all shadow-sm"
-                >
-                  {sections.map((s, idx) => (
-                    <option key={s.id || `opt-${idx}`} value={s.id}>{s.title || s.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-sm font-bold text-slate-700 dark:text-slate-300 block">Konten yang akan diterapkan</label>
-                <textarea
-                  value={newScheduleContent}
-                  onChange={(e) => setNewScheduleContent(e.target.value)}
-                  placeholder="Tuliskan konten spesifik..."
-                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-4 text-sm font-medium text-slate-800 dark:text-slate-200 outline-none resize-none h-24 focus:ring-4 focus:ring-brand-blue/10 focus:border-brand-blue transition-all leading-relaxed shadow-sm"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-sm font-bold text-slate-700 dark:text-slate-300 block">Upload Gambar (Opsional)</label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={newScheduleImage}
-                    onChange={(e) => setNewScheduleImage(e.target.value)}
-                    placeholder="Masukkan URL gambar atau klik tombol upload..."
-                    className="flex-1 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-slate-200 outline-none focus:ring-4 focus:ring-brand-blue/10 focus:border-brand-blue transition-all shadow-sm"
-                  />
-                  <label
-                    className="px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 font-bold text-sm transition-all flex items-center justify-center cursor-pointer"
-                    title="Upload Gambar"
-                  >
-                    <ImageIcon className="w-5 h-5" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Kolom Kiri */}
+                <div className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300 block">Judul Konten</label>
                     <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => handleUpload(e, setNewScheduleImage)}
+                      type="text"
+                      value={newScheduleTitle}
+                      onChange={(e) => setNewScheduleTitle(e.target.value)}
+                      placeholder="Contoh: Promo Ramadhan Kopi"
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-slate-200 outline-none focus:ring-4 focus:ring-brand-blue/10 focus:border-brand-blue transition-all shadow-sm"
                     />
-                  </label>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300 block">Target Section</label>
+                    <select
+                      value={newScheduleTargetSection}
+                      onChange={(e) => setNewScheduleTargetSection(e.target.value)}
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-slate-200 outline-none focus:ring-4 focus:ring-brand-blue/10 focus:border-brand-blue transition-all shadow-sm"
+                    >
+                      {sections.map((s, idx) => (
+                        <option key={s.id || `opt-${idx}`} value={s.id}>{s.title || s.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300 block">Headline / Judul Spesifik (Opsional)</label>
+                    <input
+                      type="text"
+                      value={newScheduleHeadline}
+                      onChange={(e) => setNewScheduleHeadline(e.target.value)}
+                      placeholder="Contoh: Kualitas Premium"
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-slate-200 outline-none focus:ring-4 focus:ring-brand-blue/10 focus:border-brand-blue transition-all shadow-sm"
+                    />
+                  </div>
+                </div>
+
+                {/* Kolom Kanan */}
+                <div className="flex flex-col space-y-1.5 h-full">
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300 block">Konten yang akan diterapkan</label>
+                  <textarea
+                    value={newScheduleContent}
+                    onChange={(e) => setNewScheduleContent(e.target.value)}
+                    placeholder="Tuliskan konten spesifik..."
+                    className="w-full flex-1 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-4 text-sm font-medium text-slate-800 dark:text-slate-200 outline-none resize-none focus:ring-4 focus:ring-brand-blue/10 focus:border-brand-blue transition-all leading-relaxed shadow-sm min-h-[120px]"
+                  />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300 block">Tanggal</label>
-                  <input
-                    type="date"
-                    value={newScheduleDate}
-                    onChange={(e) => setNewScheduleDate(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-slate-200 outline-none focus:ring-4 focus:ring-brand-blue/10 focus:border-brand-blue transition-all shadow-sm"
-                  />
+                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300 block">Upload Gambar (Opsional)</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={newScheduleImage}
+                      onChange={(e) => setNewScheduleImage(e.target.value)}
+                      placeholder="URL / upload..."
+                      className="flex-1 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-slate-200 outline-none focus:ring-4 focus:ring-brand-blue/10 focus:border-brand-blue transition-all shadow-sm"
+                    />
+                    <label
+                      className="px-4 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 font-bold text-sm transition-all flex items-center justify-center cursor-pointer"
+                      title="Upload Gambar"
+                    >
+                      <ImageIcon className="w-5 h-5" />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => handleUpload(e, setNewScheduleImage)}
+                      />
+                    </label>
+                  </div>
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-sm font-bold text-slate-700 dark:text-slate-300 block">Jam</label>
-                  <input
-                    type="time"
-                    value={newScheduleTime}
-                    onChange={(e) => setNewScheduleTime(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-slate-200 outline-none focus:ring-4 focus:ring-brand-blue/10 focus:border-brand-blue transition-all shadow-sm"
-                  />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300 block">Tanggal</label>
+                    <input
+                      type="date"
+                      value={newScheduleDate}
+                      onChange={(e) => setNewScheduleDate(e.target.value)}
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-slate-200 outline-none focus:ring-4 focus:ring-brand-blue/10 focus:border-brand-blue transition-all shadow-sm"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300 block">Jam</label>
+                    <input
+                      type="time"
+                      value={newScheduleTime}
+                      onChange={(e) => setNewScheduleTime(e.target.value)}
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm font-bold text-slate-800 dark:text-slate-200 outline-none focus:ring-4 focus:ring-brand-blue/10 focus:border-brand-blue transition-all shadow-sm"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
