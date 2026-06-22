@@ -64,6 +64,7 @@ export interface EditorCopyResult {
     headline: string;
     subheadline: string;
     cta: string;
+    price?: string;
   };
 }
 
@@ -80,10 +81,11 @@ export const generateEditorCopy = async (
 
   Your job is to generate highly engaging, creative, and relevant copywriting for their landing page based on this command.
   
-  ALWAYS output your generated content in these three fields:
+  ALWAYS output your generated content in these four fields:
   1. "headline": A short, catchy title, product name, or main hook.
   2. "subheadline": The main descriptive text, promo copy, or explanatory paragraph. Ensure it directly answers the user's prompt!
   3. "cta": A short call-to-action button text (max 3 words).
+  4. "price": A realistic price formatted in Rupiah (e.g., 'Rp 50.000', 'Gratis') if generating a product/service, otherwise an empty string.
 
   Make the tone match their request if specified. Provide a friendly reply in Indonesian explaining what you generated.
 
@@ -93,7 +95,8 @@ export const generateEditorCopy = async (
     "suggestedData": {
       "headline": "Judul Menarik",
       "subheadline": "Teks promo atau deskripsi yang relevan dengan instruksi...",
-      "cta": "Beli Sekarang"
+      "cta": "Beli Sekarang",
+      "price": "Rp 150.000"
     }
   }`;
 
@@ -111,9 +114,10 @@ export const generateEditorCopy = async (
             properties: {
               headline: { type: Type.STRING },
               subheadline: { type: Type.STRING },
-              cta: { type: Type.STRING }
+              cta: { type: Type.STRING },
+              price: { type: Type.STRING }
             },
-            required: ["headline", "subheadline", "cta"]
+            required: ["headline", "subheadline", "cta", "price"]
           }
         },
         required: ["reply", "suggestedData"]

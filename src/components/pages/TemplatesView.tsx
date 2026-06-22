@@ -13,7 +13,7 @@ export const TemplatePreview = ({ setView, user }: TemplatePreviewProps) => {
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
-        const res = await fetch('/api/templates');
+        const res = await fetch('/api/templates?t=' + new Date().getTime());
         const data = await res.json();
         if (data.success && Array.isArray(data.data)) {
           setDbTemplates(data.data);
@@ -106,7 +106,7 @@ export const TemplatePreview = ({ setView, user }: TemplatePreviewProps) => {
                   <h4 className="text-lg font-black text-slate-900 dark:text-white mb-4 tracking-tight">{t.title}</h4>
                   <div className="flex gap-2">
                     <button 
-                      onClick={() => setView('templates')}
+                      onClick={() => setView(user ? 'templates' : 'signup')}
                       className="flex-1 px-3 py-2 text-[11px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                     >
                       Detail
@@ -144,7 +144,7 @@ export const TemplatesView = ({ setView, user }: TemplatesViewProps) => {
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
-        const res = await fetch('/api/templates');
+        const res = await fetch('/api/templates?t=' + new Date().getTime());
         const data = await res.json();
         if (data.success && Array.isArray(data.data)) {
           setDbTemplates(data.data);
@@ -265,7 +265,11 @@ export const TemplatesView = ({ setView, user }: TemplatesViewProps) => {
                   <div className="flex gap-2">
                     <button 
                       onClick={() => {
+                        if (!user) {
+                          setView('signup');
+                        } else {
                           window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }
                       }}
                       className="flex-1 px-3 py-2 text-[11px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                     >
@@ -273,9 +277,9 @@ export const TemplatesView = ({ setView, user }: TemplatesViewProps) => {
                     </button>
                     <button 
                       onClick={() => {
-                          window.scrollTo({ top: 0, behavior: 'smooth' });
-                          localStorage.setItem('selectedTemplateId', String(t.id));
-                          setView(user ? 'dashboard:templates' : 'signup');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        localStorage.setItem('selectedTemplateId', String(t.id));
+                        setView(user ? 'dashboard:templates' : 'signup');
                       }}
                       className="flex-1 px-3 py-2 text-[11px] font-black uppercase tracking-widest text-white bg-brand-blue rounded-lg shadow-blue"
                     >
@@ -291,4 +295,5 @@ export const TemplatesView = ({ setView, user }: TemplatesViewProps) => {
     </section>
   );
 };
+// Force recompilation to clear any stuck Next.js build cache
 export default TemplatesView;

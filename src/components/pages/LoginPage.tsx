@@ -24,10 +24,10 @@ const LoginPage = ({ setView, setUser, prefilledEmail = '', setPrefilledEmail, s
 
   const validate = () => {
     const newErrors: { email?: string; password?: string } = {};
-    if (!email) newErrors.email = 'Email wajib diisi';
-    else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = 'Format email tidak valid';
-    if (!password) newErrors.password = 'Password wajib diisi';
-    else if (password.length < 6) newErrors.password = 'Password minimal 6 karakter';
+    if (!email) newErrors.email = 'Email tidak valid.';
+    else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = 'Email tidak valid.';
+    if (!password) newErrors.password = 'Password tidak valid.';
+    else if (password.length < 6) newErrors.password = 'Password tidak valid.';
     return newErrors;
   };
 

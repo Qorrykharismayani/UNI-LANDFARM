@@ -639,21 +639,23 @@ const LandingPagePage = ({
         </svg>
       </div>
 
-      <div className="text-center space-y-6 mb-16 animate-in fade-in slide-in-from-top-8 duration-1000">
-        <div className="inline-flex items-center gap-2.5 px-4 py-2 bg-brand-blue/5 text-brand-blue rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-2 border border-brand-blue/10 shadow-sm transition-colors">
-          <Sparkles className="w-3.5 h-3.5" />
-          SETUP WEBSITE
+      {/* Header */}
+      <div className="text-center space-y-6 mb-16 animate-in fade-in slide-in-from-bottom-8 duration-700 relative z-10">
+        <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-50/50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/50 rounded-full mb-2">
+          <Sparkles className="w-4 h-4 text-amber-500" />
+          <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest">Setup Website</span>
         </div>
-        <h2 className="text-2xl md:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white tracking-tighter leading-tight max-w-2xl mx-auto transition-colors">
-          Bangun Website Bisnis Anda <br />
-          <span className="bg-gradient-to-r from-brand-blue via-blue-500 to-indigo-500 bg-clip-text text-transparent">melalui Pengisian Form</span>
-        </h2>
-        <p className="text-slate-500 dark:text-slate-400 font-medium max-w-xl mx-auto text-sm md:text-base leading-relaxed transition-colors">
+        <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tighter">
+          Bangun Website Bisnis Anda<br />
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-emerald-500">melalui Pengisian Form</span>
+        </h1>
+        <p className="text-lg text-slate-500 dark:text-slate-400 font-medium max-w-2xl mx-auto">
           Lengkapi informasi bisnis Anda melalui form untuk membangun landing page yang profesional dan sesuai kebutuhan.
         </p>
       </div>
 
-      <div className="flex justify-center animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-200">
+      <div className="flex flex-col md:flex-row justify-center gap-8 animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-200 px-4">
+        {/* Manual Card */}
         <motion.div
           onClick={() => {
             if (user?.tokens < 500) {

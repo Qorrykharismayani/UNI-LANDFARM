@@ -133,7 +133,8 @@ const AdminPanelPage = ({
   });
 
   // Edit template form state
-  const [editingTemplate, setEditingTemplate] = useState<any>(null);
+  const [showEditTemplateModal, setShowEditTemplateModal] = useState(false);
+  const [editTemplateData, setEditTemplateData] = useState<any>(null);
 
   // (admin review/reject removed — publishing is now automatic)
 
@@ -145,12 +146,12 @@ const AdminPanelPage = ({
     setLoading(true);
     try {
       const [resUsers, resPages, resTemplates, resSettings, resAnalytics, resTransactions] = await Promise.all([
-        fetch('/api/admin/users').then(r => r.json()),
-        fetch('/api/landing-pages').then(r => r.json()),
-        fetch('/api/templates').then(r => r.json()),
-        fetch('/api/settings').then(r => r.json()),
-        fetch('/api/admin/analytics').then(r => r.json()),
-        fetch('/api/admin/transactions').then(r => r.json())
+        fetch('/api/admin/users?t=' + new Date().getTime()).then(r => r.json()),
+        fetch('/api/landing-pages?t=' + new Date().getTime()).then(r => r.json()),
+        fetch('/api/admin/templates?t=' + new Date().getTime()).then(r => r.json()),
+        fetch('/api/settings?t=' + new Date().getTime()).then(r => r.json()),
+        fetch('/api/admin/analytics?t=' + new Date().getTime()).then(r => r.json()),
+        fetch('/api/admin/transactions?t=' + new Date().getTime()).then(r => r.json())
       ]);
 
       if (resUsers.success) setUsers(resUsers.data);
@@ -453,37 +454,6 @@ const AdminPanelPage = ({
     }
   };
 
-  const handleSaveTemplateEdit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingTemplate) return;
-    setActionLoading(`edit-template-${editingTemplate.id}`);
-    try {
-      const res = await fetch(`/api/admin/templates/${editingTemplate.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: editingTemplate.name,
-          category: editingTemplate.category,
-          description: editingTemplate.description,
-          thumbnail: editingTemplate.thumbnail,
-          status: editingTemplate.status
-        })
-      });
-      const data = await res.json();
-      if (data.success) {
-        setTemplatesList(templatesList.map(t => t.id === editingTemplate.id ? { ...t, ...editingTemplate } : t));
-        setEditingTemplate(null);
-        showNotification('Template berhasil diperbarui!', 'success');
-      } else {
-        showNotification(data.message || 'Gagal memperbarui template.', 'info');
-      }
-    } catch (err) {
-      console.error(err);
-      showNotification('Gagal menghubungi server.', 'info');
-    } finally {
-      setActionLoading(null);
-    }
-  };
 
   const handleAddTemplate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -499,7 +469,7 @@ const AdminPanelPage = ({
       });
       const data = await res.json();
       if (data.success) {
-        setTemplatesList([data.data, ...templatesList]);
+        setTemplatesList(prev => [data.data, ...prev]);
         setShowAddTemplateModal(false);
         setNewTemplateData({
           name: '',
@@ -511,6 +481,40 @@ const AdminPanelPage = ({
         showNotification('Template berhasil ditambahkan!', 'success');
       } else {
         showNotification(data.message || 'Gagal menambahkan template.', 'info');
+      }
+    } catch (err) {
+      console.error(err);
+      showNotification('Gagal menghubungi server.', 'info');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+
+  const handleEditTemplate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editTemplateData) return;
+    setActionLoading('edit-template');
+    try {
+      const res = await fetch(`/api/admin/templates/${editTemplateData.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: editTemplateData.name,
+          category: editTemplateData.category,
+          description: editTemplateData.description,
+          thumbnail: editTemplateData.thumbnail,
+          status: editTemplateData.status
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTemplatesList(prev => prev.map(t => t.id === editTemplateData.id ? data.data : t));
+        setShowEditTemplateModal(false);
+        setEditTemplateData(null);
+        showNotification('Template berhasil diperbarui!', 'success');
+      } else {
+        showNotification(data.message || 'Gagal memperbarui template.', 'info');
       }
     } catch (err) {
       console.error(err);
@@ -1245,7 +1249,7 @@ const AdminPanelPage = ({
                               });
                               const data = await res.json();
                               if (data.success) {
-                                setTemplatesList(templatesList.map(t => t.id === tpl.id ? { ...t, status: nextStatus } : t));
+                                setTemplatesList(prev => prev.map(t => t.id === tpl.id ? { ...t, status: nextStatus } : t));
                                 showNotification(`Template ${tpl.name} diubah menjadi ${nextStatus}`, 'success');
                               } else {
                                 showNotification(data.message || 'Gagal mengubah status', 'info');
@@ -1259,7 +1263,10 @@ const AdminPanelPage = ({
                           Ubah Status
                         </button>
                         <button
-                          onClick={() => setEditingTemplate(tpl)}
+                          onClick={() => {
+                            setEditTemplateData({ ...tpl });
+                            setShowEditTemplateModal(true);
+                          }}
                           className="px-2 py-1.5 bg-blue-500/10 hover:bg-blue-500 border border-blue-500/20 text-blue-400 hover:text-white rounded-lg transition-colors cursor-pointer flex items-center justify-center"
                           title="Edit Template"
                         >
@@ -1274,7 +1281,7 @@ const AdminPanelPage = ({
                               });
                               const data = await res.json();
                               if (data.success) {
-                                setTemplatesList(templatesList.filter(t => t.id !== tpl.id));
+                                setTemplatesList(prev => prev.filter(t => t.id !== tpl.id));
                                 showNotification(`Template ${tpl.name} berhasil dihapus!`, 'info');
                               } else {
                                 showNotification(data.message || 'Gagal menghapus template', 'info');
@@ -2455,23 +2462,23 @@ const AdminPanelPage = ({
         )}
 
         {/* MODAL: EDIT TEMPLATE */}
-        {editingTemplate && (
+        {showEditTemplateModal && editTemplateData && (
           <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-slate-900/80 dark:bg-slate-950/80 backdrop-blur-sm" onClick={() => setEditingTemplate(null)} />
+            <div className="absolute inset-0 bg-slate-900/80 dark:bg-slate-950/80 backdrop-blur-sm" onClick={() => setShowEditTemplateModal(false)} />
             <div className="relative w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[28px] p-6 shadow-2xl space-y-6 z-10 animate-in fade-in zoom-in-95 duration-200">
               <div className="border-b border-slate-200 dark:border-slate-800 pb-4 flex justify-between items-center">
                 <h3 className="text-sm font-black text-slate-800 dark:text-white uppercase tracking-widest">Edit Template</h3>
-                <button onClick={() => setEditingTemplate(null)} className="w-8 h-8 flex items-center justify-center bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl transition-colors cursor-pointer">
+                <button onClick={() => setShowEditTemplateModal(false)} className="w-8 h-8 flex items-center justify-center bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl transition-colors cursor-pointer">
                   <X className="w-4 h-4 text-slate-600 dark:text-slate-300" />
                 </button>
               </div>
-              <form onSubmit={handleSaveTemplateEdit} className="space-y-4">
+              <form onSubmit={handleEditTemplate} className="space-y-4">
                 <div className="space-y-1.5">
                   <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Nama Template</label>
                   <input
                     type="text"
-                    value={editingTemplate.name || ''}
-                    onChange={(e) => setEditingTemplate({ ...editingTemplate, name: e.target.value })}
+                    value={editTemplateData.name || ''}
+                    onChange={(e) => setEditTemplateData({ ...editTemplateData, name: e.target.value })}
                     className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none"
                     placeholder="Masukkan nama template"
                     required
@@ -2480,8 +2487,8 @@ const AdminPanelPage = ({
                 <div className="space-y-1.5">
                   <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Kategori</label>
                   <select
-                    value={editingTemplate.category || 'Makanan & Retail'}
-                    onChange={(e) => setEditingTemplate({ ...editingTemplate, category: e.target.value })}
+                    value={editTemplateData.category || ''}
+                    onChange={(e) => setEditTemplateData({ ...editTemplateData, category: e.target.value })}
                     className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none"
                   >
                     <option value="Makanan & Retail">Makanan & Retail</option>
@@ -2494,8 +2501,8 @@ const AdminPanelPage = ({
                   <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Deskripsi Singkat</label>
                   <input
                     type="text"
-                    value={editingTemplate.description || ''}
-                    onChange={(e) => setEditingTemplate({ ...editingTemplate, description: e.target.value })}
+                    value={editTemplateData.description || ''}
+                    onChange={(e) => setEditTemplateData({ ...editTemplateData, description: e.target.value })}
                     className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none"
                     placeholder="Deskripsi template"
                   />
@@ -2504,8 +2511,8 @@ const AdminPanelPage = ({
                   <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Thumbnail URL</label>
                   <input
                     type="text"
-                    value={editingTemplate.thumbnail || ''}
-                    onChange={(e) => setEditingTemplate({ ...editingTemplate, thumbnail: e.target.value })}
+                    value={editTemplateData.thumbnail || ''}
+                    onChange={(e) => setEditTemplateData({ ...editTemplateData, thumbnail: e.target.value })}
                     className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-3 text-xs text-slate-800 dark:text-white outline-none"
                     placeholder="https://..."
                   />
@@ -2513,17 +2520,17 @@ const AdminPanelPage = ({
                 <div className="flex gap-4 pt-2">
                   <button
                     type="button"
-                    onClick={() => setEditingTemplate(null)}
+                    onClick={() => setShowEditTemplateModal(false)}
                     className="flex-1 py-3 text-[9px] font-black text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white uppercase tracking-widest border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 rounded-xl transition-all cursor-pointer"
                   >
                     Batal
                   </button>
                   <button
                     type="submit"
-                    disabled={actionLoading === `edit-template-${editingTemplate.id}`}
+                    disabled={actionLoading === 'edit-template'}
                     className="flex-1 py-3 bg-brand-blue hover:bg-blue-600 text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center"
                   >
-                    {actionLoading === `edit-template-${editingTemplate.id}` ? 'Menyimpan...' : 'Simpan Perubahan'}
+                    {actionLoading === 'edit-template' ? 'Menyimpan...' : 'Simpan Perubahan'}
                   </button>
                 </div>
               </form>

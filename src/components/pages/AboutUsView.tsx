@@ -57,16 +57,33 @@ export const Testimonials = ({ systemSettings }: { systemSettings?: any }) => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="bg-white dark:bg-slate-800 p-8 rounded-[32px] shadow-premium border border-slate-100 dark:border-slate-700 hover:shadow-premium-hover transition-all"
+              className="group relative bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl p-8 rounded-[32px] shadow-[0_8px_40px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_40px_rgba(0,0,0,0.2)] border border-slate-200/80 dark:border-slate-800/80 hover:-translate-y-2 hover:shadow-[0_20px_60px_rgba(255,176,0,0.15)] transition-all duration-500 overflow-hidden flex flex-col"
             >
-              <div className="flex items-center gap-4 mb-6">
-                <img src={t.avatar} alt={t.name} className="w-12 h-12 rounded-full object-cover border-2 border-brand-blue/20" referrerPolicy="no-referrer" />
+              <div className="absolute top-0 left-0 w-full h-1 rounded-t-[32px] bg-gradient-to-r from-[#FFB000] via-orange-400 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              
+              <div className="absolute -top-6 -right-6 text-[120px] font-black text-slate-100 dark:text-slate-800/50 opacity-50 group-hover:text-[#FFB000]/10 transition-colors duration-500 font-serif leading-none">"</div>
+              
+              <div className="flex-1 relative z-10 mb-8">
+                <div className="flex gap-1 mb-4">
+                  {[1,2,3,4,5].map(star => (
+                    <svg key={star} className="w-4 h-4 text-[#FFB000]" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  ))}
+                </div>
+                <p className="text-slate-700 dark:text-slate-300 text-[15px] leading-relaxed font-medium italic">"{t.content}"</p>
+              </div>
+
+              <div className="flex items-center gap-4 relative z-10 mt-auto pt-6 border-t border-slate-100 dark:border-slate-800/50">
+                <div className="relative shrink-0">
+                  <div className="absolute inset-0 rounded-full bg-[#FFB000]/20 blur-[8px] group-hover:blur-[12px] group-hover:bg-[#FFB000]/40 transition-all duration-500" />
+                  <img src={t.avatar} alt={t.name} className="relative w-12 h-12 rounded-full object-cover border-2 border-white dark:border-slate-800 shadow-sm" referrerPolicy="no-referrer" />
+                </div>
                 <div>
                   <h4 className="font-black text-slate-900 dark:text-white text-sm tracking-tight">{t.name}</h4>
-                  <p className="text-xs text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">{t.role}</p>
+                  <p className="text-[10px] text-[#FFB000] font-bold uppercase tracking-wider">{t.role}</p>
                 </div>
               </div>
-              <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed font-medium">"{t.content}"</p>
             </motion.div>
           ))}
         </div>
