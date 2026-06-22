@@ -13,7 +13,7 @@ export const TemplatePreview = ({ setView, user }: TemplatePreviewProps) => {
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
-        const res = await fetch('/api/templates');
+        const res = await fetch('/api/templates?t=' + new Date().getTime());
         const data = await res.json();
         if (data.success && Array.isArray(data.data)) {
           setDbTemplates(data.data);
@@ -144,7 +144,7 @@ export const TemplatesView = ({ setView, user }: TemplatesViewProps) => {
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
-        const res = await fetch('/api/templates');
+        const res = await fetch('/api/templates?t=' + new Date().getTime());
         const data = await res.json();
         if (data.success && Array.isArray(data.data)) {
           setDbTemplates(data.data);

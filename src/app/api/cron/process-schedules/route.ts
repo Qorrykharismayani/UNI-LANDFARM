@@ -17,7 +17,7 @@ export async function GET(request: Request) {
     // Cari jadwal yang perlu dieksekusi
     const dueSchedules = await prisma.contentSchedule.findMany({
       where: {
-        status: 'Scheduled',
+        status: { in: ['Scheduled', 'SCHEDULED'] },
         scheduledAt: { lte: now }
       },
       include: { landingPage: true }
@@ -54,12 +54,18 @@ export async function GET(request: Request) {
         const component = schedule.component;
         let value = schedule.newValue;
         let imageUrl = null;
+        let aiPayload: any = null;
         
         try {
           const parsed = JSON.parse(schedule.newValue);
-          if (typeof parsed === 'object' && parsed !== null && ('text' in parsed || 'image' in parsed)) {
-            value = parsed.text || '';
-            imageUrl = parsed.image || null;
+          if (typeof parsed === 'object' && parsed !== null) {
+            if ('text' in parsed || 'image' in parsed) {
+              value = parsed.text || '';
+              imageUrl = parsed.image || null;
+            }
+            if ('aiPayload' in parsed) {
+              aiPayload = parsed.aiPayload;
+            }
           }
         } catch (e) {
           // Fallback to raw string jika bukan JSON
@@ -73,7 +79,13 @@ export async function GET(request: Request) {
         // Logic memetakan component ke field di JSON content
         // Frontend mengirim component: 'Content', jadi kita map berdasar sectionName
         if (component === 'Hero Title' || (sectionName === 'hero' && component === 'Content')) {
-          targetContent[sectionName].headline = value;
+          if (aiPayload) {
+            targetContent[sectionName].headline = aiPayload.headline || value;
+            targetContent[sectionName].subheadline = aiPayload.subheadline || '';
+            if (aiPayload.cta) targetContent[sectionName].cta = aiPayload.cta;
+          } else {
+            targetContent[sectionName].headline = value;
+          }
           if (imageUrl) targetContent[sectionName].image = imageUrl;
         } else if (component === 'Hero Subtitle') {
           targetContent[sectionName].subheadline = value;
@@ -81,39 +93,80 @@ export async function GET(request: Request) {
           targetContent[sectionName].banner = value;
         } else if (component === 'CTA Button' || (sectionName === 'cta' && component === 'Content')) {
           if (!targetContent.cta) targetContent.cta = {};
-          targetContent.cta.headline = value;
-          targetContent.cta.buttonText = value;
+          if (aiPayload) {
+            targetContent.cta.title = aiPayload.headline || value;
+            targetContent.cta.description = aiPayload.subheadline || '';
+            targetContent.cta.buttonText = aiPayload.cta || '';
+          } else {
+            targetContent.cta.headline = value;
+            targetContent.cta.buttonText = value;
+          }
           if (imageUrl) targetContent.cta.image = imageUrl;
         } else if (component === 'Card Produk' || (sectionName === 'products' && component === 'Content')) {
           if (!Array.isArray(targetContent.products)) targetContent.products = [];
-          if (targetContent.products.length > 0) {
-            targetContent.products[0].description = value;
-            if (imageUrl) targetContent.products[0].image = imageUrl;
+          if (aiPayload) {
+             if (targetContent.products.length > 0) {
+               targetContent.products[0] = { ...targetContent.products[0], name: aiPayload.headline, description: aiPayload.subheadline, price: aiPayload.price || '' };
+               if (imageUrl) targetContent.products[0].image = imageUrl;
+             } else {
+               targetContent.products.push({ name: aiPayload.headline, description: aiPayload.subheadline, price: aiPayload.price || '', image: imageUrl || '' });
+             }
           } else {
-            targetContent.products.push({ id: Date.now(), name: schedule.title || 'Produk', description: value, image: imageUrl });
+            if (targetContent.products.length > 0) {
+              targetContent.products[0].description = value;
+              if (imageUrl) targetContent.products[0].image = imageUrl;
+            } else {
+              targetContent.products.push({ id: Date.now(), name: schedule.title || 'Produk', description: value, image: imageUrl });
+            }
           }
         } else if (component === 'Card Layanan' || (sectionName === 'advantages' && component === 'Content')) {
           if (!Array.isArray(targetContent.advantages)) targetContent.advantages = [];
-          if (targetContent.advantages.length > 0) {
-            targetContent.advantages[0].description = value;
-            if (imageUrl) targetContent.advantages[0].image = imageUrl;
+          if (aiPayload) {
+            if (targetContent.advantages.length > 0) {
+              targetContent.advantages[0] = { ...targetContent.advantages[0], title: aiPayload.headline, description: aiPayload.subheadline };
+              if (imageUrl) targetContent.advantages[0].image = imageUrl;
+            } else {
+              targetContent.advantages.push({ icon: 'Star', title: aiPayload.headline, description: aiPayload.subheadline, image: imageUrl || '' });
+            }
           } else {
-            targetContent.advantages.push({ icon: 'Zap', title: schedule.title || 'Layanan', description: value, image: imageUrl });
+            if (targetContent.advantages.length > 0) {
+              targetContent.advantages[0].description = value;
+              if (imageUrl) targetContent.advantages[0].image = imageUrl;
+            } else {
+              targetContent.advantages.push({ icon: 'Zap', title: schedule.title || 'Layanan', description: value, image: imageUrl });
+            }
           }
         } else if (component === 'Testimoni' || (sectionName === 'testimonials' && component === 'Content')) {
           if (!Array.isArray(targetContent.testimonials)) targetContent.testimonials = [];
-          if (targetContent.testimonials.length > 0) {
-            targetContent.testimonials[0].quote = value;
-            targetContent.testimonials[0].content = value;
-            if (imageUrl) targetContent.testimonials[0].avatar = imageUrl;
+          if (aiPayload) {
+            if (targetContent.testimonials.length > 0) {
+              targetContent.testimonials[0] = { ...targetContent.testimonials[0], name: aiPayload.headline, content: aiPayload.subheadline };
+              if (imageUrl) targetContent.testimonials[0].photo = imageUrl;
+            } else {
+              targetContent.testimonials.push({ name: aiPayload.headline, content: aiPayload.subheadline, photo: imageUrl || '' });
+            }
           } else {
-            targetContent.testimonials.push({ quote: value, content: value, author: schedule.title || 'Pelanggan', name: schedule.title || 'Pelanggan', avatar: imageUrl });
+            if (targetContent.testimonials.length > 0) {
+              targetContent.testimonials[0].quote = value;
+              targetContent.testimonials[0].content = value;
+              if (imageUrl) targetContent.testimonials[0].photo = imageUrl;
+            } else {
+              targetContent.testimonials.push({ quote: value, content: value, author: schedule.title || 'Pelanggan', name: schedule.title || 'Pelanggan', photo: imageUrl });
+            }
           }
         } else if (component === 'Kontak' || (sectionName === 'contact' && component === 'Content')) {
           if (!targetContent.contact) targetContent.contact = {};
-          targetContent.contact.whatsapp = value;
+          if (aiPayload) {
+             targetContent.contact.address = aiPayload.subheadline || value;
+          } else {
+             targetContent.contact.whatsapp = value;
+          }
         } else if (sectionName === 'about' && component === 'Content') {
-          targetContent[sectionName].description = value;
+          if (aiPayload) {
+            targetContent[sectionName].description = aiPayload.subheadline || value;
+          } else {
+            targetContent[sectionName].description = value;
+          }
           if (imageUrl) targetContent[sectionName].image = imageUrl;
         } else if (sectionName === 'logo' && component === 'Content') {
           if (typeof targetContent.logo === 'object' && targetContent.logo !== null) {

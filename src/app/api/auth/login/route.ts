@@ -13,7 +13,7 @@ export async function POST(request: Request) {
 
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
-      return NextResponse.json({ success: false, message: 'Kredensial tidak valid.' }, { status: 401 });
+      return NextResponse.json({ success: false, message: 'Password tidak valid atau email tidak valid.' }, { status: 401 });
     }
 
     if (user.status !== 'Aktif') {
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return NextResponse.json({ success: false, message: 'Kredensial tidak valid.' }, { status: 401 });
+      return NextResponse.json({ success: false, message: 'Password tidak valid atau email tidak valid.' }, { status: 401 });
     }
 
     // Sign session token

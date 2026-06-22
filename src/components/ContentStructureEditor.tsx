@@ -44,7 +44,8 @@ import {
   CheckCircle2,
   Calendar,
   Filter,
-  AlertTriangle
+  AlertTriangle,
+  Edit2
 } from 'lucide-react';
 import TemplateRenderer from './TemplateRenderer';
 import { generateEditorCopy } from '../services/ai';
@@ -332,6 +333,8 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
   const [newScheduleTargetSection, setNewScheduleTargetSection] = useState('logo');
   const [newScheduleContent, setNewScheduleContent] = useState('');
   const [newScheduleImage, setNewScheduleImage] = useState('');
+  const [newScheduleAiPayload, setNewScheduleAiPayload] = useState<any>(null);
+  const [editingScheduleId, setEditingScheduleId] = useState<number | null>(null);
   const [scheduleError, setScheduleError] = useState<string | null>(null);
   const [newScheduleStatus, setNewScheduleStatus] = useState('SCHEDULED');
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
@@ -341,6 +344,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
   const [editPublishTitle, setEditPublishTitle] = useState('');
   const [editPublishBusinessName, setEditPublishBusinessName] = useState('');
   const [editPublishSlug, setEditPublishSlug] = useState('');
+  const [editThemeColor, setEditThemeColor] = useState('');
 
   // Accordion collapsed states for Property Editor
   const [isContentCollapsed, setIsContentCollapsed] = useState(false);
@@ -718,7 +722,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
         if (schedData.success && schedData.data) {
           const now = new Date();
           const dueSchedules = schedData.data.filter((s: any) => 
-            s.status === 'Scheduled' && new Date(s.scheduledAt) <= now
+            (s.status === 'Scheduled' || s.status === 'SCHEDULED') && new Date(s.scheduledAt) <= now
           );
           
           if (dueSchedules.length > 0) {
@@ -1160,13 +1164,52 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
     setAiSuggestions(null);
 
     try {
-      const heroData = {
-        headline: contentJson?.hero?.headline || '',
-        subheadline: contentJson?.hero?.subheadline || '',
-        cta: contentJson?.hero?.cta || ''
-      };
+      let currentSectionData: any = {};
+      if (activeSectionType === 'hero') {
+        currentSectionData = {
+          headline: contentJson?.hero?.headline || '',
+          subheadline: contentJson?.hero?.subheadline || '',
+          cta: contentJson?.hero?.cta || ''
+        };
+      } else if (activeSectionType === 'cta') {
+        currentSectionData = {
+          headline: contentJson?.cta?.title || '',
+          subheadline: contentJson?.cta?.description || '',
+          cta: contentJson?.cta?.buttonText || ''
+        };
+      } else if (activeSectionType === 'about') {
+        currentSectionData = {
+          headline: 'Tentang Kami',
+          subheadline: contentJson?.about?.description || '',
+          cta: ''
+        };
+      } else if (activeSectionType === 'products') {
+        currentSectionData = {
+          headline: 'Nama Produk Baru',
+          subheadline: 'Deskripsi produk yang menarik.',
+          cta: 'Beli'
+        };
+      } else if (activeSectionType === 'advantages') {
+        currentSectionData = {
+          headline: 'Nama Keunggulan Baru',
+          subheadline: 'Deskripsi mengapa pelanggan harus memilih kami.',
+          cta: ''
+        };
+      } else if (activeSectionType === 'testimonials') {
+         currentSectionData = {
+          headline: 'Nama Pelanggan',
+          subheadline: 'Isi testimoni pelanggan yang positif.',
+          cta: ''
+        };
+      } else {
+         currentSectionData = {
+          headline: '',
+          subheadline: '',
+          cta: ''
+        };
+      }
 
-      const result = await generateEditorCopy(aiCommand, heroData);
+      const result = await generateEditorCopy(aiCommand, currentSectionData);
       setAiSuggestions(result);
     } catch (err) {
       console.warn("AI generation failed, applying mock response:", err);
@@ -1199,7 +1242,8 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
         suggestedData: {
           headline: fallbackHeadline,
           subheadline: fallbackSubheadline,
-          cta: fallbackCta
+          cta: fallbackCta,
+          price: 'Rp 100.000'
         }
       });
     } finally {
@@ -1210,17 +1254,56 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
   // Apply AI Copywriting suggestion
   const applyAiCopy = () => {
     if (!aiSuggestions?.suggestedData || !contentJson) return;
-    const { headline, subheadline, cta: ctaText } = aiSuggestions.suggestedData;
+    const { headline, subheadline, cta: ctaText, price: aiPrice } = aiSuggestions.suggestedData as any;
 
     if (activeSectionType === 'hero') {
       updateActiveSectionContent(c => ({ ...c, headline, subheadline, cta: ctaText }));
     } else if (activeSectionType === 'cta') {
       updateActiveSectionContent(c => ({ ...c, title: headline, description: subheadline, buttonText: ctaText }));
+    } else if (activeSectionType === 'about') {
+      updateActiveSectionContent(c => ({ ...c, description: subheadline }));
+    } else if (activeSectionType === 'products') {
+      updateActiveSectionContent(c => {
+        const arr = Array.isArray(c) ? [...c] : [];
+        arr.push({ name: headline, description: subheadline, price: aiPrice || '', image: '' });
+        return arr;
+      });
+    } else if (activeSectionType === 'advantages') {
+      updateActiveSectionContent(c => {
+        const arr = Array.isArray(c) ? [...c] : [];
+        arr.push({ title: headline, description: subheadline, icon: 'Star' });
+        return arr;
+      });
+    } else if (activeSectionType === 'testimonials') {
+      updateActiveSectionContent(c => {
+        const arr = Array.isArray(c) ? [...c] : [];
+        arr.push({ name: headline, content: subheadline, photo: '' });
+        return arr;
+      });
+    } else if (activeSectionType === 'contact') {
+      updateActiveSectionContent(c => ({ ...c, address: subheadline }));
+    } else {
+      triggerToast('Section ini tidak mendukung penerapan dari AI Draft.');
+      return;
     }
-    setIsAiModalOpen(false);
+
     setAiSuggestions(null);
     setAiCommand('');
     triggerToast('Konten AI berhasil diterapkan ke form!');
+  };
+
+  // Helper to reset the scheduler form
+  const resetScheduleForm = () => {
+    setEditingScheduleId(null);
+    setNewScheduleTitle('');
+    setNewScheduleDate('');
+    setNewScheduleTime('');
+    setNewScheduleTargetSection('logo');
+    setNewScheduleContent('');
+    setNewScheduleImage('');
+    setNewScheduleAiPayload(null);
+    setNewScheduleStatus('SCHEDULED');
+    setScheduleError(null);
   };
 
   // Add item to schedule list
@@ -1238,18 +1321,26 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
     }
 
     try {
-      const res = await fetch('/api/content-schedules', {
-        method: 'POST',
+      const endpoint = '/api/content-schedules';
+      const method = editingScheduleId ? 'PUT' : 'POST';
+      const bodyPayload: any = {
+        title: newScheduleTitle,
+        landingPageId: Number(pageId),
+        sectionName: newScheduleTargetSection,
+        component: 'Content',
+        newValue: JSON.stringify({ text: newScheduleContent, image: newScheduleImage, aiPayload: newScheduleAiPayload }),
+        scheduledAt: scheduleDateTime.toISOString(),
+        status: 'Scheduled'
+      };
+
+      if (editingScheduleId) {
+        bodyPayload.id = editingScheduleId;
+      }
+
+      const res = await fetch(endpoint, {
+        method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: newScheduleTitle,
-          landingPageId: Number(pageId),
-          sectionName: newScheduleTargetSection,
-          component: 'Content',
-          newValue: JSON.stringify({ text: newScheduleContent, image: newScheduleImage }),
-          scheduledAt: scheduleDateTime.toISOString(),
-          status: 'Scheduled'
-        })
+        body: JSON.stringify(bodyPayload)
       });
 
       const data = await res.json();
@@ -1258,8 +1349,8 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
           day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
         });
 
-        setSchedules(prev => [
-          {
+        if (editingScheduleId) {
+          setSchedules(prev => prev.map(s => s.id === editingScheduleId ? {
             id: data.data.id,
             title: newScheduleTitle,
             date: formattedDate,
@@ -1267,23 +1358,66 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
             status: 'SCHEDULED',
             targetSection: newScheduleTargetSection,
             content: newScheduleContent
-          },
-          ...prev
-        ]);
+          } : s));
+        } else {
+          setSchedules(prev => [
+            {
+              id: data.data.id,
+              title: newScheduleTitle,
+              date: formattedDate,
+              timestamp: scheduleDateTime.getTime(),
+              status: 'SCHEDULED',
+              targetSection: newScheduleTargetSection,
+              content: newScheduleContent
+            },
+            ...prev
+          ]);
+        }
 
         setNewScheduleTitle('');
         setNewScheduleDate('');
         setNewScheduleTime('');
         setNewScheduleContent('');
         setNewScheduleImage('');
+        setNewScheduleAiPayload(null);
+        setEditingScheduleId(null);
         setIsSchedulerModalOpen(false);
-        triggerToast('Konten baru berhasil dijadwalkan!');
+        triggerToast(editingScheduleId ? 'Jadwal berhasil diperbarui!' : 'Konten baru berhasil dijadwalkan!');
       } else {
         setScheduleError(data.message || 'Gagal menyimpan jadwal.');
       }
     } catch (err: any) {
       setScheduleError('Terjadi kesalahan jaringan.');
     }
+  };
+
+  const handleEditScheduleClick = (item: any) => {
+    setEditingScheduleId(item.id);
+    setNewScheduleTitle(item.title);
+    setNewScheduleTargetSection(item.targetSection || 'logo');
+    setNewScheduleStatus(item.status === 'SCHEDULED' || item.status === 'AI SCHEDULED' ? 'Scheduled' : item.status === 'COMPLETED' ? 'Completed' : 'Failed');
+    
+    const dateObj = new Date(item.timestamp);
+    const yyyy = dateObj.getFullYear();
+    const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const dd = String(dateObj.getDate()).padStart(2, '0');
+    const HH = String(dateObj.getHours()).padStart(2, '0');
+    const MM = String(dateObj.getMinutes()).padStart(2, '0');
+    setNewScheduleDate(`${yyyy}-${mm}-${dd}`);
+    setNewScheduleTime(`${HH}:${MM}`);
+    
+    try {
+      const parsed = JSON.parse(item.content || '{}');
+      setNewScheduleContent(parsed.text || '');
+      setNewScheduleImage(parsed.image || '');
+      setNewScheduleAiPayload(parsed.aiPayload || null);
+    } catch (e) {
+      setNewScheduleContent(item.content || '');
+      setNewScheduleImage('');
+      setNewScheduleAiPayload(null);
+    }
+    
+    setIsSchedulerModalOpen(true);
   };
 
   const handleDeleteSchedule = async (id: number) => {
@@ -1452,7 +1586,8 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
           body: JSON.stringify({
             title: editPublishTitle.trim(),
             businessName: editPublishBusinessName.trim(),
-            slug: editPublishSlug.trim()
+            slug: editPublishSlug.trim(),
+            themeColor: editThemeColor
           })
         });
         const data = await res.json();
@@ -1461,7 +1596,8 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
             ...pageData,
             title: editPublishTitle.trim(),
             businessName: editPublishBusinessName.trim(),
-            slug: editPublishSlug.trim()
+            slug: editPublishSlug.trim(),
+            themeColor: editThemeColor
           });
           triggerToast('Perubahan berhasil disimpan!');
           setSaveStatus('Saved');
@@ -1551,6 +1687,27 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                         value={editPublishSlug}
                         onChange={e => setEditPublishSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
                         className="flex-1 px-4 py-2 bg-transparent text-sm font-semibold text-slate-800 outline-none font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-bold text-emerald-800 uppercase tracking-wider">Warna Utama (Tema)</label>
+                    <div className="flex items-center gap-3">
+                      <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-emerald-200 shadow-sm shrink-0">
+                        <input
+                          type="color"
+                          value={editThemeColor}
+                          onChange={e => setEditThemeColor(e.target.value)}
+                          className="absolute inset-[-10px] w-[60px] h-[60px] cursor-pointer"
+                        />
+                      </div>
+                      <input
+                        type="text"
+                        value={editThemeColor}
+                        onChange={e => setEditThemeColor(e.target.value)}
+                        placeholder="#d97706"
+                        className="flex-1 px-4 py-2 bg-white border border-emerald-200 hover:border-emerald-300 focus:border-emerald-500 rounded-xl text-sm font-mono font-semibold text-slate-800 outline-none transition-all shadow-sm"
                       />
                     </div>
                   </div>
@@ -1719,6 +1876,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                 setEditPublishTitle(pageData?.title || '');
                 setEditPublishBusinessName(pageData?.businessName || '');
                 setEditPublishSlug(pageData?.slug || '');
+                setEditThemeColor(pageData?.themeColor || '#d97706');
                 setShowPublishConfirm(true);
               }}
               className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg text-xs md:text-sm font-black uppercase tracking-wider hover:scale-105 transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap"
@@ -2742,7 +2900,10 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                 </p>
               </div>
               <button
-                onClick={() => setIsSchedulerModalOpen(true)}
+                onClick={() => {
+                  resetScheduleForm();
+                  setIsSchedulerModalOpen(true);
+                }}
                 className="relative z-10 px-6 py-3 bg-gradient-to-r from-[#FFB000] to-amber-500 hover:from-amber-500 hover:to-orange-500 text-slate-950 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 shadow-sm hover:shadow-md transition-all cursor-pointer border border-amber-400"
               >
                 <Plus className="w-4 h-4" /> Jadwal Baru
@@ -2873,7 +3034,9 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {aiSuggestions.suggestedData?.headline && (
                           <div className="space-y-1.5 col-span-1 md:col-span-2">
-                            <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block">Headline / Title</span>
+                            <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block">
+                              {activeSectionType === 'products' ? 'Nama Produk' : activeSectionType === 'advantages' ? 'Keunggulan' : activeSectionType === 'testimonials' ? 'Nama Pelanggan' : 'Headline / Title'}
+                            </span>
                             <div className="bg-slate-50 dark:bg-slate-950 p-5 rounded-xl border border-slate-200 dark:border-slate-800 relative group">
                               <p className="font-black text-slate-800 dark:text-slate-100 text-lg leading-snug">{aiSuggestions.suggestedData.headline}</p>
                               <button className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 bg-white shadow-sm border border-slate-200 rounded-md text-slate-400 hover:text-brand-blue"><Copy className="w-3.5 h-3.5" /></button>
@@ -2882,7 +3045,9 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                         )}
                         {aiSuggestions.suggestedData?.subheadline && (
                           <div className="space-y-1.5 col-span-1 md:col-span-2">
-                            <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block">Subheadline / Deskripsi</span>
+                            <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block">
+                              {activeSectionType === 'testimonials' ? 'Isi Testimoni' : 'Subheadline / Deskripsi'}
+                            </span>
                             <div className="bg-slate-50 dark:bg-slate-950 p-5 rounded-xl border border-slate-200 dark:border-slate-800 relative group">
                               <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">{aiSuggestions.suggestedData.subheadline}</p>
                               <button className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 bg-white shadow-sm border border-slate-200 rounded-md text-slate-400 hover:text-brand-blue"><Copy className="w-3.5 h-3.5" /></button>
@@ -2891,7 +3056,9 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                         )}
                         {aiSuggestions.suggestedData?.cta && (
                           <div className="space-y-1.5">
-                            <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block">CTA Button</span>
+                            <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block">
+                              {activeSectionType === 'products' ? 'Harga' : 'CTA Button'}
+                            </span>
                             <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800 relative group">
                               <p className="font-black text-[#FFB000] text-sm uppercase tracking-wider">{aiSuggestions.suggestedData.cta}</p>
                             </div>
@@ -2908,8 +3075,10 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                         </button>
                         <button
                           onClick={() => {
+                            resetScheduleForm();
                             setNewScheduleTargetSection(activeAccordion);
                             setNewScheduleContent(aiSuggestions?.suggestedData?.headline || aiSuggestions?.suggestedData?.subheadline || aiSuggestions?.suggestedData?.cta || aiSuggestions?.suggestedData?.description || '');
+                            setNewScheduleAiPayload(aiSuggestions?.suggestedData || null);
                             setIsSchedulerModalOpen(true);
                           }}
                           className="px-6 py-3.5 bg-brand-blue hover:bg-brand-blue-600 text-white rounded-xl text-sm font-black uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-brand-blue/20 transition-all active:scale-[0.98]"
@@ -2994,7 +3163,14 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                                   {item.status}
                                 </span>
                               </td>
-                              <td className="px-6 md:px-8 py-5 text-right">
+                              <td className="px-6 md:px-8 py-5 text-right flex justify-end gap-1">
+                                <button
+                                  onClick={() => handleEditScheduleClick(item)}
+                                  className="p-2 text-slate-400 hover:text-brand-blue hover:bg-brand-blue/10 dark:hover:bg-brand-blue/10 rounded-lg transition-colors cursor-pointer"
+                                  title="Edit Jadwal"
+                                >
+                                  <Edit2 className="w-4 h-4" />
+                                </button>
                                 <button
                                   onClick={() => handleDeleteSchedule(item.id)}
                                   className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer"
@@ -3117,6 +3293,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                     contentJson={contentJson}
                     isMobile={previewMode === 'mobile'}
                     themeColor={pageData?.themeColor}
+                    siteConfig={{ slug: pageData?.slug || '', title: pageData?.title || '', pages: sitePages }}
                   />
                 </div>
               </div>
@@ -3134,14 +3311,15 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
             <div className="border-b border-slate-100 dark:border-slate-800 pb-4">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-brand-blue" /> Jadwalkan Perubahan Konten
+                  {editingScheduleId ? <Edit2 className="w-5 h-5 text-brand-blue" /> : <Calendar className="w-5 h-5 text-brand-blue" />} 
+                  {editingScheduleId ? 'Edit Jadwal Konten' : 'Jadwalkan Perubahan Konten'}
                 </h3>
-                <button onClick={() => setIsSchedulerModalOpen(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                <button onClick={() => { setIsSchedulerModalOpen(false); setEditingScheduleId(null); }} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
                   <X className="w-5 h-5" />
                 </button>
               </div>
               <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                Tentukan kapan pembaruan konten ini akan dipublikasikan secara otomatis ke situs Anda.
+                {editingScheduleId ? 'Ubah detail jadwal publikasi konten Anda di bawah ini.' : 'Tentukan kapan pembaruan konten ini akan dipublikasikan secara otomatis ke situs Anda.'}
               </p>
             </div>
 
@@ -3235,7 +3413,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
 
             <div className="flex gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
               <button
-                onClick={() => setIsSchedulerModalOpen(false)}
+                onClick={() => { setIsSchedulerModalOpen(false); setEditingScheduleId(null); }}
                 className="flex-1 py-3 text-sm font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl transition-all cursor-pointer border border-transparent shadow-sm"
               >
                 Batal
@@ -3244,7 +3422,7 @@ export default function ContentStructureEditor({ pageId, onBack, onPublishSucces
                 onClick={handleAddSchedule}
                 className="flex-1 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-bold shadow-sm transition-all cursor-pointer active:scale-[0.98]"
               >
-                Jadwalkan Konten
+                {editingScheduleId ? 'Simpan Perubahan' : 'Jadwalkan Konten'}
               </button>
             </div>
           </div>

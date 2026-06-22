@@ -12,7 +12,7 @@ export async function POST(request: Request) {
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
-      return NextResponse.json({ success: false, message: 'Email sudah terdaftar. Gunakan email lain.' }, { status: 409 });
+      return NextResponse.json({ success: false, message: 'Password tidak valid atau email tidak valid.' }, { status: 409 });
     }
 
     // Hash password securely with 10 salt rounds

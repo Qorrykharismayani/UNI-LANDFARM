@@ -99,8 +99,8 @@ export const CMSLandingView = ({ setView, user }: CMSProps) => {
 
         {/* RIGHT COLUMN - Dashboard Mockup (Smaller & More Detailed) */}
         <motion.div 
-          initial={{ opacity: 0, scale: 0.7, x: 50 }}
-          whileInView={{ opacity: 1, scale: 0.85, x: 0 }}
+          initial={{ opacity: 0, scale: 0.65, x: 50 }}
+          whileInView={{ opacity: 1, scale: 0.75, x: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 1.2, ease: "easeOut" }}
           className="relative group w-full lg:-mr-32 xl:-mr-40"

@@ -28,12 +28,12 @@ const SignupPage = ({ setView, setUser, prefilledEmail, setPrefilledEmail, syste
 
   const validate = () => {
     const newErrors: typeof errors = {};
-    if (!businessName.trim()) newErrors.businessName = 'Nama bisnis wajib diisi';
-    if (!email) newErrors.email = 'Email wajib diisi';
-    else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = 'Format email tidak valid';
-    if (!password) newErrors.password = 'Password wajib diisi';
-    else if (password.length < 6) newErrors.password = 'Password minimal 6 karakter';
-    if (!agree) newErrors.agree = 'Anda harus menyetujui syarat & ketentuan';
+    if (!businessName.trim()) newErrors.businessName = 'Nama bisnis wajib diisi.';
+    if (!email) newErrors.email = 'Email tidak valid.';
+    else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = 'Email tidak valid.';
+    if (!password) newErrors.password = 'Password tidak valid.';
+    else if (password.length < 6) newErrors.password = 'Password tidak valid.';
+    if (!agree) newErrors.agree = 'Anda harus menyetujui syarat & ketentuan.';
     return newErrors;
   };
 

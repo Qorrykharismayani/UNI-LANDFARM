@@ -8,7 +8,7 @@ export async function GET() {
     return NextResponse.json(
       { 
         success: false, 
-        message: 'Kredensial Google OAuth belum dikonfigurasi di file .env. Silakan masukkan GOOGLE_CLIENT_ID asli Anda.' 
+        message: 'Password tidak valid atau email tidak valid.' 
       },
       { status: 500 }
     );

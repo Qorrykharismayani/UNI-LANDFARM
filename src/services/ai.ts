@@ -42,6 +42,7 @@ export interface EditorCopyResult {
     headline: string;
     subheadline: string;
     cta: string;
+    price?: string;
   };
 }
 

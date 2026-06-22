@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getSessionFromCookies } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
   try {
     const cookiesString = request.headers.get('cookie');

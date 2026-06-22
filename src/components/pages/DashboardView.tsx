@@ -151,7 +151,7 @@ export const DashboardView = ({
   initialTab
 }: DashboardViewProps) => {
   const [subView, setSubView] = useState(() => initialTab || (user?.role === 'ADMIN' ? 'admin_panel' : 'overview'));
-  const [adminView, setAdminView] = useState<'dashboard' | 'users' | 'landing_pages' | 'templates' | 'content' | 'profile' | 'analytics'>('dashboard');
+  const [adminView, setAdminView] = useState<'dashboard' | 'users' | 'landing_pages' | 'templates' | 'content' | 'profile' | 'analytics' | 'transactions'>('dashboard');
   const [isAdminDropdownOpen, setIsAdminDropdownOpen] = useState(false);
 
   useEffect(() => {
@@ -232,7 +232,7 @@ export const DashboardView = ({
 
   const fetchProjects = async () => {
     try {
-      const res = await fetch('/api/landing-pages');
+      const res = await fetch('/api/landing-pages?t=' + new Date().getTime());
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
         setUserProjects(data.data);
@@ -271,7 +271,7 @@ export const DashboardView = ({
 
   const fetchTemplates = async () => {
     try {
-      const res = await fetch('/api/templates');
+      const res = await fetch('/api/templates?t=' + new Date().getTime());
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
         setTemplates(data.data);
@@ -372,7 +372,7 @@ export const DashboardView = ({
     fetchProjects();
     fetchArticles();
     fetchNotifications();
-  }, []);
+  }, [subView]);
 
   useEffect(() => {
     if (templates.length > 0) {

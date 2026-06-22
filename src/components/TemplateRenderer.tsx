@@ -170,54 +170,54 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
       <div className={`w-full bg-[#fcfbf7] text-[#332f21] font-sans antialiased selection:bg-amber-100 selection:text-amber-900 ${isMobile ? 'py-2 px-1' : ''} min-h-screen theme-amber-override`}>
         {themeColor && (
           <style>{`
-            .theme-amber-override .bg-amber-500 { background-color: ${themeColor} !important; }
-            .theme-amber-override .bg-amber-600 { background-color: ${themeColor} !important; }
-            .theme-amber-override .bg-amber-700 { background-color: ${themeColor} !important; }
-            .theme-amber-override .hover\\:bg-amber-600:hover { background-color: ${themeColor}ee !important; }
-            .theme-amber-override .hover\\:bg-amber-700:hover { background-color: ${themeColor}ee !important; }
+            .theme-amber-override .bg-amber-500 { background-color: ${themeColor}; }
+            .theme-amber-override .bg-amber-600 { background-color: ${themeColor}; }
+            .theme-amber-override .bg-amber-700 { background-color: ${themeColor}; }
+            .theme-amber-override .hover\\:bg-amber-600:hover { background-color: ${themeColor}ee; }
+            .theme-amber-override .hover\\:bg-amber-700:hover { background-color: ${themeColor}ee; }
             
-            .theme-amber-override .bg-amber-50 { background-color: ${themeColor}0a !important; }
-            .theme-amber-override .bg-amber-100 { background-color: ${themeColor}15 !important; }
-            .theme-amber-override .bg-amber-50\\/50 { background-color: ${themeColor}08 !important; }
-            .theme-amber-override .bg-amber-500\\/10 { background-color: ${themeColor}12 !important; }
+            .theme-amber-override .bg-amber-50 { background-color: ${themeColor}0a; }
+            .theme-amber-override .bg-amber-100 { background-color: ${themeColor}15; }
+            .theme-amber-override .bg-amber-50\\/50 { background-color: ${themeColor}08; }
+            .theme-amber-override .bg-amber-500\\/10 { background-color: ${themeColor}12; }
             
             /* Dark background blending using color-mix */
-            .theme-amber-override .bg-amber-900 { background-color: color-mix(in srgb, ${themeColor} 12%, #0e120f) !important; }
-            .theme-amber-override .bg-amber-800\\/50 { background-color: color-mix(in srgb, ${themeColor} 20%, rgba(20, 25, 20, 0.4)) !important; }
-            .theme-amber-override .border-amber-700\\/50 { border-color: color-mix(in srgb, ${themeColor} 30%, rgba(100, 110, 100, 0.2)) !important; }
+            .theme-amber-override .bg-amber-900 { background-color: color-mix(in srgb, ${themeColor} 12%, #0e120f); }
+            .theme-amber-override .bg-amber-800\\/50 { background-color: color-mix(in srgb, ${themeColor} 20%, rgba(20, 25, 20, 0.4)); }
+            .theme-amber-override .border-amber-700\\/50 { border-color: color-mix(in srgb, ${themeColor} 30%, rgba(100, 110, 100, 0.2)); }
             
-            .theme-amber-override .border-amber-50 { border-color: ${themeColor}15 !important; }
-            .theme-amber-override .border-amber-100 { border-color: ${themeColor}20 !important; }
-            .theme-amber-override .border-amber-200 { border-color: ${themeColor}30 !important; }
-            .theme-amber-override .border-amber-100\\/40 { border-color: ${themeColor}10 !important; }
-            .theme-amber-override .border-amber-100\\/50 { border-color: ${themeColor}15 !important; }
-            .theme-amber-override .border-amber-100\\/60 { border-color: ${themeColor}20 !important; }
-            .theme-amber-override .border-amber-200\\/50 { border-color: ${themeColor}30 !important; }
+            .theme-amber-override .border-amber-50 { border-color: ${themeColor}15; }
+            .theme-amber-override .border-amber-100 { border-color: ${themeColor}20; }
+            .theme-amber-override .border-amber-200 { border-color: ${themeColor}30; }
+            .theme-amber-override .border-amber-100\\/40 { border-color: ${themeColor}10; }
+            .theme-amber-override .border-amber-100\\/50 { border-color: ${themeColor}15; }
+            .theme-amber-override .border-amber-100\\/60 { border-color: ${themeColor}20; }
+            .theme-amber-override .border-amber-200\\/50 { border-color: ${themeColor}30; }
             
-            .theme-amber-override .text-amber-500 { color: ${themeColor} !important; }
-            .theme-amber-override .text-amber-600 { color: ${themeColor} !important; }
-            .theme-amber-override .text-amber-700 { color: ${themeColor} !important; }
-            .theme-amber-override .text-amber-800 { color: ${themeColor} !important; }
-            .theme-amber-override .text-amber-400 { color: ${themeColor} !important; }
-            .theme-amber-override .hover\\:text-amber-600:hover { color: ${themeColor} !important; }
-            .theme-amber-override .hover\\:text-amber-400:hover { color: ${themeColor} !important; }
-            .theme-amber-override .hover\\:text-amber-600 { color: ${themeColor} !important; }
+            .theme-amber-override .text-amber-500 { color: ${themeColor}; }
+            .theme-amber-override .text-amber-600 { color: ${themeColor}; }
+            .theme-amber-override .text-amber-700 { color: ${themeColor}; }
+            .theme-amber-override .text-amber-800 { color: ${themeColor}; }
+            .theme-amber-override .text-amber-400 { color: ${themeColor}; }
+            .theme-amber-override .hover\\:text-amber-600:hover { color: ${themeColor}; }
+            .theme-amber-override .hover\\:text-amber-400:hover { color: ${themeColor}; }
+            .theme-amber-override .hover\\:text-amber-600 { color: ${themeColor}; }
             
-            .theme-amber-override .text-amber-950 { color: #1e293b !important; }
-            .theme-amber-override .text-amber-900 { color: #334155 !important; }
-            .theme-amber-override .text-amber-900\\/70 { color: #64748b !important; }
-            .theme-amber-override .text-amber-900\\/80 { color: #475569 !important; }
-            .theme-amber-override .text-amber-900\\/60 { color: #94a3b8 !important; }
-            .theme-amber-override .text-amber-100\\/75 { color: #cbd5e1 !important; }
-            .theme-amber-override .text-amber-100\\/70 { color: #cbd5e1 !important; }
-            .theme-amber-override .text-amber-100\\/50 { color: #94a3b8 !important; }
+            .theme-amber-override .text-amber-950 { color: #1e293b; }
+            .theme-amber-override .text-amber-900 { color: #334155; }
+            .theme-amber-override .text-amber-900\\/70 { color: #64748b; }
+            .theme-amber-override .text-amber-900\\/80 { color: #475569; }
+            .theme-amber-override .text-amber-900\\/60 { color: #94a3b8; }
+            .theme-amber-override .text-amber-100\\/75 { color: #cbd5e1; }
+            .theme-amber-override .text-amber-100\\/70 { color: #cbd5e1; }
+            .theme-amber-override .text-amber-100\\/50 { color: #94a3b8; }
             
             /* Footer background blending using color-mix */
-            .theme-amber-override .bg-amber-950 { background-color: color-mix(in srgb, ${themeColor} 8%, #080a08) !important; }
-            .theme-amber-override .border-amber-900\\/40 { border-color: color-mix(in srgb, ${themeColor} 15%, rgba(40, 50, 40, 0.3)) !important; }
-            .theme-amber-override .border-amber-900\\/60 { border-color: color-mix(in srgb, ${themeColor} 20%, rgba(60, 75, 60, 0.4)) !important; }
+            .theme-amber-override .bg-amber-950 { background-color: color-mix(in srgb, ${themeColor} 8%, #080a08); }
+            .theme-amber-override .border-amber-900\\/40 { border-color: color-mix(in srgb, ${themeColor} 15%, rgba(40, 50, 40, 0.3)); }
+            .theme-amber-override .border-amber-900\\/60 { border-color: color-mix(in srgb, ${themeColor} 20%, rgba(60, 75, 60, 0.4)); }
             
-            .theme-amber-override *::selection { background-color: ${themeColor}20 !important; color: #1e293b !important; }
+            .theme-amber-override *::selection { background-color: ${themeColor}20; color: #1e293b; }
           `}</style>
         )}
         {/* Navigation */}
@@ -316,7 +316,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                         target="_blank"
                         rel="noopener noreferrer"
                         className={`inline-flex items-center gap-3 bg-amber-600 text-white font-black uppercase tracking-widest hover:bg-amber-700 transition-all shadow-lg hover:scale-105 ${isMobile ? 'px-5 py-3 text-xs rounded-xl' : 'px-8 py-4 text-sm rounded-2xl'}`}
-                        style={{ backgroundColor: sec.styles?.textColor || '#d97706' }}
+                        style={{ backgroundColor: themeColor || '#d97706' }}
                       >
                         {hero.cta || 'Beli Sekarang'} <ShoppingCart className="w-4 h-4" />
                       </a>
@@ -441,7 +441,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-amber-400 font-bold uppercase text-[10px] tracking-widest" style={getTextColorStyle(sec.id)}>[ Image {i+1} ]</div>
                           )}
-                          <div className="absolute bottom-4 right-4 text-white font-black px-3 py-1 rounded-xl text-xs" style={{ backgroundColor: sec.styles?.textColor || '#d97706' }}>
+                          <div className="absolute bottom-4 right-4 text-white font-black px-3 py-1 rounded-xl text-xs" style={{ backgroundColor: themeColor || '#d97706' }}>
                             {prod.price}
                           </div>
                         </div>
@@ -467,9 +467,9 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                               rel="noopener noreferrer"
                               className="w-full py-2.5 hover:bg-amber-600 hover:text-white text-amber-950 font-black rounded-xl text-[10px] uppercase tracking-wider text-center transition-all mt-4 inline-block"
                               style={{
-                                backgroundColor: sec.styles?.textColor ? `${sec.styles.textColor}10` : 'rgba(217, 119, 6, 0.1)',
-                                color: sec.styles?.textColor || '#d97706',
-                                borderColor: sec.styles?.textColor ? `${sec.styles.textColor}30` : undefined
+                                backgroundColor: themeColor ? `${themeColor}10` : 'rgba(217, 119, 6, 0.1)',
+                                color: themeColor || '#d97706',
+                                borderColor: themeColor ? `${themeColor}30` : undefined
                               }}
                             >
                               Pesan via WA
@@ -620,7 +620,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                       target="_blank"
                       rel="noopener noreferrer"
                       className={`inline-flex items-center gap-3 bg-amber-600 text-white font-black uppercase tracking-widest hover:bg-amber-700 transition-all shadow-lg ${isMobile ? 'px-5 py-3 text-xs rounded-xl' : 'px-8 py-4 text-sm rounded-2xl'}`}
-                      style={{ backgroundColor: sec.styles?.textColor || '#d97706' }}
+                      style={{ backgroundColor: themeColor || '#d97706' }}
                     >
                       {cta.buttonText || 'Hubungi Kami'} <MessageCircle className="w-4.5 h-4.5" />
                     </a>
@@ -868,7 +868,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                       target="_blank"
                       rel="noopener noreferrer"
                       className={`inline-flex items-center gap-3 text-white font-black uppercase tracking-widest transition-all shadow-lg hover:scale-105 ${isMobile ? 'px-5 py-3 text-xs rounded-xl' : 'px-8 py-4 text-sm rounded-2xl'}`}
-                      style={{ backgroundColor: sec.styles?.textColor || primaryColor }}
+                      style={{ backgroundColor: themeColor || primaryColor }}
                     >
                       {hero.cta || 'Mulai Sekarang'} <ArrowRight className="w-4 h-4" />
                     </a>
@@ -972,7 +972,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-slate-500 font-bold uppercase text-[10px] tracking-widest" style={getTextColorStyle(sec.id)}>[ Image {i+1} ]</div>
                         )}
-                        <div className="absolute bottom-4 right-4 text-white font-black px-3 py-1 rounded-xl text-xs" style={{ backgroundColor: sec.styles?.textColor || primaryColor }}>
+                        <div className="absolute bottom-4 right-4 text-white font-black px-3 py-1 rounded-xl text-xs" style={{ backgroundColor: themeColor || primaryColor }}>
                           {prod.price}
                         </div>
                       </div>
@@ -998,9 +998,9 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                             rel="noopener noreferrer"
                             className="w-full py-2.5 hover:text-white font-black rounded-xl text-[10px] uppercase tracking-wider text-center transition-all mt-4 inline-block border border-slate-200 dark:border-slate-800"
                             style={{ 
-                              backgroundColor: sec.styles?.textColor ? `${sec.styles.textColor}10` : (isDarkTheme ? '#1e293b' : '#f8fafc'),
-                              color: sec.styles?.textColor || primaryColor,
-                              borderColor: sec.styles?.textColor ? `${sec.styles.textColor}30` : undefined
+                              backgroundColor: themeColor ? `${themeColor}10` : (isDarkTheme ? '#1e293b' : '#f8fafc'),
+                              color: themeColor || primaryColor,
+                              borderColor: themeColor ? `${themeColor}30` : undefined
                             }}
                           >
                             Konsultasi Sekarang
@@ -1151,7 +1151,7 @@ export default function TemplateRenderer({ templateId, contentJson, isMobile = f
                     target="_blank"
                     rel="noopener noreferrer"
                     className={`inline-flex items-center gap-3 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:scale-105 transition-all shadow-lg ${isMobile ? 'px-5 py-3 text-xs rounded-xl' : 'px-8 py-4 text-sm rounded-2xl'}`}
-                    style={{ backgroundColor: sec.styles?.textColor || primaryColor }}
+                    style={{ backgroundColor: themeColor || primaryColor }}
                   >
                     {cta.buttonText || 'Hubungi Kami'} <MessageCircle className="w-4.5 h-4.5" />
                   </a>

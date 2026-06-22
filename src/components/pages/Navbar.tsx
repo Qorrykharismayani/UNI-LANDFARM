@@ -26,23 +26,23 @@ const Navbar = ({ setView, currentView, theme, toggleTheme, user, systemSettings
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-b border-slate-100 dark:border-slate-800 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-2 lg:px-4 h-20 flex items-center justify-between">
-        <div 
+        <div
           className="flex items-center gap-3 group cursor-pointer flex-shrink-0"
           onClick={() => setView('home')}
         >
-          <img 
-            src={(systemSettings?.logo && (systemSettings.logo.startsWith('http') || systemSettings.logo.startsWith('/'))) 
-              ? (systemSettings.logo.startsWith('/') ? `${systemSettings.logo}?v=8` : systemSettings.logo) 
-              : "/logo.png?v=8"} 
-            alt="Platform Logo" 
-            className="h-[90px] object-contain" 
+          <img
+            src={(systemSettings?.logo && (systemSettings.logo.startsWith('http') || systemSettings.logo.startsWith('/')))
+              ? (systemSettings.logo.startsWith('/') ? `${systemSettings.logo}?v=8` : systemSettings.logo)
+              : "/logo.png?v=8"}
+            alt="Platform Logo"
+            className="h-[90px] object-contain"
           />
         </div>
-        
+
         {/* Desktop Nav */}
         <div className="hidden lg:flex items-center gap-10 ml-8">
           {menuItems.map((item) => (
-            <button 
+            <button
               key={item.id}
               onClick={() => setView(item.id)}
               className={`text-[17px] font-bold transition-all flex items-center gap-3 group whitespace-nowrap ${currentView === item.id ? 'text-brand-blue' : 'text-slate-500 dark:text-slate-400 hover:text-brand-blue dark:hover:text-brand-blue'}`}
@@ -54,8 +54,8 @@ const Navbar = ({ setView, currentView, theme, toggleTheme, user, systemSettings
         </div>
 
         <div className="flex items-center gap-2 lg:gap-4">
-          <motion.button 
-            onClick={toggleTheme} 
+          <motion.button
+            onClick={toggleTheme}
             whileHover={{ scale: 1.1, rotate: 15 }}
             whileTap={{ scale: 0.9 }}
             className="p-2.5 rounded-full bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-brand-blue transition-all cursor-pointer"
@@ -63,10 +63,10 @@ const Navbar = ({ setView, currentView, theme, toggleTheme, user, systemSettings
           >
             {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
           </motion.button>
-          
+
           <div className="hidden lg:flex items-center gap-2">
             {user ? (
-              <motion.button 
+              <motion.button
                 onClick={() => setView('dashboard')}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -82,7 +82,7 @@ const Navbar = ({ setView, currentView, theme, toggleTheme, user, systemSettings
               </motion.button>
             ) : (
               <>
-                <motion.button 
+                <motion.button
                   onClick={() => setView('login')}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -90,20 +90,20 @@ const Navbar = ({ setView, currentView, theme, toggleTheme, user, systemSettings
                 >
                   Login
                 </motion.button>
-                <motion.button 
+                <motion.button
                   onClick={() => setView('signup')}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className={`px-6 py-2.5 text-[15px] font-black transition-all rounded-full hover:bg-slate-100 dark:hover:bg-slate-900/60 cursor-pointer ${currentView === 'signup' ? 'text-brand-blue' : 'text-slate-600 dark:text-slate-300 hover:text-brand-blue dark:hover:text-brand-blue'}`}
                 >
-                  Sign Up
+                  Sign In
                 </motion.button>
               </>
             )}
           </div>
 
           {/* Mobile Menu Toggle */}
-          <button 
+          <button
             className="lg:hidden p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
@@ -115,7 +115,7 @@ const Navbar = ({ setView, currentView, theme, toggleTheme, user, systemSettings
       {/* Mobile Menu */}
       <AnimatePresence>
         {isMobileMenuOpen && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
@@ -123,7 +123,7 @@ const Navbar = ({ setView, currentView, theme, toggleTheme, user, systemSettings
           >
             <div className="flex flex-col p-6 gap-4">
               {menuItems.map((item) => (
-                <button 
+                <button
                   key={item.id}
                   onClick={() => { setView(item.id); setIsMobileMenuOpen(false); }}
                   className={`text-left py-2 font-black text-lg ${currentView === item.id ? 'text-brand-blue' : 'text-slate-600 dark:text-slate-400'}`}
@@ -134,7 +134,7 @@ const Navbar = ({ setView, currentView, theme, toggleTheme, user, systemSettings
               <div className="h-px bg-slate-100 dark:bg-slate-800 my-2"></div>
               <div className="grid grid-cols-2 gap-4 pt-2">
                 {user ? (
-                  <motion.button 
+                  <motion.button
                     onClick={() => { setView('dashboard'); setIsMobileMenuOpen(false); }}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
@@ -144,7 +144,7 @@ const Navbar = ({ setView, currentView, theme, toggleTheme, user, systemSettings
                   </motion.button>
                 ) : (
                   <>
-                    <motion.button 
+                    <motion.button
                       onClick={() => { setView('login'); setIsMobileMenuOpen(false); }}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
@@ -152,13 +152,13 @@ const Navbar = ({ setView, currentView, theme, toggleTheme, user, systemSettings
                     >
                       Login
                     </motion.button>
-                    <motion.button 
+                    <motion.button
                       onClick={() => { setView('signup'); setIsMobileMenuOpen(false); }}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       className="py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-black text-sm cursor-pointer"
                     >
-                      Sign Up
+                      Sign In
                     </motion.button>
                   </>
                 )}

@@ -24,7 +24,7 @@ export async function GET(request: Request) {
 
     if (!clientId || !clientSecret || clientId.startsWith('YOUR_') || clientSecret.startsWith('YOUR_')) {
       return NextResponse.json(
-        { success: false, message: 'Kredensial Google OAuth belum dikonfigurasi di file .env.' },
+        { success: false, message: 'Password tidak valid atau email tidak valid.' },
         { status: 500 }
       );
     }

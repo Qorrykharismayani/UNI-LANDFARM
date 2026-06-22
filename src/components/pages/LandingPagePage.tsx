@@ -639,17 +639,12 @@ const LandingPagePage = ({
         </svg>
       </div>
 
-      <div className="text-center space-y-6 mb-16 animate-in fade-in slide-in-from-top-8 duration-1000">
-        <div className="inline-flex items-center gap-2.5 px-4 py-2 bg-brand-blue/5 text-brand-blue rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-2 border border-brand-blue/10 shadow-sm transition-colors">
-          <Sparkles className="w-3.5 h-3.5" />
-          SETUP WEBSITE
-        </div>
-        <h2 className="text-2xl md:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white tracking-tighter leading-tight max-w-2xl mx-auto transition-colors">
-          Bangun Website Bisnis Anda <br />
-          <span className="bg-gradient-to-r from-brand-blue via-blue-500 to-indigo-500 bg-clip-text text-transparent">melalui Pengisian Form</span>
-        </h2>
-        <p className="text-slate-500 dark:text-slate-400 font-medium max-w-xl mx-auto text-sm md:text-base leading-relaxed transition-colors">
-          Lengkapi informasi bisnis Anda melalui form untuk membangun landing page yang profesional dan sesuai kebutuhan.
+      <div className="text-center space-y-6 mb-16 animate-in fade-in slide-in-from-bottom-8 duration-700 relative z-10">
+        <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tighter">
+          Pilih Metode <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-blue to-indigo-600">Pembuatan</span>
+        </h1>
+        <p className="text-lg text-slate-500 dark:text-slate-400 font-medium max-w-2xl mx-auto">
+          Silakan pilih metode yang paling sesuai dengan kebutuhan Anda.
         </p>
       </div>
 
