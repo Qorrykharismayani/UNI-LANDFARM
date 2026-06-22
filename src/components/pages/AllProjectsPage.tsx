@@ -105,11 +105,18 @@ const AllProjectsPage = ({
             >
               {/* Thumbnail */}
               <div className="w-full aspect-[16/10] rounded-xl overflow-hidden shadow-sm relative bg-slate-200 dark:bg-slate-800 shrink-0">
-                <img
-                  src={project.image || "https://picsum.photos/seed/placeholder/800/600"}
-                  alt={project.name}
-                  className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-500"
-                />
+                {project.image ? (
+                  <img
+                    src={project.image}
+                    alt={project.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-slate-100 dark:bg-slate-800/50 text-slate-400">
+                    <LayoutTemplate className="w-8 h-8 mb-2 opacity-50" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider">Tanpa Gambar</span>
+                  </div>
+                )}
                 <div className="absolute top-2 right-2">
                   <div className={`px-2.5 py-0.5 rounded-full text-[7px] font-black uppercase tracking-widest flex items-center gap-1 shadow-sm ${
                     project.status === 'Published' ? 'bg-[#DCFCE7] text-[#15803D]' :
