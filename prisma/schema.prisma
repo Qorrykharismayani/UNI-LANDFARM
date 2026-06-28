@@ -199,6 +199,7 @@ model Transaction {
   paymentCode   String?
   refId         String   @unique
   status        String   @default("berhasil")
+  proofImage    String?
   createdAt     DateTime @default(now())
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 

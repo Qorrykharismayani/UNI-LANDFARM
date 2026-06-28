@@ -20,7 +20,8 @@ import {
   Smartphone,
   Wallet,
   BarChart3,
-  BookOpen
+  BookOpen,
+  Bell
 } from 'lucide-react';
 
 interface AdminPanelPageProps {
@@ -28,8 +29,8 @@ interface AdminPanelPageProps {
   onLogout?: () => void;
   onSwitchToUserView?: () => void;
   onSettingsUpdate?: (s: any) => void;
-  adminView?: 'dashboard' | 'users' | 'landing_pages' | 'templates' | 'content' | 'profile' | 'analytics' | 'transactions';
-  setAdminView?: (v: 'dashboard' | 'users' | 'landing_pages' | 'templates' | 'content' | 'profile' | 'analytics' | 'transactions') => void;
+  adminView?: 'dashboard' | 'users' | 'landing_pages' | 'templates' | 'content' | 'profile' | 'analytics' | 'transactions' | 'notifications';
+  setAdminView?: (v: 'dashboard' | 'users' | 'landing_pages' | 'templates' | 'content' | 'profile' | 'analytics' | 'transactions' | 'notifications') => void;
 }
 
 const AdminPanelPage = ({ 
@@ -40,9 +41,17 @@ const AdminPanelPage = ({
   adminView: propsAdminView,
   setAdminView: propsSetAdminView
 }: AdminPanelPageProps) => {
-  const [localAdminView, setLocalAdminView] = useState<'dashboard' | 'users' | 'landing_pages' | 'templates' | 'content' | 'profile' | 'analytics' | 'transactions'>('dashboard');
+  const [localAdminView, setLocalAdminView] = useState<'dashboard' | 'users' | 'landing_pages' | 'templates' | 'content' | 'profile' | 'analytics' | 'transactions' | 'notifications'>('dashboard');
   const adminView = propsAdminView || localAdminView;
   const setAdminView = propsSetAdminView || setLocalAdminView;
+  const [adminNotifications, setAdminNotifications] = useState<any[]>([]);
+  const [newNotifData, setNewNotifData] = useState({
+    targetUserId: 'ALL',
+    title: '',
+    message: '',
+    type: 'system'
+  });
+  const [notifSearchQuery, setNotifSearchQuery] = useState('');
   const [users, setUsers] = useState<any[]>([]);
   const [landingPages, setLandingPages] = useState<any[]>([]);
   const [templatesList, setTemplatesList] = useState<any[]>([]);
@@ -141,17 +150,17 @@ const AdminPanelPage = ({
   // CMS Tab state
   const [cmsSettingsTab, setCmsSettingsTab] = useState<'basic' | 'support' | 'seo' | 'features' | 'testimonials' | 'faqs' | 'user_dashboard' | 'pricing' | 'guides'>('basic');
   const [savingSettings, setSavingSettings] = useState(false);
-
   const fetchAllData = async () => {
     setLoading(true);
     try {
-      const [resUsers, resPages, resTemplates, resSettings, resAnalytics, resTransactions] = await Promise.all([
+      const [resUsers, resPages, resTemplates, resSettings, resAnalytics, resTransactions, resNotifications] = await Promise.all([
         fetch('/api/admin/users?t=' + new Date().getTime()).then(r => r.json()),
         fetch('/api/landing-pages?t=' + new Date().getTime()).then(r => r.json()),
         fetch('/api/admin/templates?t=' + new Date().getTime()).then(r => r.json()),
         fetch('/api/settings?t=' + new Date().getTime()).then(r => r.json()),
         fetch('/api/admin/analytics?t=' + new Date().getTime()).then(r => r.json()),
-        fetch('/api/admin/transactions?t=' + new Date().getTime()).then(r => r.json())
+        fetch('/api/admin/transactions?t=' + new Date().getTime()).then(r => r.json()),
+        fetch('/api/admin/notifications?t=' + new Date().getTime()).then(r => r.json())
       ]);
 
       if (resUsers.success) setUsers(resUsers.data);
@@ -159,6 +168,7 @@ const AdminPanelPage = ({
       if (resTemplates.success) setTemplatesList(resTemplates.data);
       if (resAnalytics?.success) setAnalyticsData(resAnalytics.data);
       if (resTransactions?.success) setTransactions(resTransactions.data);
+      if (resNotifications?.success) setAdminNotifications(resNotifications.data);
       if (resSettings.success) {
         const fetched = resSettings.data || {};
         setSystemSettings({
@@ -311,6 +321,157 @@ const AdminPanelPage = ({
     } catch (err) {
       console.error(err);
       showNotification('Gagal menghubungi server.', 'info');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleDeletePage = async (pageId: string) => {
+    if (!confirm('Apakah Anda yakin ingin menghapus landing page ini secara permanen?')) return;
+    setActionLoading(`delete-page-${pageId}`);
+    try {
+      const res = await fetch(`/api/landing-pages/${pageId}`, {
+        method: 'DELETE'
+      });
+      const data = await res.json();
+      if (data.success) {
+        showNotification('Landing page berhasil dihapus!', 'success');
+        setLandingPages(landingPages.filter(lp => lp.id !== pageId));
+        if (selectedPageDetails && selectedPageDetails.id === pageId) {
+          setSelectedPageDetails(null);
+        }
+      } else {
+        showNotification(data.message || 'Gagal menghapus landing page.', 'info');
+      }
+    } catch (err) {
+      console.error(err);
+      showNotification('Gagal menghubungi server.', 'info');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const [zoomReceiptUrl, setZoomReceiptUrl] = useState<string | null>(null);
+
+  const handleApproveTransaction = async (txId: number) => {
+    if (!confirm('Apakah Anda yakin ingin menyetujui pembayaran ini? Token akan segera dikreditkan ke akun user.')) return;
+    setActionLoading(`approve-tx-${txId}`);
+    try {
+      const res = await fetch(`/api/admin/transactions/${txId}/approve`, {
+        method: 'POST'
+      });
+      const data = await res.json();
+      if (data.success) {
+        showNotification('Transaksi berhasil disetujui!', 'success');
+        setTransactions(transactions.map(t => t.id === txId ? { ...t, status: 'berhasil' } : t));
+      } else {
+        showNotification(data.message || 'Gagal menyetujui transaksi.', 'info');
+      }
+    } catch (err) {
+      console.error(err);
+      showNotification('Koneksi gagal.', 'info');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleRejectTransaction = async (txId: number) => {
+    if (!confirm('Apakah Anda yakin ingin menolak pembayaran ini?')) return;
+    setActionLoading(`reject-tx-${txId}`);
+    try {
+      const res = await fetch(`/api/admin/transactions/${txId}/reject`, {
+        method: 'POST'
+      });
+      const data = await res.json();
+      if (data.success) {
+        showNotification('Transaksi telah ditolak.', 'success');
+        setTransactions(transactions.map(t => t.id === txId ? { ...t, status: 'gagal' } : t));
+      } else {
+        showNotification(data.message || 'Gagal menolak transaksi.', 'info');
+      }
+    } catch (err) {
+      console.error(err);
+      showNotification('Koneksi gagal.', 'info');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleDeleteTransaction = async (txId: number) => {
+    if (!confirm('Apakah Anda yakin ingin menghapus riwayat transaksi ini secara permanen dari database?')) return;
+    setActionLoading(`delete-tx-${txId}`);
+    try {
+      const res = await fetch(`/api/admin/transactions/${txId}`, {
+        method: 'DELETE'
+      });
+      const data = await res.json();
+      if (data.success) {
+        showNotification('Transaksi berhasil dihapus!', 'success');
+        setTransactions(transactions.filter(t => t.id !== txId));
+      } else {
+        showNotification(data.message || 'Gagal menghapus transaksi.', 'info');
+      }
+    } catch (err) {
+      console.error(err);
+      showNotification('Koneksi gagal.', 'info');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleSendNotification = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newNotifData.title || !newNotifData.message) {
+      showNotification('Judul dan pesan wajib diisi!', 'info');
+      return;
+    }
+    setActionLoading('send-notif');
+    try {
+      const res = await fetch('/api/admin/notifications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newNotifData)
+      });
+      const data = await res.json();
+      if (data.success) {
+        showNotification('Notifikasi berhasil dikirim!', 'success');
+        setNewNotifData({
+          targetUserId: 'ALL',
+          title: '',
+          message: '',
+          type: 'system'
+        });
+        // Reload notifications list
+        const resList = await fetch('/api/admin/notifications?t=' + new Date().getTime()).then(r => r.json());
+        if (resList.success) setAdminNotifications(resList.data);
+      } else {
+        showNotification(data.message || 'Gagal mengirim notifikasi.', 'info');
+      }
+    } catch (err) {
+      console.error(err);
+      showNotification('Koneksi gagal.', 'info');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleDeleteNotification = async (notifId: number) => {
+    if (!confirm('Apakah Anda yakin ingin menghapus notifikasi ini?')) return;
+    setActionLoading(`delete-notif-${notifId}`);
+    try {
+      const res = await fetch(`/api/admin/notifications?id=${notifId}`, {
+        method: 'DELETE'
+      });
+      const data = await res.json();
+      if (data.success) {
+        showNotification('Notifikasi berhasil dihapus!', 'success');
+        setAdminNotifications(adminNotifications.filter(n => n.id !== notifId));
+      } else {
+        showNotification(data.message || 'Gagal menghapus notifikasi.', 'info');
+      }
+    } catch (err) {
+      console.error(err);
+      showNotification('Koneksi gagal.', 'info');
     } finally {
       setActionLoading(null);
     }
@@ -535,6 +696,7 @@ const AdminPanelPage = ({
     { id: 'templates', label: 'Template Management', icon: <Layout className="w-4.5 h-4.5" /> },
     { id: 'content', label: 'Content Management (CMS)', icon: <Database className="w-4.5 h-4.5" /> },
     { id: 'transactions', label: 'Transaksi', icon: <Wallet className="w-4.5 h-4.5" /> },
+    { id: 'notifications', label: 'Kelola Notifikasi', icon: <Bell className="w-4.5 h-4.5" /> },
   ];
 
   return (
@@ -887,49 +1049,145 @@ const AdminPanelPage = ({
               </table>
             </div>
 
-            {/* Edit User Modal */}
+            {/* Edit User Modal — Detail + Edit Role/Status */}
             {editingUser && (
               <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                <div className="bg-white dark:bg-[#0b1226] border border-slate-200 dark:border-slate-700 rounded-[24px] shadow-2xl w-full max-w-md">
-                  <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-800">
-                    <div>
-                      <h3 className="text-sm font-black uppercase tracking-widest text-slate-800 dark:text-white">Edit Pengguna</h3>
-                      <p className="text-[9px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5">{editingUser.email}</p>
+                <div className="bg-white dark:bg-[#0b1226] border border-slate-200 dark:border-slate-700 rounded-[24px] shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
+                  {/* Header */}
+                  <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-800 sticky top-0 bg-white dark:bg-[#0b1226] z-10 rounded-t-[24px]">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-blue to-indigo-600 flex items-center justify-center text-white font-black text-lg uppercase shadow-lg shadow-brand-blue/20">
+                        {editingUser.name?.charAt(0) || 'U'}
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-black uppercase tracking-widest text-slate-800 dark:text-white">{editingUser.name}</h3>
+                        <p className="text-[9px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5">{editingUser.email}</p>
+                      </div>
                     </div>
                     <button onClick={() => setEditingUser(null)} className="w-8 h-8 flex items-center justify-center bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl transition-colors cursor-pointer">
                       <X className="w-4 h-4 text-slate-600 dark:text-slate-300" />
                     </button>
                   </div>
-                  <div className="p-6 space-y-4">
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">Role Pengguna</label>
-                      <select 
-                        value={editingUser.role || 'USER'}
-                        onChange={(e) => setEditingUser({...editingUser, role: e.target.value})}
-                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-800 dark:text-white focus:border-brand-blue outline-none"
-                      >
-                        <option value="USER">USER (Pengguna Biasa)</option>
-                        <option value="ADMIN">ADMIN (Hak Akses Penuh)</option>
-                      </select>
+
+                  <div className="p-6 space-y-6">
+                    {/* User Info Cards (Read-Only) */}
+                    <div>
+                      <h4 className="text-[9px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-3">Informasi Pengguna</h4>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        {[
+                          { label: 'Telepon', value: editingUser.phone || '-' },
+                          { label: 'Lokasi', value: editingUser.location || '-' },
+                          { label: 'Paket', value: editingUser.plan || 'Regular Access' },
+                          { label: 'Token', value: editingUser.tokens?.toLocaleString('id-ID') ?? '0' },
+                          { label: 'Provider', value: editingUser.provider || 'credentials' },
+                          { label: 'Bergabung', value: editingUser.joinedDate || '-' },
+                        ].map((item, i) => (
+                          <div key={i} className="bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/60 rounded-xl p-3">
+                            <span className="text-[8px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-1">{item.label}</span>
+                            <span className="text-xs font-bold text-slate-800 dark:text-white truncate block">{item.value}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">Status Akun</label>
-                      <select 
-                        value={editingUser.status || 'Aktif'}
-                        onChange={(e) => setEditingUser({...editingUser, status: e.target.value})}
-                        className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-800 dark:text-white focus:border-brand-blue outline-none"
-                      >
-                        <option value="Aktif">Aktif</option>
-                        <option value="Nonaktif">Nonaktif</option>
-                      </select>
+
+                    {/* Activity Stats (Read-Only) */}
+                    <div>
+                      <h4 className="text-[9px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-3">Riwayat Aktivitas</h4>
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                        {[
+                          { label: 'Landing Pages', value: editingUser.landingPageCount ?? 0, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+                          { label: 'Artikel', value: editingUser.articleCount ?? 0, color: 'text-purple-500', bg: 'bg-purple-500/10' },
+                          { label: 'Transaksi', value: editingUser.transactionCount ?? 0, color: 'text-amber-500', bg: 'bg-amber-500/10' },
+                          { label: 'Notifikasi', value: editingUser.notificationCount ?? 0, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+                          { label: 'Media', value: editingUser.mediaFileCount ?? 0, color: 'text-rose-500', bg: 'bg-rose-500/10' },
+                        ].map((item, i) => (
+                          <div key={i} className={`${item.bg} border border-slate-200 dark:border-slate-800/40 rounded-xl p-3 text-center`}>
+                            <span className={`text-xl font-black ${item.color} block`}>{item.value}</span>
+                            <span className="text-[7.5px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-0.5 block">{item.label}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Landing Pages List (Read-Only) */}
+                    {editingUser.landingPages && editingUser.landingPages.length > 0 && (
+                      <div>
+                        <h4 className="text-[9px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-3">Landing Pages ({editingUser.landingPages.length})</h4>
+                        <div className="bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/60 rounded-xl overflow-hidden">
+                          <table className="w-full text-left text-xs">
+                            <thead>
+                              <tr className="border-b border-slate-200 dark:border-slate-800/60">
+                                <th className="px-4 py-2.5 text-[8px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Judul</th>
+                                <th className="px-4 py-2.5 text-[8px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Status</th>
+                                <th className="px-4 py-2.5 text-[8px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Dibuat</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-200 dark:divide-slate-800/40">
+                              {editingUser.landingPages.slice(0, 5).map((lp: any) => (
+                                <tr key={lp.id} className="hover:bg-white dark:hover:bg-slate-800/30 transition-colors">
+                                  <td className="px-4 py-2 font-bold text-slate-700 dark:text-slate-200 truncate max-w-[200px]">{lp.title}</td>
+                                  <td className="px-4 py-2">
+                                    <span className={`px-1.5 py-0.5 text-[7px] font-black uppercase tracking-widest rounded ${
+                                      lp.status === 'Published' ? 'bg-emerald-500/10 text-emerald-500' :
+                                      lp.status === 'Draft' ? 'bg-amber-500/10 text-amber-500' :
+                                      'bg-slate-200 dark:bg-slate-800 text-slate-500'
+                                    }`}>{lp.status}</span>
+                                  </td>
+                                  <td className="px-4 py-2 text-slate-500 dark:text-slate-400 text-[10px]">
+                                    {new Date(lp.createdAt).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                          {editingUser.landingPages.length > 5 && (
+                            <div className="px-4 py-2 text-center text-[8px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest border-t border-slate-200 dark:border-slate-800/60">
+                              +{editingUser.landingPages.length - 5} landing page lainnya
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Editable Fields: Role & Status */}
+                    <div className="border-t border-slate-200 dark:border-slate-800 pt-6">
+                      <h4 className="text-[9px] font-black uppercase tracking-widest text-brand-blue mb-4 flex items-center gap-2">
+                        <ShieldCheck className="w-3.5 h-3.5" /> Kelola Hak Akses
+                      </h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">Role Pengguna</label>
+                          <select 
+                            value={editingUser.role || 'USER'}
+                            onChange={(e) => setEditingUser({...editingUser, role: e.target.value})}
+                            className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-800 dark:text-white focus:border-brand-blue outline-none"
+                          >
+                            <option value="USER">USER (Pengguna Biasa)</option>
+                            <option value="ADMIN">ADMIN (Hak Akses Penuh)</option>
+                          </select>
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">Status Akun</label>
+                          <select 
+                            value={editingUser.status || 'Aktif'}
+                            onChange={(e) => setEditingUser({...editingUser, status: e.target.value})}
+                            className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-800 dark:text-white focus:border-brand-blue outline-none"
+                          >
+                            <option value="Aktif">Aktif</option>
+                            <option value="Nonaktif">Nonaktif</option>
+                          </select>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <div className="p-6 border-t border-slate-200 dark:border-slate-800 flex gap-3">
-                    <button onClick={() => setEditingUser(null)} className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-[10px] font-black uppercase tracking-widest transition-colors">
+
+                  {/* Footer Buttons */}
+                  <div className="p-6 border-t border-slate-200 dark:border-slate-800 flex gap-3 sticky bottom-0 bg-white dark:bg-[#0b1226] rounded-b-[24px]">
+                    <button onClick={() => setEditingUser(null)} className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-[10px] font-black uppercase tracking-widest transition-colors cursor-pointer">
                       Batal
                     </button>
-                    <button onClick={handleSaveUserEdit} disabled={actionLoading === `edit-user-${editingUser.id}`} className="flex-1 py-3 bg-brand-blue hover:bg-blue-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-colors flex items-center justify-center">
-                      {actionLoading === `edit-user-${editingUser.id}` ? 'Menyimpan...' : 'Simpan'}
+                    <button onClick={handleSaveUserEdit} disabled={actionLoading === `edit-user-${editingUser.id}`} className="flex-1 py-3 bg-brand-blue hover:bg-blue-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-colors flex items-center justify-center cursor-pointer">
+                      {actionLoading === `edit-user-${editingUser.id}` ? 'Menyimpan...' : 'Simpan Perubahan'}
                     </button>
                   </div>
                 </div>
@@ -1100,6 +1358,13 @@ const AdminPanelPage = ({
                                   {actionLoading === `page-${lp.id}` ? '...' : 'Activate'}
                                 </button>
                               )}
+                              <button
+                                onClick={() => handleDeletePage(lp.id)}
+                                disabled={actionLoading === `delete-page-${lp.id}`}
+                                className="px-2.5 py-1 bg-red-600 dark:bg-red-600/90 hover:bg-red-700 text-white rounded-lg text-[9px] font-black uppercase tracking-wider transition-colors cursor-pointer"
+                              >
+                                {actionLoading === `delete-page-${lp.id}` ? '...' : 'Hapus'}
+                              </button>
                             </div>
                           </td>
                         </tr>
@@ -2280,14 +2545,16 @@ const AdminPanelPage = ({
                       <th className="py-4 px-6 text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">User</th>
                       <th className="py-4 px-6 text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Paket</th>
                       <th className="py-4 px-6 text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Jumlah</th>
+                      <th className="py-4 px-6 text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Bukti Bayar</th>
                       <th className="py-4 px-6 text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Status</th>
                       <th className="py-4 px-6 text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Tanggal</th>
+                      <th className="py-4 px-6 text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 text-right">Aksi</th>
                     </tr>
                   </thead>
                   <tbody>
                     {transactions.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="py-8 px-6 text-center text-slate-500 text-xs">Belum ada transaksi</td>
+                        <td colSpan={8} className="py-8 px-6 text-center text-slate-500 text-xs">Belum ada transaksi</td>
                       </tr>
                     ) : (
                       transactions.map((trx, idx) => (
@@ -2300,16 +2567,239 @@ const AdminPanelPage = ({
                           <td className="py-4 px-6 text-xs text-slate-700 dark:text-slate-300 font-medium">{trx.packageName}</td>
                           <td className="py-4 px-6 text-xs text-emerald-600 dark:text-emerald-400 font-bold">Rp {trx.amount.toLocaleString('id-ID')}</td>
                           <td className="py-4 px-6">
-                            <span className={`px-2 py-1 rounded text-[9px] font-black uppercase tracking-wider ${trx.status === 'PAID' ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-amber-100 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400'}`}>
+                            {trx.proofImage ? (
+                              <img 
+                                src={trx.proofImage} 
+                                alt="Bukti Transfer" 
+                                onClick={() => setZoomReceiptUrl(trx.proofImage)}
+                                className="w-10 h-10 object-cover rounded border border-slate-200 dark:border-slate-800 hover:scale-110 cursor-zoom-in transition-all"
+                              />
+                            ) : (
+                              <span className="text-[10px] text-slate-400 font-medium">-</span>
+                            )}
+                          </td>
+                          <td className="py-4 px-6">
+                            <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-wider ${
+                              trx.status === 'berhasil' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-500/20' :
+                              trx.status === 'pending' ? 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400 border border-amber-500/20' :
+                              'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400 border border-red-500/20'
+                            }`}>
                               {trx.status}
                             </span>
                           </td>
                           <td className="py-4 px-6 text-xs text-slate-500 dark:text-slate-400 font-medium">{new Date(trx.createdAt).toLocaleDateString('id-ID')}</td>
+                          <td className="py-4 px-6 text-right">
+                            {trx.status === 'pending' ? (
+                              <div className="flex items-center justify-end gap-1.5 whitespace-nowrap">
+                                <button
+                                  onClick={() => handleApproveTransaction(trx.id)}
+                                  disabled={actionLoading === `approve-tx-${trx.id}`}
+                                  className="px-2 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[8px] font-black uppercase tracking-wider transition-colors cursor-pointer"
+                                >
+                                  Approve
+                                </button>
+                                <button
+                                  onClick={() => handleRejectTransaction(trx.id)}
+                                  disabled={actionLoading === `reject-tx-${trx.id}`}
+                                  className="px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-[8px] font-black uppercase tracking-wider transition-colors cursor-pointer"
+                                >
+                                  Reject
+                                </button>
+                              </div>
+                            ) : (
+                              <button
+                                onClick={() => handleDeleteTransaction(trx.id)}
+                                disabled={actionLoading === `delete-tx-${trx.id}`}
+                                className="px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-[8px] font-black uppercase tracking-wider transition-colors cursor-pointer"
+                              >
+                                {actionLoading === `delete-tx-${trx.id}` ? '...' : 'Hapus'}
+                              </button>
+                            )}
+                          </td>
                         </tr>
                       ))
                     )}
                   </tbody>
                 </table>
+              </div>
+            </div>
+
+            {/* Receipt Zoom Modal */}
+            {zoomReceiptUrl && (
+              <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-sm" onClick={() => setZoomReceiptUrl(null)}>
+                <div className="relative max-w-3xl max-h-[85vh] overflow-hidden" onClick={e => e.stopPropagation()}>
+                  <img src={zoomReceiptUrl} alt="Receipt Zoomed" className="max-w-full max-h-[80vh] object-contain rounded-2xl border border-slate-800" />
+                  <button onClick={() => setZoomReceiptUrl(null)} className="absolute top-4 right-4 bg-slate-900/60 hover:bg-slate-900 text-white p-2 rounded-full transition-colors">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* VIEW: KELOLA NOTIFIKASI */}
+        {adminView === 'notifications' && (
+          <div className="space-y-6 animate-in fade-in duration-300">
+            <div className="border-b border-slate-200 dark:border-slate-800 pb-5">
+              <h2 className="text-md font-black uppercase tracking-widest text-slate-800 dark:text-white">Kelola & Kirim Notifikasi</h2>
+              <p className="text-[9.5px] text-slate-500 dark:text-slate-400 font-bold mt-1">Kirim notifikasi broadcast ke semua pengguna atau secara spesifik per akun</p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              {/* Form Kirim Notifikasi (Col Span 4) */}
+              <div className="lg:col-span-4 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 rounded-[24px] p-6 shadow-sm h-fit">
+                <h3 className="text-xs font-black uppercase tracking-widest text-slate-800 dark:text-white border-b border-slate-150 dark:border-slate-800/60 pb-3 mb-4">Buat Notifikasi</h3>
+                
+                <form onSubmit={handleSendNotification} className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Target Penerima</label>
+                    <select
+                      value={newNotifData.targetUserId}
+                      onChange={(e) => setNewNotifData({ ...newNotifData, targetUserId: e.target.value })}
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-2.5 text-xs text-slate-800 dark:text-white outline-none"
+                    >
+                      <option value="ALL">📢 SEMUA PENGGUNA (Broadcast)</option>
+                      {users.map(u => (
+                        <option key={u.id} value={u.id}>👤 {u.name} ({u.email})</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Tipe Notifikasi</label>
+                    <select
+                      value={newNotifData.type}
+                      onChange={(e) => setNewNotifData({ ...newNotifData, type: e.target.value })}
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-2.5 text-xs text-slate-800 dark:text-white outline-none"
+                    >
+                      <option value="system">⚙️ Sistem</option>
+                      <option value="token">⚡ Token / Finansial</option>
+                      <option value="template">📁 Desain / Template</option>
+                      <option value="welcome">✨ Selamat Datang</option>
+                      <option value="success">✅ Sukses / Konfirmasi</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Judul Notifikasi</label>
+                    <input
+                      type="text"
+                      placeholder="Masukkan judul notifikasi..."
+                      value={newNotifData.title}
+                      onChange={(e) => setNewNotifData({ ...newNotifData, title: e.target.value })}
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-2.5 text-xs text-slate-800 dark:text-white outline-none"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Pesan Notifikasi</label>
+                    <textarea
+                      placeholder="Tulis pesan lengkap di sini..."
+                      value={newNotifData.message}
+                      onChange={(e) => setNewNotifData({ ...newNotifData, message: e.target.value })}
+                      className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 focus:border-brand-blue/50 rounded-xl px-4 py-2.5 text-xs text-slate-800 dark:text-white outline-none min-h-[100px] resize-none"
+                      required
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={actionLoading === 'send-notif'}
+                    className="w-full py-3.5 bg-brand-blue hover:bg-blue-600 text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all shadow-md shadow-brand-blue/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer mt-2"
+                  >
+                    {actionLoading === 'send-notif' ? 'Mengirim...' : 'Kirim Notifikasi'}
+                  </button>
+                </form>
+              </div>
+
+              {/* Tabel Riwayat Notifikasi (Col Span 8) */}
+              <div className="lg:col-span-8 space-y-4">
+                <div className="flex justify-between items-center bg-white dark:bg-slate-900/40 p-4 border border-slate-200 dark:border-slate-800/60 rounded-2xl gap-4">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                    <input
+                      type="text"
+                      placeholder="Cari notifikasi berdasarkan judul/pesan..."
+                      value={notifSearchQuery}
+                      onChange={(e) => setNotifSearchQuery(e.target.value)}
+                      className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-850 dark:text-white outline-none focus:border-brand-blue"
+                    />
+                  </div>
+                </div>
+
+                <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/80 rounded-[24px] overflow-hidden shadow-sm">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/40">
+                          <th className="py-4 px-6 text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Pengguna</th>
+                          <th className="py-4 px-6 text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Notifikasi</th>
+                          <th className="py-4 px-6 text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Tipe</th>
+                          <th className="py-4 px-6 text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Dibaca</th>
+                          <th className="py-4 px-6 text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 text-right">Aksi</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(() => {
+                          const filtered = adminNotifications.filter(n => 
+                            n.title.toLowerCase().includes(notifSearchQuery.toLowerCase()) ||
+                            n.message.toLowerCase().includes(notifSearchQuery.toLowerCase()) ||
+                            n.user?.name?.toLowerCase().includes(notifSearchQuery.toLowerCase()) ||
+                            n.user?.email?.toLowerCase().includes(notifSearchQuery.toLowerCase())
+                          );
+
+                          if (filtered.length === 0) {
+                            return (
+                              <tr>
+                                <td colSpan={5} className="py-8 px-6 text-center text-slate-500 text-xs">Belum ada riwayat notifikasi</td>
+                              </tr>
+                            );
+                          }
+
+                          return filtered.map((notif, idx) => (
+                            <tr key={idx} className="border-b border-slate-200 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                              <td className="py-4 px-6 text-xs text-slate-700 dark:text-slate-300">
+                                <div className="font-bold">{notif.user?.name || 'Sistem'}</div>
+                                <div className="text-[9px] text-slate-500">{notif.user?.email || 'System Message'}</div>
+                              </td>
+                              <td className="py-4 px-6 text-xs text-slate-800 dark:text-white max-w-[200px]">
+                                <div className="font-bold truncate">{notif.title}</div>
+                                <div className="text-[10px] text-slate-500 dark:text-slate-400 leading-normal mt-0.5 line-clamp-2">{notif.message}</div>
+                              </td>
+                              <td className="py-4 px-6 text-xs">
+                                <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-wider ${
+                                  notif.type === 'token' ? 'bg-amber-100 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400' :
+                                  notif.type === 'success' ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' :
+                                  notif.type === 'template' ? 'bg-blue-100 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400' :
+                                  notif.type === 'welcome' ? 'bg-fuchsia-100 text-fuchsia-600 dark:bg-fuchsia-500/10 dark:text-fuchsia-400' :
+                                  'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                                }`}>
+                                  {notif.type}
+                                </span>
+                              </td>
+                              <td className="py-4 px-6 text-xs">
+                                <span className={`px-1.5 py-0.5 text-[8px] font-bold rounded ${notif.isRead ? 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500' : 'bg-red-500/10 text-red-500'}`}>
+                                  {notif.isRead ? 'Sudah' : 'Belum'}
+                                </span>
+                              </td>
+                              <td className="py-4 px-6 text-right">
+                                <button
+                                  onClick={() => handleDeleteNotification(notif.id)}
+                                  disabled={actionLoading === `delete-notif-${notif.id}`}
+                                  className="px-2.5 py-1 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/20 rounded-lg text-[9px] font-black uppercase tracking-wider transition-colors cursor-pointer"
+                                >
+                                  {actionLoading === `delete-notif-${notif.id}` ? '...' : 'Hapus'}
+                                </button>
+                              </td>
+                            </tr>
+                          ));
+                        })()}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
