@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { packageName, packageTokens, amount, method, paymentCode } = body;
+    const { packageName, packageTokens, amount, method, paymentCode, proofImage } = body;
 
     if (!packageName || !packageTokens || !amount || !method) {
       return NextResponse.json({ success: false, message: 'Data tidak lengkap.' }, { status: 400 });
@@ -39,45 +39,38 @@ export async function POST(request: Request) {
     // Generate unique ref ID
     const refId = `TX-${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).substring(2, 5).toUpperCase()}`;
 
-    // Use a transaction to ensure atomicity: create record + update balance
-    const [transaction, updatedUser] = await prisma.$transaction([
-      (prisma.transaction as any).create({
-        data: {
-          userId: session.userId,
-          packageName,
-          packageTokens,
-          amount,
-          method,
-          paymentCode,
-          refId,
-          status: 'berhasil',
-        },
-      }),
-      (prisma.user as any).update({
-        where: { id: session.userId },
-        data: {
-          tokens: { increment: packageTokens },
-        },
-        select: { tokens: true },
-      }),
-      // Also create a notification for this purchase
-      (prisma.notification as any).create({
-        data: {
-          userId: session.userId,
-          title: 'Pembelian Token Berhasil',
-          message: `${packageTokens} Token dari ${packageName} telah ditambahkan ke akun Anda via ${method}.`,
-          type: 'success',
-          isRead: false,
-        },
-      }),
-    ]);
+    // Create record as pending, do not add tokens yet
+    const transaction = await (prisma.transaction as any).create({
+      data: {
+        userId: session.userId,
+        packageName,
+        packageTokens,
+        amount,
+        method,
+        paymentCode,
+        refId,
+        status: 'pending',
+        proofImage: proofImage || null,
+      },
+    });
+
+    // Create a notification for this verification process
+    await (prisma.notification as any).create({
+      data: {
+        userId: session.userId,
+        title: 'Pembayaran Sedang Diverifikasi',
+        message: `Pembelian paket ${packageName} sedang menunggu verifikasi admin. Bukti pembayaran telah diterima.`,
+        type: 'info',
+        isRead: false,
+      },
+    });
 
     return NextResponse.json({
       success: true,
-      message: 'Pembayaran berhasil!',
+      message: 'Bukti pembayaran berhasil diunggah! Mohon tunggu konfirmasi admin.',
       data: {
         transaction,
-        newTokenBalance: updatedUser.tokens,
+        newTokenBalance: null, // Token not added yet
       },
     });
   } catch (error: any) {

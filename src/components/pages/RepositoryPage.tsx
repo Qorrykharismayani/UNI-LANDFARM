@@ -21,7 +21,9 @@ import {
   Copy,
   Timer,
   ChevronUp,
-  BellRing
+  BellRing,
+  Upload,
+  Image
 } from 'lucide-react';
 
 interface RepositoryPageProps {
@@ -48,6 +50,38 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
   const [paymentMethodsData, setPaymentMethodsData] = useState<any[]>([]);
   const [lastReceiptRef, setLastReceiptRef] = useState('');
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [proofImage, setProofImage] = useState<string>('');
+  const [uploadingProof, setUploadingProof] = useState<boolean>(false);
+
+  const handleUploadProof = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    setUploadingProof(true);
+    try {
+      showNotification('Mengunggah bukti pembayaran...', 'info');
+      const res = await fetch('/api/media/upload', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+      if (data.success && data.data) {
+        setProofImage(data.data.fileUrl);
+        showNotification('Bukti pembayaran berhasil diunggah!', 'success');
+      } else {
+        showNotification(data.message || 'Gagal mengunggah bukti.', 'info');
+      }
+    } catch (err) {
+      console.error(err);
+      showNotification('Koneksi gagal saat mengunggah.', 'info');
+    } finally {
+      setUploadingProof(false);
+    }
+  };
+
   const [vaAccordion, setVaAccordion] = useState<string>('atm');
   const [pushState, setPushState] = useState<'input' | 'waiting'>('input');
   const [generatedVa, setGeneratedVa] = useState<string>('');
@@ -204,6 +238,10 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
       showNotification('Masukkan nomor akun/rekening Anda.', 'info');
       return;
     }
+    if (!proofImage) {
+      showNotification('Harap unggah bukti transfer/pembayaran terlebih dahulu.', 'info');
+      return;
+    }
     setCheckoutStep('processing');
 
     try {
@@ -215,7 +253,8 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
           packageTokens: selectedPackage?.tokens,
           amount: finalPrice,
           method: selectedPayment,
-          paymentCode: generatedVa
+          paymentCode: generatedVa,
+          proofImage: proofImage
         }),
       });
 
@@ -224,10 +263,12 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
       if (data.success) {
         const { transaction, newTokenBalance } = data.data;
         setLastReceiptRef(transaction.refId);
-        setTokenBalance(newTokenBalance);
         
-        // Update parent's user tokens
-        if (onTokenUpdate) onTokenUpdate(newTokenBalance);
+        // If approval is pending,newTokenBalance will be null; keep current balance
+        if (newTokenBalance !== null && newTokenBalance !== undefined) {
+          setTokenBalance(newTokenBalance);
+          if (onTokenUpdate) onTokenUpdate(newTokenBalance);
+        }
         
         // Tell parent to refresh notifications
         if (onTransactionComplete) onTransactionComplete();
@@ -236,8 +277,9 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
         await fetchTransactions();
 
         setCheckoutStep('receipt');
-        showNotification('Pembayaran berhasil dikonfirmasi!', 'success');
+        showNotification('Bukti pembayaran berhasil dikirim untuk diverifikasi!', 'success');
         setAccountNumber('');
+        setProofImage(''); // Reset proof image state
       } else {
         showNotification(data.message || 'Gagal memproses pembayaran.', 'info');
         setCheckoutStep('input');
@@ -756,6 +798,72 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
                         </div>
                       </div>
 
+                      {/* BUKTI PEMBAYARAN UPLOAD FOR VA */}
+                      <div className="mt-4 border-t border-slate-100 dark:border-slate-800 pt-4 text-left space-y-3">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 block ml-1">Unggah Bukti Transfer / Pembayaran *</label>
+                        <div className="flex flex-col gap-3">
+                          <div className="relative w-full">
+                            <input 
+                              type="file" 
+                              accept="image/*"
+                              onChange={handleUploadProof}
+                              disabled={uploadingProof}
+                              id="proof-upload-va"
+                              className="hidden"
+                            />
+                            <label 
+                              htmlFor="proof-upload-va" 
+                              className={`w-full border-2 border-dashed rounded-2xl p-6 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all duration-300 ${
+                                proofImage 
+                                  ? 'border-emerald-500/40 bg-emerald-500/5 hover:bg-emerald-500/10' 
+                                  : 'border-brand-blue/30 bg-brand-blue/5 hover:bg-brand-blue/10 hover:border-brand-blue/60'
+                              }`}
+                            >
+                              {uploadingProof ? (
+                                <div className="flex flex-col items-center gap-2">
+                                  <div className="w-5 h-5 rounded-full border-2 border-brand-blue border-t-transparent animate-spin"></div>
+                                  <span className="text-xs font-bold text-brand-blue">Mengunggah...</span>
+                                </div>
+                              ) : proofImage ? (
+                                <>
+                                  <CheckCircle2 className="w-6 h-6 text-emerald-500" />
+                                  <span className="text-xs font-extrabold text-emerald-600 text-center">Bukti Transfer Dipilih!</span>
+                                  <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Klik untuk mengganti</span>
+                                </>
+                              ) : (
+                                <>
+                                  <div className="w-9 h-9 rounded-full bg-brand-blue/10 flex items-center justify-center text-brand-blue">
+                                    <Upload className="w-4.5 h-4.5" />
+                                  </div>
+                                  <span className="text-xs font-black text-brand-blue uppercase tracking-wider text-center">Pilih Bukti Pembayaran</span>
+                                  <span className="text-[8px] text-slate-400 font-bold uppercase tracking-widest text-center">Format file: JPG, PNG, WEBP</span>
+                                </>
+                              )}
+                            </label>
+                          </div>
+                          
+                          {proofImage && (
+                            <div className="w-full flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                              <div className="flex items-center gap-3 min-w-0">
+                                <div className="w-10 h-10 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden relative shrink-0">
+                                  <img src={proofImage} alt="Bukti transfer" className="w-full h-full object-cover" />
+                                </div>
+                                <div className="min-w-0">
+                                  <p className="text-xs font-bold text-slate-800 dark:text-white truncate">bukti-pembayaran.jpg</p>
+                                  <p className="text-[10px] text-emerald-500 font-bold">Siap dikirim</p>
+                                </div>
+                              </div>
+                              <button 
+                                onClick={() => setProofImage('')}
+                                className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/20 rounded-lg text-[9px] font-black uppercase tracking-wider transition-colors cursor-pointer"
+                              >
+                                Hapus
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
                       <div className="flex gap-3 mt-8">
                         <button onClick={() => setCheckoutStep('package')} className="flex-1 py-3 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-xl font-bold text-sm uppercase tracking-wider transition-all cursor-pointer">Batal</button>
                         <button onClick={processPayment} className="flex-1 py-3 bg-brand-blue text-white rounded-xl font-bold text-sm uppercase tracking-wider shadow-md shadow-brand-blue/20 hover:bg-amber-500 hover:shadow-amber-500/20 hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer">Saya Sudah Bayar</button>
@@ -822,6 +930,74 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
                   </>
                 )}
 
+                {/* BUKTI PEMBAYARAN UPLOAD FOR NON-VA */}
+                {paymentGroup !== 'VIRTUAL ACCOUNT' && (paymentGroup !== 'MOBILE BANKING' || pushState === 'waiting') && (
+                  <div className="mt-6 border-t border-slate-100 dark:border-slate-800 pt-6 text-left space-y-3">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 block ml-1">Unggah Bukti Transfer / Pembayaran *</label>
+                    <div className="flex flex-col gap-3">
+                      <div className="relative w-full">
+                        <input 
+                          type="file" 
+                          accept="image/*"
+                          onChange={handleUploadProof}
+                          disabled={uploadingProof}
+                          id="proof-upload-nonva"
+                          className="hidden"
+                        />
+                        <label 
+                          htmlFor="proof-upload-nonva" 
+                          className={`w-full border-2 border-dashed rounded-2xl p-6 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all duration-300 ${
+                            proofImage 
+                              ? 'border-emerald-500/40 bg-emerald-500/5 hover:bg-emerald-500/10' 
+                              : 'border-brand-blue/30 bg-brand-blue/5 hover:bg-brand-blue/10 hover:border-brand-blue/60'
+                          }`}
+                        >
+                          {uploadingProof ? (
+                            <div className="flex flex-col items-center gap-2">
+                              <div className="w-5 h-5 rounded-full border-2 border-brand-blue border-t-transparent animate-spin"></div>
+                              <span className="text-xs font-bold text-brand-blue">Mengunggah...</span>
+                            </div>
+                          ) : proofImage ? (
+                            <>
+                              <CheckCircle2 className="w-6 h-6 text-emerald-500" />
+                              <span className="text-xs font-extrabold text-emerald-600 text-center">Bukti Transfer Dipilih!</span>
+                              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Klik untuk mengganti</span>
+                            </>
+                          ) : (
+                            <>
+                              <div className="w-9 h-9 rounded-full bg-brand-blue/10 flex items-center justify-center text-brand-blue">
+                                <Upload className="w-4.5 h-4.5" />
+                              </div>
+                              <span className="text-xs font-black text-brand-blue uppercase tracking-wider text-center">Pilih Bukti Pembayaran</span>
+                              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-widest text-center">Format file: JPG, PNG, WEBP</span>
+                            </>
+                          )}
+                        </label>
+                      </div>
+                      
+                      {proofImage && (
+                        <div className="w-full flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-10 h-10 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden relative shrink-0">
+                              <img src={proofImage} alt="Bukti transfer" className="w-full h-full object-cover" />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-xs font-bold text-slate-800 dark:text-white truncate">bukti-pembayaran.jpg</p>
+                              <p className="text-[10px] text-emerald-500 font-bold">Siap dikirim</p>
+                            </div>
+                          </div>
+                          <button 
+                            onClick={() => setProofImage('')}
+                            className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/20 rounded-lg text-[9px] font-black uppercase tracking-wider transition-colors cursor-pointer"
+                          >
+                            Hapus
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 {paymentGroup !== 'VIRTUAL ACCOUNT' && (
                   <div className="flex gap-3 mt-8">
                     <button onClick={() => setCheckoutStep('package')} className="flex-1 py-3 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-xl font-bold text-sm uppercase tracking-wider transition-all cursor-pointer">Batal</button>
@@ -871,10 +1047,10 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
                 {/* Left Aligned Content */}
                 <div className="relative z-10 w-2/3 text-left">
                   <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mb-5 border-[2px] border-white/30 backdrop-blur-sm shadow-xl">
-                    <CheckCircle2 className="w-6 h-6 text-white" />
+                    <Clock className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-2xl md:text-3xl font-black uppercase tracking-wider mb-2 drop-shadow-md leading-tight">Transaksi<br/>Berhasil!</h3>
-                  <p className="text-sm md:text-base font-medium text-white/90 leading-snug drop-shadow-sm max-w-[200px]">Token Anda telah berhasil ditambahkan.</p>
+                  <h3 className="text-2xl md:text-3xl font-black uppercase tracking-wider mb-2 drop-shadow-md leading-tight">Pembayaran<br/>Diproses!</h3>
+                  <p className="text-sm md:text-base font-medium text-white/90 leading-snug drop-shadow-sm max-w-[200px]">Bukti transfer Anda telah dikirim dan sedang diverifikasi oleh admin.</p>
                 </div>
 
                 {/* Slanted Bottom Overlay */}
@@ -888,7 +1064,7 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
                 <div className="grid grid-cols-2 gap-4 py-4 border-y-2 border-dashed border-slate-100 dark:border-slate-800">
                   <div className="space-y-4">
                     <div><p className="text-xs md:text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">Reference ID</p><p className="text-base md:text-lg font-black text-slate-900 dark:text-white font-mono">#{lastReceiptRef}</p></div>
-                    <div><p className="text-xs md:text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">Waktu Pembayaran</p><p className="text-base md:text-lg font-bold text-slate-900 dark:text-white">{new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })} &bull; {new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })} WIB</p></div>
+                    <div><p className="text-xs md:text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">Waktu Transaksi</p><p className="text-base md:text-lg font-bold text-slate-900 dark:text-white">{new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })} &bull; {new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })} WIB</p></div>
                   </div>
                   <div className="space-y-4 text-right">
                     <div><p className="text-xs md:text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">Metode</p><p className="text-base md:text-lg font-bold text-slate-900 dark:text-white">{selectedPayment}</p></div>
@@ -906,12 +1082,12 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
                     <div className="flex justify-between items-center"><span className="text-base font-bold text-slate-500">Total Dibayar</span><span className="text-2xl md:text-3xl font-black text-emerald-500">Rp {finalPrice.toLocaleString()}</span></div>
                   )}
                   <div className="flex justify-between items-center pt-3 border-t border-slate-200 dark:border-slate-700">
-                    <div className="flex items-center gap-2"><div className="w-7 h-7 bg-emerald-500/10 rounded-lg flex items-center justify-center text-emerald-500"><Zap className="w-3.5 h-3.5" /></div><span className="text-sm font-bold text-emerald-600 uppercase tracking-wider">Token Ditambahkan</span></div>
-                    <span className="text-xl md:text-2xl font-black text-emerald-600">+{selectedPackage?.tokens}</span>
+                    <div className="flex items-center gap-2"><div className="w-7 h-7 bg-amber-500/10 rounded-lg flex items-center justify-center text-amber-500"><Zap className="w-3.5 h-3.5" /></div><span className="text-sm font-bold text-amber-600 uppercase tracking-wider">Token Ditambahkan</span></div>
+                    <span className="text-xl md:text-2xl font-black text-amber-600">+{selectedPackage?.tokens}</span>
                   </div>
                   <div className="flex justify-between items-center pt-3 border-t border-slate-200 dark:border-slate-700">
-                    <span className="text-sm font-bold text-slate-400 uppercase tracking-wider">Saldo Baru</span>
-                    <span className="text-lg md:text-xl font-black text-slate-900 dark:text-white">{tokenBalance.toLocaleString()} Token</span>
+                    <span className="text-sm font-bold text-slate-400 uppercase tracking-wider">Status Verifikasi</span>
+                    <span className="text-sm font-bold text-orange-500 uppercase tracking-wider">Menunggu Persetujuan Admin</span>
                   </div>
                 </div>
                 <div className="flex gap-3 pt-2 print:hidden">
@@ -953,6 +1129,7 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
                   <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="appearance-none bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl pl-4 pr-10 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-300 outline-none focus:border-brand-blue/40 focus:ring-2 focus:ring-brand-blue/10 transition-all cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700">
                     <option value="semua">Semua Status</option>
                     <option value="berhasil">✅ Berhasil</option>
+                    <option value="pending">⏳ Pending</option>
                     <option value="gagal">❌ Gagal</option>
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
@@ -974,7 +1151,7 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
                     <tr><td colSpan={7} className="px-6 py-20 text-center"><p className="text-xl text-slate-400 animate-pulse">Memuat riwayat...</p></td></tr>
                   ) : filteredTransactions.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="px-6 py-20 text-center">
+                       <td colSpan={7} className="px-6 py-20 text-center">
                         <div className="flex flex-col items-center justify-center space-y-4">
                           <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center shadow-inner border border-slate-100 dark:border-slate-700"><Receipt className="w-8 h-8 text-slate-300 dark:text-slate-600" /></div>
                           <div>
@@ -1002,8 +1179,12 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
                         <td className="px-6 py-4 text-sm font-bold text-slate-900 dark:text-white">Rp {tx.amount?.toLocaleString()}</td>
                         <td className="px-6 py-4"><span className="text-sm font-medium text-slate-500 dark:text-slate-400">{tx.method}</span></td>
                         <td className="px-6 py-4">
-                          <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider ${tx.status === 'berhasil' ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 border border-emerald-200 dark:border-emerald-500/20' : 'bg-red-50 dark:bg-red-500/10 text-red-600 border border-red-200 dark:border-red-500/20'}`}>
-                            {tx.status === 'berhasil' ? '✓' : '✕'} {tx.status}
+                          <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider ${
+                            tx.status === 'berhasil' ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 border border-emerald-200 dark:border-emerald-500/20' :
+                            tx.status === 'pending' ? 'bg-amber-50 dark:bg-amber-500/10 text-amber-600 border border-amber-200 dark:border-amber-500/20' :
+                            'bg-red-50 dark:bg-red-500/10 text-red-600 border border-red-200 dark:border-red-500/20'
+                          }`}>
+                            {tx.status === 'berhasil' ? '✓' : tx.status === 'pending' ? '⏳' : '✕'} {tx.status}
                           </span>
                         </td>
                         <td className="px-6 py-4 text-right print:hidden">

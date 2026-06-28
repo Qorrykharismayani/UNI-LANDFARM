@@ -13,7 +13,11 @@ export async function GET(request: Request) {
 
     const users = await prisma.user.findMany({
       include: {
-        landingPages: { select: { id: true } }
+        landingPages: { select: { id: true, title: true, status: true, createdAt: true } },
+        articles: { select: { id: true } },
+        transactions: { select: { id: true, amount: true, status: true, createdAt: true } },
+        notifications: { select: { id: true } },
+        mediaFiles: { select: { id: true } },
       },
       orderBy: { createdAt: 'desc' }
     });
@@ -24,9 +28,32 @@ export async function GET(request: Request) {
       email: u.email,
       role: u.role,
       status: u.status,
+      phone: u.phone || '-',
+      location: u.location || '-',
+      plan: u.plan,
+      tokens: u.tokens,
+      provider: u.provider,
+      image: u.image,
       joinedDate: u.createdAt.toISOString().split('T')[0],
       createdAt: u.createdAt.toISOString(),
-      landingPageCount: u.landingPages.length
+      updatedAt: u.updatedAt.toISOString(),
+      landingPageCount: u.landingPages.length,
+      articleCount: u.articles.length,
+      transactionCount: u.transactions.length,
+      notificationCount: u.notifications.length,
+      mediaFileCount: u.mediaFiles.length,
+      landingPages: u.landingPages.map(lp => ({
+        id: lp.id,
+        title: lp.title,
+        status: lp.status,
+        createdAt: lp.createdAt.toISOString(),
+      })),
+      recentTransactions: u.transactions.slice(0, 5).map(t => ({
+        id: t.id,
+        amount: t.amount,
+        status: t.status,
+        createdAt: t.createdAt.toISOString(),
+      })),
     }));
 
     return NextResponse.json({ success: true, message: 'Berhasil', data: formattedUsers });

@@ -109,43 +109,8 @@ async function main() {
   });
   console.log('Admin seeded:', admin.email);
 
-  // 2. Create Default Users (3 Users)
-  const user1 = await prisma.user.upsert({
-    where: { email: 'user@unilanfarm.com' },
-    update: {},
-    create: {
-      name: 'Sarah Anderson',
-      email: 'user@unilanfarm.com',
-      password: userPasswordHash,
-      role: 'USER',
-      status: 'Aktif'
-    }
-  });
-
-  const user2 = await prisma.user.upsert({
-    where: { email: 'andi@unilanfarm.com' },
-    update: {},
-    create: {
-      name: 'Andi Pratama',
-      email: 'andi@unilanfarm.com',
-      password: clientPasswordHash,
-      role: 'USER',
-      status: 'Aktif'
-    }
-  });
-
-  const user3 = await prisma.user.upsert({
-    where: { email: 'budi@unilanfarm.com' },
-    update: {},
-    create: {
-      name: 'Budi Santoso',
-      email: 'budi@unilanfarm.com',
-      password: clientPasswordHash,
-      role: 'USER',
-      status: 'Aktif'
-    }
-  });
-  console.log('Users seeded')  // 3. Create Templates (5 Templates)
+  // 2. Default Users creation removed to keep database clean.
+  // 3. Create Templates (5 Templates)
   const templateList = [
     // Teknologi
     {
@@ -298,85 +263,26 @@ async function main() {
     throw new Error('Templates not found for seeding landing pages');
   }
 
-  // 5. Create 3 Landing Pages
-  // Page 1: Toko Kopi Merdeka (Sarah Anderson, Published)
-  const page1 = await prisma.landingPage.upsert({
-    where: { slug: 'toko-kopi-merdeka' },
-    update: {},
-    create: {
-      userId: user1.id,
-      templateId: tplRet1.id,
-      title: 'Toko Kopi Merdeka',
-      businessName: 'Toko Kopi Merdeka',
-      slug: 'toko-kopi-merdeka',
-      status: 'Published',
-      views: 2400,
-      publicUrl: '/site/toko-kopi-merdeka',
-      content: {
-        create: {
-          contentJson: defaultContentTemplate(
-            "Toko Kopi Merdeka",
-            "Kopi robusta dan arabika murni langsung dari perkebunan petani lokal Indonesia.",
-            "Pesan Kopi",
-            "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=500&q=80"
-          )
-        }
+  // 5. Delete Dummy Landing Pages and Dummy Users
+  console.log('Cleaning up dummy data...');
+  
+  await prisma.landingPage.deleteMany({
+    where: {
+      slug: {
+        in: ['toko-kopi-merdeka', 'jasa-bersih-merdeka', 'festival-kopi-2026']
       }
     }
   });
 
-  // Page 2: Jasa Bersih Merdeka (Andi Pratama, Published)
-  const page2 = await prisma.landingPage.upsert({
-    where: { slug: 'jasa-bersih-merdeka' },
-    update: {},
-    create: {
-      userId: user2.id,
-      templateId: tplLay1.id,
-      title: 'Jasa Bersih Merdeka',
-      businessName: 'Jasa Bersih Merdeka',
-      slug: 'jasa-bersih-merdeka',
-      status: 'Published',
-      views: 180,
-      publicUrl: '/site/jasa-bersih-merdeka',
-      content: {
-        create: {
-          contentJson: defaultContentTemplate(
-            "Jasa Bersih Merdeka",
-            "Solusi kebersihan terpercaya untuk kenyamanan rumah dan kantor Anda.",
-            "Pesan Layanan",
-            "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&q=80"
-          )
-        }
+  await prisma.user.deleteMany({
+    where: {
+      email: {
+        in: ['user@unilanfarm.com', 'andi@unilanfarm.com', 'budi@unilanfarm.com']
       }
     }
   });
 
-  // Page 3: Festival Kopi 2026 (Budi Santoso, Pending Publish)
-  const page3 = await prisma.landingPage.upsert({
-    where: { slug: 'festival-kopi-2026' },
-    update: {},
-    create: {
-      userId: user3.id,
-      templateId: tplKor3.id,
-      title: 'Festival Kopi 2026',
-      businessName: 'Festival Kopi 2026',
-      slug: 'festival-kopi-2026',
-      status: 'Pending Publish',
-      views: 12,
-      content: {
-        create: {
-          contentJson: defaultContentTemplate(
-            "Festival Kopi 2026",
-            "Ajang festival kopi terbesar tahun ini untuk mengenalkan cita rasa nusantara.",
-            "Daftar Event",
-            "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=500&q=80"
-          )
-        }
-      }
-    }
-  });
-
-  console.log('Landing pages seeded successfully!');
+  console.log('Dummy data cleaned successfully!');
 }
 
 main()
