@@ -1,6 +1,8 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { Search, Filter, Monitor, Smartphone, Layout, X, RefreshCw, Rocket } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import TemplateRenderer from '../TemplateRenderer';
 
 interface TemplatePageProps {
   templateCategories: string[];
@@ -128,76 +130,62 @@ const TemplatePage = ({
         ))}
       </div>
 
-      {/* PREVIEW MODAL */}
-      {previewTemplate && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-12">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="absolute inset-0 bg-slate-900/80 backdrop-blur-md"
-            onClick={() => setPreviewTemplate(null)}
-          />
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="relative w-full max-w-5xl h-full bg-white dark:bg-slate-900 rounded-[40px] overflow-hidden shadow-2xl flex flex-col"
-          >
-            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900">
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-brand-blue/10 rounded-xl flex items-center justify-center text-brand-blue">
-                  <Layout className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-widest">{previewTemplate.title}</h3>
-                  <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{previewTemplate.category} • Pratinjau Responsif</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => {
-                    const currentTemplate = previewTemplate;
-                    setPreviewTemplate(null);
-                    setTemplateForCreation(currentTemplate);
-                    setCreationWebsiteTitle('');
-                    setCreationBusinessName('');
-                    setCreationSlug('');
-                  }}
-                  className="bg-brand-blue text-white px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-brand-blue/20"
-                >
-                  Gunakan & Edit
-                </button>
-                <button
-                  onClick={() => setPreviewTemplate(null)}
-                  className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-            <div className="flex-1 bg-slate-100 dark:bg-slate-900/50 overflow-y-auto p-8">
-              <div className="max-w-4xl mx-auto bg-white dark:bg-slate-800 shadow-2xl rounded-2xl overflow-hidden min-h-[1000px]">
-                <img src={previewTemplate.img} alt="Preview" className="w-full h-64 object-cover" referrerPolicy="no-referrer" />
-                <div className="p-12 space-y-8">
-                  <div className="space-y-4">
-                    <div className="h-4 w-24 bg-brand-blue/10 rounded-full"></div>
-                    <div className="h-12 w-3/4 bg-slate-900 dark:bg-white rounded-2xl"></div>
-                    <div className="h-4 w-full bg-blue-100 dark:bg-blue-900/30 rounded-full"></div>
-                    <div className="h-4 w-5/6 bg-indigo-100 dark:bg-indigo-900/30 rounded-full"></div>
-                  </div>
-                  <div className="grid grid-cols-3 gap-6 pt-12">
-                    {[1, 2, 3].map(i => (
-                      <div key={i} className="space-y-4">
-                        <div className={`aspect-square rounded-2xl ${i === 1 ? 'bg-blue-50 dark:bg-blue-900/20' : i === 2 ? 'bg-emerald-50 dark:bg-emerald-900/20' : 'bg-purple-50 dark:bg-purple-900/20'}`}></div>
-                        <div className={`h-4 w-1/2 rounded-full ${i === 1 ? 'bg-blue-100 dark:bg-blue-800/30' : i === 2 ? 'bg-emerald-100 dark:bg-emerald-800/30' : 'bg-purple-100 dark:bg-purple-800/30'}`}></div>
-                        <div className={`h-3 w-full rounded-full ${i === 1 ? 'bg-blue-50 dark:bg-blue-900/10' : i === 2 ? 'bg-emerald-50 dark:bg-emerald-900/10' : 'bg-purple-50 dark:bg-purple-900/10'}`}></div>
-                      </div>
-                    ))}
-                  </div>
+      {/* FULL-SCREEN LIVE PREVIEW MODAL (ThemeForest style) */}
+      {previewTemplate && typeof window !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[99999] flex flex-col bg-slate-950">
+          {/* Top Bar */}
+          <div className="h-[64px] bg-[#0B1223] border-b border-white/5 flex items-center justify-between px-5 shrink-0 z-30">
+            {/* Left: Back & Info */}
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={() => setPreviewTemplate(null)}
+                className="flex items-center gap-2 px-3 py-2 bg-slate-900 border border-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-all cursor-pointer"
+              >
+                <X className="w-3.5 h-3.5" /> Tutup
+              </button>
+              <div className="hidden sm:block">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-black text-white tracking-tight uppercase">{previewTemplate.title}</span>
+                  <span className="px-2 py-0.5 rounded-full text-[7.5px] font-black uppercase tracking-wider bg-brand-blue/10 text-brand-blue border border-brand-blue/20">
+                    {previewTemplate.category}
+                  </span>
                 </div>
               </div>
             </div>
-          </motion.div>
-        </div>
+
+            {/* Center: Label */}
+            <div className="hidden md:flex items-center gap-2">
+              <Monitor className="w-4 h-4 text-slate-500" />
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Full Screen Preview</span>
+            </div>
+
+            {/* Right: Use Template */}
+            <button
+              onClick={() => {
+                const currentTemplate = previewTemplate;
+                setPreviewTemplate(null);
+                setTemplateForCreation(currentTemplate);
+                setCreationWebsiteTitle('');
+                setCreationBusinessName('');
+                setCreationSlug('');
+              }}
+              className="px-5 py-2.5 bg-gradient-to-r from-brand-blue to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all shadow-md flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95"
+            >
+              <Rocket className="w-3.5 h-3.5" /> Gunakan Template
+            </button>
+          </div>
+
+          {/* Live Preview Canvas */}
+          <div className="flex-1 bg-slate-900/60 overflow-y-auto custom-scrollbar">
+            <div className="bg-white min-h-full">
+              <TemplateRenderer
+                templateId={previewTemplate.id || previewTemplate.title}
+                contentJson={previewTemplate.defaultContent || {}}
+              />
+            </div>
+          </div>
+        </div>,
+        document.body
       )}
 
       {/* CREATION MODAL */}

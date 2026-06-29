@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'motion/react';
-import { Sparkles, Globe } from 'lucide-react';
+import { Sparkles, Globe, X, Rocket, Monitor } from 'lucide-react';
+import TemplateRenderer from '../TemplateRenderer';
 
 interface TemplatePreviewProps {
   setView: (v: string) => void;
@@ -9,6 +11,7 @@ interface TemplatePreviewProps {
 
 export const TemplatePreview = ({ setView, user }: TemplatePreviewProps) => {
   const [dbTemplates, setDbTemplates] = useState<any[]>([]);
+  const [previewTemplate, setPreviewTemplate] = useState<any>(null);
 
   useEffect(() => {
     const fetchTemplates = async () => {
@@ -38,7 +41,8 @@ export const TemplatePreview = ({ setView, user }: TemplatePreviewProps) => {
         seed: t.category.toLowerCase().replace(/\s+/g, '-'),
         type: t.category,
         url: `unibiz.com/template/${t.category.toLowerCase().replace(/\s+/g, '-')}`,
-        thumbnail: t.thumbnail || `https://picsum.photos/seed/${t.id}/800/600`
+        thumbnail: t.thumbnail || `https://picsum.photos/seed/${t.id}/800/600`,
+        defaultContent: t.defaultContent
       }))
     : hardcodedPreview;
 
@@ -106,10 +110,16 @@ export const TemplatePreview = ({ setView, user }: TemplatePreviewProps) => {
                   <h4 className="text-lg font-black text-slate-900 dark:text-white mb-4 tracking-tight">{t.title}</h4>
                   <div className="flex gap-2">
                     <button 
-                      onClick={() => setView(user ? 'templates' : 'signup')}
+                      onClick={() => {
+                        if (t.defaultContent) {
+                          setPreviewTemplate(t);
+                        } else {
+                          setView(user ? 'templates' : 'signup');
+                        }
+                      }}
                       className="flex-1 px-3 py-2 text-[11px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                     >
-                      Detail
+                      Pratinjau
                     </button>
                     <button 
                       onClick={() => {
@@ -127,6 +137,54 @@ export const TemplatePreview = ({ setView, user }: TemplatePreviewProps) => {
             </motion.div>
           ))}
         </div>
+
+        {/* FULL-SCREEN LIVE PREVIEW MODAL */}
+        {previewTemplate && typeof window !== 'undefined' && createPortal(
+          <div className="fixed inset-0 z-[99999] flex flex-col bg-slate-950">
+            <div className="h-[64px] bg-[#0B1223] border-b border-white/5 flex items-center justify-between px-5 shrink-0 z-30">
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => setPreviewTemplate(null)}
+                  className="flex items-center gap-2 px-3 py-2 bg-slate-900 border border-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-all cursor-pointer"
+                >
+                  <X className="w-3.5 h-3.5" /> Tutup
+                </button>
+                <div className="hidden sm:block">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-black text-white tracking-tight uppercase">{previewTemplate.title}</span>
+                    <span className="px-2 py-0.5 rounded-full text-[7.5px] font-black uppercase tracking-wider bg-brand-blue/10 text-brand-blue border border-brand-blue/20">
+                      {previewTemplate.type}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className="hidden md:flex items-center gap-2">
+                <Monitor className="w-4 h-4 text-slate-500" />
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Full Screen Preview</span>
+              </div>
+              <button
+                onClick={() => {
+                  setPreviewTemplate(null);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  localStorage.setItem('selectedTemplateId', String(previewTemplate.id));
+                  setView(user ? 'dashboard:templates' : 'signup');
+                }}
+                className="px-5 py-2.5 bg-gradient-to-r from-brand-blue to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all shadow-md flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95"
+              >
+                <Rocket className="w-3.5 h-3.5" /> Gunakan Template
+              </button>
+            </div>
+            <div className="flex-1 bg-slate-900/60 overflow-y-auto custom-scrollbar">
+              <div className="bg-white min-h-full">
+                <TemplateRenderer
+                  templateId={previewTemplate.id || previewTemplate.title}
+                  contentJson={previewTemplate.defaultContent || {}}
+                />
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
       </div>
     </section>
   );
@@ -140,6 +198,7 @@ interface TemplatesViewProps {
 export const TemplatesView = ({ setView, user }: TemplatesViewProps) => {
   const [activeFilter, setActiveFilter] = useState("Semua");
   const [dbTemplates, setDbTemplates] = useState<any[]>([]);
+  const [previewTemplate, setPreviewTemplate] = useState<any>(null);
 
   useEffect(() => {
     const fetchTemplates = async () => {
@@ -187,7 +246,8 @@ export const TemplatesView = ({ setView, user }: TemplatesViewProps) => {
         type: t.category,
         url: `unibiz.com/template/${t.category.toLowerCase().replace(/\s+/g, '-')}`,
         thumbnail: t.thumbnail || `https://picsum.photos/seed/${t.id}/800/600`,
-        desc: t.description
+        desc: t.description,
+        defaultContent: t.defaultContent
       }))
     : fallbackTemplates;
 
@@ -265,7 +325,9 @@ export const TemplatesView = ({ setView, user }: TemplatesViewProps) => {
                   <div className="flex gap-2">
                     <button 
                       onClick={() => {
-                        if (!user) {
+                        if ((t as any).defaultContent) {
+                          setPreviewTemplate(t);
+                        } else if (!user) {
                           setView('signup');
                         } else {
                           window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -273,7 +335,7 @@ export const TemplatesView = ({ setView, user }: TemplatesViewProps) => {
                       }}
                       className="flex-1 px-3 py-2 text-[11px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                     >
-                      Detail
+                      Pratinjau
                     </button>
                     <button 
                       onClick={() => {
@@ -291,6 +353,54 @@ export const TemplatesView = ({ setView, user }: TemplatesViewProps) => {
             </motion.div>
           ))}
         </div>
+
+        {/* FULL-SCREEN LIVE PREVIEW MODAL */}
+        {previewTemplate && typeof window !== 'undefined' && createPortal(
+          <div className="fixed inset-0 z-[99999] flex flex-col bg-slate-950">
+            <div className="h-[64px] bg-[#0B1223] border-b border-white/5 flex items-center justify-between px-5 shrink-0 z-30">
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => setPreviewTemplate(null)}
+                  className="flex items-center gap-2 px-3 py-2 bg-slate-900 border border-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-all cursor-pointer"
+                >
+                  <X className="w-3.5 h-3.5" /> Tutup
+                </button>
+                <div className="hidden sm:block">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-black text-white tracking-tight uppercase">{previewTemplate.title}</span>
+                    <span className="px-2 py-0.5 rounded-full text-[7.5px] font-black uppercase tracking-wider bg-brand-blue/10 text-brand-blue border border-brand-blue/20">
+                      {previewTemplate.type}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className="hidden md:flex items-center gap-2">
+                <Monitor className="w-4 h-4 text-slate-500" />
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Full Screen Preview</span>
+              </div>
+              <button
+                onClick={() => {
+                  setPreviewTemplate(null);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  localStorage.setItem('selectedTemplateId', String(previewTemplate.id));
+                  setView(user ? 'dashboard:templates' : 'signup');
+                }}
+                className="px-5 py-2.5 bg-gradient-to-r from-brand-blue to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all shadow-md flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95"
+              >
+                <Rocket className="w-3.5 h-3.5" /> Gunakan Template
+              </button>
+            </div>
+            <div className="flex-1 bg-slate-900/60 overflow-y-auto custom-scrollbar">
+              <div className="bg-white min-h-full">
+                <TemplateRenderer
+                  templateId={previewTemplate.id || previewTemplate.title}
+                  contentJson={previewTemplate.defaultContent || {}}
+                />
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
       </div>
     </section>
   );
