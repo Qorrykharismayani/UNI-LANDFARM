@@ -61,7 +61,7 @@ export async function POST(request: Request) {
     } catch (error: any) {
       // Fallback: If the hosting provider (e.g. Vercel) failed to update the Prisma Client 
       // with the new proofImage column, we temporarily store it in paymentCode.
-      if (error.message && error.message.includes('UNKNOWN ARGUMENT')) {
+      if (error.message && error.message.toLowerCase().includes('unknown argument')) {
         delete dataPayload.proofImage;
         const code = paymentCode ? paymentCode : '';
         dataPayload.paymentCode = proofImage ? `${code}|||${proofImage}` : code;
