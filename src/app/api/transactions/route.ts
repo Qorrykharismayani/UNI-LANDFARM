@@ -40,19 +40,36 @@ export async function POST(request: Request) {
     const refId = `TX-${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).substring(2, 5).toUpperCase()}`;
 
     // Create record as pending, do not add tokens yet
-    const transaction = await (prisma.transaction as any).create({
-      data: {
-        userId: session.userId,
-        packageName,
-        packageTokens,
-        amount,
-        method,
-        paymentCode,
-        refId,
-        status: 'pending',
-        proofImage: proofImage || null,
-      },
-    });
+    let dataPayload: any = {
+      userId: session.userId,
+      packageName,
+      packageTokens,
+      amount,
+      method,
+      paymentCode: paymentCode || null,
+      refId,
+      status: 'pending',
+    };
+
+    if (proofImage) {
+      dataPayload.proofImage = proofImage;
+    }
+
+    let transaction;
+    try {
+      transaction = await (prisma.transaction as any).create({ data: dataPayload });
+    } catch (error: any) {
+      // Fallback: If the hosting provider (e.g. Vercel) failed to update the Prisma Client 
+      // with the new proofImage column, we temporarily store it in paymentCode.
+      if (error.message && error.message.includes('UNKNOWN ARGUMENT')) {
+        delete dataPayload.proofImage;
+        const code = paymentCode ? paymentCode : '';
+        dataPayload.paymentCode = proofImage ? `${code}|||${proofImage}` : code;
+        transaction = await (prisma.transaction as any).create({ data: dataPayload });
+      } else {
+        throw error;
+      }
+    }
 
     // Create a notification for this verification process
     await (prisma.notification as any).create({
