@@ -269,6 +269,41 @@ export const DashboardView = ({
     }
   };
 
+  const handleEditProject = async (id: string) => {
+    if (user?.role === 'ADMIN') {
+      setActivePageId(id);
+      setIsCmsEditorOpen(true);
+      return;
+    }
+
+    if (!window.confirm("Mengedit website akan dikenakan biaya 350 Token. Apakah Anda yakin ingin melanjutkan?")) {
+      return;
+    }
+
+    try {
+      showNotification("Memproses koin untuk pengeditan...", "info");
+      const res = await fetch(`/api/landing-pages/${id}/charge-edit`, {
+        method: "POST"
+      });
+      const data = await res.json();
+      if (data.success) {
+        // Update user state locally
+        setUser({ ...user, tokens: data.newTokens ?? (user.tokens - 350) });
+        showNotification("Sesi edit berhasil dibuka. 350 Token dipotong!", "success");
+        setActivePageId(id);
+        setIsCmsEditorOpen(true);
+      } else {
+        showNotification(data.message || "Gagal memproses sesi edit.", "info");
+        if (res.status === 402) {
+          setSubView('tokens');
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      showNotification("Terjadi kesalahan koneksi.", "info");
+    }
+  };
+
   const fetchTemplates = async () => {
     try {
       const res = await fetch('/api/templates?t=' + new Date().getTime());
@@ -1360,6 +1395,7 @@ export const DashboardView = ({
             setActivePageId={setActivePageId}
             setIsCmsEditorOpen={setIsCmsEditorOpen}
             handleDeleteProject={handleDeleteProject}
+            onEditProject={handleEditProject}
           />
         );
 

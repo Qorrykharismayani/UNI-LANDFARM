@@ -25,6 +25,7 @@ interface CmsPageProps {
   setActivePageId: (id: string | null) => void;
   setIsCmsEditorOpen: (open: boolean) => void;
   handleDeleteProject: (id: string) => Promise<void>;
+  onEditProject?: (id: string) => void;
 }
 
 const CmsPage = ({
@@ -51,6 +52,7 @@ const CmsPage = ({
   setActivePageId,
   setIsCmsEditorOpen,
   handleDeleteProject,
+  onEditProject,
 }: CmsPageProps) => {
   const [subTab, setSubTab] = useState<'list' | 'ai_scheduler' | 'projects'>('projects');
 
@@ -430,8 +432,12 @@ const CmsPage = ({
                           <div className="flex gap-1.5 justify-center">
                             <button
                               onClick={() => {
-                                setActivePageId(project.id);
-                                setIsCmsEditorOpen(true);
+                                if (onEditProject) {
+                                  onEditProject(project.id);
+                                } else {
+                                  setActivePageId(project.id);
+                                  setIsCmsEditorOpen(true);
+                                }
                               }}
                               className="px-2.5 py-1.5 text-white bg-green-500 hover:bg-green-600 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 shadow-sm cursor-pointer flex items-center gap-1"
                             >
