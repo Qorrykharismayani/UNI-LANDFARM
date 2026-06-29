@@ -182,20 +182,16 @@ const DashboardPage = ({
                             Situs Dinonaktifkan Admin
                           </div>
                         ) : (
-                          <div className="grid grid-cols-2 gap-2 opacity-50 pointer-events-none">
-                            <button
-                              disabled
-                              className="bg-slate-200 dark:bg-slate-800 text-slate-400 py-2 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm flex items-center justify-center gap-1"
-                            >
-                              Buka Link
-                            </button>
-                            <button
-                              disabled
-                              className="bg-slate-200 dark:bg-slate-800 text-slate-400 py-2 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm flex items-center justify-center gap-1"
-                            >
-                              Salin Link
-                            </button>
-                          </div>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActivePageId(project.id);
+                              setSubView('preview_page');
+                            }}
+                            className="w-full bg-brand-blue hover:bg-blue-600 text-white py-2 rounded-xl text-[8.5px] font-black uppercase tracking-widest shadow-sm transition-all flex items-center justify-center gap-1 cursor-pointer"
+                          >
+                            <Eye className="w-3.5 h-3.5" /> Preview Draft
+                          </button>
                         )}
                       </div>
                     </div>

@@ -151,6 +151,7 @@ export const DashboardView = ({
   initialTab
 }: DashboardViewProps) => {
   const [subView, setSubView] = useState(() => initialTab || (user?.role === 'ADMIN' ? 'admin_panel' : 'overview'));
+  const [previewBackView, setPreviewBackView] = useState('cms');
   const [adminView, setAdminView] = useState<'dashboard' | 'users' | 'landing_pages' | 'templates' | 'content' | 'profile' | 'analytics' | 'transactions'>('dashboard');
   const [isAdminDropdownOpen, setIsAdminDropdownOpen] = useState(false);
 
@@ -162,6 +163,9 @@ export const DashboardView = ({
 
   const handleSetSubView = (val: string) => {
     if (user?.role === 'ADMIN') return;
+    if (val === 'preview_page') {
+      setPreviewBackView(subView);
+    }
     setSubView(val);
   };
   const [isCmsEditorOpen, setIsCmsEditorOpen] = useState(false);
@@ -302,6 +306,12 @@ export const DashboardView = ({
       console.error(err);
       showNotification("Terjadi kesalahan koneksi.", "info");
     }
+  };
+
+  const handlePreviewProject = (id: string) => {
+    setPreviewBackView(subView);
+    setActivePageId(id);
+    setSubView('preview_page');
   };
 
   const fetchTemplates = async () => {
@@ -1136,7 +1146,7 @@ export const DashboardView = ({
           <AllProjectsPage
             userProjects={userProjects}
             showNotification={showNotification}
-            setSubView={setSubView}
+            setSubView={handleSetSubView}
             setActivePageId={setActivePageId}
             setIsCmsEditorOpen={setIsCmsEditorOpen}
             fetchProjects={fetchProjects}
@@ -1159,7 +1169,7 @@ export const DashboardView = ({
             user={user}
             userProjects={userProjects}
             showNotification={showNotification}
-            setSubView={setSubView}
+            setSubView={handleSetSubView}
             setActivePageId={setActivePageId}
             setIsCmsEditorOpen={setIsCmsEditorOpen}
             setShowAdminNoteModal={setShowAdminNoteModal}
@@ -1347,7 +1357,7 @@ export const DashboardView = ({
             handleAiBuild={handleAiBuild}
             handleManualSetup={handleManualSetup}
             handlePublish={handlePublish}
-            setSubView={setSubView}
+            setSubView={handleSetSubView}
             setCmsSubTab={setCmsSubTab}
             isPublishing={isPublishing}
           />
@@ -1396,6 +1406,7 @@ export const DashboardView = ({
             setIsCmsEditorOpen={setIsCmsEditorOpen}
             handleDeleteProject={handleDeleteProject}
             onEditProject={handleEditProject}
+            onPreviewProject={handlePreviewProject}
           />
         );
 
@@ -1404,10 +1415,10 @@ export const DashboardView = ({
           <div className="max-w-[1400px] mx-auto animate-in fade-in duration-500">
             <PreviewLandingPage
               pageId={activePageId || userProjects[0]?.id || ''}
-              onBack={() => setSubView('cms')}
+              onBack={() => setSubView(previewBackView)}
               onPublishSuccess={() => {
                 fetchProjects();
-                setSubView('cms');
+                setSubView(previewBackView);
               }}
             />
           </div>

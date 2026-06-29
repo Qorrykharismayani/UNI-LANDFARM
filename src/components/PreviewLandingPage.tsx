@@ -10,7 +10,9 @@ import {
   Lock, 
   RefreshCw, 
   ChevronRight,
-  ExternalLink
+  ExternalLink,
+  ZoomIn,
+  ZoomOut
 } from 'lucide-react';
 import TemplateRenderer from './TemplateRenderer';
 import { copyToClipboard } from '../lib/clipboard';
@@ -26,6 +28,7 @@ export default function PreviewLandingPage({ pageId, onBack, onPublishSuccess }:
   const [pageData, setPageData] = useState<any>(null);
   const [contentJson, setContentJson] = useState<any>(null);
   const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop');
+  const [zoom, setZoom] = useState<number>(100);
   const [publishLoading, setPublishLoading] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -139,28 +142,57 @@ export default function PreviewLandingPage({ pageId, onBack, onPublishSuccess }:
           </div>
         </div>
 
-        {/* Center Section: Device Switcher Toggle */}
-        <div className="flex items-center bg-slate-900 p-1 rounded-2xl border border-white/5">
-          <button
-            onClick={() => setPreviewDevice('desktop')}
-            className={`px-3 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all cursor-pointer flex items-center gap-1.5 ${
-              previewDevice === 'desktop'
-                ? 'bg-brand-blue text-white shadow-lg shadow-brand-blue/20'
-                : 'text-slate-500 hover:text-slate-300'
-            }`}
-          >
-            <Monitor className="w-4 h-4" /> <span className="hidden md:inline">Desktop</span>
-          </button>
-          <button
-            onClick={() => setPreviewDevice('mobile')}
-            className={`px-3 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all cursor-pointer flex items-center gap-1.5 ${
-              previewDevice === 'mobile'
-                ? 'bg-brand-blue text-white shadow-lg shadow-brand-blue/20'
-                : 'text-slate-500 hover:text-slate-300'
-            }`}
-          >
-            <Smartphone className="w-4 h-4" /> <span className="hidden md:inline">Mobile</span>
-          </button>
+        {/* Center Section: Device Switcher Toggle & Zoom */}
+        <div className="flex items-center gap-4">
+          <div className="flex items-center bg-slate-900 p-1 rounded-2xl border border-white/5">
+            <button
+              onClick={() => setPreviewDevice('desktop')}
+              className={`px-3 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all cursor-pointer flex items-center gap-1.5 ${
+                previewDevice === 'desktop'
+                  ? 'bg-brand-blue text-white shadow-lg shadow-brand-blue/20'
+                  : 'text-slate-500 hover:text-slate-300'
+              }`}
+            >
+              <Monitor className="w-4 h-4" /> <span className="hidden md:inline">Desktop</span>
+            </button>
+            <button
+              onClick={() => setPreviewDevice('mobile')}
+              className={`px-3 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all cursor-pointer flex items-center gap-1.5 ${
+                previewDevice === 'mobile'
+                  ? 'bg-brand-blue text-white shadow-lg shadow-brand-blue/20'
+                  : 'text-slate-500 hover:text-slate-300'
+              }`}
+            >
+              <Smartphone className="w-4 h-4" /> <span className="hidden md:inline">Mobile</span>
+            </button>
+          </div>
+
+          <div className="flex items-center bg-slate-900 p-1.5 rounded-2xl border border-white/5 gap-2 shrink-0">
+            <button 
+              onClick={() => setZoom(prev => Math.max(50, prev - 10))}
+              className="p-1 hover:bg-slate-800 text-slate-400 hover:text-white rounded-lg transition-colors cursor-pointer"
+              title="Perkecil (Zoom Out)"
+            >
+              <ZoomOut className="w-4 h-4" />
+            </button>
+            <span className="text-[10px] font-black text-slate-300 select-none min-w-[32px] text-center">
+              {zoom}%
+            </span>
+            <button 
+              onClick={() => setZoom(prev => Math.min(150, prev + 10))}
+              className="p-1 hover:bg-slate-800 text-slate-400 hover:text-white rounded-lg transition-colors cursor-pointer"
+              title="Perbesar (Zoom In)"
+            >
+              <ZoomIn className="w-4 h-4" />
+            </button>
+            <button 
+              onClick={() => setZoom(100)}
+              className="px-1.5 py-0.5 bg-slate-800 hover:bg-slate-750 text-slate-400 hover:text-white rounded text-[8px] font-black uppercase tracking-wider transition-colors cursor-pointer"
+              title="Reset Zoom"
+            >
+              Reset
+            </button>
+          </div>
         </div>
 
         {/* Right Section: Actions */}
@@ -203,6 +235,9 @@ export default function PreviewLandingPage({ pageId, onBack, onPublishSuccess }:
               ? 'w-[360px] h-[640px] rounded-[36px] border-[10px] border-slate-900' 
               : 'w-full max-w-[1000px] h-[95%] rounded-[20px] bg-[#0c1020]'
           }`}
+          style={{
+            zoom: zoom / 100
+          }}
         >
           {/* Desktop Mock Browser Header */}
           {previewDevice === 'desktop' && (
@@ -222,13 +257,7 @@ export default function PreviewLandingPage({ pageId, onBack, onPublishSuccess }:
             </div>
           )}
 
-          {/* Mobile Notch Mock */}
-          {previewDevice === 'mobile' && (
-            <div className="absolute top-1 left-1/2 -translate-x-1/2 w-24 h-4 bg-slate-900 rounded-full z-30 flex items-center justify-center">
-              <div className="w-1.5 h-1.5 rounded-full bg-slate-950 mr-4" />
-              <div className="w-6 h-1 bg-slate-800 rounded-full" />
-            </div>
-          )}
+
 
           {/* Template Rendering Container */}
           <div className="flex-1 overflow-y-auto bg-white text-slate-900 custom-scrollbar">

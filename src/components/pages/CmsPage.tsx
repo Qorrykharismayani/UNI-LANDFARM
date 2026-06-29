@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layers, Search, Trash2, ChevronLeft, ChevronRight, Bot, Zap, Globe, Edit } from 'lucide-react';
+import { Layers, Search, Trash2, ChevronLeft, ChevronRight, Bot, Zap, Globe, Edit, Eye } from 'lucide-react';
 
 interface CmsPageProps {
   cmsPosts: any[];
@@ -26,6 +26,7 @@ interface CmsPageProps {
   setIsCmsEditorOpen: (open: boolean) => void;
   handleDeleteProject: (id: string) => Promise<void>;
   onEditProject?: (id: string) => void;
+  onPreviewProject?: (id: string) => void;
 }
 
 const CmsPage = ({
@@ -53,6 +54,7 @@ const CmsPage = ({
   setIsCmsEditorOpen,
   handleDeleteProject,
   onEditProject,
+  onPreviewProject,
 }: CmsPageProps) => {
   const [subTab, setSubTab] = useState<'list' | 'ai_scheduler' | 'projects'>('projects');
 
@@ -442,6 +444,12 @@ const CmsPage = ({
                               className="px-2.5 py-1.5 text-white bg-green-500 hover:bg-green-600 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 shadow-sm cursor-pointer flex items-center gap-1"
                             >
                               <Edit className="w-3 h-3" /> Edit
+                            </button>
+                            <button
+                              onClick={() => onPreviewProject && onPreviewProject(project.id)}
+                              className="px-2.5 py-1.5 text-white bg-blue-500 hover:bg-blue-600 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 shadow-sm cursor-pointer flex items-center gap-1"
+                            >
+                              <Eye className="w-3.5 h-3.5" /> Preview
                             </button>
                             <button
                               onClick={() => handleDeleteProject(project.id)}
