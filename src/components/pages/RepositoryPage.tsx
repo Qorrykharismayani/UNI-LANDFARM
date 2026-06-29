@@ -51,11 +51,28 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
   const [lastReceiptRef, setLastReceiptRef] = useState('');
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [proofImage, setProofImage] = useState<string>('');
+  const [proofFileName, setProofFileName] = useState<string>('');
+  const [proofFileType, setProofFileType] = useState<string>('');
   const [uploadingProof, setUploadingProof] = useState<boolean>(false);
 
   const handleUploadProof = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    const validTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+    if (!validTypes.includes(file.type)) {
+      showNotification('Format file tidak didukung. Harap unggah JPG, JPEG, PNG, atau PDF.', 'info');
+      // Reset input
+      e.target.value = '';
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      showNotification('Ukuran file terlalu besar. Maksimal 10MB.', 'info');
+      // Reset input
+      e.target.value = '';
+      return;
+    }
 
     const formData = new FormData();
     formData.append('file', file);
@@ -70,6 +87,8 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
       const data = await res.json();
       if (data.success && data.data) {
         setProofImage(data.data.fileUrl);
+        setProofFileName(file.name);
+        setProofFileType(file.type);
         showNotification('Bukti pembayaran berhasil diunggah!', 'success');
       } else {
         showNotification(data.message || 'Gagal mengunggah bukti.', 'info');
@@ -795,72 +814,78 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
                               </button>
                             </div>
                           </div>
-                        </div>
-                      </div>
 
-                      {/* BUKTI PEMBAYARAN UPLOAD FOR VA */}
-                      <div className="mt-4 border-t border-slate-100 dark:border-slate-800 pt-4 text-left space-y-3">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 block ml-1">Unggah Bukti Transfer / Pembayaran *</label>
-                        <div className="flex flex-col gap-3">
-                          <div className="relative w-full">
-                            <input 
-                              type="file" 
-                              accept="image/*"
-                              onChange={handleUploadProof}
-                              disabled={uploadingProof}
-                              id="proof-upload-va"
-                              className="hidden"
-                            />
-                            <label 
-                              htmlFor="proof-upload-va" 
-                              className={`w-full border-2 border-dashed rounded-2xl p-6 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all duration-300 ${
-                                proofImage 
-                                  ? 'border-emerald-500/40 bg-emerald-500/5 hover:bg-emerald-500/10' 
-                                  : 'border-brand-blue/30 bg-brand-blue/5 hover:bg-brand-blue/10 hover:border-brand-blue/60'
-                              }`}
-                            >
-                              {uploadingProof ? (
-                                <div className="flex flex-col items-center gap-2">
-                                  <div className="w-5 h-5 rounded-full border-2 border-brand-blue border-t-transparent animate-spin"></div>
-                                  <span className="text-xs font-bold text-brand-blue">Mengunggah...</span>
-                                </div>
-                              ) : proofImage ? (
-                                <>
-                                  <CheckCircle2 className="w-6 h-6 text-emerald-500" />
-                                  <span className="text-xs font-extrabold text-emerald-600 text-center">Bukti Transfer Dipilih!</span>
-                                  <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Klik untuk mengganti</span>
-                                </>
-                              ) : (
-                                <>
-                                  <div className="w-9 h-9 rounded-full bg-brand-blue/10 flex items-center justify-center text-brand-blue">
-                                    <Upload className="w-4.5 h-4.5" />
-                                  </div>
-                                  <span className="text-xs font-black text-brand-blue uppercase tracking-wider text-center">Pilih Bukti Pembayaran</span>
-                                  <span className="text-[8px] text-slate-400 font-bold uppercase tracking-widest text-center">Format file: JPG, PNG, WEBP</span>
-                                </>
-                              )}
-                            </label>
-                          </div>
-                          
-                          {proofImage && (
-                            <div className="w-full flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
-                              <div className="flex items-center gap-3 min-w-0">
-                                <div className="w-10 h-10 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden relative shrink-0">
-                                  <img src={proofImage} alt="Bukti transfer" className="w-full h-full object-cover" />
-                                </div>
-                                <div className="min-w-0">
-                                  <p className="text-xs font-bold text-slate-800 dark:text-white truncate">bukti-pembayaran.jpg</p>
-                                  <p className="text-[10px] text-emerald-500 font-bold">Siap dikirim</p>
-                                </div>
+                          <div className="w-full h-px bg-slate-200 dark:bg-slate-700"></div>
+
+                          {/* BUKTI PEMBAYARAN UPLOAD FOR VA */}
+                          <div className="text-left space-y-3">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 block ml-1">Unggah Bukti Transfer / Pembayaran *</label>
+                            <div className="flex flex-col gap-3">
+                              <div className="relative w-full">
+                                <input 
+                                  type="file" 
+                                  accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"
+                                  onChange={handleUploadProof}
+                                  disabled={uploadingProof}
+                                  id="proof-upload-va"
+                                  className="hidden"
+                                />
+                                <label 
+                                  htmlFor="proof-upload-va" 
+                                  className={`w-full min-h-[200px] border-2 border-dashed rounded-2xl p-6 flex flex-col items-center justify-center gap-3 cursor-pointer transition-all duration-300 ${
+                                    proofImage 
+                                      ? 'border-emerald-500/40 bg-emerald-500/5 hover:bg-emerald-500/10' 
+                                      : 'border-brand-blue/30 bg-brand-blue/5 hover:bg-brand-blue/10 hover:border-brand-blue/60'
+                                  }`}
+                                >
+                                  {uploadingProof ? (
+                                    <div className="flex flex-col items-center gap-2">
+                                      <div className="w-5 h-5 rounded-full border-2 border-brand-blue border-t-transparent animate-spin"></div>
+                                      <span className="text-xs font-bold text-brand-blue">Mengunggah...</span>
+                                    </div>
+                                  ) : proofImage ? (
+                                    <>
+                                      <CheckCircle2 className="w-6 h-6 text-emerald-500" />
+                                      <span className="text-xs font-extrabold text-emerald-600 text-center">Bukti Transfer Dipilih!</span>
+                                      <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Klik untuk mengganti</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <div className="w-9 h-9 rounded-full bg-brand-blue/10 flex items-center justify-center text-brand-blue">
+                                        <Upload className="w-4.5 h-4.5" />
+                                      </div>
+                                      <span className="text-xs font-black text-brand-blue uppercase tracking-wider text-center">Pilih Bukti Pembayaran</span>
+                                      <span className="text-[8px] text-slate-400 font-bold uppercase tracking-widest text-center">Format file: JPG, JPEG, PNG, PDF (Maks. 10MB)</span>
+                                    </>
+                                  )}
+                                </label>
                               </div>
-                              <button 
-                                onClick={() => setProofImage('')}
-                                className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/20 rounded-lg text-[9px] font-black uppercase tracking-wider transition-colors cursor-pointer"
-                              >
-                                Hapus
-                              </button>
+                              
+                              {proofImage && (
+                                <div className="w-full flex items-center justify-between p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                                  <div className="flex items-center gap-3 min-w-0">
+                                    <div className="w-10 h-10 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden relative shrink-0 flex items-center justify-center bg-slate-100 dark:bg-slate-800">
+                                      {proofFileType === 'application/pdf' ? (
+                                        <div className="text-red-500 font-bold text-xs">PDF</div>
+                                      ) : (
+                                        <img src={proofImage} alt="Bukti transfer" className="w-full h-full object-cover" />
+                                      )}
+                                    </div>
+                                    <div className="min-w-0">
+                                      <p className="text-xs font-bold text-slate-800 dark:text-white truncate">{proofFileName || 'bukti-pembayaran.jpg'}</p>
+                                      <p className="text-[10px] text-emerald-500 font-bold">Siap dikirim</p>
+                                    </div>
+                                  </div>
+                                  <button 
+                                    onClick={() => setProofImage('')}
+                                    className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/20 rounded-lg text-[9px] font-black uppercase tracking-wider transition-colors cursor-pointer"
+                                  >
+                                    Hapus
+                                  </button>
+                                </div>
+                              )}
                             </div>
-                          )}
+                          </div>
                         </div>
                       </div>
 
@@ -938,7 +963,7 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
                       <div className="relative w-full">
                         <input 
                           type="file" 
-                          accept="image/*"
+                          accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"
                           onChange={handleUploadProof}
                           disabled={uploadingProof}
                           id="proof-upload-nonva"
@@ -946,7 +971,7 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
                         />
                         <label 
                           htmlFor="proof-upload-nonva" 
-                          className={`w-full border-2 border-dashed rounded-2xl p-6 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all duration-300 ${
+                          className={`w-full min-h-[200px] border-2 border-dashed rounded-2xl p-6 flex flex-col items-center justify-center gap-3 cursor-pointer transition-all duration-300 ${
                             proofImage 
                               ? 'border-emerald-500/40 bg-emerald-500/5 hover:bg-emerald-500/10' 
                               : 'border-brand-blue/30 bg-brand-blue/5 hover:bg-brand-blue/10 hover:border-brand-blue/60'
@@ -969,7 +994,7 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
                                 <Upload className="w-4.5 h-4.5" />
                               </div>
                               <span className="text-xs font-black text-brand-blue uppercase tracking-wider text-center">Pilih Bukti Pembayaran</span>
-                              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-widest text-center">Format file: JPG, PNG, WEBP</span>
+                              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-widest text-center">Format file: JPG, JPEG, PNG, PDF (Maks. 10MB)</span>
                             </>
                           )}
                         </label>
@@ -978,11 +1003,15 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
                       {proofImage && (
                         <div className="w-full flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
                           <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-10 h-10 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden relative shrink-0">
-                              <img src={proofImage} alt="Bukti transfer" className="w-full h-full object-cover" />
+                            <div className="w-10 h-10 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden relative shrink-0 flex items-center justify-center bg-slate-100 dark:bg-slate-800">
+                              {proofFileType === 'application/pdf' ? (
+                                <div className="text-red-500 font-bold text-xs">PDF</div>
+                              ) : (
+                                <img src={proofImage} alt="Bukti transfer" className="w-full h-full object-cover" />
+                              )}
                             </div>
                             <div className="min-w-0">
-                              <p className="text-xs font-bold text-slate-800 dark:text-white truncate">bukti-pembayaran.jpg</p>
+                              <p className="text-xs font-bold text-slate-800 dark:text-white truncate">{proofFileName || 'bukti-pembayaran.jpg'}</p>
                               <p className="text-[10px] text-emerald-500 font-bold">Siap dikirim</p>
                             </div>
                           </div>
@@ -1022,79 +1051,23 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
             </div>
           )}
 
-          {/* RECEIPT */}
+          {/* RECEIPT CONFIRMATION */}
           {checkoutStep === 'receipt' && (
-            <motion.div style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl mx-auto bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 print:shadow-none print:m-auto print:bg-white print:scale-[0.75] print:origin-top print:-mt-8 print:mb-0">
-              <div className="bg-gradient-to-br from-amber-400 to-orange-500 pt-8 pb-16 px-8 md:px-10 text-white relative overflow-hidden" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.15)_0%,transparent_60%)]"></div>
-                
-                {/* Logo Text Top Right */}
-                <div className="absolute top-6 right-8 font-black italic tracking-widest text-white/80 text-sm md:text-base z-20">
-                  Uni-LandFarm
-                </div>
-
-                {/* Illustration on Right */}
-                <div className="absolute right-0 top-0 bottom-0 w-1/2 flex items-center justify-end pr-6 md:pr-10 pointer-events-none opacity-100 z-0">
-                  <div className="relative w-32 h-32 md:w-40 md:h-40 mt-4">
-                    <Coins className="absolute bottom-4 left-4 w-20 h-20 text-white drop-shadow-2xl" strokeWidth={1.5} />
-                    <Leaf className="absolute top-2 right-8 w-12 h-12 text-emerald-100 rotate-[30deg] drop-shadow-lg" strokeWidth={1.5} />
-                    <Sparkles className="absolute top-8 left-0 w-8 h-8 text-white drop-shadow-md animate-pulse-slow" strokeWidth={2} />
-                    <Wallet className="absolute -bottom-2 -right-2 w-16 h-16 text-orange-100 drop-shadow-2xl -rotate-12" strokeWidth={1.5} />
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 bg-white/20 rounded-full blur-2xl"></div>
-                  </div>
-                </div>
-
-                {/* Left Aligned Content */}
-                <div className="relative z-10 w-2/3 text-left">
-                  <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mb-5 border-[2px] border-white/30 backdrop-blur-sm shadow-xl">
-                    <Clock className="w-6 h-6 text-white" />
-                  </div>
-                  <h3 className="text-2xl md:text-3xl font-black uppercase tracking-wider mb-2 drop-shadow-md leading-tight">Pembayaran<br/>Diproses!</h3>
-                  <p className="text-sm md:text-base font-medium text-white/90 leading-snug drop-shadow-sm max-w-[200px]">Bukti transfer Anda telah dikirim dan sedang diverifikasi oleh admin.</p>
-                </div>
-
-                {/* Slanted Bottom Overlay */}
-                <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-none z-10">
-                  <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="w-full h-10 md:h-16 text-white dark:text-slate-900 fill-current">
-                    <path d="M0 120L1200 120 1200 0 0 120z"></path>
-                  </svg>
-                </div>
+            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="max-w-md mx-auto bg-white dark:bg-slate-900 p-10 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl text-center">
+              <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <CheckCircle2 className="w-10 h-10 text-emerald-500" />
               </div>
-              <div className="p-8 space-y-6">
-                <div className="grid grid-cols-2 gap-4 py-4 border-y-2 border-dashed border-slate-100 dark:border-slate-800">
-                  <div className="space-y-4">
-                    <div><p className="text-xs md:text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">Reference ID</p><p className="text-base md:text-lg font-black text-slate-900 dark:text-white font-mono">#{lastReceiptRef}</p></div>
-                    <div><p className="text-xs md:text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">Waktu Transaksi</p><p className="text-base md:text-lg font-bold text-slate-900 dark:text-white">{new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })} &bull; {new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })} WIB</p></div>
-                  </div>
-                  <div className="space-y-4 text-right">
-                    <div><p className="text-xs md:text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">Metode</p><p className="text-base md:text-lg font-bold text-slate-900 dark:text-white">{selectedPayment}</p></div>
-                    <div><p className="text-xs md:text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">Paket</p><p className="text-base md:text-lg font-bold text-slate-900 dark:text-white">{selectedPackage?.name}</p></div>
-                  </div>
-                </div>
-                <div className="bg-slate-50 dark:bg-slate-800/50 p-5 rounded-2xl space-y-3">
-                  {isPromoApplied ? (
-                    <>
-                      <div className="flex justify-between items-center text-sm md:text-base"><span className="font-bold text-slate-500">Harga Normal</span><span className="font-bold text-slate-400 line-through">Rp {selectedPackage?.price.toLocaleString()}</span></div>
-                      <div className="flex justify-between items-center text-sm md:text-base"><span className="font-bold text-slate-500">Potongan Promo (10%)</span><span className="font-bold text-emerald-500">-Rp {discountAmount.toLocaleString()}</span></div>
-                      <div className="flex justify-between items-center pt-3 border-t border-slate-200 dark:border-slate-700"><span className="text-base font-bold text-slate-600 dark:text-slate-200">Total Dibayar</span><span className="text-2xl md:text-3xl font-black text-emerald-500">Rp {finalPrice.toLocaleString()}</span></div>
-                    </>
-                  ) : (
-                    <div className="flex justify-between items-center"><span className="text-base font-bold text-slate-500">Total Dibayar</span><span className="text-2xl md:text-3xl font-black text-emerald-500">Rp {finalPrice.toLocaleString()}</span></div>
-                  )}
-                  <div className="flex justify-between items-center pt-3 border-t border-slate-200 dark:border-slate-700">
-                    <div className="flex items-center gap-2"><div className="w-7 h-7 bg-amber-500/10 rounded-lg flex items-center justify-center text-amber-500"><Zap className="w-3.5 h-3.5" /></div><span className="text-sm font-bold text-amber-600 uppercase tracking-wider">Token Ditambahkan</span></div>
-                    <span className="text-xl md:text-2xl font-black text-amber-600">+{selectedPackage?.tokens}</span>
-                  </div>
-                  <div className="flex justify-between items-center pt-3 border-t border-slate-200 dark:border-slate-700">
-                    <span className="text-sm font-bold text-slate-400 uppercase tracking-wider">Status Verifikasi</span>
-                    <span className="text-sm font-bold text-orange-500 uppercase tracking-wider">Menunggu Persetujuan Admin</span>
-                  </div>
-                </div>
-                <div className="flex gap-3 pt-2 print:hidden">
-                  <button onClick={() => { setCheckoutStep('package'); setActiveTab('history'); }} className="flex-1 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-sm font-bold uppercase tracking-wider hover:scale-[1.01] active:scale-[0.99] transition-all shadow-md cursor-pointer">Lihat Riwayat</button>
-                  <button onClick={() => setCheckoutStep('package')} className="flex-1 py-3 bg-brand-blue text-white rounded-xl text-sm font-bold uppercase tracking-wider hover:scale-[1.01] active:scale-[0.99] transition-all shadow-md shadow-brand-blue/20 cursor-pointer">Beli Lagi</button>
-                  <button onClick={() => window.print()} className="px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-500 hover:text-brand-blue hover:border-brand-blue/30 hover:bg-brand-blue/5 transition-all cursor-pointer" title="Cetak"><Download className="w-4 h-4" /></button>
-                </div>
+              <h3 className="text-3xl font-black text-slate-900 dark:text-white mb-4">Pembayaran<br/>Diproses!</h3>
+              <p className="text-slate-500 font-medium mb-6">Bukti transfer Anda telah berhasil diunggah dan sedang menunggu verifikasi admin. Invoice akan otomatis terbit setelah transaksi dinyatakan <strong className="text-emerald-500">Sukses</strong>.</p>
+              
+              <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700 mb-8 text-left space-y-2">
+                <div className="flex justify-between items-center"><span className="text-sm font-bold text-slate-400">Ref ID</span><span className="text-sm font-mono font-black text-slate-700 dark:text-slate-200">#{lastReceiptRef}</span></div>
+                <div className="flex justify-between items-center"><span className="text-sm font-bold text-slate-400">Total</span><span className="text-sm font-black text-emerald-500">Rp {finalPrice.toLocaleString()}</span></div>
+                <div className="flex justify-between items-center"><span className="text-sm font-bold text-slate-400">Status</span><span className="text-xs font-bold px-2 py-1 bg-orange-100 text-orange-600 rounded-md">Pending</span></div>
+              </div>
+
+              <div className="flex gap-3">
+                <button onClick={() => { setCheckoutStep('package'); setActiveTab('history'); }} className="flex-1 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-sm font-bold uppercase tracking-wider hover:scale-[1.01] active:scale-[0.99] transition-all shadow-md cursor-pointer">Cek Riwayat</button>
               </div>
             </motion.div>
           )}
@@ -1188,19 +1161,23 @@ const RepositoryPage = ({ showNotification, user, onTokenUpdate, onTransactionCo
                           </span>
                         </td>
                         <td className="px-6 py-4 text-right print:hidden">
-                          <button 
-                            onClick={() => {
-                              setPrintTargetTx(tx);
-                              setTimeout(() => {
-                                window.print();
-                                setTimeout(() => setPrintTargetTx(null), 500);
-                              }, 100);
-                            }}
-                            className="p-2 text-slate-400 hover:text-brand-blue bg-slate-50 dark:bg-slate-800 hover:bg-brand-blue/10 dark:hover:bg-brand-blue/20 rounded-lg transition-colors cursor-pointer inline-flex items-center justify-center"
-                            title="Unduh PDF"
-                          >
-                            <Download className="w-4 h-4" />
-                          </button>
+                          {tx.status === 'berhasil' ? (
+                            <button 
+                              onClick={() => {
+                                setPrintTargetTx(tx);
+                                setTimeout(() => {
+                                  window.print();
+                                  setTimeout(() => setPrintTargetTx(null), 500);
+                                }, 100);
+                              }}
+                              className="p-2 text-slate-400 hover:text-brand-blue bg-slate-50 dark:bg-slate-800 hover:bg-brand-blue/10 dark:hover:bg-brand-blue/20 rounded-lg transition-colors cursor-pointer inline-flex items-center justify-center"
+                              title="Unduh Invoice"
+                            >
+                              <Download className="w-4 h-4" />
+                            </button>
+                          ) : (
+                            <span className="text-[10px] font-medium text-slate-400 text-center block">Invoice tersedia<br/>saat sukses</span>
+                          )}
                         </td>
                       </tr>
                     ))

@@ -21,7 +21,8 @@ import {
   Wallet,
   BarChart3,
   BookOpen,
-  Bell
+  Bell,
+  FileText
 } from 'lucide-react';
 
 interface AdminPanelPageProps {
@@ -2568,12 +2569,30 @@ const AdminPanelPage = ({
                           <td className="py-4 px-6 text-xs text-emerald-600 dark:text-emerald-400 font-bold">Rp {trx.amount.toLocaleString('id-ID')}</td>
                           <td className="py-4 px-6">
                             {trx.proofImage ? (
-                              <img 
-                                src={trx.proofImage} 
-                                alt="Bukti Transfer" 
-                                onClick={() => setZoomReceiptUrl(trx.proofImage)}
-                                className="w-10 h-10 object-cover rounded border border-slate-200 dark:border-slate-800 hover:scale-110 cursor-zoom-in transition-all"
-                              />
+                              (() => {
+                                const isPdf = trx.proofImage.toLowerCase().endsWith('.pdf') || trx.proofImage.toLowerCase().includes('.pdf');
+                                if (isPdf) {
+                                  return (
+                                    <a 
+                                      href={trx.proofImage} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/20 rounded-lg text-[9px] font-black uppercase tracking-wider transition-colors cursor-pointer"
+                                    >
+                                      <FileText className="w-3.5 h-3.5" />
+                                      LIHAT PDF
+                                    </a>
+                                  );
+                                }
+                                return (
+                                  <img 
+                                    src={trx.proofImage} 
+                                    alt="Bukti Transfer" 
+                                    onClick={() => setZoomReceiptUrl(trx.proofImage)}
+                                    className="w-10 h-10 object-cover rounded border border-slate-200 dark:border-slate-800 hover:scale-110 cursor-zoom-in transition-all"
+                                  />
+                                );
+                              })()
                             ) : (
                               <span className="text-[10px] text-slate-400 font-medium">-</span>
                             )}
