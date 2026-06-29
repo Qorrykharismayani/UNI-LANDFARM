@@ -59,15 +59,17 @@ export async function POST(request: Request) {
     try {
       transaction = await (prisma.transaction as any).create({ data: dataPayload });
     } catch (error: any) {
+      console.error("Primary Prisma create failed, attempting fallback:", error);
       // Fallback: If the hosting provider (e.g. Vercel) failed to update the Prisma Client 
       // with the new proofImage column, we temporarily store it in paymentCode.
-      if (error.message && error.message.toLowerCase().includes('unknown argument')) {
-        delete dataPayload.proofImage;
-        const code = paymentCode ? paymentCode : '';
-        dataPayload.paymentCode = proofImage ? `${code}|||${proofImage}` : code;
+      delete dataPayload.proofImage;
+      const code = paymentCode ? paymentCode : '';
+      dataPayload.paymentCode = proofImage ? `${code}|||${proofImage}` : code;
+      
+      try {
         transaction = await (prisma.transaction as any).create({ data: dataPayload });
-      } else {
-        throw error;
+      } catch (fallbackError: any) {
+        throw fallbackError;
       }
     }
 
